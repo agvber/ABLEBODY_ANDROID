@@ -13,7 +13,7 @@ val Pink40 = Color(0xFF7D5260)
 
 // Primary Color
 val AbleBlue = Color(0xFF0069FF)
-val AbleDark = Color(0x75000000)
+val AbleDark = Color(0xFF191E29)
 val AbleDeep = Color(0xFF505863)
 val AbleLight = Color(0xFFB0B9C2)
 
