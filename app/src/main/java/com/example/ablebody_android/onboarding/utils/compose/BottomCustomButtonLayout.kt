@@ -11,26 +11,30 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-private fun BottomBar() {
-    CustomButton(
-        text = "인증번호 받기",
-        onClick = { /*TODO*/ }
-    )
+private fun BottomBar(
+    enable: Boolean = true,
+    text: String,
+    onClick: () -> Unit
+) {
+    CustomButton(text = text, onClick = onClick, enable = enable)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BottomBarPreview() {
-    BottomBar()
+    BottomBar(text = "") {}
 }
 
 @Composable
 fun BottomCustomButtonLayout(
+    buttonText: String,
+    onClick: () -> Unit,
+    enable: Boolean = true,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.padding(top = 130.dp),
-        bottomBar = { BottomBar() },
+        bottomBar = { BottomBar(enable = enable, text = buttonText, onClick = onClick) },
         content = content
     )
 }
@@ -38,7 +42,7 @@ fun BottomCustomButtonLayout(
 @Preview(showBackground = true)
 @Composable
 fun BottomCustomButtonLayoutPreview() {
-    BottomCustomButtonLayout() {
+    BottomCustomButtonLayout("ok", {  }) {
 
     }
 }

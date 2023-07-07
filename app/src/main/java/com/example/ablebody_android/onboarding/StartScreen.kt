@@ -1,30 +1,18 @@
 package com.example.ablebody_android.onboarding
 
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,16 +66,15 @@ fun ContentScreenPreview() {
 
 
 @Composable
-private fun BottomBar() {
+private fun StartBottomLayout() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CustomButton(
             text = "시작하기",
             onClick = { /* TODO: (온보딩/시작하기) 시작하기 버튼 클릭 후 이벤트 */ },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(55.dp)
         )
 
         Row(
-            modifier = Modifier.padding(top = 15.dp, bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         ) {
             Text(text = "이미 계정이 있나요? ")
             HighlightText(
@@ -98,7 +85,7 @@ private fun BottomBar() {
                     interactionSource = MutableInteractionSource(),
                     indication = null
                 ) {
-                    // TODO: (온보딩/시작하기) 로그인 버튼 클릭 후 이벤트
+                    /* TODO: (온보딩/시작하기) 로그인 버튼 클릭 후 이벤트 */
                 }
             )
         }
@@ -107,15 +94,15 @@ private fun BottomBar() {
 
 @Preview(showBackground = true)
 @Composable
-fun BottomBarPreview() {
-    BottomBar()
+fun StartBottomLayoutPreview() {
+    StartBottomLayout()
 }
 
 
 @Composable
 private fun StartScreen() {
     Scaffold(
-        bottomBar = { BottomBar() }
+        bottomBar = { StartBottomLayout() }
     ) {
         ContentScreen(modifier = Modifier.padding(it))
     }

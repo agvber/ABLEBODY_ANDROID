@@ -15,15 +15,17 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 
 @Composable
 fun CustomButton(
+    modifier: Modifier = Modifier,
+    enable: Boolean = true,
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(15.dp),
         modifier = modifier.fillMaxWidth().padding(16.dp).height(55.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = AbleBlue)
+        colors = ButtonDefaults.buttonColors(containerColor = AbleBlue),
+        enabled = enable
     ) {
         Text(text = text)
     }
@@ -32,8 +34,7 @@ fun CustomButton(
 @Preview(showBackground = true)
 @Composable
 fun CustomButtonPreview() {
-    CustomButton(
-        "시작하기",
-        { },
-    )
+    CustomButton(text = "시작하기") {
+
+    }
 }

@@ -20,7 +20,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 
 
 @Composable
-private fun InputPhoneNumber(
+fun InputPhoneNumberLayout(
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -33,10 +33,10 @@ private fun InputPhoneNumber(
 
 @Preview(showBackground = true)
 @Composable
-private fun InputPhoneNumberPreview() {
+fun InputPhoneNumberLayoutPreview() {
     var textState by remember { mutableStateOf("") }
 
-    InputPhoneNumber(
+    InputPhoneNumberLayout(
         value = textState,
         onValueChange = { textState = it }
     )
@@ -61,7 +61,7 @@ private fun InputPhoneNumberContent(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
             )
         )
-        InputPhoneNumber(value, onValueChange)
+        InputPhoneNumberLayout(value, onValueChange)
     }
 }
 
@@ -80,7 +80,10 @@ fun InputPhoneNumberScreen() {
 
     var state by remember{ mutableStateOf("") }
 
-    BottomCustomButtonLayout {
+    BottomCustomButtonLayout(
+        buttonText = "확인",
+        onClick = {  }
+    ) {
         InputPhoneNumberContent(state) { state = it }
     }
 }

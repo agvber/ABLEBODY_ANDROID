@@ -31,7 +31,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 
 
 @Composable
-private fun PermissionExplanationItem(
+private fun PermissionExplanationItemLayout(
     title: String,
     description: String,
     painter: Painter,
@@ -71,8 +71,8 @@ private fun PermissionExplanationItem(
 
 @Preview(showBackground = true)
 @Composable
-private fun PermissionExplanationItemPreview() {
-    PermissionExplanationItem(
+private fun PermissionExplanationItemLayoutPreview() {
+    PermissionExplanationItemLayout(
         title = "알림",
         description = "운동약속을 등록하면 잊지 않게 알림을 받을 수 있어요.",
         painter = painterResource(id = R.drawable.alertbell)
@@ -80,7 +80,7 @@ private fun PermissionExplanationItemPreview() {
 }
 
 @Composable
-private fun PermissionExplanationContent() {
+private fun PermissionExplanationContentLayout() {
     Column {
         Surface(modifier = Modifier.padding( horizontal = 16.dp)) {
             Text(
@@ -95,13 +95,13 @@ private fun PermissionExplanationContent() {
             )
         }
 
-        PermissionExplanationItem(
+        PermissionExplanationItemLayout(
             title = "알림",
             description = "운동약속을 등록하면 잊지 않게 알림을 받을 수\n있어요.",
             painter = painterResource(id = R.drawable.alertbell)
         )
 
-        PermissionExplanationItem(
+        PermissionExplanationItemLayout(
             title = "사진",
             description = "사진 권한을 허용하면 운동생활 게시글을 작성할 때 더 쉽게 사진을 올릴 수 있어요.",
             painter = painterResource(id = R.drawable.photo)
@@ -117,8 +117,8 @@ private fun PermissionExplanationContent() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PermissionExplanationContentPreview() {
-    PermissionExplanationContent()
+private fun PermissionExplanationContentLayoutPreview() {
+    PermissionExplanationContentLayout()
 }
 
 
@@ -130,7 +130,7 @@ fun PermissionExplanationBottomSheet(
 ) {
 
     BottomSheetScaffold(
-        sheetContent = { PermissionExplanationContent() },
+        sheetContent = { PermissionExplanationContentLayout() },
         sheetDragHandle = {  },
         scaffoldState = scaffoldState,
         content = content

@@ -15,6 +15,8 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debugAndroidTest/R.jar</arg>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_app_classes_jar/debug/classes.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a6bd5a2f979edc730fc9345f82c4a1bf/transformed/material-1.9.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/ee8fb0ce0624c558c0a2cc60c234a27c/transformed/appcompat-1.6.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/5ef160a237590701e442c957cbe57847/transformed/jetified-material3-1.1.1-api.jar</arg>
@@ -44,6 +46,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/50a8fe1e0d862b8faef8055486ecd966/transformed/jetified-junit-1.1.5-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/087a1b89b79fb059956501fe0f0ed04e/transformed/espresso-core-3.5.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/15af0e55b5f1305aae1d11c562a1dd81/transformed/jetified-viewbinding-8.0.2-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/8cc8bbeaeb5acd7edd44227bc0f47783/transformed/jetified-constraintlayout-compose-1.0.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/eea11eb5233b127d7a6839095486dd64/transformed/jetified-core-1.5.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/7b83dd540c137fd5b18ae57d37b9762a/transformed/dynamicanimation-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/dd048b00fdb14296eeab05a57fd81bbc/transformed/legacy-support-core-utils-1.0.0-api.jar</arg>
@@ -263,6 +266,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.recyclerview:recyclerview:1.1.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.transition:transition:1.2.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.viewpager2:viewpager2:1.0.0@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: androidx.constraintlayout:constraintlayout-compose:1.0.1@aar" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="ABLEBODY_Android.app.main" />
 </module>

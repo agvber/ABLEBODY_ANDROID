@@ -16,6 +16,7 @@
               <args>
                 <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/15af0e55b5f1305aae1d11c562a1dd81/transformed/jetified-viewbinding-8.0.2-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/8cc8bbeaeb5acd7edd44227bc0f47783/transformed/jetified-constraintlayout-compose-1.0.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a6bd5a2f979edc730fc9345f82c4a1bf/transformed/material-1.9.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/45efcb563c6b36fae2e656578601e93e/transformed/jetified-activity-ktx-1.7.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/eef74335a3a22e3173901d2554084614/transformed/jetified-activity-compose-1.7.2-api.jar</arg>
@@ -216,5 +217,6 @@
     <orderEntry type="library" name="Gradle: androidx.recyclerview:recyclerview:1.1.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.transition:transition:1.2.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.viewpager2:viewpager2:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.constraintlayout:constraintlayout-compose:1.0.1@aar" level="project" />
   </component>
 </module>
