@@ -5,9 +5,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomSheetState
+import androidx.compose.material.BottomSheetValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.contentColorFor
+import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
@@ -49,7 +61,6 @@ private fun PermissionExplanationItemLayout(
                 text = title,
                 style = TextStyle(
                     fontSize = 18.sp,
-                    lineHeight = 26.sp,
                     fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
                     fontWeight = FontWeight(700),
                     color = Color(0xFF191E29),
@@ -80,7 +91,9 @@ private fun PermissionExplanationItemLayoutPreview() {
 }
 
 @Composable
-private fun PermissionExplanationContentLayout() {
+private fun PermissionExplanationContentLayout(
+    onClick: () -> Unit
+) {
     Column {
         Surface(modifier = Modifier.padding( horizontal = 16.dp)) {
             Text(
@@ -109,7 +122,7 @@ private fun PermissionExplanationContentLayout() {
 
         CustomButton(
             text = "확인",
-            onClick = { /* TODO: (온보딩/시작하기) bottom sheet 확인 클릭 이벤트 */ },
+            onClick = onClick,
             modifier = Modifier.padding(vertical = 34.dp)
         )
     }
@@ -118,38 +131,28 @@ private fun PermissionExplanationContentLayout() {
 @Preview(showBackground = true)
 @Composable
 private fun PermissionExplanationContentLayoutPreview() {
-    PermissionExplanationContentLayout()
+    PermissionExplanationContentLayout() { }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PermissionExplanationBottomSheet(
-    scaffoldState: BottomSheetScaffoldState,
-    content: @Composable (PaddingValues) -> Unit
+    sheetState: ModalBottomSheetState,
+    bottomButtonClick: () -> Unit,
+    content: @Composable () -> Unit
 ) {
-
-    BottomSheetScaffold(
-        sheetContent = { PermissionExplanationContentLayout() },
-        sheetDragHandle = {  },
-        scaffoldState = scaffoldState,
-        content = content
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = { PermissionExplanationContentLayout(bottomButtonClick) },
+        content = content,
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun PermissionExplanationBottomSheetPreview() {
-    val state = rememberBottomSheetScaffoldState(
-        SheetState(
-            skipPartiallyExpanded = true,
-            initialValue = SheetValue.Expanded
-        )
-    )
-    PermissionExplanationBottomSheet(state) {
-        Surface(modifier = Modifier.padding(it)) {
-            
-        }
-    }
+    val state = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded)
+    PermissionExplanationBottomSheet(state, {}) {}
 }

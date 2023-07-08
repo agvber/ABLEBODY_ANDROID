@@ -62,7 +62,7 @@ fun InputGenderLayout() {
             modifier = Modifier.padding(top=15.dp)
         )
         Row {
-            SelectGenderButton("남자", true)
+            SelectGenderButton(text = "남자", isChecked = true)
             SelectGenderButton(text = "여자", isChecked = false)
         }
     }

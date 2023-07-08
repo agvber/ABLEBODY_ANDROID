@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +26,7 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 
 
 @Composable
-private fun ContentScreen(modifier: Modifier = Modifier) {
+private fun StartContentLayout(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(top = 130.dp)
     ) {
@@ -60,17 +61,19 @@ private fun ContentScreen(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun ContentScreenPreview() {
-    ContentScreen()
+fun StartContentLayoutPreview() {
+    StartContentLayout()
 }
 
 
 @Composable
-private fun StartBottomLayout() {
+private fun StartBottomLayout(
+    onClick: () -> Unit
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CustomButton(
             text = "시작하기",
-            onClick = { /* TODO: (온보딩/시작하기) 시작하기 버튼 클릭 후 이벤트 */ },
+            onClick = onClick,
         )
 
         Row(
@@ -95,21 +98,23 @@ private fun StartBottomLayout() {
 @Preview(showBackground = true)
 @Composable
 fun StartBottomLayoutPreview() {
-    StartBottomLayout()
+    StartBottomLayout() {  }
 }
 
 
 @Composable
-private fun StartScreen() {
+fun StartScreen(
+    startButtonOnClick: () -> Unit
+) {
     Scaffold(
-        bottomBar = { StartBottomLayout() }
+        bottomBar = { StartBottomLayout(startButtonOnClick) },
     ) {
-        ContentScreen(modifier = Modifier.padding(it))
+        StartContentLayout(modifier = Modifier.padding(it))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun StartScreenPreview() {
-    StartScreen()
+    StartScreen() {}
 }

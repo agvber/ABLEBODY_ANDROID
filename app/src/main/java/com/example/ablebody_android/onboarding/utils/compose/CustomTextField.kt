@@ -3,7 +3,6 @@ package com.example.ablebody_android.onboarding.utils.compose
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -21,7 +20,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
 
-@OptIn(ExperimentalMaterial3Api::class)
+// TODO: disable경우 포함
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,

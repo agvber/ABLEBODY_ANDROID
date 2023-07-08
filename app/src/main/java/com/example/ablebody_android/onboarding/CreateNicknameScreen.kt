@@ -25,7 +25,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 fun InputNicknameLayout() {
     Column {
         CustomTextField(labelText = "닉네임", value = "", onValueChange = { })
-
+        // TODO: 텍스트 상황에 따라 바뀔 것
         Text(
             text = "20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.",
             style = TextStyle(
