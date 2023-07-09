@@ -15,8 +15,6 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar</arg>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_app_classes_jar/debug/classes.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/15af0e55b5f1305aae1d11c562a1dd81/transformed/jetified-viewbinding-8.0.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/8cc8bbeaeb5acd7edd44227bc0f47783/transformed/jetified-constraintlayout-compose-1.0.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a6bd5a2f979edc730fc9345f82c4a1bf/transformed/material-1.9.0-api.jar</arg>
