@@ -40,11 +40,7 @@ fun Navigation(){
             }
         }
         composable("main_screen"){
-            /* TODO: Splash 다음 화면 지정, 아래 Box는 보여지기 위한 용도*/
-//            androidx.compose.material3.Text(text = "Main SCREEN", color = Color.Black)
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                Text(text = "Main SCREEN", color = Color.Black)
-            }
+            OnboardingMainScreen()
         }
     }
 }
