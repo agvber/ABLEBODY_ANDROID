@@ -10,9 +10,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.ablebody_android.R
+import com.example.ablebody_android.ui.theme.AbleBlue
 import kotlinx.coroutines.delay
 
 @Composable
@@ -29,4 +31,10 @@ fun LogoImage() {
                 .height(41.71013.dp)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LogoImagePreview() {
+    LogoImage()
 }
