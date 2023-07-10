@@ -33,8 +33,7 @@ fun SignupButton(
 ) {
     Button(modifier = Modifier
         .width(145.dp)
-        .height(47.dp)
-        .padding(start = 9.dp),
+        .height(47.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isChecked) LightShaded else AbleBlue
         ),

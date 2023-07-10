@@ -37,7 +37,7 @@ fun LoginInputPhoneNumberContent(
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         HighlightText(
-            string = "휴대폰 번호(아이디)를 입력해주세요",
+            string = "휴대폰 번호(아이디)를 입력해주세요.",
             colorStringList = listOf("휴대폰 번호(아이디)"),
             color = AbleBlue,
             style = TextStyle(

@@ -25,7 +25,7 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
-fun KotlinWorldDialog() {
+fun alertDialog() {
     AlertDialog(
         onDismissRequest = {},
         title = {
@@ -44,8 +44,9 @@ fun KotlinWorldDialog() {
         },
         buttons = {
             Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                SignupButton("예",false)
+                // TODO: 버튼 스타일 왜 자꾸 됐다가 안됐다가 하는 거..?
                 SignupButton("아니오",true)
+                SignupButton("예",false)
             }
         },
         shape = RoundedCornerShape(24.dp)
@@ -54,6 +55,6 @@ fun KotlinWorldDialog() {
 
 @Preview(showBackground = true)
 @Composable
-fun KotlinWorldDialogPreview() {
-    KotlinWorldDialog()
+fun alertDialogPreview() {
+    alertDialog()
 }
