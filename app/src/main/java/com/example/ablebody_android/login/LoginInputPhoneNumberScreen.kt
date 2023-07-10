@@ -36,6 +36,7 @@ fun LoginInputPhoneNumberContent(
     onValueChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+//        TopBarBackward()
         HighlightText(
             string = "휴대폰 번호(아이디)를 입력해주세요.",
             colorStringList = listOf("휴대폰 번호(아이디)"),
@@ -87,7 +88,7 @@ private fun ContentPreview() {
 fun LoginInputPhoneNumberScreen() {
 
     var state by remember{ mutableStateOf("") }
-
+    TopBarBackward()
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
         onClick = {  }

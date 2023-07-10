@@ -29,6 +29,7 @@ fun TopBarBackward(){
     Scaffold(
         topBar = {
             TopAppBar(
+                modifier = Modifier.padding(bottom = 130.dp),
                 colors = TopAppBarDefaults.smallTopAppBarColors(
 //                    containerColor = Color.Blue
                 ),
