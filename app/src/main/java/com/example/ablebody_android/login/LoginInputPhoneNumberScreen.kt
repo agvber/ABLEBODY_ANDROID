@@ -28,8 +28,6 @@ import com.example.ablebody_android.onboarding.utils.compose.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
-
-//TODO : Topbar에 backward 기능 추가
 @Composable
 fun LoginInputPhoneNumberContent(
     value: String,
