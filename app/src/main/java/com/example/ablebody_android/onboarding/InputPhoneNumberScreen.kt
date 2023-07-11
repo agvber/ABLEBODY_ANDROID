@@ -81,7 +81,7 @@ fun InputPhoneNumberScreen() {
     var state by remember{ mutableStateOf("") }
 
     BottomCustomButtonLayout(
-        buttonText = "확인",
+        buttonText = "인증번호 받기",
         onClick = {  }
     ) {
         InputPhoneNumberContent(state) { state = it }
