@@ -34,7 +34,7 @@ fun Navigation(){
             }
         }
         composable("main_screen"){
-            OnboardingMainScreen()
+            IntroScreen()
         }
     }
 }
