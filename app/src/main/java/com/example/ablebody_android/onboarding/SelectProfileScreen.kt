@@ -1,12 +1,22 @@
 package com.example.ablebody_android.onboarding
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -59,8 +69,72 @@ fun SelectProfileTitleLayoutPreview() {
 
 @Composable
 fun SelectProfileImageLayout() {
-    LazyHorizontalGrid(rows = GridCells.Adaptive(100.dp)) {
+//    LazyHorizontalGrid(rows = GridCells.Adaptive(100.dp)) {
 //        items()
+//    }
+    Column(
+        modifier = Modifier.padding(top = 40.dp)
+    ) {
+        Row() {
+            Image(
+                painter = painterResource(id = R.drawable.profile_woman1),
+                contentDescription = "1",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+            Image(
+                painter = painterResource(id = R.drawable.profile_man3),
+                contentDescription = "2",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+            Image(
+                painter = painterResource(id = R.drawable.profile_woman2),
+                contentDescription = "3",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+        }
+        Row(
+//            modifier = Modifier.padding(23.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_man2),
+                contentDescription = "4",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+            Image(
+                painter = painterResource(id = R.drawable.profile_man1),
+                contentDescription = "5",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+            Image(
+                painter = painterResource(id = R.drawable.profile_woman3),
+                contentDescription = "6",
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(120.dp)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(50.dp)),
+            )
+        }
     }
 }
 
@@ -82,6 +156,7 @@ fun SelectProfileScreen() {
                 .padding(horizontal = 16.dp)
         ) {
             SelectProfileTitleLayout()
+            SelectProfileImageLayout()
         }
     }
 }
