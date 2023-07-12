@@ -3,7 +3,6 @@ package com.example.ablebody_android.onboarding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
@@ -14,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OnboardingMainScreen() {
+fun IntroScreen() {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -51,6 +50,6 @@ fun OnboardingMainScreen() {
 
 @Preview(showSystemUi = true)
 @Composable
-fun OnboardingMainScreenPreview() {
-    OnboardingMainScreen()
+fun IntroScreenPreview() {
+    IntroScreen()
 }
