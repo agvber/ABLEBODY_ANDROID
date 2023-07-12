@@ -15,6 +15,8 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debugAndroidTest/R.jar</arg>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_app_classes_jar/debug/classes.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/c2e7b177775fd21998ed7e05431ba92b/transformed/navigation-common-2.6.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/39e1446d376ad12bacdede09576038c0/transformed/navigation-runtime-2.6.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/485a78ad4e0f3fc0b98e79f051b60b5c/transformed/navigation-common-ktx-2.6.0-api.jar</arg>
@@ -82,6 +84,8 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/cb9d59907cc506c4185238131dc4f77b/transformed/jetified-kotlinx-coroutines-android-1.6.4.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/85128f321ed2bdf94f2cdaf4a3c518ee/transformed/jetified-kotlin-stdlib-jdk8-1.8.10.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/8bb728338a49ed72ccba4aa9aec619e5/transformed/constraintlayout-2.1.4-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/c159e84a9387b11e85e929a5ce785c05/transformed/jetified-converter-gson-2.9.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/62ff5e4889a48ad3cfec92674df75bd9/transformed/jetified-retrofit-2.9.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/477aac360cb39496365a845abce0de4a/transformed/runner-1.5.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/fd6f00e2238aa2af66989fd7f2ecd3af/transformed/jetified-junit-4.13.2.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/387bbf9efb9cfb38a164f1375e7ce3c7/transformed/jetified-hamcrest-integration-1.3.jar</arg>
@@ -115,6 +119,9 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/89d8a8b2561fdd8aebf5598403577abc/transformed/espresso-idling-resource-3.5.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f10cc86d51bab9c676d780e61077126b/transformed/jetified-javawriter-2.1.1.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/54cbe05f77e718d1afa1ab709006abcc/transformed/jetified-javax.inject-1.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/16f8a8339853a3cb7f2f8de5e99946fa/transformed/jetified-okhttp-3.14.9.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/7057726bfd4ec6194c8b9040589646da/transformed/jetified-gson-2.8.5.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/0731cb89c8624c60c7a1be3d4abb3059/transformed/jetified-okio-1.17.2.jar</arg>
                 <arg>$USER_HOME$/AppData/Local/Android/Sdk/platforms/android-33/android.jar</arg>
                 <arg>$USER_HOME$/AppData/Local/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar</arg>
               </args>
@@ -201,6 +208,11 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.collection:collection:1.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.6.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.lifecycle:lifecycle-common-java8:2.6.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.retrofit2:retrofit:2.9.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okhttp3:okhttp:3.14.9" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okio:okio:1.17.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.retrofit2:converter-gson:2.9.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.google.code.gson:gson:2.8.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.test.ext:junit:1.1.5@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.test:core:1.5.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.test:monitor:1.6.1@aar" level="project" />
