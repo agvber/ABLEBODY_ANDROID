@@ -30,6 +30,113 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
+fun InputAuthNumberLayout(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    CustomTextField(
+        labelText = "4자리 숫자",
+        value = value,
+        onValueChange = onValueChange
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InputAuthNumberLayoutPreview() {
+    var textState by remember { mutableStateOf("") }
+
+    InputAuthNumberLayout(
+        value = textState,
+        onValueChange = { textState = it }
+    )
+}
+//
+@Composable
+private fun InputAuthNumberContent(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        HighlightText(
+            string = "문자로 전송된\n" +
+                    "인증번호 4자리를 입력해주세요.",
+            colorStringList = listOf("인증번호 4자리"),
+            color = AbleBlue,
+            style = TextStyle(
+                fontSize = 22.sp,
+                lineHeight = 35.sp,
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+            )
+        )
+        InputPhoneNumberLayout(value, onValueChange)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ContentPreview() {
+
+    var state by remember{ mutableStateOf("") }
+
+    InputAuthNumberContent(state) { state = it }
+}
+
+@Composable
+fun ShowLeftTime(){
+    Text(
+        /*TODO 남은 초 보여주기*/
+        text = " 분  초 남음",
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+            fontWeight = FontWeight(400),
+            color = AbleBlue,
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ShowLeftTimePreview() {
+    ShowLeftTime()
+}
+
+@Composable
+fun HaveProblem(){
+    Column(
+        Modifier
+            .fillMaxWidth()
+            /* TODO 여기 padding 설정을 어떻게 해야 하지? */
+            .padding(top = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "인증문자가 안 오거나 문제가 있나요?")
+        HighlightText(
+            string = "카카오톡 채널로 문제 해결하기",
+            colorStringList = listOf("카카오톡 채널로 문제 해결하기"),
+            color = AbleBlue,
+            modifier = Modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) {
+
+            }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HaveProblemPreview() {
+    HaveProblem()
+}
+
+//
+@Composable
 fun ReceiveCertificationNumberContent(
     value: String,
     onValueChange: (String) -> Unit
@@ -49,50 +156,13 @@ fun ReceiveCertificationNumberContent(
             )
         )
 //        InputPhoneNumberLayout(value, onValueChange)
-        /*TODO hint로 "4자리 숫자". 어떤 값이 들어오면 인증번호 글자가 위에 떠야 함*/
+        /*TODO hint로 "4자리 숫자". */
         CustomTextField(labelText = "4자리 숫자", value = "", onValueChange = { })
-        Text(
-            text = " ", /*TODO 남은 초 보여주기*/
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleBlue,
-            )
-        )
-        Column(
-            Modifier
-                .fillMaxWidth()
-                /* TODO 여기 padding 설정을 어떻게 해야 하지? */
-                .padding(top = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(text = "인증문자가 안 오거나 문제가 있나요?")
-            HighlightText(
-                string = "카카오톡 채널로 문제 해결하기",
-                colorStringList = listOf("카카오톡 채널로 문제 해결하기"),
-                color = AbleBlue,
-                modifier = Modifier.clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ) {
-
-                }
-            )
-        }
+        /*TODO 어떤 값이 들어오면 인증번호 글자가 위에 떠야 함*/
+        ShowLeftTime()
+        HaveProblem()
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-private fun ContentPreview() {
-
-    var state by remember{ mutableStateOf("") }
-
-    ReceiveCertificationNumberContent(state) { state = it }
-}
-
 
 @Composable
 fun ReceiveCertificationNumberScreen() {
