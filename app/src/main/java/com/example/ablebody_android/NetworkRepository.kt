@@ -1,24 +1,30 @@
 package com.example.ablebody_android
 
+import android.util.Log
 import com.example.ablebody_android.retrofit.NetworkAPI
 import com.example.ablebody_android.retrofit.NetworkService
 import com.example.ablebody_android.retrofit.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
-import com.example.ablebody_android.retrofit.dto.request.TokenRefreshRequest
+import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
-import com.example.ablebody_android.retrofit.dto.response.TokenRefreshResponse
+import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Response
 
-class NetworkRepository {
+class NetworkRepository(
+    tokenSharedPreferencesRepository: TokenSharedPreferencesRepository
+) {
 
-    private val networkService = NetworkService.retrofit.create(NetworkAPI::class.java)
+    private val retrofit = NetworkService.getInstance(
+        tokenSharedPreferencesRepository, this
+    )
+    private val networkService = retrofit.create(NetworkAPI::class.java)
 
 
     fun sendSMS(phoneNumber: String, isNotTestMessage: Boolean = true): Response<SendSMSResponse> {
@@ -53,9 +59,14 @@ class NetworkRepository {
         return networkService.createNewUser(newUserCreateRequest).execute()
     }
 
-    fun refreshToken(refreshToken: String): Response<TokenRefreshResponse> {
-        val tokenRefreshResponseData = TokenRefreshRequest(refreshToken)
-        return networkService.refreshToken(tokenRefreshResponseData).execute()
+    fun getRefreshToken(refreshToken: String): Response<RefreshTokenResponse> {
+        val tokenRefreshResponseData = RefreshTokenRequest(refreshToken)
+        return networkService.getRefreshToken(tokenRefreshResponseData).execute()
+    }
+
+//    fun invalidRefreshToken() = MutableStateFlow<Boolean>(false)
+    fun invalidRefreshToken() {
+        Log.d(this::class.java.name, "invalid refresh token")
     }
 
     fun getUserData(authToken: String): Response<UserDataResponse> {

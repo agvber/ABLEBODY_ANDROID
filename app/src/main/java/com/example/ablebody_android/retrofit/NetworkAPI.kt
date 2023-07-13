@@ -5,12 +5,12 @@ import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
-import com.example.ablebody_android.retrofit.dto.request.TokenRefreshRequest
+import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
-import com.example.ablebody_android.retrofit.dto.response.TokenRefreshResponse
+import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -42,9 +42,9 @@ interface NetworkAPI {
     ): Call<NewUserCreateResponse>
 
     @POST("/api/onboarding/refresh")
-    fun refreshToken(
-        @Body tokenRefreshRequest: TokenRefreshRequest
-    ): Call<TokenRefreshResponse>
+    fun getRefreshToken(
+        @Body refreshTokenRequest: RefreshTokenRequest
+    ): Call<RefreshTokenResponse>
 
     @GET("/api/onboarding/splash")
     fun getUserData(
