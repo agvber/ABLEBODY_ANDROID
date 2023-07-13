@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ABLEBODY_Android</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_login_input_phone_number_screen">LoginInputPhoneNumberScreen
+    </string>
 </resources>
