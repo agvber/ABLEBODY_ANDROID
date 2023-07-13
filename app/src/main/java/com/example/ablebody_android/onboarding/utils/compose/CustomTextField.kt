@@ -66,7 +66,7 @@ fun CustomTextField(
 @Composable
 fun CustomTextFieldPreview() {
     CustomTextField(
-        value = "", labelText = "휴대폰번호") {
-
+        value = "", labelText = "휴대폰번호"
+    ) {
     }
 }
