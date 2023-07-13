@@ -58,7 +58,12 @@ fun CustomTextField(
             color = AbleDark,
         ),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = if(labelText == "닉네임") {
+                                KeyboardType.Text
+                        } else {
+                            KeyboardType.Number
+                        }),
     )
 }
 
@@ -66,7 +71,7 @@ fun CustomTextField(
 @Composable
 fun CustomTextFieldPreview() {
     CustomTextField(
-        value = "", labelText = "휴대폰번호"
+        value = "", labelText = "휴대폰 번호"
     ) {
     }
 }
