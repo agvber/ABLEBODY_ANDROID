@@ -9,7 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.ablebody_android.onboarding.utils.compose.LogoImage
+import com.example.ablebody_android.utils.LogoImage
 import kotlinx.coroutines.delay
 
 class SplashScreenActivity : ComponentActivity() {

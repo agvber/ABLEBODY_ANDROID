@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.utils.compose.CustomButton
+import com.example.ablebody_android.utils.CustomButton
 import com.example.ablebody_android.ui.theme.AbleDark
 
 
