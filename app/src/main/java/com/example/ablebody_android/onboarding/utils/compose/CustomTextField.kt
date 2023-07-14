@@ -59,11 +59,6 @@ fun CustomTextField(
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
-//            keyboardType = if(labelText == "닉네임") {
-//                                KeyboardType.Text
-//                        } else {
-//                            KeyboardType.Number
-//                        }),
             keyboardType = when {
                 labelText == "닉네임" -> KeyboardType.Text
                 else -> KeyboardType.Number
