@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.login.TopBarBackward
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
@@ -30,7 +29,7 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
-fun ReceiveCertificationNumberContent(
+fun InputCertificationNumberContent(
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -95,24 +94,24 @@ private fun ContentPreview() {
 
     var state by remember{ mutableStateOf("") }
 
-    ReceiveCertificationNumberContent(state) { state = it }
+    InputCertificationNumberContent(state) { state = it }
 }
 
 
 @Composable
-fun ReceiveCertificationNumberScreen() {
+fun InputCertificationNumberScreen() {
 
     var state by remember{ mutableStateOf("") }
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
         onClick = {  }
     ) {
-        ReceiveCertificationNumberContent(state) { state = it }
+        InputCertificationNumberContent(state) { state = it }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ReceiveCertificationNumberScreenPreview() {
-    ReceiveCertificationNumberScreen()
+fun InputCertificationNumberScreenPreview() {
+    InputCertificationNumberScreen()
 }
