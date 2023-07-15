@@ -22,7 +22,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 
 
 @Composable
-fun InputNicknameLayout() {
+fun InputNicknamewithSubtitleLayout() {
     Column {
         CustomTextField(labelText = "닉네임", value = "", onValueChange = { })
         // TODO: 텍스트 상황에 따라 바뀔 것
@@ -40,10 +40,22 @@ fun InputNicknameLayout() {
 
 @Preview(showBackground = true)
 @Composable
+fun InputNicknamewithSubtitleLayoutPreview() {
+    InputNicknamewithSubtitleLayout()
+}
+
+@Composable
+fun InputNicknameLayout() {
+    Column {
+        CustomTextField(labelText = "닉네임", value = "", onValueChange = { })
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 fun InputNicknameLayoutPreview() {
     InputNicknameLayout()
 }
-
 
 @Composable
 fun CreateNicknameScreen() {
@@ -65,7 +77,7 @@ fun CreateNicknameScreen() {
                     color = AbleDark,
                 )
             )
-            InputNicknameLayout()
+            InputNicknamewithSubtitleLayout()
             InputPhoneNumberLayout(value = "01012345678") {  }
         }
     }
