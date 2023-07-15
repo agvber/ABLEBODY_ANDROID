@@ -34,7 +34,8 @@ fun ReceiveCertificationNumberContent(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp)) {
 //        TopBarBackward()
         HighlightText(
             string = "문자로 전송된\n인증번호 4자리를 입력해주세요.",
@@ -50,7 +51,11 @@ fun ReceiveCertificationNumberContent(
         )
 //        InputPhoneNumberLayout(value, onValueChange)
         /*TODO hint로 "4자리 숫자". 어떤 값이 들어오면 인증번호 글자가 위에 떠야 함*/
-        CustomTextField(labelText = "4자리 숫자", value = "", onValueChange = { })
+        CustomTextField(
+            labelText = "4자리 숫자",
+            value = value,
+            onValueChange = onValueChange
+        )
         Text(
             text = " ", /*TODO 남은 초 보여주기*/
             style = TextStyle(
