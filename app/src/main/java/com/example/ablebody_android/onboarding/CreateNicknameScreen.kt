@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -22,9 +26,14 @@ import com.example.ablebody_android.ui.theme.AbleDark
 
 
 @Composable
-fun InputNicknamewithSubtitleLayout() {
+fun InputNicknamewithSubtitleLayout(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
     Column {
-        CustomTextField(labelText = "닉네임", value = "", onValueChange = { })
+        CustomTextField(
+            labelText = "닉네임", value = value, onValueChange = onValueChange
+        )
         // TODO: 텍스트 상황에 따라 바뀔 것
         Text(
             text = "20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.",
@@ -41,24 +50,39 @@ fun InputNicknamewithSubtitleLayout() {
 @Preview(showBackground = true)
 @Composable
 fun InputNicknamewithSubtitleLayoutPreview() {
-    InputNicknamewithSubtitleLayout()
+    var textState by remember { mutableStateOf("") }
+
+    InputNicknamewithSubtitleLayout(
+        value = textState,
+        onValueChange = { textState = it }
+    )
 }
 
 @Composable
-fun InputNicknameLayout() {
+fun InputNicknameLayout(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
     Column {
-        CustomTextField(labelText = "닉네임", value = "", onValueChange = { })
+        CustomTextField(
+            labelText = "닉네임", value = value, onValueChange = onValueChange
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun InputNicknameLayoutPreview() {
-    InputNicknameLayout()
+
+    var state by remember{ mutableStateOf("") }
+    InputNicknameLayout(state) { state = it }
 }
 
 @Composable
 fun CreateNicknameScreen() {
+
+    var state by remember{ mutableStateOf("") }
+
     BottomCustomButtonLayout(
         buttonText = "확인",
         onClick = {  }
@@ -77,7 +101,7 @@ fun CreateNicknameScreen() {
                     color = AbleDark,
                 )
             )
-            InputNicknamewithSubtitleLayout()
+            InputNicknamewithSubtitleLayout(state) { state = it }
             InputPhoneNumberLayout(value = "01012345678") {  }
         }
     }
