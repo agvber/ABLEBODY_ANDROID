@@ -17,6 +17,7 @@ import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.utils.CustomHintTextField
 
 
 @Composable
@@ -24,8 +25,8 @@ fun InputPhoneNumberLayout(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    CustomTextField(
-        labelText = "휴대폰 번호",
+    CustomHintTextField(
+        hintText = "휴대폰 번호",
         value = value,
         onValueChange = onValueChange
     )
