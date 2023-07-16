@@ -25,76 +25,30 @@ import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.AbleRed
+import com.example.ablebody_android.utils.TextFieldUnderCorrectText
+import com.example.ablebody_android.utils.TextFieldUnderWrongText
 
 @Composable
 fun ShowNicknameRule(
     value: String,
 ){
     if (value=="1") {
-        Text(
-            text = "사용 가능한 닉네임이에요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleBlue,
-            )
-        )
+        TextFieldUnderCorrectText("사용 가능한 닉네임이에요.")
     }
     else if (value=="2") {
-        Text(
-            text = "이미 사용 중인 닉네임이에요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleRed,
-            )
-        )
+        TextFieldUnderWrongText("이미 사용 중인 닉네임이에요.")
     }
     else if (value=="3") {
-        Text(
-            text = "닉네임은 마침표로 시작할 수 없어요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleRed,
-            )
-        )
+        TextFieldUnderWrongText("닉네임은 마침표로 시작할 수 없어요.")
     }
     else if (value=="4") {
-        Text(
-            text = "닉네임은 숫자로만 이뤄질 수 없어요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleRed,
-            )
-        )
+        TextFieldUnderWrongText("닉네임은 숫자로만 이뤄질 수 없어요.")
     }
     else if (value=="5") {
-        Text(
-            text = "사용할 수 없는 닉네임이에요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleRed,
-            )
-        )
+        TextFieldUnderWrongText("사용할 수 없는 닉네임이에요.")
     }
     else {
-        Text(
-            text = "20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = AbleBlue,
-            )
-        )
+        TextFieldUnderCorrectText("20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.")
     }
 }
 
