@@ -145,7 +145,8 @@ fun isNicknameRuleMatch(path: String, regex: Regex): Boolean {
 @Composable
 fun CreateNicknameScreen() {
 
-    var state by remember{ mutableStateOf("") }
+    var state1 by remember{ mutableStateOf("") }
+    var state2 by remember{ mutableStateOf("") }
 
     BottomCustomButtonLayout(
         buttonText = "확인",
@@ -165,8 +166,8 @@ fun CreateNicknameScreen() {
                     color = AbleDark,
                 )
             )
-            InputNicknamewithRuleLayout(state) { state = it }
-            InputPhoneNumberLayout(value = "01012345678") {  }
+            InputNicknamewithRuleLayout(state1) { state1 = it }
+            InputPhoneNumberLayout(state2) { state2 = it  }
         }
     }
 }
