@@ -25,6 +25,7 @@ import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.AbleRed
+import com.example.ablebody_android.utils.CustomHintTextField
 import com.example.ablebody_android.utils.TextFieldUnderCorrectText
 import com.example.ablebody_android.utils.TextFieldUnderWrongText
 
@@ -84,8 +85,8 @@ fun InputNicknamewithRuleLayout(
     onValueChange: (String) -> Unit
 ) {
     Column {
-        CustomTextField(
-            labelText = "닉네임", value = value, onValueChange = onValueChange
+        CustomHintTextField(
+            hintText = "닉네임(20자 이내 영문,숫자,_,.가능)", value = value, onValueChange = onValueChange,
         )
         CheckNicknameRule(value)
     }
@@ -167,7 +168,7 @@ fun CreateNicknameScreen() {
                 )
             )
             InputNicknamewithRuleLayout(state1) { state1 = it }
-            InputPhoneNumberLayout(state2) { state2 = it  }
+            InputPhoneNumberLayout(state2) { state2 = it }
         }
     }
 }
