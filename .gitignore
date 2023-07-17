@@ -40,6 +40,7 @@ captures/
 
 # IntelliJ
 *.iml
+.idea/
 .idea/caches/
 .idea/libraries/
 .idea/shelf/
