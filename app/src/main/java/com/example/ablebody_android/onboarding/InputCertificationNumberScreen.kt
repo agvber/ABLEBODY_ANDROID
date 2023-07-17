@@ -1,4 +1,4 @@
-package com.example.ablebody_android.login
+package com.example.ablebody_android.onboarding
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,22 +22,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.InputPhoneNumberLayout
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
-fun LoginInputPhoneNumberContent(
+fun InputCertificationNumberContent(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp)) {
 //        TopBarBackward()
         HighlightText(
-            string = "휴대폰 번호(아이디)를 입력해주세요.",
-            colorStringList = listOf("휴대폰 번호(아이디)"),
+            string = "문자로 전송된\n인증번호 4자리를 입력해주세요.",
+            colorStringList = listOf("인증번호 4자리"),
             color = AbleBlue,
             style = TextStyle(
                 fontSize = 22.sp,
@@ -47,7 +48,22 @@ fun LoginInputPhoneNumberContent(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
             )
         )
-        InputPhoneNumberLayout(value, onValueChange)
+//        InputPhoneNumberLayout(value, onValueChange)
+        /*TODO hint로 "4자리 숫자". 어떤 값이 들어오면 인증번호 글자가 위에 떠야 함*/
+        CustomTextField(
+            labelText = "4자리 숫자",
+            value = value,
+            onValueChange = onValueChange
+        )
+        Text(
+            text = " ", /*TODO 남은 초 보여주기*/
+            style = TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontWeight = FontWeight(400),
+                color = AbleBlue,
+            )
+        )
         Column(
             Modifier
                 .fillMaxWidth()
@@ -56,16 +72,16 @@ fun LoginInputPhoneNumberContent(
             verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "휴대폰 번호가 변경되었나요?")
+            Text(text = "인증문자가 안 오거나 문제가 있나요?")
             HighlightText(
-                string = "카카오톡 채널로 계정 찾기",
-                colorStringList = listOf("카카오톡 채널로 계정 찾기"),
+                string = "카카오톡 채널로 문제 해결하기",
+                colorStringList = listOf("카카오톡 채널로 문제 해결하기"),
                 color = AbleBlue,
                 modifier = Modifier.clickable(
                     interactionSource = MutableInteractionSource(),
                     indication = null
                 ) {
-                    /* TODO: (온보딩/시작하기) 로그인 버튼 클릭 후 이벤트 */
+
                 }
             )
         }
@@ -78,25 +94,24 @@ private fun ContentPreview() {
 
     var state by remember{ mutableStateOf("") }
 
-    LoginInputPhoneNumberContent(state) { state = it }
+    InputCertificationNumberContent(state) { state = it }
 }
 
 
 @Composable
-fun LoginInputPhoneNumberScreen() {
+fun InputCertificationNumberScreen() {
 
     var state by remember{ mutableStateOf("") }
-    TopBarBackward()
     BottomCustomButtonLayout(
-        buttonText = "인증번호 받기",
+        buttonText = "인증번호 다시 받기",
         onClick = {  }
     ) {
-        LoginInputPhoneNumberContent(state) { state = it }
+        InputCertificationNumberContent(state) { state = it }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun LoginInputPhoneNumberScreenPreview() {
-    LoginInputPhoneNumberScreen()
+fun InputCertificationNumberScreenPreview() {
+    InputCertificationNumberScreen()
 }

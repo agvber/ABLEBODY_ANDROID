@@ -12,11 +12,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.utils.compose.BottomCustomButtonLayout
-import com.example.ablebody_android.onboarding.utils.compose.CustomTextField
-import com.example.ablebody_android.onboarding.utils.compose.HighlightText
+import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.CustomTextField
+import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.utils.CustomHintTextField
 
 
 @Composable
@@ -24,8 +25,8 @@ fun InputPhoneNumberLayout(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    CustomTextField(
-        labelText = "휴대폰 번호",
+    CustomHintTextField(
+        hintText = "휴대폰 번호",
         value = value,
         onValueChange = onValueChange
     )

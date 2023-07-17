@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding.utils.compose
+package com.example.ablebody_android.utils
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height

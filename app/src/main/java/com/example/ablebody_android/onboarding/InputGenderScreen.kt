@@ -8,6 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -17,8 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.utils.compose.BottomCustomButtonLayout
-import com.example.ablebody_android.onboarding.utils.compose.HighlightText
+import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.PlaneGrey
@@ -77,6 +81,8 @@ fun InputGenderLayoutPreview() {
 
 @Composable
 fun InputGenderScreen() {
+    var state by remember{ mutableStateOf("") }
+
     BottomCustomButtonLayout(
         buttonText = "확인",
         onClick = {  }
@@ -97,7 +103,7 @@ fun InputGenderScreen() {
                 )
             )
             InputGenderLayout()
-            InputNicknameLayout()
+            InputNicknameLayout(state)  { state = it }
             InputPhoneNumberLayout(value = "01012345678") {  }
         }
     }
