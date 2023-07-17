@@ -28,7 +28,7 @@ import com.example.ablebody_android.ui.theme.AbleRed
 import com.example.ablebody_android.utils.CustomHintTextField
 import com.example.ablebody_android.utils.TextFieldUnderCorrectText
 import com.example.ablebody_android.utils.TextFieldUnderWrongText
-
+//TEST!!!!!!!!!!!!!!!!!!!
 @Composable
 fun ShowNicknameRule(
     value: String,
