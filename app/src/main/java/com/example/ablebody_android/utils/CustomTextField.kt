@@ -45,6 +45,19 @@ fun CustomTextField(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
+        placeholder = {
+            Text(
+                if(labelText=="닉네임")
+                    "닉네임(20자 이내 영문,숫자,_,.가능"
+                else
+                    labelText,
+                color = AbleLight,
+                fontSize = 21.sp,
+                fontWeight = FontWeight(400),
+                //TODO : hint 글자가 앞에 딱 붙게 하기
+//                textAlign = TextAlign.Left,
+            )
+        },
         colors = TextFieldDefaults.colors(
             disabledContainerColor = White,
             errorContainerColor = White,
@@ -80,11 +93,18 @@ fun CustomTextField(
 
 @Preview(showBackground = true)
 @Composable
-fun CustomTextFieldPreview() {
+fun CustomTextFieldPreview1() {
     CustomTextField(
         value = "", labelText = "휴대폰 번호"
     ) {
     }
+}
+@Preview(showBackground = true)
+@Composable
+fun CustomTextFieldPreview2() {
+    CustomTextField(
+        value = "", labelText = "닉네임"
+    ){}
 }
 
 @Composable
@@ -133,18 +153,18 @@ fun CustomHintTextField(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun CustomHintTextFieldPreview1() {
-    CustomHintTextField(
-        value = "", hintText = "닉네임(20자 이내 영문,숫자,_,.가능)"
-    ){}
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CustomHintTextFieldPreview2() {
-    CustomHintTextField(
-        value = "", hintText = "휴대폰 번호"
-    ){}
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CustomHintTextFieldPreview1() {
+//    CustomHintTextField(
+//        value = "", hintText = "닉네임(20자 이내 영문,숫자,_,.가능)"
+//    ){}
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun CustomHintTextFieldPreview2() {
+//    CustomHintTextField(
+//        value = "", hintText = "휴대폰 번호"
+//    ){}
+//}

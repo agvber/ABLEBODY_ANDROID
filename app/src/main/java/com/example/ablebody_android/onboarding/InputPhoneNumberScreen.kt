@@ -18,7 +18,52 @@ import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.CustomHintTextField
+import com.example.ablebody_android.utils.TextFieldUnderCorrectText
+import com.example.ablebody_android.utils.TextFieldUnderWrongText
 
+@Composable
+fun ShowPhoneNumberRule(
+    value: String,
+){
+    if (value=="1") {
+        TextFieldUnderCorrectText("사용 가능한 닉네임이에요.")
+    }
+    else if(value=="2"){
+        TextFieldUnderWrongText("휴대폰 번호 양식에 맞지 않아요." )
+    }
+    else {
+        TextFieldUnderCorrectText("분 초 남음")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShowPhoneNumberRulePreview() {
+    ShowPhoneNumberRule("1")
+}
+
+@Composable
+fun CheckPhoneNumberRule(
+    value: String,
+) {
+    val path = value
+    val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
+
+    if (value == "") ShowPhoneNumberRule("")
+    else{
+        if (isPhoneNumberRuleMatch(path, regex)) {
+            ShowPhoneNumberRule("1")
+        }
+        else{
+            ShowPhoneNumberRule("2")
+        }
+    }
+}
+
+@Composable
+fun isPhoneNumberRuleMatch(path: String, regex: Regex): Boolean {
+    return path.matches(regex)
+}
 
 @Composable
 fun InputPhoneNumberLayout(
@@ -43,6 +88,30 @@ fun InputPhoneNumberLayoutPreview() {
     )
 }
 
+@Composable
+fun InputPhoneNumberwithRuleLayout(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    Column {
+        CustomHintTextField(
+            hintText = "휴대폰 번호", value = value, onValueChange = onValueChange,
+        )
+        CheckPhoneNumberRule(value)
+    }
+
+}
+@Preview(showBackground = true)
+@Composable
+fun InputPhoneNumberwithRuleLayoutPreview() {
+    var textState by remember { mutableStateOf("") }
+
+    InputPhoneNumberwithRuleLayout(
+        value = textState,
+        onValueChange = { textState = it }
+    )
+}
+
 
 @Composable
 private fun InputPhoneNumberContent(
@@ -62,7 +131,7 @@ private fun InputPhoneNumberContent(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
             )
         )
-        InputPhoneNumberLayout(value, onValueChange)
+        InputPhoneNumberwithRuleLayout(value, onValueChange)
     }
 }
 
