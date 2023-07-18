@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -55,8 +56,7 @@ enum class NicknameRule(val positive: Boolean, val description: String) {
 fun isNicknameRuleMatch(path: String, regex: Regex): Boolean = path.matches(regex)
 
 fun checkNicknameRule(
-    nickname: String,
-    isNotNicknameDuplicate: Boolean?
+    nickname: String
 ) : NicknameRule {
     val regex1 = "[0-9a-z_.]{1,20}".toRegex()
     val regex3 = "^[.].*\$".toRegex()
@@ -65,31 +65,24 @@ fun checkNicknameRule(
 //    val regex6 = "^[.]*\$".toRegex()
     val regex7 = "^[._]*\$".toRegex()
 
-    if (nickname.isEmpty()) {
-        return NicknameRule.Nothing
-    }
-    return if (isNicknameRuleMatch(nickname, regex1)) {
-        if (isNicknameRuleMatch(nickname, regex3)) {
-            NicknameRule.StartsWithDot
-        } else if (isNicknameRuleMatch(nickname, regex4)) {
-            NicknameRule.OnlyNumber
-        } else if(isNicknameRuleMatch(nickname, regex7)) {
-            NicknameRule.UnAvailable
-        } else {
-            if (isNotNicknameDuplicate == true) {
-                NicknameRule.Available
-            } else {
-                NicknameRule.InUsed
-            }
-        }
-    } else {
+    return if (nickname.isEmpty()) {
+        NicknameRule.Nothing
+    } else if (!isNicknameRuleMatch(nickname, regex1)) {
         NicknameRule.UnAvailable
+    } else if (isNicknameRuleMatch(nickname, regex3)) {
+        NicknameRule.StartsWithDot
+    } else if (isNicknameRuleMatch(nickname, regex4)) {
+        NicknameRule.OnlyNumber
+    } else if(isNicknameRuleMatch(nickname, regex7)) {
+        NicknameRule.UnAvailable
+    } else {
+        NicknameRule.Available
     }
 }
 
 @Composable
-fun InputNicknameLayout(
-    isNotNicknameDuplicate: Boolean?,
+fun InputNicknameLayoutTest(
+    nicknameRule: () -> NicknameRule,
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -108,8 +101,7 @@ fun InputNicknameLayout(
             value = value,
             onValueChange = onValueChange,
         )
-        val asd = checkNicknameRule(value, isNotNicknameDuplicate)
-        TextFieldUnderText(text = asd.description, isPositive = asd.positive)
+        TextFieldUnderText(text = nicknameRule().description, isPositive = nicknameRule().positive)
     }
 }
 
@@ -117,8 +109,8 @@ fun InputNicknameLayout(
 @Composable
 fun InputNicknameLayoutPreview() {
     var state by remember{ mutableStateOf("") }
-    InputNicknameLayout(
-        isNotNicknameDuplicate = true,
+    InputNicknameLayoutTest(
+        { NicknameRule.Nothing },
         value = state,
         onValueChange = { state = it }
     )
@@ -133,11 +125,15 @@ fun CreateNicknameScreen(
 
     val isNotNicknameDuplicate by viewModel.isNotNicknameDuplicate.observeAsState()
 
+    val nicknameRuleState by remember { derivedStateOf { checkNicknameRule(nicknameState) } }
+
     BottomCustomButtonLayout(
         buttonText = "확인",
         onClick = {  }
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
             HighlightText(
                 string = "닉네임을 입력해주세요",
                 colorStringList = listOf("닉네임"),
@@ -151,11 +147,20 @@ fun CreateNicknameScreen(
                     color = AbleDark,
                 )
             )
-            InputNicknameLayout(
-                isNotNicknameDuplicate = isNotNicknameDuplicate,
+            InputNicknameLayoutTest(
+                nicknameRule = {
+                    return@InputNicknameLayoutTest if (nicknameRuleState == NicknameRule.Available) {
+                        if (isNotNicknameDuplicate == true) NicknameRule.Available
+                        else NicknameRule.InUsed
+                    } else {
+                        nicknameRuleState
+                    }
+                },
                 value = nicknameState,
             ) {
-                if (it.isNotEmpty()) viewModel.checkDuplicateNickname(it)
+                if (nicknameRuleState == NicknameRule.Available) {
+                    viewModel.checkDuplicateNickname(it)
+                }
                 nicknameState = it
             }
             InputPhoneNumberLayout(phoneNumberState) { phoneNumberState = it }
