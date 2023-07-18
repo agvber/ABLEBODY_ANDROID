@@ -25,7 +25,6 @@ import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.CustomHintTextField
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.utils.TextFieldUnderText
@@ -61,8 +60,6 @@ fun checkNicknameRule(
     val regex1 = "[0-9a-z_.]{1,20}".toRegex()
     val regex3 = "^[.].*\$".toRegex()
     val regex4 = "^[0-9]*\$".toRegex()
-//    val regex5 = "^[_]*\$".toRegex()
-//    val regex6 = "^[.]*\$".toRegex()
     val regex7 = "^[._]*\$".toRegex()
 
     return if (nickname.isEmpty()) {
@@ -87,17 +84,8 @@ fun InputNicknameLayoutTest(
     onValueChange: (String) -> Unit
 ) {
     Column {
-        Text(
-            text = "닉네임",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
-                fontWeight = FontWeight(400),
-                color = SmallTextGrey,
-            )
-        )
-        CustomHintTextField(
-            hintText = "닉네임(20자 이내 영문,숫자,_,.가능)",
+        CustomTextField(
+            labelText = "닉네임",
             value = value,
             onValueChange = onValueChange,
         )
@@ -149,7 +137,7 @@ fun CreateNicknameScreen(
             )
             InputNicknameLayoutTest(
                 nicknameRule = {
-                    return@InputNicknameLayoutTest if (nicknameRuleState == NicknameRule.Available) {
+                    if (nicknameRuleState == NicknameRule.Available) {
                         if (isNotNicknameDuplicate == true) NicknameRule.Available
                         else NicknameRule.InUsed
                     } else {
