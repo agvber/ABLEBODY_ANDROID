@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
@@ -18,6 +17,21 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
 
     private val ioDispatcher = Dispatchers.IO
+
+
+    val isNotNicknameDuplicate: LiveData<Boolean> get() =  _isNotNicknameDuplicate
+    private val _isNotNicknameDuplicate = MutableLiveData<Boolean>()
+
+    fun checkDuplicateNickname(name: String) {
+        viewModelScope.launch(ioDispatcher) {
+            val response = networkRepository.checkNickname(name)
+            if (response.body()?.code == 200) {
+                _isNotNicknameDuplicate.postValue(true)
+            } else {
+                _isNotNicknameDuplicate.postValue(false)
+            }
+        }
+    }
 
     val userData: LiveData<UserDataResponse> get() = _userData
     private val _userData: MutableLiveData<UserDataResponse> = MutableLiveData()

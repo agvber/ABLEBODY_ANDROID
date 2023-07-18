@@ -53,3 +53,28 @@ fun TextFieldUnderWrongText(
 fun TextFieldUnderWrongTextPreview() {
     TextFieldUnderWrongText("사용할 수 없는 닉네임이에요.")
 }
+
+
+@Composable
+fun TextFieldUnderText(
+    text: String,
+    isPositive: Boolean = true
+){
+    val textColor = if (isPositive) AbleBlue else AbleRed
+
+    Text(
+        text = text,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+            fontWeight = FontWeight(400),
+            color = textColor,
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TextFieldUnderTextPreview() {
+    TextFieldUnderText("사용할 수 없는 닉네임이에요.", false)
+}

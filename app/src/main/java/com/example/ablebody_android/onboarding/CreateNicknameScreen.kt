@@ -1,12 +1,12 @@
 package com.example.ablebody_android.onboarding
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -24,40 +24,12 @@ import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.ui.theme.AbleRed
 import com.example.ablebody_android.utils.CustomHintTextField
-import com.example.ablebody_android.utils.TextFieldUnderCorrectText
-import com.example.ablebody_android.utils.TextFieldUnderWrongText
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.utils.TextFieldUnderText
 
-@Composable
-fun ShowNicknameRule(
-    value: String,
-){
-    if (value=="1") {
-        TextFieldUnderCorrectText("사용 가능한 닉네임이에요.")
-    }
-    else if (value=="2") {
-        TextFieldUnderWrongText("이미 사용 중인 닉네임이에요.")
-    }
-    else if (value=="3") {
-        TextFieldUnderWrongText("닉네임은 마침표로 시작할 수 없어요.")
-    }
-    else if (value=="4") {
-        TextFieldUnderWrongText("닉네임은 숫자로만 이뤄질 수 없어요.")
-    }
-    else if (value=="5") {
-        TextFieldUnderWrongText("사용할 수 없는 닉네임이에요.")
-    }
-    else {
-        TextFieldUnderCorrectText("20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.")
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun ShowNicknameRulePreview() {
-    ShowNicknameRule("1")
-}
 
 @Composable
 fun InputNicknameLayout(
@@ -71,83 +43,95 @@ fun InputNicknameLayout(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun InputNicknameLayoutPreview() {
+enum class NicknameRule(val positive: Boolean, val description: String) {
+    Available(true, "사용 가능한 닉네임이에요."),
+    InUsed(false, "이미 사용 중인 닉네임이에요."),
+    StartsWithDot(false, "닉네임은 마침표로 시작할 수 없어요."),
+    OnlyNumber(false, "닉네임은 숫자로만 이뤄질 수 없어요."),
+    UnAvailable(false, "사용할 수 없는 닉네임이에요."),
+    Nothing(true, "20자 이내 영문, 숫자, 밑줄 및 마침표만 사용 가능해요.")
+}
 
-    var state by remember{ mutableStateOf("") }
-    InputNicknameLayout(state) { state = it }
+fun isNicknameRuleMatch(path: String, regex: Regex): Boolean = path.matches(regex)
+
+fun checkNicknameRule(
+    nickname: String,
+    isNotNicknameDuplicate: Boolean?
+) : NicknameRule {
+    val regex1 = "[0-9a-z_.]{1,20}".toRegex()
+    val regex3 = "^[.].*\$".toRegex()
+    val regex4 = "^[0-9]*\$".toRegex()
+//    val regex5 = "^[_]*\$".toRegex()
+//    val regex6 = "^[.]*\$".toRegex()
+    val regex7 = "^[._]*\$".toRegex()
+
+    if (nickname.isEmpty()) {
+        return NicknameRule.Nothing
+    }
+    return if (isNicknameRuleMatch(nickname, regex1)) {
+        if (isNicknameRuleMatch(nickname, regex3)) {
+            NicknameRule.StartsWithDot
+        } else if (isNicknameRuleMatch(nickname, regex4)) {
+            NicknameRule.OnlyNumber
+        } else if(isNicknameRuleMatch(nickname, regex7)) {
+            NicknameRule.UnAvailable
+        } else {
+            if (isNotNicknameDuplicate == true) {
+                NicknameRule.Available
+            } else {
+                NicknameRule.InUsed
+            }
+        }
+    } else {
+        NicknameRule.UnAvailable
+    }
 }
 
 @Composable
-fun InputNicknamewithRuleLayout(
+fun InputNicknameLayout(
+    isNotNicknameDuplicate: Boolean?,
     value: String,
     onValueChange: (String) -> Unit
 ) {
     Column {
-        CustomHintTextField(
-            hintText = "닉네임(20자 이내 영문,숫자,_,.가능)", value = value, onValueChange = onValueChange,
+        Text(
+            text = "닉네임",
+            style = TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontWeight = FontWeight(400),
+                color = SmallTextGrey,
+            )
         )
-        CheckNicknameRule(value)
+        CustomHintTextField(
+            hintText = "닉네임(20자 이내 영문,숫자,_,.가능)",
+            value = value,
+            onValueChange = onValueChange,
+        )
+        val asd = checkNicknameRule(value, isNotNicknameDuplicate)
+        TextFieldUnderText(text = asd.description, isPositive = asd.positive)
     }
-
 }
 
 @Preview(showBackground = true)
 @Composable
-fun InputNicknamewithRuleLayoutPreview() {
-    var textState by remember { mutableStateOf("") }
-
-    InputNicknamewithRuleLayout(
-        value = textState,
-        onValueChange = { textState = it }
+fun InputNicknameLayoutPreview() {
+    var state by remember{ mutableStateOf("") }
+    InputNicknameLayout(
+        isNotNicknameDuplicate = true,
+        value = state,
+        onValueChange = { state = it }
     )
 }
 
 @Composable
-fun CheckNicknameRule(
-    value: String,
+fun CreateNicknameScreen(
+    viewModel: OnboardingViewModel = viewModel()
 ) {
-    val path = value
-    val regex1 = "[0-9a-z_.]{1,20}".toRegex()
-    val regex3 = "^[.].*\$".toRegex()
-    val regex4 = "^[0-9]*\$".toRegex()
-    val regex5 = "^[_]*\$".toRegex()
-    val regex6 = "^[.]*\$".toRegex()
-    val regex7 = "^[._]*\$".toRegex()
+    var nicknameState by remember { mutableStateOf("") }
+    var phoneNumberState by remember { mutableStateOf("") }
 
-    if (value == "") ShowNicknameRule("")
-    else{
-        if (isNicknameRuleMatch(path, regex1)) {
-            if(isNicknameRuleMatch(path, regex3)){
-                ShowNicknameRule("3")
-            }else if(isNicknameRuleMatch(path, regex4)){
-                ShowNicknameRule("4")
-            }else if(isNicknameRuleMatch(path, regex7)){
-                ShowNicknameRule("5")
-            }
-            else {
-//                if(/*TODO : 서버에서 중복된 닉네임 확인*/)
-//                else
-                ShowNicknameRule("1")
-            }
-        }
-        else{
-            ShowNicknameRule("5")
-        }
-    }
-}
-
-@Composable
-fun isNicknameRuleMatch(path: String, regex: Regex): Boolean {
-    return path.matches(regex)
-}
-
-@Composable
-fun CreateNicknameScreen() {
-
-    var state1 by remember{ mutableStateOf("") }
-    var state2 by remember{ mutableStateOf("") }
+    val isNotNicknameDuplicate by viewModel.isNotNicknameDuplicate.observeAsState()
 
     BottomCustomButtonLayout(
         buttonText = "확인",
@@ -167,8 +151,14 @@ fun CreateNicknameScreen() {
                     color = AbleDark,
                 )
             )
-            InputNicknamewithRuleLayout(state1) { state1 = it }
-            InputPhoneNumberLayout(state2) { state2 = it }
+            InputNicknameLayout(
+                isNotNicknameDuplicate = isNotNicknameDuplicate,
+                value = nicknameState,
+            ) {
+                if (it.isNotEmpty()) viewModel.checkDuplicateNickname(it)
+                nicknameState = it
+            }
+            InputPhoneNumberLayout(phoneNumberState) { phoneNumberState = it }
         }
     }
 }
