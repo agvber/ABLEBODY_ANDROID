@@ -1,5 +1,7 @@
 package com.example.ablebody_android.onboarding
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -37,14 +39,23 @@ fun SelectGenderButton(
     isChecked: Boolean,
     onClick: () -> Unit
 ) {
+    val buttonAnimatedColor by animateColorAsState(
+        targetValue = if (isChecked) AbleBlue else PlaneGrey,
+        animationSpec = tween(200)
+    )
+    val textAnimatedColor by animateColorAsState(
+        targetValue = if (isChecked) White else SmallTextGrey,
+        animationSpec = tween(100)
+    )
+
     Button(
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isChecked) AbleBlue else PlaneGrey
+            containerColor = buttonAnimatedColor
         ),
         shape = RoundedCornerShape(5.dp),
         onClick = onClick
     ) {
-        Text(text = text, color = if (isChecked) White else SmallTextGrey)
+        Text(text = text, color = textAnimatedColor)
     }
 }
 
