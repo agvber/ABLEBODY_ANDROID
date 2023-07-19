@@ -22,15 +22,15 @@ import com.example.ablebody_android.utils.TextFieldUnderWrongText
 
 @Composable
 fun ShowPhoneNumberRule(
-    phonnumber: String,
+    phonenumber: String,
 ){
-    if (phonnumber=="correct") {
+    if (phonenumber=="correct") {
         TextFieldUnderCorrectText("")
     }
-    else if(phonnumber=="unstyled"){
+    else if(phonenumber=="unstyled"){
         TextFieldUnderWrongText("휴대폰 번호 양식에 맞지 않아요." )
     }
-    else if(phonnumber=="nothing"){
+    else if(phonenumber=="nothing"){
         TextFieldUnderCorrectText("분 초 남음")
     }
 }
