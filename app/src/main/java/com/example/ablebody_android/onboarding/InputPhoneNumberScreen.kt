@@ -22,15 +22,15 @@ import com.example.ablebody_android.utils.TextFieldUnderWrongText
 
 @Composable
 fun ShowPhoneNumberRule(
-    value: String,
+    phonnumber: String,
 ){
-    if (value=="1") {
-        TextFieldUnderCorrectText("사용 가능한 닉네임이에요.")
+    if (phonnumber=="correct") {
+        TextFieldUnderCorrectText("")
     }
-    else if(value=="2"){
+    else if(phonnumber=="unstyled"){
         TextFieldUnderWrongText("휴대폰 번호 양식에 맞지 않아요." )
     }
-    else {
+    else if(phonnumber=="nothing"){
         TextFieldUnderCorrectText("분 초 남음")
     }
 }
@@ -38,7 +38,7 @@ fun ShowPhoneNumberRule(
 @Preview(showBackground = true)
 @Composable
 fun ShowPhoneNumberRulePreview() {
-    ShowPhoneNumberRule("1")
+    ShowPhoneNumberRule("correct")
 }
 
 @Composable
@@ -48,13 +48,13 @@ fun CheckPhoneNumberRule(
     val path = value
     val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
 
-    if (value == "") ShowPhoneNumberRule("")
+    if (value == "") ShowPhoneNumberRule("nothing")
     else{
         if (isPhoneNumberRuleMatch(path, regex)) {
-            ShowPhoneNumberRule("1")
+            ShowPhoneNumberRule("correct")
         }
         else{
-            ShowPhoneNumberRule("2")
+            ShowPhoneNumberRule("unstyled")
         }
     }
 }
