@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.HighlightText
@@ -34,13 +35,14 @@ import com.example.ablebody_android.ui.theme.White
 fun SelectGenderButton(
     text: String,
     isChecked: Boolean,
+    onClick: () -> Unit
 ) {
     Button(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isChecked) AbleBlue else PlaneGrey
         ),
         shape = RoundedCornerShape(5.dp),
-        onClick = { /*TODO: 성별 선택 이벤트*/ }
+        onClick = onClick
     ) {
         Text(text = text, color = if (isChecked) White else SmallTextGrey)
     }
@@ -49,11 +51,14 @@ fun SelectGenderButton(
 @Preview(showBackground = true)
 @Composable
 fun SelectGenderButtonPreview() {
-    SelectGenderButton("남자", false)
+    SelectGenderButton("남자", false) {}
 }
 
 @Composable
-fun InputGenderLayout() {
+fun InputGenderLayout(
+    gender: Gender?,
+    onClick: (Gender) -> Unit
+) {
     Column {
         Text(
             text = "성별",
@@ -65,9 +70,18 @@ fun InputGenderLayout() {
             ),
             modifier = Modifier.padding(top=15.dp)
         )
+
         Row {
-            SelectGenderButton(text = "남자", isChecked = true)
-            SelectGenderButton(text = "여자", isChecked = false)
+            SelectGenderButton(
+                text = Gender.MALE.name,
+                isChecked = Gender.MALE == gender,
+                onClick = { onClick(Gender.MALE) }
+            )
+            SelectGenderButton(
+                text = Gender.FEMALE.name,
+                isChecked = Gender.FEMALE == gender,
+                onClick = { onClick(Gender.FEMALE) }
+            )
         }
     }
 }
@@ -75,16 +89,24 @@ fun InputGenderLayout() {
 @Preview(showBackground = true)
 @Composable
 fun InputGenderLayoutPreview() {
-    InputGenderLayout()
+    var gender by remember { mutableStateOf<Gender>(Gender.MALE) }
+
+    InputGenderLayout(gender = gender) {
+        gender = it
+    }
 }
 
 
 @Composable
-fun InputGenderScreen() {
-    var state by remember{ mutableStateOf("") }
-
+fun InputGenderScreen(
+    nickname: String,
+    phoneNumber: String,
+    gender: Gender?,
+    onClick: (Gender) -> Unit
+) {
     BottomCustomButtonLayout(
         buttonText = "확인",
+        enable = gender != null,
         onClick = {  }
     ) {
         Column(
@@ -102,9 +124,9 @@ fun InputGenderScreen() {
                     color = AbleDark,
                 )
             )
-            InputGenderLayout()
-            InputNicknameLayout(state)  { state = it }
-            InputPhoneNumberLayout(value = "01012345678") {  }
+            InputGenderLayout(gender = gender, onClick = onClick)
+            InputNicknameLayout(nickname)  {  }
+            InputPhoneNumberLayout(value = phoneNumber) {  }
         }
     }
 }
@@ -112,5 +134,12 @@ fun InputGenderScreen() {
 @Preview(showSystemUi = true)
 @Composable
 fun InputGenderScreenPreview() {
-    InputGenderScreen()
+    var gender by remember { mutableStateOf<Gender?>(null) }
+
+    InputGenderScreen(
+        nickname = "nick",
+        phoneNumber = "01026289219",
+        gender = gender,
+        onClick = { gender = it }
+    )
 }

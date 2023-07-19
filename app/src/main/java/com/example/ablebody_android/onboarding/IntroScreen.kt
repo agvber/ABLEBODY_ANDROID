@@ -40,7 +40,12 @@ fun IntroScreen() {
             CreateNicknameScreen()
         }
         composable(route = "InputGender") {
-            InputGenderScreen()
+            InputGenderScreen(
+                "nickname",
+                "01026289219",
+                gender = null,
+                onClick = {  }
+            )
         }
         composable(route = "SelectProfile") {
             SelectProfileScreen()
