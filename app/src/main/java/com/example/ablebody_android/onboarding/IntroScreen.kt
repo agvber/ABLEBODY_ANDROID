@@ -8,6 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ablebody_android.onboarding.data.ProfileImages
 import kotlinx.coroutines.launch
 
 
@@ -40,10 +41,15 @@ fun IntroScreen() {
             CreateNicknameScreen()
         }
         composable(route = "InputGender") {
-            InputGenderScreen()
+            InputGenderScreen(
+                "nickname",
+                "01026289219",
+                gender = null,
+                onClick = {  }
+            )
         }
         composable(route = "SelectProfile") {
-            SelectProfileScreen()
+            SelectProfileScreen(null) {  }
         }
     }
 }

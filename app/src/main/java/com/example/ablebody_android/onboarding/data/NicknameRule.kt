@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.data
 
 enum class NicknameRule(val positive: Boolean, val description: String) {
     Available(true, "사용 가능한 닉네임이에요."),
