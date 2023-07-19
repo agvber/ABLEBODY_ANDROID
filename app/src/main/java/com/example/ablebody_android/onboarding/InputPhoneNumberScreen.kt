@@ -3,6 +3,7 @@ package com.example.ablebody_android.onboarding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
@@ -143,15 +145,21 @@ private fun ContentPreview() {
 
 
 @Composable
-fun InputPhoneNumberScreen() {
+fun InputPhoneNumberScreen(
+    viewModel: OnboardingViewModel = viewModel()
+) {
 
-    var state by remember{ mutableStateOf("") }
+    var phoneNumberState by remember{ mutableStateOf("") }
+
+    val isNotPhonenumberDuplicate by viewModel.isNotPhonenumberDuplicate.observeAsState()
 
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
-        onClick = {  }
+        onClick = {
+            viewModel.checkDuplicatePhonenumber(phoneNumberState)
+        }
     ) {
-        InputPhoneNumberContent(state) { state = it }
+        InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
     }
 }
 

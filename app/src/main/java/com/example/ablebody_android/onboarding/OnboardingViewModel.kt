@@ -33,6 +33,20 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
+    val isNotPhonenumberDuplicate: LiveData<Boolean> get() =  _isNotPhonenumberDuplicate
+    private val _isNotPhonenumberDuplicate = MutableLiveData<Boolean>()
+
+    fun checkDuplicatePhonenumber(phoneNumber: String) {
+        viewModelScope.launch(ioDispatcher) {
+            val response = networkRepository.sendSMS(phoneNumber)
+            if (response.body()?.code == 200) {
+                _isNotPhonenumberDuplicate.postValue(true)
+            } else {
+                _isNotPhonenumberDuplicate.postValue(false)
+            }
+        }
+    }
+
     val userData: LiveData<UserDataResponse> get() = _userData
     private val _userData: MutableLiveData<UserDataResponse> = MutableLiveData()
 
