@@ -31,7 +31,7 @@ private fun StartContentLayout(modifier: Modifier = Modifier) {
         modifier = modifier.padding(top = 130.dp)
     ) {
         HighlightText(
-            string = "운동 기록이 쉬워진다\n애블바디",
+            string = "나만의 운동 스타일을 찾다\n애블바디",
             colorStringList = listOf("애블바디"),
             color = AbleBlue,
             style = TextStyle(
@@ -44,8 +44,8 @@ private fun StartContentLayout(modifier: Modifier = Modifier) {
         )
 
         HighlightText(
-            string = "복잡한 운동 기록은 이제 그만!\n클릭 한 번으로 운동 약속을 지켜보세요.",
-            colorStringList = listOf("클릭 한 번", "운동 약속"),
+            string = "운동에 진심인 사람들의\n다양한 운동 스타일을 만나보세요.",
+            colorStringList = listOf("다양한 운동 스타일"),
             color = AbleBlue,
             style = TextStyle(
                 fontSize = 17.sp,
