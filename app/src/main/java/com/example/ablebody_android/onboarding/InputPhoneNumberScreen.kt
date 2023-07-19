@@ -60,9 +60,7 @@ fun CheckPhoneNumberRule(
 }
 
 @Composable
-fun isPhoneNumberRuleMatch(path: String, regex: Regex): Boolean {
-    return path.matches(regex)
-}
+fun isPhoneNumberRuleMatch(path: String, regex: Regex): Boolean = path.matches(regex)
 
 @Composable
 fun InputPhoneNumberLayout(
