@@ -3,7 +3,6 @@ package com.example.ablebody_android.onboarding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,7 +25,7 @@ import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.utils.TextFieldUnderText
 
 
