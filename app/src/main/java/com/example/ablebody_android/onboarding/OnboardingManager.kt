@@ -8,13 +8,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.ablebody_android.onboarding.data.ProfileImages
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun IntroScreen() {
+fun OnboardingManager() {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -56,6 +55,6 @@ fun IntroScreen() {
 
 @Preview(showSystemUi = true)
 @Composable
-fun IntroScreenPreview() {
-    IntroScreen()
+fun OnboardingManagerPreview() {
+    OnboardingManager()
 }
