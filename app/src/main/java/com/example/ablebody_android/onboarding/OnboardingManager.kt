@@ -30,7 +30,7 @@ fun OnboardingManager() {
                 sheetState = bottomSheetState,
                 bottomButtonClick = { coroutineScope.launch { bottomSheetState.hide() } }
             ) {
-                StartScreen { coroutineScope.launch { bottomSheetState.show() } }
+                IntroScreen { coroutineScope.launch { bottomSheetState.show() } }
             }
         }
         composable(route = "InputPhoneNumber") {
