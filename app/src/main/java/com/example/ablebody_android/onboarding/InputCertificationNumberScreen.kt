@@ -1,5 +1,9 @@
 package com.example.ablebody_android.onboarding
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -21,12 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.utils.redirectToURL
 
 @Composable
 fun InputCertificationNumberContent(
@@ -72,6 +79,7 @@ fun InputCertificationNumberContent(
             verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            val context = LocalContext.current
             Text(text = "인증문자가 안 오거나 문제가 있나요?")
             HighlightText(
                 string = "카카오톡 채널로 문제 해결하기",
@@ -79,9 +87,9 @@ fun InputCertificationNumberContent(
                 color = AbleBlue,
                 modifier = Modifier.clickable(
                     interactionSource = MutableInteractionSource(),
-                    indication = null
+                    indication = null,
                 ) {
-
+                    redirectToURL(context, "kakaotalk channel")
                 }
             )
         }
