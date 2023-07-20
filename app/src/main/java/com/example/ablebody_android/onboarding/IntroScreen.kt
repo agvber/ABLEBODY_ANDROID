@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,7 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 
 
 @Composable
-private fun StartContentLayout(modifier: Modifier = Modifier) {
+private fun IntroContentLayout(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(top = 130.dp)
     ) {
@@ -61,13 +60,13 @@ private fun StartContentLayout(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun StartContentLayoutPreview() {
-    StartContentLayout()
+fun IntroContentLayoutPreview() {
+    IntroContentLayout()
 }
 
 
 @Composable
-private fun StartBottomLayout(
+private fun IntroBottomLayout(
     onClick: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -97,24 +96,24 @@ private fun StartBottomLayout(
 
 @Preview(showBackground = true)
 @Composable
-fun StartBottomLayoutPreview() {
-    StartBottomLayout() {  }
+fun IntroBottomLayoutPreview() {
+    IntroBottomLayout() {  }
 }
 
 
 @Composable
-fun StartScreen(
-    startButtonOnClick: () -> Unit
+fun IntroScreen(
+    introButtonOnClick: () -> Unit
 ) {
     Scaffold(
-        bottomBar = { StartBottomLayout(startButtonOnClick) },
+        bottomBar = { IntroBottomLayout(introButtonOnClick) },
     ) {
-        StartContentLayout(modifier = Modifier.padding(it))
+        IntroContentLayout(modifier = Modifier.padding(it))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun StartScreenPreview() {
-    StartScreen() {}
+fun IntroScreenPreview() {
+    IntroScreen() {}
 }
