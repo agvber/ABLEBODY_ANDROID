@@ -67,7 +67,7 @@ fun checkNicknameRule(
 }
 
 @Composable
-fun InputNicknameLayoutTest(
+fun InputNicknamewithRuleLayout(
     nicknameRule: () -> NicknameRule,
     value: String,
     onValueChange: (String) -> Unit
@@ -86,7 +86,7 @@ fun InputNicknameLayoutTest(
 @Composable
 fun InputNicknameLayoutPreview() {
     var state by remember{ mutableStateOf("") }
-    InputNicknameLayoutTest(
+    InputNicknamewithRuleLayout(
         { NicknameRule.Nothing },
         value = state,
         onValueChange = { state = it }
@@ -124,7 +124,7 @@ fun CreateNicknameScreen(
                     color = AbleDark,
                 )
             )
-            InputNicknameLayoutTest(
+            InputNicknamewithRuleLayout(
                 nicknameRule = {
                     if (nicknameRuleState == NicknameRule.Available) {
                         if (isNotNicknameDuplicate == true) NicknameRule.Available
