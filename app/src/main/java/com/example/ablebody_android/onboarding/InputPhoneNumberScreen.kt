@@ -1,5 +1,6 @@
 package com.example.ablebody_android.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
@@ -11,8 +12,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
@@ -157,9 +158,15 @@ fun InputPhoneNumberScreen(
         buttonText = "인증번호 받기",
         onClick = {
             viewModel.checkDuplicatePhonenumber(phoneNumberState)
+            Log.d("LOG", "버튼 눌려짐!")
         }
+//                Log.d("LOG", "버튼 눌려짐!")
     ) {
-        InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
+
+        InputPhoneNumberContent(phoneNumberState) {
+            //키패드가 눌려질 때마다
+            phoneNumberState = it
+        }
     }
 }
 
