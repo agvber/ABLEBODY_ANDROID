@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.InputPhoneNumberLayout
+import com.example.ablebody_android.onboarding.InputPhoneNumberwithRuleLayout
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -47,7 +47,7 @@ fun LoginInputPhoneNumberContent(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
             )
         )
-        InputPhoneNumberLayout(value, onValueChange)
+        InputPhoneNumberwithRuleLayout(value, onValueChange)
         Column(
             Modifier
                 .fillMaxWidth()
