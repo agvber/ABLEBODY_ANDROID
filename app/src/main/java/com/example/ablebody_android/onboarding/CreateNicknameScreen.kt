@@ -140,7 +140,7 @@ fun CreateNicknameScreen(
                 }
                 nicknameState = it
             }
-            InputPhoneNumberLayout(phoneNumberState) { phoneNumberState = it }
+            InputPhoneNumberwithoutRuleLayout(phoneNumberState) { phoneNumberState = it }
         }
     }
 }
