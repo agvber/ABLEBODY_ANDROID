@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
@@ -139,7 +141,8 @@ private fun ContentPreview() {
 
 @Composable
 fun InputPhoneNumberScreen(
-    viewModel: OnboardingViewModel = viewModel()
+    viewModel: OnboardingViewModel = viewModel(),
+    navController: NavController
 ) {
     var phoneNumberState by remember{ mutableStateOf("") }
 //    val isNotPhonenumberDuplicate by viewModel.isNotPhonenumberDuplicate.observeAsState()
@@ -148,6 +151,7 @@ fun InputPhoneNumberScreen(
         buttonText = "인증번호 받기",
         onClick = {
             viewModel.checkDuplicatePhonenumber(phoneNumberState)
+            navController.navigate("InputCertificationNumber")
         },
         enable = PhonenumberFormJudgment(phoneNumberState)
     ) {
@@ -157,6 +161,8 @@ fun InputPhoneNumberScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun InputPhoneNumberScreenPreview() {
-    InputPhoneNumberScreen()
+fun InputPhoneNumberScreenPreview(viewModel: OnboardingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    val navController = rememberNavController()
+
+    InputPhoneNumberScreen(viewModel,navController)
 }

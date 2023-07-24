@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OnboardingManager() {
+fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -28,13 +28,21 @@ fun OnboardingManager() {
         composable(route = "Start") {
             PermissionExplanationBottomSheet(
                 sheetState = bottomSheetState,
-                bottomButtonClick = { coroutineScope.launch { bottomSheetState.hide() } }
+                bottomButtonClick = {
+                    coroutineScope.launch {
+                        bottomSheetState.hide()
+                    }
+                    navController.navigate("InputPhoneNumber")
+                }
             ) {
                 IntroScreen { coroutineScope.launch { bottomSheetState.show() } }
             }
         }
         composable(route = "InputPhoneNumber") {
-            InputPhoneNumberScreen()
+            InputPhoneNumberScreen(viewModel,navController)
+        }
+        composable(route = "InputCertificationNumber") {
+            InputCertificationNumberScreen()
         }
         composable(route = "CreateNickname") {
             CreateNicknameScreen()
