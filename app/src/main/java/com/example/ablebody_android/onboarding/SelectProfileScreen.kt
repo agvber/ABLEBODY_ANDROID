@@ -89,7 +89,7 @@ fun SelectProfileImageLayout(
         items(ProfileImages.values()) { profileImages ->
             val animateFloat by animateFloatAsState(
                 targetValue = if (value == null || value == profileImages) 1f else .5f,
-                animationSpec = tween(600)
+                animationSpec = tween(300)
             )
 
             Image(
