@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
+import com.example.ablebody_android.onboarding.data.NicknameRule
+import com.example.ablebody_android.onboarding.utils.checkNicknameRule
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,17 +21,21 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     private val ioDispatcher = Dispatchers.IO
 
 
-    val isNotNicknameDuplicate: LiveData<Boolean> get() =  _isNotNicknameDuplicate
-    private val _isNotNicknameDuplicate = MutableLiveData<Boolean>()
+    val availableNicknameCheckLiveData: LiveData<NicknameRule> get() = _availableNicknameCheckLiveData
+    private val _availableNicknameCheckLiveData = MutableLiveData<NicknameRule>()
 
-    fun checkDuplicateNickname(name: String) {
+    fun checkAvailableNickname(name: String) {
         viewModelScope.launch(ioDispatcher) {
-            val response = networkRepository.checkNickname(name)
-            if (response.body()?.code == 200) {
-                _isNotNicknameDuplicate.postValue(true)
-            } else {
-                _isNotNicknameDuplicate.postValue(false)
+            var nicknameRule: NicknameRule = checkNicknameRule(name)
+
+            if (nicknameRule == NicknameRule.Available) {
+                nicknameRule = if (networkRepository.checkNickname(name).body()?.success == true) {
+                    NicknameRule.Available
+                } else {
+                    NicknameRule.InUsed
+                }
             }
+            _availableNicknameCheckLiveData.postValue(nicknameRule)
         }
     }
 
