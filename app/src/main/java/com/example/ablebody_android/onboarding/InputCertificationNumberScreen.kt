@@ -3,6 +3,7 @@ package com.example.ablebody_android.onboarding
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -110,10 +111,12 @@ private fun ContentPreview() {
 
 @Composable
 fun InputCertificationNumberScreen(
-    viewModel: OnboardingViewModel = viewModel(),
+    viewModel: OnboardingViewModel,
 ) {
 
     val sms = viewModel.sendSMSLiveData.observeAsState()
+    val phoneConfirmId = sms.value?.data?.phoneConfirmId
+    Log.d("LOGsms", phoneConfirmId.toString()) //phoneConfirmId
 
     var state by remember{ mutableStateOf("") }
     BottomCustomButtonLayout(
@@ -124,8 +127,8 @@ fun InputCertificationNumberScreen(
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun InputCertificationNumberScreenPreview() {
-    InputCertificationNumberScreen()
+fun InputCertificationNumberScreenPreview(viewModel: OnboardingViewModel) {
+    InputCertificationNumberScreen(viewModel)
 }
