@@ -1,6 +1,5 @@
 package com.example.ablebody_android.onboarding
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
@@ -22,11 +21,10 @@ import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.TextFieldUnderCorrectText
 import com.example.ablebody_android.utils.TextFieldUnderText
-import com.example.ablebody_android.utils.TextFieldUnderWrongText
+
 @Composable
-fun InputPhoneNumberwithoutRuleLayout(
+fun InputPhoneNumberWithoutRuleLayout(
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -39,32 +37,32 @@ fun InputPhoneNumberwithoutRuleLayout(
 
 @Preview(showBackground = true)
 @Composable
-fun InputPhoneNumberwithoutRuleLayoutPreview() {
+fun InputPhoneNumberWithoutRuleLayoutPreview() {
     var textState by remember { mutableStateOf("") }
 
-    InputPhoneNumberwithoutRuleLayout(
+    InputPhoneNumberWithoutRuleLayout(
         value = textState,
         onValueChange = { textState = it }
     )
 }
 
 @Composable
-fun InputPhoneNumberwithRuleLayout(
+fun InputPhoneNumberWithRuleLayout(
     value: String,
     onValueChange: (String) -> Unit
 ) {
     Column {
-        InputPhoneNumberwithoutRuleLayout(value, onValueChange)
+        InputPhoneNumberWithoutRuleLayout(value, onValueChange)
         PhoneNumberFormRule(value)
     }
 
 }
 @Preview(showBackground = true)
 @Composable
-fun InputPhoneNumberwithRuleLayoutPreview() {
+fun InputPhoneNumberWithRuleLayoutPreview() {
     var textState by remember { mutableStateOf("") }
 
-    InputPhoneNumberwithRuleLayout(
+    InputPhoneNumberWithRuleLayout(
         value = textState,
         onValueChange = { textState = it }
     )
@@ -76,34 +74,29 @@ fun PhoneNumberFormRule(
     val path = value
     val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
 
-    if (value == "") {
-        TextFieldUnderText("분 초 남음", true)
-    }
-    else{
+    if (value.isNotEmpty()) {
         if (isPhoneNumberRuleMatch(path, regex)) {
-            TextFieldUnderText("", true)
-        }
-        else{
+            TextFieldUnderText("")
+        } else {
             TextFieldUnderText("휴대폰 번호 양식에 맞지 않아요.", false)
         }
     }
 }
-@Composable
+
 fun isPhoneNumberRuleMatch(path: String, regex: Regex): Boolean = path.matches(regex)
 
-@Composable
-fun PhonenumberFormJudgment(
-    phonenumber: String,
+fun phoneNumberFormJudgment(
+    phoneNumber: String,
 ) : Boolean{
 
-    val path = phonenumber
+    val path = phoneNumber
     val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
 
-    return !(phonenumber=="" || !isPhoneNumberRuleMatch(path, regex))
+    return !(phoneNumber=="" || !isPhoneNumberRuleMatch(path, regex))
 }
 
 @Composable
-fun PhonenumberJoinExplanation(){
+fun PhoneNumberJoinExplanation(){
     HighlightText(
         string = "애블바디는 휴대폰 번호로 가입해요.\n휴대폰 번호는 안전하게 보관되며\n어디에도 공개되지 않아요.",
         colorStringList = listOf("휴대폰 번호"),
@@ -124,8 +117,8 @@ private fun InputPhoneNumberContent(
     onValueChange: (String) -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        PhonenumberJoinExplanation()
-        InputPhoneNumberwithRuleLayout(value, onValueChange)
+        PhoneNumberJoinExplanation()
+        InputPhoneNumberWithRuleLayout(value, onValueChange)
     }
 }
 
@@ -145,15 +138,14 @@ fun InputPhoneNumberScreen(
     navController: NavController
 ) {
     var phoneNumberState by remember{ mutableStateOf("") }
-//    val isNotPhonenumberDuplicate by viewModel.isNotPhonenumberDuplicate.observeAsState()
 
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
         onClick = {
-            viewModel.checkDuplicatePhonenumber(phoneNumberState)
+            viewModel.sendSMS(phoneNumberState)
             navController.navigate("InputCertificationNumber")
         },
-        enable = PhonenumberFormJudgment(phoneNumberState)
+        enable = phoneNumberFormJudgment(phoneNumberState)
     ) {
         InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
     }
@@ -161,7 +153,7 @@ fun InputPhoneNumberScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun InputPhoneNumberScreenPreview(viewModel: OnboardingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun InputPhoneNumberScreenPreview(viewModel: OnboardingViewModel = viewModel()) {
     val navController = rememberNavController()
 
     InputPhoneNumberScreen(viewModel,navController)

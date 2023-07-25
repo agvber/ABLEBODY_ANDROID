@@ -137,7 +137,7 @@ fun InputGenderScreen(
             )
             InputGenderLayout(gender = gender, onClick = onClick)
             InputNicknameLayout(nickname)  {  }
-            InputPhoneNumberwithoutRuleLayout(value = phoneNumber) {  }
+            InputPhoneNumberWithoutRuleLayout(value = phoneNumber) {  }
         }
     }
 }

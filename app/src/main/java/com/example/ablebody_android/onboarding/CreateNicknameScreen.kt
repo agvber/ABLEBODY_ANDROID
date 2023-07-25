@@ -106,7 +106,7 @@ fun CreateNicknameScreen(
                 nicknameState = it
                 viewModel.checkAvailableNickname(nicknameState)
             }
-            InputPhoneNumberwithoutRuleLayout(phoneNumberState) { phoneNumberState = it }
+            InputPhoneNumberWithoutRuleLayout(phoneNumberState) { phoneNumberState = it }
         }
     }
 }

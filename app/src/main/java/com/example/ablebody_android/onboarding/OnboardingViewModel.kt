@@ -9,9 +9,12 @@ import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.onboarding.utils.checkNicknameRule
+import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class OnboardingViewModel(application: Application): AndroidViewModel(application) {
 
@@ -39,17 +42,21 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
-    val isNotPhonenumberDuplicate: LiveData<Boolean> get() =  _isNotPhonenumberDuplicate
-    private val _isNotPhonenumberDuplicate = MutableLiveData<Boolean>()
+    val sendSMSLiveData: LiveData<SendSMSResponse> get() =  _sendSMSLiveData
+    private val _sendSMSLiveData = MutableLiveData<SendSMSResponse>()
 
-    fun checkDuplicatePhonenumber(phoneNumber: String) {
+    fun sendSMS(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
             val response = networkRepository.sendSMS(phoneNumber)
-            if (response.body()?.code == 200) {
-                _isNotPhonenumberDuplicate.postValue(true)
-            } else {
-                _isNotPhonenumberDuplicate.postValue(false)
-            }
+            _sendSMSLiveData.postValue(response.body())
+        }
+    }
+
+    private val timer = Timer()
+
+    fun startCertificationNumberTimer() {
+        viewModelScope.launch {
+            timer.schedule(timerTask {  }, 1000L)
         }
     }
 

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
@@ -63,7 +65,7 @@ fun InputCertificationNumberContent(
             onValueChange = onValueChange
         )
         Text(
-            text = " ", /*TODO 남은 초 보여주기*/
+            text = "04", /*TODO 남은 초 보여주기*/
             style = TextStyle(
                 fontSize = 12.sp,
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
@@ -107,7 +109,11 @@ private fun ContentPreview() {
 
 
 @Composable
-fun InputCertificationNumberScreen() {
+fun InputCertificationNumberScreen(
+    viewModel: OnboardingViewModel = viewModel(),
+) {
+
+    val sms = viewModel.sendSMSLiveData.observeAsState()
 
     var state by remember{ mutableStateOf("") }
     BottomCustomButtonLayout(
