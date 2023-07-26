@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -32,6 +34,7 @@ import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.CustomButton
+import com.example.ablebody_android.utils.redirectToURL
 
 @Composable
 fun TermsAgreementSheetContentControlAllSwitches(
@@ -91,6 +94,7 @@ private fun TermsAgreementSheetContentItem(
     onCheckedChange: () -> Unit
 ) {
     val checkedImageResourceID = if (checked) R.drawable.checked_big else R.drawable.unchecked_big
+    val context = LocalContext.current
 
     ConstraintLayout(
         modifier = Modifier
@@ -117,22 +121,42 @@ private fun TermsAgreementSheetContentItem(
         Text(
             text = description,
             modifier = Modifier
+                .width(300.dp)
                 .padding(horizontal = 10.dp)
                 .constrainAs(ref = Text) {
                     top.linkTo(parent.top)
                     bottom.linkTo(parent.bottom)
                     absoluteLeft.linkTo(checkedImage.absoluteRight)
                 }
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) { onCheckedChange() }
         )
 
         Image(
             painter = painterResource(id = R.drawable.chevronforward),
             contentDescription = "Chevron_Forward",
-            modifier = Modifier.constrainAs(ref = chevronForward) {
+            modifier = Modifier
+                .constrainAs(ref = chevronForward) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
                 end.linkTo(parent.end)
             }
+                .width(30.dp)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null,
+                ) {
+                    if(description == "서비스 이용약관 동의")
+                        redirectToURL(context, "service agreement")
+                    else if(description == "개인정보 수집 및 이용 동의")
+                        redirectToURL(context, "privacy policy")
+                    else if(description == "개인정보 제3자 제공 동의")
+                        redirectToURL(context, "thirdparty sharing consent")
+                    else if(description == "마케팅 정보 수신 동의(선택)")
+                        redirectToURL(context, "marketing information consent")
+                }
         )
     }
 }
