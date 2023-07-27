@@ -1,6 +1,6 @@
 package com.example.ablebody_android.onboarding.data
 
-data class FormattedTimeTimeData(
+data class FormattedTimeData(
     val minutes: Int,
     val seconds: Int
 )
