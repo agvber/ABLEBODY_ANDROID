@@ -124,7 +124,7 @@ private fun InputPhoneNumberContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun ContentPreview() {
+private fun InputCertificationNumberContentPreview() {
 
     var phoneNumberState by remember{ mutableStateOf("") }
     InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
