@@ -143,6 +143,7 @@ fun InputPhoneNumberScreen(
         buttonText = "인증번호 받기",
         onClick = {
             viewModel.sendSMS(phoneNumberState)
+            viewModel.startCertificationNumberTimer()
             navController.navigate("InputCertificationNumber")
         },
         enable = phoneNumberFormJudgment(phoneNumberState)

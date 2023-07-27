@@ -1,6 +1,7 @@
 package com.example.ablebody_android.onboarding
 
 import android.app.Application
+import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +14,6 @@ import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.concurrent.timer
 
 class OnboardingViewModel(application: Application): AndroidViewModel(application) {
 
@@ -53,21 +53,31 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     val currentCertificationNumberTimeLiveData: LiveData<Long> get() = _currentCertificationNumberTimeLiveData
     private val _currentCertificationNumberTimeLiveData = MutableLiveData<Long>(180000L)
 
-    private var certificationNumberTimerIsRunning: Boolean = false
+    private var certificationNumberCountDownTimerIsRunning: Boolean = false
 
-    private val certificationNumberTimer = timer(daemon = certificationNumberTimerIsRunning, initialDelay = 1000L, period = 1000L) {
-        val currentTime = _currentCertificationNumberTimeLiveData.value?.minus(1000L)
-        _currentCertificationNumberTimeLiveData.postValue(currentTime)
-        if (currentTime == 0L) cancel()
+    private val certificationNumberCountDownTimer = object : CountDownTimer(180000L, 1000L) {
+        override fun onTick(millisUntilFinished: Long) {
+            val currentTime = _currentCertificationNumberTimeLiveData.value?.minus(1000L)
+            _currentCertificationNumberTimeLiveData.postValue(currentTime)
+        }
+        override fun onFinish() {
+            certificationNumberCountDownTimerIsRunning = false
+        }
     }
 
     fun startCertificationNumberTimer() {
-        certificationNumberTimerIsRunning = true
+        if (!certificationNumberCountDownTimerIsRunning) {
+            _currentCertificationNumberTimeLiveData.value = 180000L
+            certificationNumberCountDownTimerIsRunning = true
+            certificationNumberCountDownTimer.start()
+        }
     }
 
-    fun cancelTimer() {
-        _currentCertificationNumberTimeLiveData.value = 180000L
-        certificationNumberTimerIsRunning = false
+    fun cancelCertificationNumberCountDownTimer() {
+        if (certificationNumberCountDownTimerIsRunning) {
+            certificationNumberCountDownTimer.cancel()
+            certificationNumberCountDownTimerIsRunning = false
+        }
     }
 
     val userData: LiveData<UserDataResponse> get() = _userData
@@ -90,6 +100,6 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     override fun onCleared() {
         super.onCleared()
-        certificationNumberTimer.cancel()
+        cancelCertificationNumberCountDownTimer()
     }
 }

@@ -179,7 +179,7 @@ fun InputCertificationNumberScreen(
     
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
-        onClick = { viewModel.apply { cancelTimer() ; startCertificationNumberTimer() } }
+        onClick = { viewModel.apply { cancelCertificationNumberCountDownTimer() ; startCertificationNumberTimer() } }
     ) {
         InputCertificationNumberContent(
             underTextValue = underTextValue,
