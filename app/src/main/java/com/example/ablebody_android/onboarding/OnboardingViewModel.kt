@@ -23,6 +23,8 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     private val ioDispatcher = Dispatchers.IO
 
+    private val timer = Timer()
+
 
     val availableNicknameCheckLiveData: LiveData<NicknameRule> get() = _availableNicknameCheckLiveData
     private val _availableNicknameCheckLiveData = MutableLiveData<NicknameRule>()
@@ -52,13 +54,22 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
-    private val timer = Timer()
+    val currentCertificationNumberTimeLiveData: LiveData<Long> get() = _currentCertificationNumberTimeLiveData
+    private val _currentCertificationNumberTimeLiveData = MutableLiveData<Long>(180000L)
 
     fun startCertificationNumberTimer() {
         viewModelScope.launch {
-            timer.schedule(timerTask {  }, 1000L)
+            val timerTask = timerTask {
+                val currentTime = _currentCertificationNumberTimeLiveData.value?.minus(1000L)
+                _currentCertificationNumberTimeLiveData.postValue(currentTime)
+                if (currentTime == 0L) timer.cancel()
+            }
+
+            timer.schedule(timerTask, 1000L, 1000L)
         }
     }
+
+    fun cancelTimer() { timer.cancel() }
 
     val userData: LiveData<UserDataResponse> get() = _userData
     private val _userData: MutableLiveData<UserDataResponse> = MutableLiveData()
