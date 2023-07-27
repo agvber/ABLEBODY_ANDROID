@@ -13,8 +13,7 @@ import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Timer
-import kotlin.concurrent.timerTask
+import kotlin.concurrent.timer
 
 class OnboardingViewModel(application: Application): AndroidViewModel(application) {
 
@@ -22,9 +21,6 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
 
     private val ioDispatcher = Dispatchers.IO
-
-    private val timer = Timer()
-
 
     val availableNicknameCheckLiveData: LiveData<NicknameRule> get() = _availableNicknameCheckLiveData
     private val _availableNicknameCheckLiveData = MutableLiveData<NicknameRule>()
@@ -57,19 +53,22 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     val currentCertificationNumberTimeLiveData: LiveData<Long> get() = _currentCertificationNumberTimeLiveData
     private val _currentCertificationNumberTimeLiveData = MutableLiveData<Long>(180000L)
 
-    fun startCertificationNumberTimer() {
-        viewModelScope.launch {
-            val timerTask = timerTask {
-                val currentTime = _currentCertificationNumberTimeLiveData.value?.minus(1000L)
-                _currentCertificationNumberTimeLiveData.postValue(currentTime)
-                if (currentTime == 0L) timer.cancel()
-            }
+    private var certificationNumberTimerIsRunning: Boolean = false
 
-            timer.schedule(timerTask, 1000L, 1000L)
-        }
+    private val certificationNumberTimer = timer(daemon = certificationNumberTimerIsRunning, initialDelay = 1000L, period = 1000L) {
+        val currentTime = _currentCertificationNumberTimeLiveData.value?.minus(1000L)
+        _currentCertificationNumberTimeLiveData.postValue(currentTime)
+        if (currentTime == 0L) cancel()
     }
 
-    fun cancelTimer() { timer.cancel() }
+    fun startCertificationNumberTimer() {
+        certificationNumberTimerIsRunning = true
+    }
+
+    fun cancelTimer() {
+        _currentCertificationNumberTimeLiveData.value = 180000L
+        certificationNumberTimerIsRunning = false
+    }
 
     val userData: LiveData<UserDataResponse> get() = _userData
     private val _userData: MutableLiveData<UserDataResponse> = MutableLiveData()
@@ -88,4 +87,9 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     }
 
     fun getAuthToken() = tokenSharedPreferencesRepository.getAuthToken()
+
+    override fun onCleared() {
+        super.onCleared()
+        certificationNumberTimer.cancel()
+    }
 }

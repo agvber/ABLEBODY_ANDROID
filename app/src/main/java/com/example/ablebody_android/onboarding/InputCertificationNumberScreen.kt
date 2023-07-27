@@ -1,5 +1,6 @@
 package com.example.ablebody_android.onboarding
 
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,8 +36,6 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.TextFieldUnderText
 import com.example.ablebody_android.utils.redirectToURL
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 
 
 @Composable
@@ -161,22 +162,24 @@ private fun InputCertificationNumberContentPreview() {
 fun InputCertificationNumberScreen(
     viewModel: OnboardingViewModel,
 ) {
-    val currentTimeState by viewModel.currentCertificationNumberTimeLiveData.observeAsState()
-
+    val currentTimeState by viewModel.currentCertificationNumberTimeLiveData.observeAsState(180000L)
     val sendSMSLiveDataState = viewModel.sendSMSLiveData.observeAsState()
 
-    var textFieldStringState by remember { mutableStateOf("") }
+    var textFieldStringState by rememberSaveable { mutableStateOf("") }
 
-    val underTextValue = if (currentTimeState != 0L) {
-        currentTimeState?.let { convertMillisecondsToFormattedTime(it) }
-            ?.run { "${minutes}분 ${seconds}초 남음" }.toString()
-    } else {
-        "인증번호가 만료됐어요 다시 전송해주세요."
+    val underTextValue by remember(currentTimeState) {
+        derivedStateOf {
+            if (currentTimeState != 0L) {
+                convertMillisecondsToFormattedTime(currentTimeState).run { "${minutes}분 ${seconds}초 남음" }.toString()
+            } else {
+                "인증번호가 만료됐어요 다시 전송해주세요."
+            }
+        }
     }
     
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
-        onClick = {  }
+        onClick = { viewModel.apply { cancelTimer() ; startCertificationNumberTimer() } }
     ) {
         InputCertificationNumberContent(
             underTextValue = underTextValue,
