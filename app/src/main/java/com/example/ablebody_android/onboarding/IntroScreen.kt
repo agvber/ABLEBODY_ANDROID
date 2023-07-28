@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -69,7 +71,10 @@ fun IntroContentLayoutPreview() {
 private fun IntroBottomLayout(
     onClick: () -> Unit
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         CustomButton(
             text = "시작하기",
             onClick = onClick,
