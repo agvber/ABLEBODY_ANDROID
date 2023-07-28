@@ -10,6 +10,7 @@ import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.onboarding.utils.checkNicknameRule
+import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +78,17 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         if (certificationNumberCountDownTimerIsRunning) {
             certificationNumberCountDownTimer.cancel()
             certificationNumberCountDownTimerIsRunning = false
+        }
+    }
+
+    val checkSMSLiveData: LiveData<CheckSMSResponse> get() = _checkSMSLiveData
+    private val _checkSMSLiveData = MutableLiveData<CheckSMSResponse>()
+
+    fun checkSMS(phoneConfirmId: Long, verifyingCode: String){
+        viewModelScope.launch(ioDispatcher) {
+            val response = networkRepository.checkSMS(phoneConfirmId = phoneConfirmId, verifyingCode = verifyingCode)
+
+            _checkSMSLiveData.postValue(response.body())
         }
     }
 

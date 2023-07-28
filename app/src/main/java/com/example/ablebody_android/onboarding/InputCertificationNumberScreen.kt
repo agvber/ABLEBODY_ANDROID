@@ -1,6 +1,7 @@
 package com.example.ablebody_android.onboarding
 
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
@@ -157,20 +160,33 @@ private fun InputCertificationNumberContentPreview() {
     ) { state = it }
 }
 
-
+// TODO: 인증번호 다시 받기 요청 할때 전화 번호가 필요함 !!! 저는 10번 넘겨서 테스트를 못합니다 나희님 파이팅 ㅋㅋㅋㅋ
 @Composable
 fun InputCertificationNumberScreen(
     viewModel: OnboardingViewModel,
+    navController: NavController
 ) {
     val currentTimeState by viewModel.currentCertificationNumberTimeLiveData.observeAsState(180000L)
-    val sendSMSLiveDataState = viewModel.sendSMSLiveData.observeAsState()
+    val sendSMSLiveDataState by viewModel.sendSMSLiveData.observeAsState()
 
     var textFieldStringState by rememberSaveable { mutableStateOf("") }
 
-    val underTextValue by remember(currentTimeState) {
+    val checkSMSLiveDataState by viewModel.checkSMSLiveData.observeAsState()
+
+    val underTextValue: String by remember(currentTimeState) {
         derivedStateOf {
             if (currentTimeState != 0L) {
-                convertMillisecondsToFormattedTime(currentTimeState).run { "${minutes}분 ${seconds}초 남음" }.toString()
+                if ("\\d{4}".toRegex().matches(textFieldStringState)) {
+                    sendSMSLiveDataState?.data?.phoneConfirmId?.let { viewModel.checkSMS(it, textFieldStringState) }
+                    if (checkSMSLiveDataState?.success == true) {
+                        navController.navigate("CreateNickname")
+                        ""
+                    } else {
+                        "인증번호가 올바르지 않아요!"
+                    }
+                } else {
+                    convertMillisecondsToFormattedTime(currentTimeState).run { "${minutes}분 ${seconds}초 남음" }.toString()
+                }
             } else {
                 "인증번호가 만료됐어요 다시 전송해주세요."
             }
@@ -194,5 +210,5 @@ fun InputCertificationNumberScreen(
 fun InputCertificationNumberScreenPreview() {
     val viewModel: OnboardingViewModel = viewModel()
     viewModel.startCertificationNumberTimer()
-    InputCertificationNumberScreen(viewModel)
+    InputCertificationNumberScreen(viewModel, rememberNavController())
 }

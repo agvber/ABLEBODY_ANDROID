@@ -67,7 +67,7 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             InputPhoneNumberScreen(viewModel,navController)
         }
         composable(route = "InputCertificationNumber") {
-            InputCertificationNumberScreen(viewModel)
+            InputCertificationNumberScreen(viewModel, navController)
         }
         composable(route = "CreateNickname") {
             CreateNicknameScreen()
