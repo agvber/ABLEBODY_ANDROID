@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.theme.AbleLight
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
@@ -91,6 +92,34 @@ fun CustomTextField(
     )
 }
 
+@Composable
+fun DisableCustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = TextFieldDefaults.colors(
+            disabledContainerColor = White,
+            errorContainerColor = White,
+            unfocusedContainerColor = White,
+            focusedContainerColor = White,
+            focusedIndicatorColor = AbleBlue,
+        ),
+        textStyle = TextStyle(
+            fontSize = 22.sp,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight(700),
+            color = AbleDeep,
+        ),
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun CustomTextFieldPreview1() {
@@ -104,5 +133,13 @@ fun CustomTextFieldPreview1() {
 fun CustomTextFieldPreview2() {
     CustomTextField(
         value = "", labelText = "닉네임"
+    ){}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DisableCustomTextFieldPreview() {
+    DisableCustomTextField(
+        value = "01092393487"
     ){}
 }
