@@ -2,6 +2,7 @@ package com.example.ablebody_android.onboarding
 
 import android.Manifest
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -66,11 +67,14 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
         composable(route = "InputPhoneNumber") {
             InputPhoneNumberScreen(viewModel,navController)
         }
-        composable(route = "InputCertificationNumber") {
-            InputCertificationNumberScreen(viewModel, navController)
+        composable("InputCertificationNumber/{phoneNumber}") { backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber")
+            InputCertificationNumberScreen(viewModel, navController, phoneNumber!!)
+
         }
-        composable(route = "CreateNickname") {
-            CreateNicknameScreen()
+        composable(route = "CreateNickname/{phoneNumber}") { backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber")
+            CreateNicknameScreen(viewModel, phoneNumber!!)
         }
         composable(route = "InputGender") {
             InputGenderScreen(

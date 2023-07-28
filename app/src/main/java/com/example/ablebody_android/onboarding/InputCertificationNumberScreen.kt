@@ -164,7 +164,8 @@ private fun InputCertificationNumberContentPreview() {
 @Composable
 fun InputCertificationNumberScreen(
     viewModel: OnboardingViewModel,
-    navController: NavController
+    navController: NavController,
+    phoneNumber : String
 ) {
     val currentTimeState by viewModel.currentCertificationNumberTimeLiveData.observeAsState(180000L)
     val sendSMSLiveDataState by viewModel.sendSMSLiveData.observeAsState()
@@ -179,7 +180,7 @@ fun InputCertificationNumberScreen(
                 if ("\\d{4}".toRegex().matches(textFieldStringState)) {
                     sendSMSLiveDataState?.data?.phoneConfirmId?.let { viewModel.checkSMS(it, textFieldStringState) }
                     if (checkSMSLiveDataState?.success == true) {
-                        navController.navigate("CreateNickname")
+                        navController.navigate("CreateNickname/${phoneNumber}")
                         ""
                     } else {
                         "인증번호가 올바르지 않아요!"
@@ -210,5 +211,5 @@ fun InputCertificationNumberScreen(
 fun InputCertificationNumberScreenPreview() {
     val viewModel: OnboardingViewModel = viewModel()
     viewModel.startCertificationNumberTimer()
-    InputCertificationNumberScreen(viewModel, rememberNavController())
+    InputCertificationNumberScreen(viewModel, rememberNavController(),"01092393487")
 }

@@ -25,6 +25,7 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.onboarding.data.NicknameRule
+import com.example.ablebody_android.utils.DisableCustomTextField
 import com.example.ablebody_android.utils.TextFieldUnderText
 
 
@@ -70,10 +71,10 @@ fun InputNicknameLayoutPreview() {
 
 @Composable
 fun CreateNicknameScreen(
-    viewModel: OnboardingViewModel = viewModel()
+    viewModel: OnboardingViewModel = viewModel(),
+    phoneNumber : String
 ) {
     var nicknameState by remember { mutableStateOf("") }
-    var phoneNumberState by remember { mutableStateOf("") }
 
     val viewModelNicknameState by viewModel.availableNicknameCheckLiveData.observeAsState()
 
@@ -106,7 +107,9 @@ fun CreateNicknameScreen(
                 nicknameState = it
                 viewModel.checkAvailableNickname(nicknameState)
             }
-            InputPhoneNumberWithoutRuleLayout(phoneNumberState) { phoneNumberState = it }
+            //생각해보니 텍스트 필드 아래 글자가 없는 건 InputPhoneNumberWithoutRuleLayout이 아니라
+            // 그냥 CustomTextField를 쓰면 되겠구나..
+            DisableCustomTextField(value = phoneNumber!!){}
         }
     }
 }
@@ -114,5 +117,6 @@ fun CreateNicknameScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun CreateNicknameScreenPreview() {
-    CreateNicknameScreen()
+    val viewModel: OnboardingViewModel = viewModel()
+    CreateNicknameScreen(viewModel,"01092393487")
 }

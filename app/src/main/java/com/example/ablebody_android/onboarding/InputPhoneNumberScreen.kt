@@ -144,7 +144,7 @@ fun InputPhoneNumberScreen(
         onClick = {
             viewModel.sendSMS(phoneNumberState)
             viewModel.startCertificationNumberTimer()
-            navController.navigate("InputCertificationNumber")
+            navController.navigate("InputCertificationNumber/${phoneNumberState}")
         },
         enable = phoneNumberFormJudgment(phoneNumberState)
     ) {
