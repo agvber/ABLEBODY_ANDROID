@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -74,10 +75,10 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             InputPhoneNumberScreen(value = phoneNumberState, onValueChange = { phoneNumberState = it }) {
                 viewModel.sendSMS(phoneNumberState)
                 viewModel.startCertificationNumberTimer()
-                navController.navigate("InputCertificationNumber")
+                navController.navigate(route = "InputCertificationNumber")
             }
         }
-
+        // TODO: 뒤로가기 했을 경우 문제 
         composable("InputCertificationNumber") {
             var certificationNumberState by remember { mutableStateOf("") }
             val currentCertificationNumberTimeLiveData by viewModel.currentCertificationNumberTimeLiveData.observeAsState()
@@ -111,7 +112,12 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             LaunchedEffect(checkSMSLiveData) {
                 if (checkSMSLiveData?.isSuccessful == true) {
                     viewModel.cancelCertificationNumberCountDownTimer()
-                    navController.navigate("CreateNickname")
+                    viewModel.clearCheckSMSLiveData()
+                    navController.navigate("CreateNickname") {
+                        popUpTo("InputCertificationNumber") {
+                            inclusive = true
+                        }
+                    }
                 }
             }
 

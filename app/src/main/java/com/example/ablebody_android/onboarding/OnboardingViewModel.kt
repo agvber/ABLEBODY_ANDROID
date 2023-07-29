@@ -92,6 +92,10 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
+    fun clearCheckSMSLiveData() {
+        _checkSMSLiveData.value = null
+    }
+
     val userData: LiveData<UserDataResponse> get() = _userData
     private val _userData: MutableLiveData<UserDataResponse> = MutableLiveData()
 
