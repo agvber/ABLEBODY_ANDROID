@@ -46,6 +46,8 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
     var genderState by remember { mutableStateOf<Gender?>(null) }
     var profileImageState by remember { mutableStateOf<ProfileImages?>(null) }
 
+    val checkSMSLiveData by viewModel.checkSMSLiveData.observeAsState()
+
     NavHost(navController = navController, startDestination = "Start") {
         composable(route = "Start") {
             PermissionExplanationBottomSheet(
@@ -73,9 +75,13 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
 
         composable(route = "InputPhoneNumber") {
             InputPhoneNumberScreen(value = phoneNumberState, onValueChange = { phoneNumberState = it }) {
-                viewModel.sendSMS(phoneNumberState)
-                viewModel.startCertificationNumberTimer()
-                navController.navigate(route = "InputCertificationNumber")
+                if (checkSMSLiveData?.isSuccessful == true) {
+                    navController.navigate("CreateNickname")
+                } else {
+                    viewModel.sendSMS(phoneNumberState)
+                    viewModel.startCertificationNumberTimer()
+                    navController.navigate(route = "InputCertificationNumber")
+                }
             }
         }
         // TODO: 뒤로가기 했을 경우 문제 
@@ -83,7 +89,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             var certificationNumberState by remember { mutableStateOf("") }
             val currentCertificationNumberTimeLiveData by viewModel.currentCertificationNumberTimeLiveData.observeAsState()
             val sendSMSLiveData by viewModel.sendSMSLiveData.observeAsState()
-            val checkSMSLiveData by viewModel.checkSMSLiveData.observeAsState()
 
             val certificationNumberInfoMessage: CertificationNumberInfoMessage by remember {
                 derivedStateOf {
@@ -112,7 +117,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             LaunchedEffect(checkSMSLiveData) {
                 if (checkSMSLiveData?.isSuccessful == true) {
                     viewModel.cancelCertificationNumberCountDownTimer()
-                    viewModel.clearCheckSMSLiveData()
                     navController.navigate("CreateNickname") {
                         popUpTo("InputCertificationNumber") {
                             inclusive = true
