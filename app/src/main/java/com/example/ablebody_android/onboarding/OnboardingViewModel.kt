@@ -15,6 +15,7 @@ import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class OnboardingViewModel(application: Application): AndroidViewModel(application) {
 
@@ -41,13 +42,13 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
-    val sendSMSLiveData: LiveData<SendSMSResponse> get() =  _sendSMSLiveData
-    private val _sendSMSLiveData = MutableLiveData<SendSMSResponse>()
+    val sendSMSLiveData: LiveData<Response<SendSMSResponse>> get() =  _sendSMSLiveData
+    private val _sendSMSLiveData = MutableLiveData<Response<SendSMSResponse>>()
 
     fun sendSMS(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
-            val response = networkRepository.sendSMS(phoneNumber)
-            _sendSMSLiveData.postValue(response.body())
+            val response = networkRepository.sendSMS(phoneNumber, false)
+            _sendSMSLiveData.postValue(response)
         }
     }
 
@@ -81,14 +82,13 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         }
     }
 
-    val checkSMSLiveData: LiveData<CheckSMSResponse> get() = _checkSMSLiveData
-    private val _checkSMSLiveData = MutableLiveData<CheckSMSResponse>()
+    val checkSMSLiveData: LiveData<Response<CheckSMSResponse>> get() = _checkSMSLiveData
+    private val _checkSMSLiveData = MutableLiveData<Response<CheckSMSResponse>>()
 
     fun checkSMS(phoneConfirmId: Long, verifyingCode: String){
         viewModelScope.launch(ioDispatcher) {
             val response = networkRepository.checkSMS(phoneConfirmId = phoneConfirmId, verifyingCode = verifyingCode)
-
-            _checkSMSLiveData.postValue(response.body())
+            _checkSMSLiveData.postValue(response)
         }
     }
 

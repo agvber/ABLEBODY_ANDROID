@@ -2,36 +2,42 @@ package com.example.ablebody_android.onboarding
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.CustomTextField
-import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.CustomLabelText
+import com.example.ablebody_android.utils.CustomTextField
+import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
 
 @Composable
 fun InputPhoneNumberWithoutRuleLayout(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    enable: Boolean = true,
 ) {
     CustomTextField(
-        labelText = "휴대폰 번호",
+        labelText = { CustomLabelText(text = "휴대폰 번호")},
         value = value,
-        onValueChange = onValueChange
+        onValueChange = onValueChange,
+        enabled = enable,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 }
 
@@ -134,28 +140,24 @@ private fun InputCertificationNumberContentPreview() {
 
 @Composable
 fun InputPhoneNumberScreen(
-    viewModel: OnboardingViewModel = viewModel(),
-    navController: NavController
+    value: String,
+    onValueChange: (String) -> Unit,
+    onClick: () -> Unit,
 ) {
-    var phoneNumberState by remember{ mutableStateOf("") }
-
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
-        onClick = {
-            viewModel.sendSMS(phoneNumberState)
-            viewModel.startCertificationNumberTimer()
-            navController.navigate("InputCertificationNumber/${phoneNumberState}")
-        },
-        enable = phoneNumberFormJudgment(phoneNumberState)
+        onClick = onClick,
+        enable = phoneNumberFormJudgment(value)
     ) {
-        InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
+        InputPhoneNumberContent(value = value, onValueChange = onValueChange)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun InputPhoneNumberScreenPreview(viewModel: OnboardingViewModel = viewModel()) {
-    val navController = rememberNavController()
+fun InputPhoneNumberScreenPreview() {
+    var phoneNumberState by remember { mutableStateOf("") }
+    InputPhoneNumberScreen(value = phoneNumberState, onValueChange = { phoneNumberState = it }) {
 
-    InputPhoneNumberScreen(viewModel,navController)
+    }
 }

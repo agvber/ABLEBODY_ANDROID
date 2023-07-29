@@ -3,6 +3,7 @@ package com.example.ablebody_android.onboarding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,18 +18,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
+import com.example.ablebody_android.onboarding.data.NicknameRule
+import com.example.ablebody_android.ui.theme.AbleBlue
+import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
-import com.example.ablebody_android.ui.theme.AbleBlue
-import com.example.ablebody_android.ui.theme.AbleDark
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ablebody_android.onboarding.data.NicknameRule
-import com.example.ablebody_android.utils.DisableCustomTextField
 import com.example.ablebody_android.utils.TextFieldUnderText
-
-
 
 @Composable
 fun InputNicknameLayout(
@@ -37,7 +35,9 @@ fun InputNicknameLayout(
 ) {
     Column {
         CustomTextField(
-            labelText = "닉네임", value = value, onValueChange = onValueChange
+            value = value,
+            onValueChange = onValueChange,
+            labelText = { Text(text = "닉네임(20자 이내 영문,숫자,_,.가능") },
         )
     }
 }
@@ -50,7 +50,7 @@ fun InputNicknamewithRuleLayout(
 ) {
     Column {
         CustomTextField(
-            labelText = "닉네임",
+            labelText = { Text(text = "닉네임(20자 이내 영문,숫자,_,.가능") },
             value = value,
             onValueChange = onValueChange,
         )
@@ -107,9 +107,12 @@ fun CreateNicknameScreen(
                 nicknameState = it
                 viewModel.checkAvailableNickname(nicknameState)
             }
-            //생각해보니 텍스트 필드 아래 글자가 없는 건 InputPhoneNumberWithoutRuleLayout이 아니라
-            // 그냥 CustomTextField를 쓰면 되겠구나..
-            DisableCustomTextField(value = phoneNumber!!){}
+
+            InputPhoneNumberWithoutRuleLayout(
+                value = phoneNumber,
+                onValueChange = {},
+                enable = false,
+            )
         }
     }
 }

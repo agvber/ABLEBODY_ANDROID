@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.PlaneGrey
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
+import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.HighlightText
 
 
 @Composable
@@ -137,7 +137,7 @@ fun InputGenderScreen(
             )
             InputGenderLayout(gender = gender, onClick = onClick)
             InputNicknameLayout(nickname)  {  }
-            InputPhoneNumberWithoutRuleLayout(value = phoneNumber) {  }
+            InputPhoneNumberWithoutRuleLayout(value = phoneNumber, onValueChange = { })
         }
     }
 }
