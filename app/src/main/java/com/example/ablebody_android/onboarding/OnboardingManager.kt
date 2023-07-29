@@ -50,23 +50,23 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             PermissionExplanationBottomSheet(
                 sheetState = bottomSheetState,
                 bottomButtonClick = {
-                    coroutineScope.launch {
-                        bottomSheetState.hide()
-                    }
+                    coroutineScope.launch { bottomSheetState.hide() }
                     launcher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.READ_MEDIA_IMAGES))
                     navController.navigate("InputPhoneNumber")
                 }
             ) {
-                IntroScreen { coroutineScope.launch {
-                    if (
-                        !checkPermission(context, Manifest.permission.POST_NOTIFICATIONS) ||
-                        !checkPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
-                    ) {
-                        bottomSheetState.show()
-                    } else {
-                        navController.navigate("InputPhoneNumber")
+                IntroScreen {
+                    coroutineScope.launch {
+                        if (
+                            !checkPermission(context, Manifest.permission.POST_NOTIFICATIONS) ||
+                            !checkPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
+                        ) {
+                            bottomSheetState.show()
+                        } else {
+                            navController.navigate("InputPhoneNumber")
+                        }
                     }
-                } }
+                }
             }
         }
 
@@ -110,7 +110,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             // TODO: LaunchedEffect 말고 더 좋은 방법 없나? ㅎ 
             LaunchedEffect(checkSMSLiveData) {
                 if (checkSMSLiveData?.isSuccessful == true) {
-                    Log.d("TEST", "")
                     viewModel.cancelCertificationNumberCountDownTimer()
                     navController.navigate("CreateNickname")
                 }

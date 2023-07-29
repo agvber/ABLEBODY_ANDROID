@@ -162,7 +162,7 @@ fun InputCertificationNumberScreen(
     certificationNumberValue: String,
     certificationNumberOnValueChange: (String) -> Unit,
     infoMessage: CertificationNumberInfoMessage,
-    onResendVerificationCodeClick: () -> Unit
+    onResendVerificationCodeClick: () -> Unit,
 ) {
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
