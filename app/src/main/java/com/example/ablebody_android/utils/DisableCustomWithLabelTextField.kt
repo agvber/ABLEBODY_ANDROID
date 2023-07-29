@@ -2,6 +2,7 @@ package com.example.ablebody_android.utils
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -17,10 +18,11 @@ import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.theme.White
 
 @Composable
-fun DisableCustomTextField(
+fun DisableCustomWithLabelTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    labelText: @Composable() (() -> Unit)? = null,
 ) {
     TextField(
         value = value,
@@ -35,6 +37,7 @@ fun DisableCustomTextField(
             focusedContainerColor = White,
             focusedIndicatorColor = AbleBlue,
         ),
+        label = labelText,
         textStyle = TextStyle(
             fontSize = 22.sp,
             fontFamily = FontFamily.Default,
@@ -44,11 +47,39 @@ fun DisableCustomTextField(
     )
 }
 
+//아래처럼 CustomTextField 쓰고 색만 바꿀 수 없나?ㅜ
+
+//@Composable
+//fun DisableCustomWithLabelTextField(
+//    modifier: Modifier = Modifier,
+//    value: String,
+//    onValueChange: (String) -> Unit,
+//    labelText: @Composable() (() -> Unit)? = null,
+//) {
+//    CustomTextField(
+//        value = value,
+//        labelText = labelText,
+//        onValueChange = onValueChange
+//    )
+//}
+
 @Preview(showBackground = true)
 @Composable
-fun DisableCustomTextFieldPreview() {
-    DisableCustomTextField(
-        value = "01092393487",
-        onValueChange = {  }
+fun DisableCustomWithLabelTextFieldPreview1() {
+    DisableCustomWithLabelTextField(
+        value = "nahyi",
+        onValueChange = {  },
+        labelText = { Text(text = "닉네임") }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun DisableCustomWithLabelTextFieldPreview() {
+    DisableCustomWithLabelTextField(
+        value = "01092393487",
+        onValueChange = {  },
+        labelText = { Text(text = "휴대폰 번호") }
+    )
+}
+
