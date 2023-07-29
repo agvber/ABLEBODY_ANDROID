@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,6 +46,8 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
     var genderState by remember { mutableStateOf<Gender?>(null) }
     var profileImageState by remember { mutableStateOf<ProfileImages?>(null) }
 
+    val checkSMSLiveData by viewModel.checkSMSLiveData.observeAsState()
+
     NavHost(navController = navController, startDestination = "Start") {
         composable(route = "Start") {
             PermissionExplanationBottomSheet(
@@ -72,17 +75,19 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
 
         composable(route = "InputPhoneNumber") {
             InputPhoneNumberScreen(value = phoneNumberState, onValueChange = { phoneNumberState = it }) {
-                viewModel.sendSMS(phoneNumberState)
-                viewModel.startCertificationNumberTimer()
-                navController.navigate("InputCertificationNumber")
+                if (checkSMSLiveData?.isSuccessful == true) {
+                    navController.navigate("CreateNickname")
+                } else {
+                    viewModel.sendSMS(phoneNumberState)
+                    viewModel.startCertificationNumberTimer()
+                    navController.navigate(route = "InputCertificationNumber")
+                }
             }
         }
-
         composable("InputCertificationNumber") {
             var certificationNumberState by remember { mutableStateOf("") }
             val currentCertificationNumberTimeLiveData by viewModel.currentCertificationNumberTimeLiveData.observeAsState()
             val sendSMSLiveData by viewModel.sendSMSLiveData.observeAsState()
-            val checkSMSLiveData by viewModel.checkSMSLiveData.observeAsState()
 
             val certificationNumberInfoMessage: CertificationNumberInfoMessage by remember {
                 derivedStateOf {
@@ -91,6 +96,12 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
                             message = "인증번호가 만료됐어요 다시 전송해주세요.",
                             isPositive = false
                         )
+                    } else if (checkSMSLiveData?.isSuccessful == true) {
+                        viewModel.cancelCertificationNumberCountDownTimer()
+                        navController.navigate("CreateNickname") {
+                            popUpTo("InputCertificationNumber") { inclusive = true }
+                        }
+                        CertificationNumberInfoMessage(message = "", isPositive = true)
                     } else if (certificationNumberState.length == 4 && checkSMSLiveData?.isSuccessful == false) {
                         CertificationNumberInfoMessage(
                             message = "인증번호가 올바르지 않아요!",
@@ -105,13 +116,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
                             isPositive = true
                         )
                     }
-                }
-            }
-            // TODO: LaunchedEffect 말고 더 좋은 방법 없나? ㅎ 
-            LaunchedEffect(checkSMSLiveData) {
-                if (checkSMSLiveData?.isSuccessful == true) {
-                    viewModel.cancelCertificationNumberCountDownTimer()
-                    navController.navigate("CreateNickname")
                 }
             }
 
