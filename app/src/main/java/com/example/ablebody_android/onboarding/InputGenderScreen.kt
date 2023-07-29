@@ -30,6 +30,7 @@ import com.example.ablebody_android.ui.theme.PlaneGrey
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 import com.example.ablebody_android.utils.HighlightText
 
 
@@ -52,6 +53,7 @@ fun SelectGenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = buttonAnimatedColor
         ),
+        modifier = Modifier.padding(5.dp),
         shape = RoundedCornerShape(5.dp),
         onClick = onClick
     ) {
@@ -137,8 +139,17 @@ fun InputGenderScreen(
                 )
             )
             InputGenderLayout(gender = gender, onClick = genderOnChange)
-            InputNicknameLayout(nickname)  {  }
-            InputPhoneNumberWithoutRuleLayout(value = phoneNumber, onValueChange = { })
+//            InputNicknameLayout(nickname)  {  }
+            DisableCustomWithLabelTextField(
+                value = nickname,
+                onValueChange = {  },
+                labelText = { androidx.compose.material3.Text(text = "닉네임") }
+            )
+            DisableCustomWithLabelTextField(
+                value = phoneNumber,
+                onValueChange = {  },
+                labelText = { androidx.compose.material3.Text(text = "휴대폰 번호") }
+            )
         }
     }
 }

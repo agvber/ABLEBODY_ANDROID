@@ -23,6 +23,7 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
+import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
 
@@ -48,7 +49,7 @@ fun InputNicknameWithRuleLayout(
 ) {
     Column {
         CustomTextField(
-            labelText = { Text(text = "닉네임(20자 이내 영문,숫자,_,.가능") },
+            labelText = { Text(text = "닉네임") },
             value = value,
             onValueChange = onValueChange,
         )
@@ -100,11 +101,11 @@ fun CreateNicknameScreen(
                 value = nicknameText,
                 onValueChange = nicknameTextChange
             )
-
-            InputPhoneNumberWithoutRuleLayout(
+            
+            DisableCustomWithLabelTextField(
                 value = phoneNumber,
-                onValueChange = {},
-                enable = false,
+                onValueChange = {  },
+                labelText = { Text(text = "휴대폰 번호") }
             )
         }
     }
