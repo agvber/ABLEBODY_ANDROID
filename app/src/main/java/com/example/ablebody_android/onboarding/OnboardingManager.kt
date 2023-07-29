@@ -84,7 +84,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
                 }
             }
         }
-        // TODO: 뒤로가기 했을 경우 문제 
         composable("InputCertificationNumber") {
             var certificationNumberState by remember { mutableStateOf("") }
             val currentCertificationNumberTimeLiveData by viewModel.currentCertificationNumberTimeLiveData.observeAsState()
@@ -97,6 +96,12 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
                             message = "인증번호가 만료됐어요 다시 전송해주세요.",
                             isPositive = false
                         )
+                    } else if (checkSMSLiveData?.isSuccessful == true) {
+                        viewModel.cancelCertificationNumberCountDownTimer()
+                        navController.navigate("CreateNickname") {
+                            popUpTo("InputCertificationNumber") { inclusive = true }
+                        }
+                        CertificationNumberInfoMessage(message = "", isPositive = true)
                     } else if (certificationNumberState.length == 4 && checkSMSLiveData?.isSuccessful == false) {
                         CertificationNumberInfoMessage(
                             message = "인증번호가 올바르지 않아요!",
@@ -110,17 +115,6 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
                             message = result.toString(),
                             isPositive = true
                         )
-                    }
-                }
-            }
-            // TODO: LaunchedEffect 말고 더 좋은 방법 없나? ㅎ 
-            LaunchedEffect(checkSMSLiveData) {
-                if (checkSMSLiveData?.isSuccessful == true) {
-                    viewModel.cancelCertificationNumberCountDownTimer()
-                    navController.navigate("CreateNickname") {
-                        popUpTo("InputCertificationNumber") {
-                            inclusive = true
-                        }
                     }
                 }
             }
