@@ -47,7 +47,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun sendSMS(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
-            val response = networkRepository.sendSMS(phoneNumber, false)
+            val response = networkRepository.sendSMS(phoneNumber)
             _sendSMSLiveData.postValue(response)
         }
     }

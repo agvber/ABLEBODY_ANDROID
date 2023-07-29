@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -43,8 +41,8 @@ fun InputNicknameLayout(
 }
 
 @Composable
-fun InputNicknamewithRuleLayout(
-    nicknameRule: () -> NicknameRule,
+fun InputNicknameWithRuleLayout(
+    nicknameRule: NicknameRule,
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -54,7 +52,7 @@ fun InputNicknamewithRuleLayout(
             value = value,
             onValueChange = onValueChange,
         )
-        TextFieldUnderText(text = nicknameRule().description, isPositive = nicknameRule().positive)
+        TextFieldUnderText(text = nicknameRule.description, isPositive = nicknameRule.positive)
     }
 }
 
@@ -62,8 +60,8 @@ fun InputNicknamewithRuleLayout(
 @Composable
 fun InputNicknameLayoutPreview() {
     var state by remember{ mutableStateOf("") }
-    InputNicknamewithRuleLayout(
-        { NicknameRule.Nothing },
+    InputNicknameWithRuleLayout(
+        NicknameRule.Nothing,
         value = state,
         onValueChange = { state = it }
     )
@@ -71,16 +69,15 @@ fun InputNicknameLayoutPreview() {
 
 @Composable
 fun CreateNicknameScreen(
-    viewModel: OnboardingViewModel = viewModel(),
-    phoneNumber : String
+    nicknameText: String,
+    nicknameTextChange: (String) -> Unit,
+    nicknameRuleState: NicknameRule,
+    phoneNumber : String,
+    bottomButtonOnClick: () -> Unit
 ) {
-    var nicknameState by remember { mutableStateOf("") }
-
-    val viewModelNicknameState by viewModel.availableNicknameCheckLiveData.observeAsState()
-
     BottomCustomButtonLayout(
         buttonText = "확인",
-        onClick = {  }
+        onClick = bottomButtonOnClick
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -98,15 +95,11 @@ fun CreateNicknameScreen(
                     color = AbleDark,
                 )
             )
-            InputNicknamewithRuleLayout(
-                nicknameRule = {
-                    viewModelNicknameState ?: NicknameRule.Nothing
-                },
-                value = nicknameState,
-            ) {
-                nicknameState = it
-                viewModel.checkAvailableNickname(nicknameState)
-            }
+            InputNicknameWithRuleLayout(
+                nicknameRule = nicknameRuleState,
+                value = nicknameText,
+                onValueChange = nicknameTextChange
+            )
 
             InputPhoneNumberWithoutRuleLayout(
                 value = phoneNumber,
@@ -120,6 +113,11 @@ fun CreateNicknameScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun CreateNicknameScreenPreview() {
-    val viewModel: OnboardingViewModel = viewModel()
-    CreateNicknameScreen(viewModel,"01092393487")
+    var nicknameTextState by remember { mutableStateOf("") }
+    CreateNicknameScreen(
+        phoneNumber = "01026289219",
+        nicknameText = nicknameTextState,
+        nicknameRuleState = NicknameRule.Nothing,
+        nicknameTextChange = { nicknameTextState = it }
+    ){}
 }

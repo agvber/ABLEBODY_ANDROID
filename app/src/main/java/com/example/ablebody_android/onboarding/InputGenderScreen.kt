@@ -110,15 +110,16 @@ fun InputGenderLayoutPreview() {
 
 @Composable
 fun InputGenderScreen(
-    nickname: String,
-    phoneNumber: String,
     gender: Gender?,
-    onClick: (Gender) -> Unit
+    genderOnChange: (Gender) -> Unit,
+    phoneNumber: String,
+    nickname: String,
+    bottomButtonOnClick: () -> Unit
 ) {
     BottomCustomButtonLayout(
         buttonText = "확인",
         enable = gender != null,
-        onClick = {  }
+        onClick = bottomButtonOnClick
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -135,7 +136,7 @@ fun InputGenderScreen(
                     color = AbleDark,
                 )
             )
-            InputGenderLayout(gender = gender, onClick = onClick)
+            InputGenderLayout(gender = gender, onClick = genderOnChange)
             InputNicknameLayout(nickname)  {  }
             InputPhoneNumberWithoutRuleLayout(value = phoneNumber, onValueChange = { })
         }
@@ -151,6 +152,7 @@ fun InputGenderScreenPreview() {
         nickname = "nick",
         phoneNumber = "01026289219",
         gender = gender,
-        onClick = { gender = it }
+        genderOnChange = { gender = it },
+        bottomButtonOnClick = {  }
     )
 }

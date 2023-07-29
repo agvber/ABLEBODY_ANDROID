@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
+import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessage
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
@@ -160,7 +161,7 @@ private fun InputCertificationNumberContentPreview() {
 fun InputCertificationNumberScreen(
     certificationNumberValue: String,
     certificationNumberOnValueChange: (String) -> Unit,
-    infoTextValue: String,
+    infoMessage: CertificationNumberInfoMessage,
     onResendVerificationCodeClick: () -> Unit
 ) {
     BottomCustomButtonLayout(
@@ -168,8 +169,8 @@ fun InputCertificationNumberScreen(
         onClick = onResendVerificationCodeClick,
     ) {
         InputCertificationNumberContent(
-            underTextValue = infoTextValue,
-            underTextIsPositive = true,
+            underTextValue = infoMessage.message,
+            underTextIsPositive = infoMessage.isPositive,
             textFieldValue = certificationNumberValue,
             textFieldOnValueChange = certificationNumberOnValueChange
         )
@@ -183,7 +184,7 @@ fun InputCertificationNumberScreenPreview() {
     InputCertificationNumberScreen(
         certificationNumberValue = certificationNumberState,
         certificationNumberOnValueChange = { certificationNumberState = it },
-        infoTextValue = "2분 30초",
+        infoMessage = CertificationNumberInfoMessage("2분 30초", true),
         onResendVerificationCodeClick = {  }
     )
 }

@@ -116,11 +116,12 @@ fun SelectProfileImageLayoutPreview() {
 @Composable
 fun SelectProfileScreen(
     value: ProfileImages?,
-    onChangeValue: (ProfileImages) -> Unit
+    onChangeValue: (ProfileImages) -> Unit,
+    bottomButtonOnClick: () -> Unit
 ) {
     BottomCustomButtonLayout(
         buttonText = "확인",
-        onClick = {  },
+        onClick = bottomButtonOnClick,
         enable = value != null
     ) {
         Column(
@@ -136,6 +137,9 @@ fun SelectProfileScreen(
 @Composable
 fun SelectProfileScreenPreview() {
     var profileImageState by remember { mutableStateOf<ProfileImages?>(null) }
-
-    SelectProfileScreen(profileImageState) { profileImageState = it }
+    SelectProfileScreen(
+        value = profileImageState,
+        onChangeValue = { profileImageState = it },
+        bottomButtonOnClick = { }
+    )
 }
