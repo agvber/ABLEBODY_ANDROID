@@ -49,7 +49,7 @@ fun InputNicknameWithRuleLayout(
 ) {
     Column {
         CustomTextField(
-            labelText = { Text(text = "닉네임") },
+            labelText = { Text(text = "닉네임(20자 이내 영문,숫자,_,.가능") },
             value = value,
             onValueChange = onValueChange,
         )
