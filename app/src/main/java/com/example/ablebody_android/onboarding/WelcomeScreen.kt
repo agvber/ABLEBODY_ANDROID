@@ -1,7 +1,11 @@
 package com.example.ablebody_android.onboarding
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -20,11 +24,11 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 @Composable
 fun WelcomeScreen() {
 
-    ConstraintLayout(
-        modifier = Modifier
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val (loginCompleteText, welcomeText) = createRefs()
-
         Text(
             text = "로그인 완료!",
             style = TextStyle(
@@ -33,12 +37,7 @@ fun WelcomeScreen() {
                 fontWeight = FontWeight(400),
                 color = SmallTextGrey,
                 textAlign = TextAlign.Center,
-            ),
-            modifier = Modifier.constrainAs(ref = loginCompleteText) {
-                bottom.linkTo(welcomeText.top)
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                absoluteRight.linkTo(parent.absoluteRight)
-            }
+            )
         )
 
         HighlightText(
@@ -51,13 +50,7 @@ fun WelcomeScreen() {
                 fontWeight = FontWeight(700),
                 color = AbleDark,
                 textAlign = TextAlign.Center,
-            ),
-            modifier = Modifier.constrainAs(ref = welcomeText) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                absoluteRight.linkTo(parent.absoluteRight)
-            }
+            )
         )
     }
 }
