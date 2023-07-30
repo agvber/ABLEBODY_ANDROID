@@ -168,7 +168,9 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             )
         }
         composable(route = "WelcomeScreen") {
-            WelcomeScreen()
+            WelcomeScreen(
+                nickname = nicknameTextState
+            )
         }
     }
 }

@@ -22,7 +22,9 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(
+    nickname: String
+) {
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -41,7 +43,7 @@ fun WelcomeScreen() {
         )
 
         HighlightText(
-            string = "ablebody님,\n환영합니다!",
+            string = nickname+"님,\n환영합니다!",
             colorStringList = listOf("ablebody"),
             color = AbleBlue,
             style = TextStyle(
@@ -58,5 +60,5 @@ fun WelcomeScreen() {
 @Preview(showSystemUi = true)
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen()
+    WelcomeScreen("nahyi")
 }
