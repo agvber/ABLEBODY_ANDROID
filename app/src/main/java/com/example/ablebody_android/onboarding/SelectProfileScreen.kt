@@ -89,17 +89,15 @@ fun SelectProfileImageLayout(
         items(ProfileImages.values()) { profileImages ->
             val animateFloat by animateFloatAsState(
                 targetValue = if (value == null || value == profileImages) 1f else .5f,
-                animationSpec = tween(300)
+                animationSpec = tween(200)
             )
 
             Image(
                 painter = painterResource(id = profileImages.resourcesID),
                 contentDescription = profileImages.contentDescription,
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(120.dp)
                     .padding(12.dp)
-                    .clip(RoundedCornerShape(50.dp))
+                    .clip(RoundedCornerShape(100.dp))
                     .clickable(onClick = { onChangeValue(profileImages) }),
                 alpha = animateFloat
             )
