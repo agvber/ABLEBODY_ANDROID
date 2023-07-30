@@ -37,6 +37,7 @@ fun DisableCustomWithLabelTextField(
             focusedContainerColor = White,
             focusedIndicatorColor = AbleBlue,
         ),
+        enabled = false,
         label = labelText,
         textStyle = TextStyle(
             fontSize = 22.sp,
