@@ -1,5 +1,8 @@
 package com.example.ablebody_android.onboarding
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -7,23 +10,33 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
+import com.example.ablebody_android.onboarding.utils.checkPermission
 import com.example.ablebody_android.utils.CustomButton
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -89,7 +102,7 @@ private fun IntroBottomLayout(
                 colorStringList = listOf("로그인"),
                 color = AbleBlue,
                 modifier = Modifier.clickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
                     /* TODO: (온보딩/시작하기) 로그인 버튼 클릭 후 이벤트 */
@@ -106,19 +119,55 @@ fun IntroBottomLayoutPreview() {
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun IntroScreen(
-    introButtonOnClick: () -> Unit
+    navController: NavController
 ) {
-    Scaffold(
-        bottomBar = { IntroBottomLayout(introButtonOnClick) },
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+
+    PermissionExplanationBottomSheet(
+        sheetState = bottomSheetState,
+        bottomButtonClick = {
+            coroutineScope.launch { bottomSheetState.hide() }
+            launcher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.READ_MEDIA_IMAGES))
+            navController.navigate("InputPhoneNumber")
+        }
     ) {
-        IntroContentLayout(modifier = Modifier.padding(it))
+        Scaffold(
+            bottomBar = {
+                IntroBottomLayout(
+                    onClick = {
+                        coroutineScope.launch {
+                            if (
+                                !checkPermission(context, Manifest.permission.POST_NOTIFICATIONS) ||
+                                !checkPermission(context, Manifest.permission.READ_MEDIA_IMAGES)
+                            ) {
+                                bottomSheetState.show()
+                            } else {
+                                navController.navigate("InputPhoneNumber")
+                            }
+                        }
+                    }
+                )
+                        },
+        ) {
+            IntroContentLayout(modifier = Modifier.padding(it))
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun IntroScreenPreview() {
-    IntroScreen() {}
+    IntroScreen(navController = rememberNavController())
 }
