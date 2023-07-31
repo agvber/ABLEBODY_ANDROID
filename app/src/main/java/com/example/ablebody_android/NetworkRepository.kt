@@ -64,7 +64,6 @@ class NetworkRepository(
         return networkService.getRefreshToken(tokenRefreshResponseData).execute()
     }
 
-//    fun invalidRefreshToken() = MutableStateFlow<Boolean>(false)
     fun invalidRefreshToken() {
         Log.d(this::class.java.name, "invalid refresh token")
     }
