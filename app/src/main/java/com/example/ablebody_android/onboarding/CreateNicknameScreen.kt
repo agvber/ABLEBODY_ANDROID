@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,9 +27,9 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
+import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
-import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 
 @Composable
 fun InputNicknameWithRuleLayout(
@@ -70,7 +69,8 @@ fun CreateNicknameScreen(
 
     BottomCustomButtonLayout(
         buttonText = "확인",
-        onClick = { navController.navigate("InputGender") }
+        onClick = { navController.navigate("InputGender") },
+        enable = NicknameRule.Available == nicknameRuleState
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
