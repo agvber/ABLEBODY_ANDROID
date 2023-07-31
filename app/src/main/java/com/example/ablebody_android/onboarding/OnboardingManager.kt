@@ -152,7 +152,7 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             )
         }
         composable(route = "InputGender") {
-            InputGenderScreen(
+            SelectGenderScreen(
                 gender = genderState,
                 genderOnChange = { genderState = it },
                 phoneNumber = phoneNumberState,

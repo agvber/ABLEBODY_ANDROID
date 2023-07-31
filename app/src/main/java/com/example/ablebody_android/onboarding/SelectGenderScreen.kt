@@ -68,7 +68,7 @@ fun SelectGenderButtonPreview() {
 }
 
 @Composable
-fun InputGenderLayout(
+fun SelectGenderLayout(
     gender: Gender?,
     onClick: (Gender) -> Unit
 ) {
@@ -101,17 +101,17 @@ fun InputGenderLayout(
 
 @Preview(showBackground = true)
 @Composable
-fun InputGenderLayoutPreview() {
+fun SelectGenderLayoutPreview() {
     var gender by remember { mutableStateOf<Gender>(Gender.MALE) }
 
-    InputGenderLayout(gender = gender) {
+    SelectGenderLayout(gender = gender) {
         gender = it
     }
 }
 
 
 @Composable
-fun InputGenderScreen(
+fun SelectGenderScreen(
     gender: Gender?,
     genderOnChange: (Gender) -> Unit,
     phoneNumber: String,
@@ -138,7 +138,7 @@ fun InputGenderScreen(
                     color = AbleDark,
                 )
             )
-            InputGenderLayout(gender = gender, onClick = genderOnChange)
+            SelectGenderLayout(gender = gender, onClick = genderOnChange)
 //            InputNicknameLayout(nickname)  {  }
             DisableCustomWithLabelTextField(
                 value = nickname,
@@ -156,10 +156,10 @@ fun InputGenderScreen(
 
 @Preview(showSystemUi = true)
 @Composable
-fun InputGenderScreenPreview() {
+fun SelectGenderScreenPreview() {
     var gender by remember { mutableStateOf<Gender?>(null) }
 
-    InputGenderScreen(
+    SelectGenderScreen(
         nickname = "nick",
         phoneNumber = "01026289219",
         gender = gender,
