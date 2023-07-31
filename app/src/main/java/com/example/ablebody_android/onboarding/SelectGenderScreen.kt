@@ -86,14 +86,14 @@ fun SelectGenderLayout(
 
         Row {
             SelectGenderButton(
-                text = Gender.MALE.name,
-                isChecked = Gender.MALE == gender,
-                onClick = { onClick(Gender.MALE) }
+                text = Gender.남자.name,
+                isChecked = Gender.남자 == gender,
+                onClick = { onClick(Gender.남자) }
             )
             SelectGenderButton(
-                text = Gender.FEMALE.name,
-                isChecked = Gender.FEMALE == gender,
-                onClick = { onClick(Gender.FEMALE) }
+                text = Gender.여자.name,
+                isChecked = Gender.여자 == gender,
+                onClick = { onClick(Gender.여자) }
             )
         }
     }
@@ -102,7 +102,7 @@ fun SelectGenderLayout(
 @Preview(showBackground = true)
 @Composable
 fun SelectGenderLayoutPreview() {
-    var gender by remember { mutableStateOf<Gender>(Gender.MALE) }
+    var gender by remember { mutableStateOf<Gender>(Gender.남자) }
 
     SelectGenderLayout(gender = gender) {
         gender = it
