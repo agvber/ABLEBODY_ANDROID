@@ -14,11 +14,15 @@ import com.example.ablebody_android.onboarding.data.ProfileImages
 import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDownTimer
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
+import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
+import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,11 +55,13 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun startCertificationNumberTimer() {
         certificationNumberCountDownTimer.startCertificationNumberTimer()
-        certificationNumberCountDownTimer.registerOnChangeListener(object : CertificationNumberCountDownTimer.Callback {
-            override fun onChangeValue(value: Long) {
-                _currentCertificationNumberTimeLiveData.value = value
+        certificationNumberCountDownTimer.registerOnChangeListener(
+            object : CertificationNumberCountDownTimer.Callback {
+                override fun onChangeValue(value: Long) {
+                    _currentCertificationNumberTimeLiveData.value = value
+                }
             }
-        })
+        )
         certificationNumberCheckJob.start()
     }
 
@@ -171,6 +177,28 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun updateProfileImage(value: ProfileImages) {
         _profileImageState.value = value
+    }
+
+    private val _createNewUser = MutableSharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>>()
+    val createNewUser: SharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>> = _createNewUser
+    fun createNewUser(
+        gender: Gender,
+        nickname: String,
+        profileImage: Int,
+        verifyingCode: String,
+        agreeRequiredConsent: Boolean,
+        agreeMarketingConsent: Boolean
+    ) {
+        viewModelScope.launch(ioDispatcher) {
+            networkRepository.createNewUser(
+                gender = gender,
+                nickname = nickname,
+                profileImage = profileImage,
+                verifyingCode = verifyingCode,
+                agreeRequiredConsent = agreeRequiredConsent,
+                agreeMarketingConsent = agreeMarketingConsent
+            ).let { _createNewUser.emit(it) }
+        }
     }
 
     fun putAuthToken(token: String) {
