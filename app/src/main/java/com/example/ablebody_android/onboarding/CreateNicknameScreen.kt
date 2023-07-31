@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -17,29 +18,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.CustomTextField
-import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
-
-@Composable
-fun InputNicknameLayout(
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    Column {
-        CustomTextField(
-            value = value,
-            onValueChange = onValueChange,
-            labelText = { Text(text = "닉네임(20자 이내 영문,숫자,_,.가능") },
-        )
-    }
-}
+import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
 
 @Composable
 fun InputNicknameWithRuleLayout(
@@ -70,15 +61,16 @@ fun InputNicknameLayoutPreview() {
 
 @Composable
 fun CreateNicknameScreen(
-    nicknameText: String,
-    nicknameTextChange: (String) -> Unit,
-    nicknameRuleState: NicknameRule,
-    phoneNumber : String,
-    bottomButtonOnClick: () -> Unit
+    viewModel: OnboardingViewModel,
+    navController: NavController
 ) {
+    val phoneNumber by viewModel.phoneNumberState.collectAsStateWithLifecycle()
+    val nicknameText by viewModel.nicknameState.collectAsStateWithLifecycle()
+    val nicknameRuleState by viewModel.nicknameRuleState.collectAsStateWithLifecycle()
+
     BottomCustomButtonLayout(
         buttonText = "확인",
-        onClick = bottomButtonOnClick
+        onClick = { navController.navigate("InputGender") }
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -99,9 +91,9 @@ fun CreateNicknameScreen(
             InputNicknameWithRuleLayout(
                 nicknameRule = nicknameRuleState,
                 value = nicknameText,
-                onValueChange = nicknameTextChange
+                onValueChange = { viewModel.updateNickname(it) }
             )
-            
+
             DisableCustomWithLabelTextField(
                 value = phoneNumber,
                 onValueChange = {  },
@@ -114,11 +106,9 @@ fun CreateNicknameScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun CreateNicknameScreenPreview() {
-    var nicknameTextState by remember { mutableStateOf("") }
+    val viewModel: OnboardingViewModel = viewModel()
     CreateNicknameScreen(
-        phoneNumber = "01026289219",
-        nicknameText = nicknameTextState,
-        nicknameRuleState = NicknameRule.Nothing,
-        nicknameTextChange = { nicknameTextState = it }
-    ){}
+        viewModel = viewModel,
+        navController = rememberNavController()
+    )
 }

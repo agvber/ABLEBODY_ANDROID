@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,8 +28,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessage
+import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
@@ -159,20 +167,43 @@ private fun InputCertificationNumberContentPreview() {
 
 @Composable
 fun InputCertificationNumberScreen(
-    certificationNumberValue: String,
-    certificationNumberOnValueChange: (String) -> Unit,
-    infoMessage: CertificationNumberInfoMessage,
-    onResendVerificationCodeClick: () -> Unit,
+    viewModel: OnboardingViewModel,
+    navController: NavController
 ) {
+    val phoneNumberState by viewModel.phoneNumberState.collectAsStateWithLifecycle()
+    val certificationNumberState by viewModel.certificationNumberState.collectAsStateWithLifecycle()
+    val certificationNumberInfoMessage by viewModel.certificationNumberInfoMessageUiState.collectAsStateWithLifecycle()
+
+    val underTextValue = when (certificationNumberInfoMessage) {
+        is CertificationNumberInfoMessageUiState.InValid -> "인증번호가 만료됐어요 다시 전송해주세요."
+        is CertificationNumberInfoMessageUiState.Wrong -> "인증번호가 올바르지 않아요!"
+        is CertificationNumberInfoMessageUiState.Success -> { "" }
+        is CertificationNumberInfoMessageUiState.Timer -> {
+            (certificationNumberInfoMessage as CertificationNumberInfoMessageUiState.Timer).string
+        }
+    }
+
+    LaunchedEffect(key1 = certificationNumberInfoMessage) {
+        if (certificationNumberInfoMessage is CertificationNumberInfoMessageUiState.Success) {
+            navController.navigate("CreateNickname");
+        }
+    }
+
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
-        onClick = onResendVerificationCodeClick,
+        onClick = {
+            viewModel.sendSMS(phoneNumber = phoneNumberState)
+            viewModel.cancelCertificationNumberCountDownTimer()
+            viewModel.startCertificationNumberTimer()
+        },
     ) {
         InputCertificationNumberContent(
-            underTextValue = infoMessage.message,
-            underTextIsPositive = infoMessage.isPositive,
-            textFieldValue = certificationNumberValue,
-            textFieldOnValueChange = certificationNumberOnValueChange
+            underTextValue = underTextValue,
+            underTextIsPositive = certificationNumberInfoMessage is CertificationNumberInfoMessageUiState.Timer,
+            textFieldValue = certificationNumberState,
+            textFieldOnValueChange = {
+                viewModel.updateCertificationNumber(it)
+            }
         )
     }
 }
@@ -180,11 +211,9 @@ fun InputCertificationNumberScreen(
 @Preview(showBackground = true)
 @Composable
 fun InputCertificationNumberScreenPreview() {
-    var certificationNumberState by remember { mutableStateOf("") }
+    val viewModel: OnboardingViewModel = viewModel()
     InputCertificationNumberScreen(
-        certificationNumberValue = certificationNumberState,
-        certificationNumberOnValueChange = { certificationNumberState = it },
-        infoMessage = CertificationNumberInfoMessage("2분 30초", true),
-        onResendVerificationCodeClick = {  }
+        viewModel = viewModel,
+        navController = rememberNavController()
     )
 }
