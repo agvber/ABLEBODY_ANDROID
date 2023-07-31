@@ -22,6 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -112,16 +116,17 @@ fun SelectGenderLayoutPreview() {
 
 @Composable
 fun SelectGenderScreen(
-    gender: Gender?,
-    genderOnChange: (Gender) -> Unit,
-    phoneNumber: String,
-    nickname: String,
-    bottomButtonOnClick: () -> Unit
+    viewModel: OnboardingViewModel,
+    navController: NavController
 ) {
+    val nickname by viewModel.nicknameState.collectAsStateWithLifecycle()
+    val phoneNumber by viewModel.phoneNumberState.collectAsStateWithLifecycle()
+    val gender by viewModel.genderState.collectAsStateWithLifecycle()
+
     BottomCustomButtonLayout(
         buttonText = "확인",
         enable = gender != null,
-        onClick = bottomButtonOnClick
+        onClick = { navController.navigate("SelectProfile") }
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -138,7 +143,7 @@ fun SelectGenderScreen(
                     color = AbleDark,
                 )
             )
-            SelectGenderLayout(gender = gender, onClick = genderOnChange)
+            SelectGenderLayout(gender = gender, onClick = { viewModel.updateGender(it) })
 //            InputNicknameLayout(nickname)  {  }
             DisableCustomWithLabelTextField(
                 value = nickname,
@@ -157,13 +162,7 @@ fun SelectGenderScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun SelectGenderScreenPreview() {
-    var gender by remember { mutableStateOf<Gender?>(null) }
-
-    SelectGenderScreen(
-        nickname = "nick",
-        phoneNumber = "01026289219",
-        gender = gender,
-        genderOnChange = { gender = it },
-        bottomButtonOnClick = {  }
-    )
+    val viewModel: OnboardingViewModel = viewModel()
+    val navController = rememberNavController()
+    SelectGenderScreen(viewModel = viewModel, navController = navController)
 }

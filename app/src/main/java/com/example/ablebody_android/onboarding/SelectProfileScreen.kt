@@ -6,9 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -16,9 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -29,14 +24,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ablebody_android.Gender
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.ProfileImages
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.utils.HighlightText
 
 
 @Composable
@@ -113,20 +111,24 @@ fun SelectProfileImageLayoutPreview() {
 
 @Composable
 fun SelectProfileScreen(
-    value: ProfileImages?,
-    onChangeValue: (ProfileImages) -> Unit,
-    bottomButtonOnClick: () -> Unit
+    viewModel: OnboardingViewModel,
+    navController: NavController
 ) {
+    val profileImagesState by viewModel.profileImageState.collectAsStateWithLifecycle()
+
     BottomCustomButtonLayout(
         buttonText = "확인",
-        onClick = bottomButtonOnClick,
-        enable = value != null
+        onClick = { navController.navigate("WelcomeScreen") },
+        enable = profileImagesState != null
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             SelectProfileTitleLayout()
-            SelectProfileImageLayout(value = value, onChangeValue = onChangeValue)
+            SelectProfileImageLayout(
+                value = profileImagesState,
+                onChangeValue = { viewModel.updateProfileImage(it) }
+            )
         }
     }
 }
@@ -134,10 +136,7 @@ fun SelectProfileScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun SelectProfileScreenPreview() {
-    var profileImageState by remember { mutableStateOf<ProfileImages?>(null) }
-    SelectProfileScreen(
-        value = profileImageState,
-        onChangeValue = { profileImageState = it },
-        bottomButtonOnClick = { }
-    )
+    val viewModel: OnboardingViewModel = viewModel()
+    val navController = rememberNavController()
+    SelectProfileScreen(viewModel = viewModel, navController = navController)
 }

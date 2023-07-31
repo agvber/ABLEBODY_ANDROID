@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -14,17 +15,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
-import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.utils.HighlightText
 
 @Composable
-fun WelcomeScreen(
-    nickname: String
-) {
+fun WelcomeScreen(viewModel: OnboardingViewModel) {
+    val nickname by viewModel.nicknameState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -43,8 +44,8 @@ fun WelcomeScreen(
         )
 
         HighlightText(
-            string = nickname+"님,\n환영합니다!",
-            colorStringList = listOf("ablebody"),
+            string = "${nickname}님,\n환영합니다!",
+            colorStringList = listOf(nickname),
             color = AbleBlue,
             style = TextStyle(
                 fontSize = 25.sp,
@@ -60,5 +61,6 @@ fun WelcomeScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen("nahyi")
+    val viewModel: OnboardingViewModel = viewModel()
+    WelcomeScreen(viewModel = viewModel)
 }

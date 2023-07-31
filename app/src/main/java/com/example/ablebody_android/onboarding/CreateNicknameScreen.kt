@@ -107,8 +107,6 @@ fun CreateNicknameScreen(
 @Composable
 fun CreateNicknameScreenPreview() {
     val viewModel: OnboardingViewModel = viewModel()
-    CreateNicknameScreen(
-        viewModel = viewModel,
-        navController = rememberNavController()
-    )
+    val navController = rememberNavController()
+    CreateNicknameScreen(viewModel = viewModel, navController = navController)
 }

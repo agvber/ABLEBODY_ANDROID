@@ -5,10 +5,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.ablebody_android.Gender
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.onboarding.data.NicknameRule
+import com.example.ablebody_android.onboarding.data.ProfileImages
 import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDownTimer
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
@@ -16,14 +18,12 @@ import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -158,6 +158,19 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
             val response = networkRepository.checkSMS(phoneConfirmId = phoneConfirmId, verifyingCode = verifyingCode)
             _checkSMSLiveData.postValue(response)
         }
+    }
+    private val _genderState = MutableStateFlow<Gender?>(null)
+    val genderState = _genderState.asStateFlow()
+
+    fun updateGender(value: Gender) {
+        _genderState.value = value
+    }
+
+    private val _profileImageState = MutableStateFlow<ProfileImages?>(null)
+    val profileImageState = _profileImageState.asStateFlow()
+
+    fun updateProfileImage(value: ProfileImages) {
+        _profileImageState.value = value
     }
 
     fun putAuthToken(token: String) {
