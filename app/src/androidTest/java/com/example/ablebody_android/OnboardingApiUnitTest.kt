@@ -52,7 +52,7 @@ class OnboardingApiUnitTest {
     @Test
     fun createNewUser() {
         val response = networkRepository.createNewUser(
-            Gender.MALE,
+            Gender.남자,
             "brother",
             1,
             "2869",
