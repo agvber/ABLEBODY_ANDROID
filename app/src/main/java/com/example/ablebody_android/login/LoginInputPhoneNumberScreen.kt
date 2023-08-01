@@ -47,7 +47,7 @@ fun LoginInputPhoneNumberContent(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
             )
         )
-        InputPhoneNumberWithRuleLayout(value, onValueChange)
+        InputPhoneNumberWithRuleLayout(value, onValueChange, "")
         Column(
             Modifier
                 .fillMaxWidth()

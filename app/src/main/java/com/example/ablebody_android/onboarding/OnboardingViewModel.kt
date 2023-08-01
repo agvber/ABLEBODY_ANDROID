@@ -15,18 +15,18 @@ import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDow
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
 import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
-import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -48,6 +48,46 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         viewModelScope.launch { _phoneNumberState.emit(phoneNumber) }
     }
 
+    private val phoneNumberRegex = "^01[0-1, 7][0-9]{8}\$".toRegex()
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val isPhoneNumberCorrectState: StateFlow<Boolean> =
+        phoneNumberState.debounce(500L).flatMapLatest { number ->
+            flowOf(number.isNotEmpty() && phoneNumberRegex.matches(number))
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val phoneNumberMessageStateUi: StateFlow<String> =
+        phoneNumberState.debounce(500L).flatMapLatest { number ->
+            if (number.isEmpty() || phoneNumberRegex.matches(number)) {
+                flowOf("")
+            } else {
+                flowOf("휴대폰 번호 양식에 맞지 않아요.")
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ""
+        )
+
+
+    private val _smsResponse = MutableLiveData<Response<SendSMSResponse>>()
+    private val smsResponse: LiveData<Response<SendSMSResponse>> = _smsResponse
+
+    private var lastSmsVerificationCodeRequestTime = 0L
+    fun requestSmsVerificationCode(phoneNumber: String) {
+        viewModelScope.launch(ioDispatcher) {
+            if (System.currentTimeMillis() - lastSmsVerificationCodeRequestTime >= 1000L) {
+                lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
+                val response = networkRepository.sendSMS(phoneNumber)
+                _smsResponse.postValue(response)
+            }
+        }
+    }
+
     private val _currentCertificationNumberTimeLiveData = MutableStateFlow(180000L)
     private val currentCertificationNumberTimeLiveData = _currentCertificationNumberTimeLiveData.asStateFlow()
 
@@ -62,122 +102,108 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
                 }
             }
         )
-        certificationNumberCheckJob.start()
     }
 
     fun cancelCertificationNumberCountDownTimer() {
         certificationNumberCountDownTimer.unRegisterOnChangeListener()
         certificationNumberCountDownTimer.cancelCertificationNumberCountDownTimer()
-        certificationNumberCheckJob.cancel()
     }
 
-    val certificationNumberState: StateFlow<String> get() =  _certificationNumberState.asStateFlow()
     private val _certificationNumberState = MutableStateFlow<String>("")
-
-    private val certificationNumberCheckJob = viewModelScope.launch {
-        certificationNumberState.collect { number ->
-            if (number.length == 4) {
-                sendSMSLiveData.value?.body()?.data?.phoneConfirmId?.let { phoneConfirmId ->
-                    checkSMS(phoneConfirmId, certificationNumberState.value)
-                }
-            }
-        }
-    }
+    val certificationNumberState: StateFlow<String> = _certificationNumberState.asStateFlow()
 
     fun updateCertificationNumber(number: String) {
         viewModelScope.launch { _certificationNumberState.emit(number) }
     }
 
-    val certificationNumberInfoMessageUiState =
-        certificationNumberState.combine(currentCertificationNumberTimeLiveData) { number, currentTime ->
-            if (currentTime == 0L) {
-                CertificationNumberInfoMessageUiState.InValid
-            } else if (checkSMSLiveData.value?.isSuccessful == true) {
-                CertificationNumberInfoMessageUiState.Success
-            } else if (number.length == 4 && checkSMSLiveData.value?.isSuccessful == false) {
-                CertificationNumberInfoMessageUiState.Wrong
-            } else {
-                val result = convertMillisecondsToFormattedTime(currentTime).run { "${minutes}분 ${seconds}초 남음" }
-                CertificationNumberInfoMessageUiState.Timer(result)
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = CertificationNumberInfoMessageUiState.Timer(""),
-            )
-
-    private val _nicknameState = MutableStateFlow("")
-    val nicknameState = _nicknameState.asStateFlow()
-
-    fun updateNickname(value: String) {
-        _nicknameState.value = value
-    }
-
-    private val regex1 = "[0-9a-z_.]{1,20}".toRegex()
-    private val startsWithDotRegex = "^[.].*\$".toRegex()
-    private val onlyNumberRegex = "^[0-9]*\$".toRegex()
-    private val regex7 = "^[._]*\$".toRegex()
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    val nicknameRuleState: StateFlow<NicknameRule> = nicknameState.flatMapLatest { nickname ->
-        if (nickname.isEmpty()) {
-            flowOf(NicknameRule.Nothing)
-        } else if (!isNicknameRuleMatch(nickname, regex1)) {
-            flowOf(NicknameRule.UnAvailable)
-        } else if (isNicknameRuleMatch(nickname, startsWithDotRegex)) {
-            flowOf(NicknameRule.StartsWithDot)
-        } else if (isNicknameRuleMatch(nickname, onlyNumberRegex)) {
-            flowOf(NicknameRule.OnlyNumber)
-        } else if (isNicknameRuleMatch(nickname, regex7)) {
-            flowOf(NicknameRule.UnAvailable)
-        } else {
+    val verificationResultState = certificationNumberState.flatMapLatest { number ->
+        val phoneConfirmID = smsResponse.value?.body()?.data?.phoneConfirmId
+        if (number.length == 4 && phoneConfirmID != null) {
             withContext(Dispatchers.IO) {
-                if (networkRepository.checkNickname(nickname).body()?.success == true) {
-                    flowOf(NicknameRule.Available)
+                flowOf(networkRepository.checkSMS(phoneConfirmID, number).isSuccessful)
+            }
+        } else {
+            flowOf(false)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = false
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val certificationNumberInfoMessageUiState = currentCertificationNumberTimeLiveData.flatMapLatest { time ->
+        if (time == 0L) {
+            flowOf(CertificationNumberInfoMessageUiState.Timeout)
+        } else {
+            certificationNumberState.flatMapLatest { number ->
+                if (number.length == 4) {
+                    verificationResultState.debounce(100L).flatMapLatest { success ->
+                        if (success) { flowOf(CertificationNumberInfoMessageUiState.Success) }
+                        else { flowOf(CertificationNumberInfoMessageUiState.InValid) }
+                    }
                 } else {
-                    flowOf(NicknameRule.InUsed)
+                    convertMillisecondsToFormattedTime(time)
+                        .run { "${minutes}분 ${seconds}초 남음" }
+                        .let { CertificationNumberInfoMessageUiState.Timer(it) }
+                        .let { flowOf(it) }
                 }
             }
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = NicknameRule.Nothing
+        initialValue = CertificationNumberInfoMessageUiState.Timer("")
     )
 
-    val sendSMSLiveData: LiveData<Response<SendSMSResponse>> get() =  _sendSMSLiveData
-    private val _sendSMSLiveData = MutableLiveData<Response<SendSMSResponse>>()
+    private val _nicknameState = MutableStateFlow("")
+    val nicknameState = _nicknameState.asStateFlow()
 
-    // TODO: debounce 적용하기 
-    fun sendSMS(phoneNumber: String) {
-        viewModelScope.launch(ioDispatcher) {
-            val response = networkRepository.sendSMS(phoneNumber)
-            _sendSMSLiveData.postValue(response)
-        }
-    }
+    fun updateNickname(value: String) { _nicknameState.value = value }
 
-    val checkSMSLiveData: LiveData<Response<CheckSMSResponse>> get() = _checkSMSLiveData
-    private val _checkSMSLiveData = MutableLiveData<Response<CheckSMSResponse>>()
+    private val regex1 = "[0-9a-z_.]{1,20}".toRegex()
+    private val startsWithDotRegex = "^[.].*\$".toRegex()
+    private val onlyNumberRegex = "^[0-9]*\$".toRegex()
+    private val regex7 = "^[._]*\$".toRegex()
 
-    fun checkSMS(phoneConfirmId: Long, verifyingCode: String){
-        viewModelScope.launch(ioDispatcher) {
-            val response = networkRepository.checkSMS(phoneConfirmId = phoneConfirmId, verifyingCode = verifyingCode)
-            _checkSMSLiveData.postValue(response)
-        }
-    }
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val nicknameRuleState: StateFlow<NicknameRule> =
+        nicknameState.debounce(100L).flatMapLatest { nickname ->
+            if (nickname.isEmpty()) {
+                flowOf(NicknameRule.Nothing)
+            } else if (!isNicknameRuleMatch(nickname, regex1)) {
+                flowOf(NicknameRule.UnAvailable)
+            } else if (isNicknameRuleMatch(nickname, startsWithDotRegex)) {
+                flowOf(NicknameRule.StartsWithDot)
+            } else if (isNicknameRuleMatch(nickname, onlyNumberRegex)) {
+                flowOf(NicknameRule.OnlyNumber)
+            } else if (isNicknameRuleMatch(nickname, regex7)) {
+                flowOf(NicknameRule.UnAvailable)
+            } else {
+                withContext(Dispatchers.IO) {
+                    if (networkRepository.checkNickname(nickname).body()?.success == true) {
+                        flowOf(NicknameRule.Available)
+                    } else {
+                        flowOf(NicknameRule.InUsed)
+                    }
+                }
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = NicknameRule.Nothing
+        )
+
     private val _genderState = MutableStateFlow<Gender?>(null)
     val genderState = _genderState.asStateFlow()
 
-    fun updateGender(value: Gender) {
-        _genderState.value = value
-    }
+    fun updateGender(value: Gender) { _genderState.value = value }
 
     private val _profileImageState = MutableStateFlow<ProfileImages?>(null)
     val profileImageState = _profileImageState.asStateFlow()
 
-    fun updateProfileImage(value: ProfileImages) {
-        _profileImageState.value = value
-    }
+    fun updateProfileImage(value: ProfileImages) { _profileImageState.value = value }
 
     private val _createNewUser = MutableSharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>>()
     val createNewUser: SharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>> = _createNewUser
@@ -208,9 +234,4 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     }
 
     fun getAuthToken() = tokenSharedPreferencesRepository.getAuthToken()
-
-    override fun onCleared() {
-        super.onCleared()
-        cancelCertificationNumberCountDownTimer()
-    }
 }

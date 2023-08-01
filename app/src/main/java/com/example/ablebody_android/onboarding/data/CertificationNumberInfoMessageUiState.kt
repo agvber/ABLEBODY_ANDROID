@@ -1,9 +1,9 @@
 package com.example.ablebody_android.onboarding.data
 
 sealed interface CertificationNumberInfoMessageUiState {
-    object InValid: CertificationNumberInfoMessageUiState
+    object Timeout: CertificationNumberInfoMessageUiState
 
-    object Wrong: CertificationNumberInfoMessageUiState
+    object InValid: CertificationNumberInfoMessageUiState
 
     data class Timer(val string: String): CertificationNumberInfoMessageUiState
 

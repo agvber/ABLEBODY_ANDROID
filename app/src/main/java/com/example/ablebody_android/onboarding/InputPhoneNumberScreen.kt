@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,13 +31,36 @@ import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
 
 @Composable
+fun PhoneNumberJoinExplanation() {
+    HighlightText(
+        string = "애블바디는 휴대폰 번호로 가입해요.\n휴대폰 번호는 안전하게 보관되며\n어디에도 공개되지 않아요.",
+        colorStringList = listOf("휴대폰 번호"),
+        color = AbleBlue,
+        style = TextStyle(
+            fontSize = 22.sp,
+            lineHeight = 35.sp,
+            fontWeight = FontWeight(700),
+            color = AbleDark,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PhoneNumberJoinExplanationPreview() {
+    PhoneNumberJoinExplanation()
+}
+
+
+@Composable
 fun InputPhoneNumberWithoutRuleLayout(
     value: String,
     onValueChange: (String) -> Unit,
     enable: Boolean = true,
 ) {
     CustomTextField(
-        labelText = { CustomLabelText(text = "휴대폰 번호")},
+        labelText = { CustomLabelText(text = "휴대폰 번호") },
         value = value,
         onValueChange = onValueChange,
         enabled = enable,
@@ -61,13 +82,13 @@ fun InputPhoneNumberWithoutRuleLayoutPreview() {
 @Composable
 fun InputPhoneNumberWithRuleLayout(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    underText: String
 ) {
     Column {
         InputPhoneNumberWithoutRuleLayout(value, onValueChange)
-        PhoneNumberFormRule(value)
+        TextFieldUnderText(underText, false)
     }
-
 }
 @Preview(showBackground = true)
 @Composable
@@ -76,71 +97,32 @@ fun InputPhoneNumberWithRuleLayoutPreview() {
 
     InputPhoneNumberWithRuleLayout(
         value = textState,
-        onValueChange = { textState = it }
-    )
-}
-@Composable
-fun PhoneNumberFormRule(
-    value: String,
-) {
-    val path = value
-    val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
-
-    if (value.isNotEmpty()) {
-        if (isPhoneNumberRuleMatch(path, regex)) {
-            TextFieldUnderText("")
-        } else {
-            TextFieldUnderText("휴대폰 번호 양식에 맞지 않아요.", false)
-        }
-    }
-}
-
-fun isPhoneNumberRuleMatch(path: String, regex: Regex): Boolean = path.matches(regex)
-
-fun phoneNumberFormJudgment(
-    phoneNumber: String,
-) : Boolean{
-
-    val path = phoneNumber
-    val regex = "^01[0-1, 7][0-9]{8}\$".toRegex()
-
-    return !(phoneNumber=="" || !isPhoneNumberRuleMatch(path, regex))
-}
-
-@Composable
-fun PhoneNumberJoinExplanation(){
-    HighlightText(
-        string = "애블바디는 휴대폰 번호로 가입해요.\n휴대폰 번호는 안전하게 보관되며\n어디에도 공개되지 않아요.",
-        colorStringList = listOf("휴대폰 번호"),
-        color = AbleBlue,
-        style = TextStyle(
-            fontSize = 22.sp,
-            lineHeight = 35.sp,
-            fontWeight = FontWeight(700),
-            color = AbleDark,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
-        )
+        onValueChange = { textState = it },
+        underText = "휴대폰 번호 양식에 맞지 않아요."
     )
 }
 
 @Composable
 private fun InputPhoneNumberContent(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    underText: String,
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         PhoneNumberJoinExplanation()
-        InputPhoneNumberWithRuleLayout(value, onValueChange)
+        InputPhoneNumberWithRuleLayout(value, onValueChange, underText)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun InputCertificationNumberContentPreview() {
-
     var phoneNumberState by remember{ mutableStateOf("") }
-    InputPhoneNumberContent(phoneNumberState) { phoneNumberState = it }
-
+    InputPhoneNumberContent(
+        value = phoneNumberState,
+        onValueChange = { phoneNumberState = it },
+        underText = "휴대폰 번호 양식에 맞지 않아요."
+    )
 }
 
 
@@ -150,22 +132,23 @@ fun InputPhoneNumberScreen(
     navController: NavController
 ) {
     val phoneNumber by viewModel.phoneNumberState.collectAsStateWithLifecycle()
-    val checkSMSLiveData by viewModel.checkSMSLiveData.observeAsState()
+    val enable by viewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
+    val phoneNumberMessage by viewModel.phoneNumberMessageStateUi.collectAsStateWithLifecycle()
 
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
         onClick = {
-            if (checkSMSLiveData?.isSuccessful == true) {
-                navController.navigate("CreateNickname")
-            } else {
-                viewModel.sendSMS(phoneNumber)
-                viewModel.startCertificationNumberTimer()
-                navController.navigate(route = "InputCertificationNumber")
-            }
+            viewModel.startCertificationNumberTimer()
+            viewModel.requestSmsVerificationCode(phoneNumber)
+            navController.navigate(route = "InputCertificationNumber")
         },
-        enable = phoneNumberFormJudgment(phoneNumber)
+        enable = enable
     ) {
-        InputPhoneNumberContent(value = phoneNumber, onValueChange = { viewModel.updatePhoneNumber(it) })
+        InputPhoneNumberContent(
+            value = phoneNumber,
+            onValueChange = { viewModel.updatePhoneNumber(it) },
+            underText = phoneNumberMessage
+        )
     }
 }
 

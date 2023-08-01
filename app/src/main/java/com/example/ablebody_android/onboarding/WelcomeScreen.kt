@@ -25,15 +25,16 @@ import com.example.ablebody_android.utils.HighlightText
 
 @Composable
 fun WelcomeScreen(viewModel: OnboardingViewModel) {
-    val gender by viewModel.genderState.collectAsStateWithLifecycle()
+    val certificationNumber by viewModel.certificationNumberState.collectAsStateWithLifecycle()
     val nickname by viewModel.nicknameState.collectAsStateWithLifecycle()
+    val gender by viewModel.genderState.collectAsStateWithLifecycle()
     val profileImage by viewModel.profileImageState.collectAsStateWithLifecycle()
 
     viewModel.createNewUser(
         gender = gender!!,
         nickname = nickname,
         profileImage = profileImage!!.resourcesID,
-        verifyingCode = viewModel.toString(),
+        verifyingCode = certificationNumber,
         agreeRequiredConsent = false,
         agreeMarketingConsent = false
     ).runCatching {
