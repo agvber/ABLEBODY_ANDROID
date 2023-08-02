@@ -189,6 +189,7 @@ fun InputCertificationNumberScreen(
         is CertificationNumberInfoMessageUiState.Timer -> {
             (certificationNumberInfoMessage as CertificationNumberInfoMessageUiState.Timer).string
         }
+        is CertificationNumberInfoMessageUiState.Already -> { "" }
     }
 
     BottomCustomButtonLayout(
