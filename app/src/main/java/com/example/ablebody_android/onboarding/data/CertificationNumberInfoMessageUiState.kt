@@ -8,4 +8,6 @@ sealed interface CertificationNumberInfoMessageUiState {
     data class Timer(val string: String): CertificationNumberInfoMessageUiState
 
     object Success: CertificationNumberInfoMessageUiState
+
+    object Already: CertificationNumberInfoMessageUiState
 }

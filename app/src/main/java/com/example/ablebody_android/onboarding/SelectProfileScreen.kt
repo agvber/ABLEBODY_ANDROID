@@ -11,9 +11,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -35,6 +39,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.HighlightText
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -109,26 +114,37 @@ fun SelectProfileImageLayoutPreview() {
     SelectProfileImageLayout(ProfileImages.MAN_ONE) {}
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SelectProfileScreen(
     viewModel: OnboardingViewModel,
     navController: NavController
 ) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val profileImagesState by viewModel.profileImageState.collectAsStateWithLifecycle()
 
-    BottomCustomButtonLayout(
-        buttonText = "확인",
-        onClick = { navController.navigate("WelcomeScreen") },
-        enable = profileImagesState != null
+    val termsAgreementsAgreeList by viewModel.termsAgreementsListState.collectAsStateWithLifecycle()
+
+    TermsAgreementScreen(
+        termsAgreements = termsAgreementsAgreeList,
+        bottomButtonOnClick = { navController.navigate("WelcomeScreen") },
+        sheetState = sheetState
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp)
+        BottomCustomButtonLayout(
+            buttonText = "확인",
+            onClick = { scope.launch { sheetState.show() } },
+            enable = profileImagesState != null
         ) {
-            SelectProfileTitleLayout()
-            SelectProfileImageLayout(
-                value = profileImagesState,
-                onChangeValue = { viewModel.updateProfileImage(it) }
-            )
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                SelectProfileTitleLayout()
+                SelectProfileImageLayout(
+                    value = profileImagesState,
+                    onChangeValue = { viewModel.updateProfileImage(it) }
+                )
+            }
         }
     }
 }
