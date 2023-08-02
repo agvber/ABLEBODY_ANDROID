@@ -13,6 +13,7 @@ import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDow
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
 import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
+import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import kotlinx.coroutines.Dispatchers
@@ -187,8 +188,8 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun updateProfileImage(value: ProfileImages) { _profileImageState.value = value }
 
-    private val _createNewUser = MutableSharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>>()
-    val createNewUser: SharedFlow<Response<AbleBodyResponse<NewUserCreateResponseData>>> = _createNewUser
+    private val _createNewUser = MutableSharedFlow<Response<NewUserCreateResponse>>()
+    val createNewUser: SharedFlow<Response<NewUserCreateResponse>> = _createNewUser
     fun createNewUser(
         gender: Gender,
         nickname: String,
