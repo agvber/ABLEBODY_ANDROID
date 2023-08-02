@@ -155,6 +155,7 @@ fun InputPhoneNumberScreen(
     }
     LaunchedEffect(key1 = Unit) {
         viewModel.updateCertificationNumber("")
+        viewModel.verificationResultState.launchIn(viewModel.viewModelScope)
         viewModel.certificationNumberInfoMessageUiState.launchIn(viewModel.viewModelScope)
     }
 }

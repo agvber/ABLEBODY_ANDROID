@@ -9,13 +9,12 @@ import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.onboarding.data.ProfileImages
+import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDownTimer
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
-import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
-import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -116,29 +115,50 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         viewModelScope.launch { _certificationNumberState.emit(number) }
     }
 
-    val certificationNumberInfoMessageUiState =
-        combine(currentCertificationNumberTime, certificationNumberState, smsResponse) { time, number, response ->
-            if (time == 0L) {
-                CertificationNumberInfoMessageUiState.Timeout
-            } else if (number.length == 4) {
-                val phoneConfirmId = response?.body()?.data?.phoneConfirmId
-                withContext(Dispatchers.IO) {
-                    if (phoneConfirmId?.let { networkRepository.checkSMS(phoneConfirmId, number).isSuccessful } == true) {
-                        CertificationNumberInfoMessageUiState.Success
-                    } else {
-                        CertificationNumberInfoMessageUiState.InValid
-                    }
-                }
-            } else {
-                convertMillisecondsToFormattedTime(time)
-                    .run { "${minutes}분 ${seconds}초 남음" }
-                    .let { CertificationNumberInfoMessageUiState.Timer(it) }
+    val verificationResultState = combine(certificationNumberState, smsResponse) { number, response ->
+        val phoneConfirmID = response?.body()?.data?.phoneConfirmId
+        if (number.length == 4 && phoneConfirmID != null) {
+            withContext(Dispatchers.IO) {
+                networkRepository.checkSMS(phoneConfirmID, number)
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = CertificationNumberInfoMessageUiState.Timer("")
-        )
+        } else {
+            null
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null
+    )
+
+    val certificationNumberInfoMessageUiState = combine(currentCertificationNumberTime, verificationResultState) { time, result ->
+        if (time == 0L) {
+            CertificationNumberInfoMessageUiState.Timeout
+        } else if (result != null) {
+            when {
+                result.body()?.data?.registered == true -> {
+                    result.body()?.data?.tokens?.let {
+                        tokenSharedPreferencesRepository.putAuthToken(it.authToken)
+                        tokenSharedPreferencesRepository.putRefreshToken(it.refreshToken)
+                    }
+                    CertificationNumberInfoMessageUiState.Already
+                }
+                result.body()?.success == true -> {
+                    CertificationNumberInfoMessageUiState.Success
+                }
+                else -> {
+                    CertificationNumberInfoMessageUiState.InValid
+                }
+            }
+        } else {
+            convertMillisecondsToFormattedTime(time)
+                .run { "${minutes}분 ${seconds}초 남음" }
+                .let { CertificationNumberInfoMessageUiState.Timer(it) }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = CertificationNumberInfoMessageUiState.Timer("")
+    )
 
     private val _nicknameState = MutableStateFlow("")
     val nicknameState = _nicknameState.asStateFlow()
@@ -164,7 +184,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
             } else if (isNicknameRuleMatch(nickname, regex7)) {
                 flowOf(NicknameRule.UnAvailable)
             } else {
-                withContext(Dispatchers.IO) {
+                withContext(ioDispatcher) {
                     if (networkRepository.checkNickname(nickname).body()?.success == true) {
                         flowOf(NicknameRule.Available)
                     } else {
@@ -188,6 +208,11 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun updateProfileImage(value: ProfileImages) { _profileImageState.value = value }
 
+    private val _termsAgreementsListState = MutableStateFlow<MutableList<TermsAgreements>>(
+        mutableListOf()
+    )
+    val termsAgreementsListState = _termsAgreementsListState.asStateFlow()
+
     private val _createNewUser = MutableSharedFlow<Response<NewUserCreateResponse>>()
     val createNewUser: SharedFlow<Response<NewUserCreateResponse>> = _createNewUser
     fun createNewUser(
@@ -209,12 +234,4 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
             ).let { _createNewUser.emit(it) }
         }
     }
-
-    fun putAuthToken(token: String) {
-        viewModelScope.launch(ioDispatcher) {
-            tokenSharedPreferencesRepository.putAuthToken(token)
-        }
-    }
-
-    fun getAuthToken() = tokenSharedPreferencesRepository.getAuthToken()
 }
