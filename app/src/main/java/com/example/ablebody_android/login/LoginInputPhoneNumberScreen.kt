@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,33 +22,66 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.InputPhoneNumberWithRuleLayout
+import com.example.ablebody_android.onboarding.InputPhoneNumberWithoutRuleLayout
+import com.example.ablebody_android.onboarding.OnboardingViewModel
+import com.example.ablebody_android.onboarding.PhoneNumberJoinExplanation
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
+import com.example.ablebody_android.utils.TextFieldUnderText
+import kotlinx.coroutines.flow.launchIn
 
+@Composable
+fun LoginPhoneNumberJoinExplanation() {
+    HighlightText(
+        string = "휴대폰 번호(아이디)를 입력해주세요.",
+        colorStringList = listOf("휴대폰 번호(아이디)"),
+        color = AbleBlue,
+        style = TextStyle(
+            fontSize = 22.sp,
+            lineHeight = 35.sp,
+            fontWeight = FontWeight(700),
+            color = AbleDark,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginPhoneNumberJoinExplanationPreview() {
+    LoginPhoneNumberJoinExplanation()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InputPhoneNumberWithRuleLayoutPreview() {
+    var textState by remember { mutableStateOf("") }
+
+    InputPhoneNumberWithRuleLayout(
+        value = textState,
+        onValueChange = { textState = it },
+        underText = "휴대폰 번호 양식에 맞지 않아요."
+    )
+}
 @Composable
 fun LoginInputPhoneNumberContent(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    underText: String
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
 //        TopBarBackward()
-        HighlightText(
-            string = "휴대폰 번호(아이디)를 입력해주세요.",
-            colorStringList = listOf("휴대폰 번호(아이디)"),
-            color = AbleBlue,
-            style = TextStyle(
-                fontSize = 22.sp,
-                lineHeight = 35.sp,
-                fontWeight = FontWeight(700),
-                color = AbleDark,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
-            )
-        )
-        InputPhoneNumberWithRuleLayout(value, onValueChange, "")
+        LoginPhoneNumberJoinExplanation()
+        InputPhoneNumberWithRuleLayout(value, onValueChange, underText)
         Column(
             Modifier
                 .fillMaxWidth()
@@ -76,27 +110,52 @@ fun LoginInputPhoneNumberContent(
 @Composable
 private fun ContentPreview() {
 
-    var state by remember{ mutableStateOf("") }
+    var textState by remember { mutableStateOf("") }
 
-    LoginInputPhoneNumberContent(state) { state = it }
+    InputPhoneNumberWithRuleLayout(
+        value = textState,
+        onValueChange = { textState = it },
+        underText = "휴대폰 번호 양식에 맞지 않아요."
+    )
 }
 
 
 @Composable
-fun LoginInputPhoneNumberScreen() {
+fun LoginInputPhoneNumberScreen(
+    viewModel: OnboardingViewModel,
+    navController: NavController
+) {
 
-    var state by remember{ mutableStateOf("") }
-    TopBarBackward()
+    val phoneNumber by viewModel.phoneNumberState.collectAsStateWithLifecycle()
+    val enable by viewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
+    val phoneNumberMessage by viewModel.phoneNumberMessageStateUi.collectAsStateWithLifecycle()
+
+//    TopBarBackward()
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
-        onClick = {  }
+        onClick = {
+            viewModel.requestSmsVerificationCode(phoneNumber)
+            viewModel.startCertificationNumberTimer()
+            navController.navigate(route = "InputCertificationNumber")
+        },
+        enable = enable
     ) {
-        LoginInputPhoneNumberContent(state) { state = it }
+        LoginInputPhoneNumberContent(
+            value = phoneNumber,
+            onValueChange = { viewModel.updatePhoneNumber(it) },
+            underText = phoneNumberMessage
+        )
+    }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.updateCertificationNumber("")
+        viewModel.certificationNumberInfoMessageUiState.launchIn(viewModel.viewModelScope)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun LoginInputPhoneNumberScreenPreview() {
-    LoginInputPhoneNumberScreen()
+    val viewModel: OnboardingViewModel = viewModel()
+    val navController = rememberNavController()
+    LoginInputPhoneNumberScreen(viewModel = viewModel, navController = navController)
 }

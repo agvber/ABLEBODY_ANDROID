@@ -81,7 +81,8 @@ fun IntroContentLayoutPreview() {
 
 @Composable
 private fun IntroBottomLayout(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navController: NavController
 ) {
     Column(
         modifier = Modifier.navigationBarsPadding(),
@@ -104,6 +105,7 @@ private fun IntroBottomLayout(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
+                    navController.navigate("LoginInputPhoneNumberScreen")
                     /* TODO: (온보딩/시작하기) 로그인 버튼 클릭 후 이벤트 */
                 }
             )
@@ -111,11 +113,11 @@ private fun IntroBottomLayout(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun IntroBottomLayoutPreview() {
-    IntroBottomLayout() {  }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun IntroBottomLayoutPreview() {
+//    IntroBottomLayout() {  }
+//}
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -156,7 +158,8 @@ fun IntroScreen(
                                 navController.navigate("InputPhoneNumber")
                             }
                         }
-                    }
+                    },
+                    navController = navController
                 )
                         },
         ) {

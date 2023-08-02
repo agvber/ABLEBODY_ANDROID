@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ablebody_android.login.LoginInputPhoneNumberScreen
 
 
 @Composable
@@ -32,6 +33,9 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
         }
         composable(route = "WelcomeScreen") {
             WelcomeScreen(viewModel = viewModel)
+        }
+        composable(route = "LoginInputPhoneNumberScreen") {
+            LoginInputPhoneNumberScreen(viewModel = viewModel, navController = navController)
         }
     }
 }
