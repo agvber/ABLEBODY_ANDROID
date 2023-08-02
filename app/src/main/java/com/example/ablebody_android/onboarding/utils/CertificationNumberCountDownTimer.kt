@@ -4,31 +4,27 @@ import android.os.CountDownTimer
 
 class CertificationNumberCountDownTimer {
     private var currentTime = 0L
-    private var timerIsRunning: Boolean = false
 
-    private val countDownTimer = object : CountDownTimer(180000L, 1000L) {
-        override fun onTick(millisUntilFinished: Long) {
-            currentTime -= 1000L
-            callback?.onChangeValue(currentTime)
-        }
-        override fun onFinish() {
-            timerIsRunning = false
-        }
-    }
+    private var countDownTimer: CountDownTimer? = null
 
     fun startCertificationNumberTimer() {
-        if (!timerIsRunning) {
+        if (countDownTimer == null) {
             currentTime = 180000L
-            timerIsRunning = true
-            countDownTimer.start()
+            countDownTimer = object : CountDownTimer(180000L, 1000L) {
+                override fun onTick(millisUntilFinished: Long) {
+                    currentTime -= 1000L
+                    callback?.onChangeValue(currentTime)
+                }
+                override fun onFinish() {
+                    countDownTimer = null
+                }
+            }.start()
         }
     }
 
     fun cancelCertificationNumberCountDownTimer() {
-        if (timerIsRunning) {
-            countDownTimer.cancel()
-            timerIsRunning = false
-        }
+        countDownTimer?.cancel()
+        countDownTimer = null
     }
 
     interface Callback {

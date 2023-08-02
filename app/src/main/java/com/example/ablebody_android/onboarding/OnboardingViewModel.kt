@@ -2,8 +2,6 @@ package com.example.ablebody_android.onboarding
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.NetworkRepository
@@ -26,6 +24,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -74,22 +73,22 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         )
 
 
-    private val _smsResponse = MutableLiveData<Response<SendSMSResponse>>()
-    private val smsResponse: LiveData<Response<SendSMSResponse>> = _smsResponse
+    private val _smsResponse = MutableStateFlow<Response<SendSMSResponse>?>(null)
+    private val smsResponse = _smsResponse.asStateFlow()
 
     private var lastSmsVerificationCodeRequestTime = 0L
     fun requestSmsVerificationCode(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
             if (System.currentTimeMillis() - lastSmsVerificationCodeRequestTime >= 1000L) {
-                lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
                 val response = networkRepository.sendSMS(phoneNumber)
-                _smsResponse.postValue(response)
+                _smsResponse.emit(response)
+                lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
             }
         }
     }
 
-    private val _currentCertificationNumberTimeLiveData = MutableStateFlow(180000L)
-    private val currentCertificationNumberTimeLiveData = _currentCertificationNumberTimeLiveData.asStateFlow()
+    private val _currentCertificationNumberTime = MutableStateFlow(180000L)
+    private val currentCertificationNumberTime = _currentCertificationNumberTime.asStateFlow()
 
     private val certificationNumberCountDownTimer = CertificationNumberCountDownTimer()
 
@@ -98,7 +97,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         certificationNumberCountDownTimer.registerOnChangeListener(
             object : CertificationNumberCountDownTimer.Callback {
                 override fun onChangeValue(value: Long) {
-                    _currentCertificationNumberTimeLiveData.value = value
+                    _currentCertificationNumberTime.value = value
                 }
             }
         )
@@ -116,46 +115,29 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         viewModelScope.launch { _certificationNumberState.emit(number) }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val verificationResultState = certificationNumberState.flatMapLatest { number ->
-        val phoneConfirmID = smsResponse.value?.body()?.data?.phoneConfirmId
-        if (number.length == 4 && phoneConfirmID != null) {
-            withContext(Dispatchers.IO) {
-                flowOf(networkRepository.checkSMS(phoneConfirmID, number).isSuccessful)
-            }
-        } else {
-            flowOf(false)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = false
-    )
-
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val certificationNumberInfoMessageUiState = currentCertificationNumberTimeLiveData.flatMapLatest { time ->
-        if (time == 0L) {
-            flowOf(CertificationNumberInfoMessageUiState.Timeout)
-        } else {
-            certificationNumberState.flatMapLatest { number ->
-                if (number.length == 4) {
-                    verificationResultState.debounce(100L).flatMapLatest { success ->
-                        if (success) { flowOf(CertificationNumberInfoMessageUiState.Success) }
-                        else { flowOf(CertificationNumberInfoMessageUiState.InValid) }
+    val certificationNumberInfoMessageUiState =
+        combine(currentCertificationNumberTime, certificationNumberState, smsResponse) { time, number, response ->
+            if (time == 0L) {
+                CertificationNumberInfoMessageUiState.Timeout
+            } else if (number.length == 4) {
+                val phoneConfirmId = response?.body()?.data?.phoneConfirmId
+                withContext(Dispatchers.IO) {
+                    if (phoneConfirmId?.let { networkRepository.checkSMS(phoneConfirmId, number).isSuccessful } == true) {
+                        CertificationNumberInfoMessageUiState.Success
+                    } else {
+                        CertificationNumberInfoMessageUiState.InValid
                     }
-                } else {
-                    convertMillisecondsToFormattedTime(time)
-                        .run { "${minutes}분 ${seconds}초 남음" }
-                        .let { CertificationNumberInfoMessageUiState.Timer(it) }
-                        .let { flowOf(it) }
                 }
+            } else {
+                convertMillisecondsToFormattedTime(time)
+                    .run { "${minutes}분 ${seconds}초 남음" }
+                    .let { CertificationNumberInfoMessageUiState.Timer(it) }
             }
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = CertificationNumberInfoMessageUiState.Timer("")
-    )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = CertificationNumberInfoMessageUiState.Timer("")
+        )
 
     private val _nicknameState = MutableStateFlow("")
     val nicknameState = _nicknameState.asStateFlow()

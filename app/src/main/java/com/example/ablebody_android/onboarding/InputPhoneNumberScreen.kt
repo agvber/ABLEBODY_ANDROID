@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -29,6 +31,7 @@ import com.example.ablebody_android.utils.CustomLabelText
 import com.example.ablebody_android.utils.CustomTextField
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.utils.TextFieldUnderText
+import kotlinx.coroutines.flow.launchIn
 
 @Composable
 fun PhoneNumberJoinExplanation() {
@@ -138,8 +141,8 @@ fun InputPhoneNumberScreen(
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
         onClick = {
-            viewModel.startCertificationNumberTimer()
             viewModel.requestSmsVerificationCode(phoneNumber)
+            viewModel.startCertificationNumberTimer()
             navController.navigate(route = "InputCertificationNumber")
         },
         enable = enable
@@ -149,6 +152,10 @@ fun InputPhoneNumberScreen(
             onValueChange = { viewModel.updatePhoneNumber(it) },
             underText = phoneNumberMessage
         )
+    }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.updateCertificationNumber("")
+        viewModel.certificationNumberInfoMessageUiState.launchIn(viewModel.viewModelScope)
     }
 }
 

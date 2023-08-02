@@ -173,7 +173,12 @@ fun InputCertificationNumberScreen(
 
     LaunchedEffect(key1 = certificationNumberInfoMessage) {
         if (certificationNumberInfoMessage is CertificationNumberInfoMessageUiState.Success) {
-            navController.navigate("CreateNickname")
+            viewModel.cancelCertificationNumberCountDownTimer()
+            navController.navigate("CreateNickname") {
+                popUpTo("InputCertificationNumber") {
+                    inclusive = true
+                }
+            }
         }
     }
 
@@ -189,6 +194,7 @@ fun InputCertificationNumberScreen(
     BottomCustomButtonLayout(
         buttonText = "인증번호 다시 받기",
         onClick = {
+            viewModel.updateCertificationNumber("")
             viewModel.requestSmsVerificationCode(phoneNumber = phoneNumberState)
             viewModel.cancelCertificationNumberCountDownTimer()
             viewModel.startCertificationNumberTimer()
@@ -207,6 +213,7 @@ fun InputCertificationNumberScreen(
 @Composable
 fun InputCertificationNumberScreenPreview() {
     val viewModel: OnboardingViewModel = viewModel()
+    viewModel.startCertificationNumberTimer()
     InputCertificationNumberScreen(
         viewModel = viewModel,
         navController = rememberNavController()
