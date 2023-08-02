@@ -12,10 +12,8 @@ import com.example.ablebody_android.onboarding.data.ProfileImages
 import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDownTimer
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
-import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
-import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -122,11 +120,23 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
                 CertificationNumberInfoMessageUiState.Timeout
             } else if (number.length == 4) {
                 val phoneConfirmId = response?.body()?.data?.phoneConfirmId
-                withContext(Dispatchers.IO) {
-                    if (phoneConfirmId?.let { networkRepository.checkSMS(phoneConfirmId, number).isSuccessful } == true) {
-                        CertificationNumberInfoMessageUiState.Success
-                    } else {
-                        CertificationNumberInfoMessageUiState.InValid
+                withContext(ioDispatcher) {
+                    val verificationCodeCheckResponse =
+                        phoneConfirmId?.let { networkRepository.checkSMS(phoneConfirmId, number)}
+                    when {
+                        verificationCodeCheckResponse?.body()?.data?.registered == true -> {
+                            verificationCodeCheckResponse.body()?.data?.tokens?.let {
+                                tokenSharedPreferencesRepository.putAuthToken(it.authToken)
+                                tokenSharedPreferencesRepository.putRefreshToken(it.refreshToken)
+                            }
+                            CertificationNumberInfoMessageUiState.Already
+                        }
+                        verificationCodeCheckResponse?.body()?.success == true -> {
+                            CertificationNumberInfoMessageUiState.Success
+                        }
+                        else -> {
+                            CertificationNumberInfoMessageUiState.InValid
+                        }
                     }
                 }
             } else {
@@ -164,7 +174,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
             } else if (isNicknameRuleMatch(nickname, regex7)) {
                 flowOf(NicknameRule.UnAvailable)
             } else {
-                withContext(Dispatchers.IO) {
+                withContext(ioDispatcher) {
                     if (networkRepository.checkNickname(nickname).body()?.success == true) {
                         flowOf(NicknameRule.Available)
                     } else {
@@ -209,12 +219,4 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
             ).let { _createNewUser.emit(it) }
         }
     }
-
-    fun putAuthToken(token: String) {
-        viewModelScope.launch(ioDispatcher) {
-            tokenSharedPreferencesRepository.putAuthToken(token)
-        }
-    }
-
-    fun getAuthToken() = tokenSharedPreferencesRepository.getAuthToken()
 }
