@@ -17,6 +17,8 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.ProfileImages
+import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
@@ -121,14 +124,20 @@ fun SelectProfileScreen(
     navController: NavController
 ) {
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
     val profileImagesState by viewModel.profileImageState.collectAsStateWithLifecycle()
 
-    val termsAgreementsAgreeList by viewModel.termsAgreementsListState.collectAsStateWithLifecycle()
+    val termsAgreementsAgreeList = remember { mutableStateListOf<TermsAgreements>() }
 
     TermsAgreementScreen(
         termsAgreements = termsAgreementsAgreeList,
-        bottomButtonOnClick = { navController.navigate("WelcomeScreen") },
+        bottomButtonOnClick = {
+            viewModel.updateTermsAgreementsListState(termsAgreementsAgreeList)
+            navController.navigate("WelcomeScreen")
+                              },
         sheetState = sheetState
     ) {
         BottomCustomButtonLayout(
