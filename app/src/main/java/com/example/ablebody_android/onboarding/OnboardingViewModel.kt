@@ -208,10 +208,12 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
 
     fun updateProfileImage(value: ProfileImages) { _profileImageState.value = value }
 
-    private val _termsAgreementsListState = MutableStateFlow<MutableList<TermsAgreements>>(
-        mutableListOf()
-    )
+    private val _termsAgreementsListState = MutableStateFlow<List<TermsAgreements>>(emptyList())
     val termsAgreementsListState = _termsAgreementsListState.asStateFlow()
+
+    fun updateTermsAgreementsListState(value: List<TermsAgreements>) {
+        viewModelScope.launch { _termsAgreementsListState.emit(value) }
+    }
 
     private val _createNewUser = MutableSharedFlow<Response<NewUserCreateResponse>>()
     val createNewUser: SharedFlow<Response<NewUserCreateResponse>> = _createNewUser
