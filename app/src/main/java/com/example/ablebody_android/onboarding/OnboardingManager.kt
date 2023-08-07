@@ -32,7 +32,7 @@ fun OnboardingManager(viewModel: OnboardingViewModel = androidx.lifecycle.viewmo
             SelectProfileScreen(viewModel = viewModel, navController = navController)
         }
         composable(route = "WelcomeScreen") {
-            WelcomeScreen(viewModel = viewModel)
+            WelcomeScreen(viewModel = viewModel, navController = navController)
         }
         composable(route = "LoginInputPhoneNumberScreen") {
             LoginInputPhoneNumberScreen(viewModel = viewModel, navController = navController)

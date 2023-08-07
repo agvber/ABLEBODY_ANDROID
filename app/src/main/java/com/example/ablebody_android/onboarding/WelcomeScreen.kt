@@ -19,6 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -27,7 +29,7 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.utils.HighlightText
 
 @Composable
-fun WelcomeScreen(viewModel: OnboardingViewModel) {
+fun WelcomeScreen(viewModel: OnboardingViewModel, navController: NavController) {
     val certificationNumber by viewModel.certificationNumberState.collectAsStateWithLifecycle()
     val nickname by viewModel.nicknameState.collectAsStateWithLifecycle()
     val gender by viewModel.genderState.collectAsStateWithLifecycle()
@@ -78,11 +80,13 @@ fun WelcomeScreen(viewModel: OnboardingViewModel) {
             )
         )
     }
+    navController.enableOnBackPressed(false)
 }
 
 @Preview(showSystemUi = true)
 @Composable
 fun WelcomeScreenPreview() {
     val viewModel: OnboardingViewModel = viewModel()
-    WelcomeScreen(viewModel = viewModel)
+    val navController = rememberNavController()
+    WelcomeScreen(viewModel = viewModel, navController)
 }
