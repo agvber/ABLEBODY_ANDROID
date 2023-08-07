@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -73,8 +74,8 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         )
 
 
-    private val _smsResponse = MutableStateFlow<Response<SendSMSResponse>?>(null)
-    private val smsResponse = _smsResponse.asStateFlow()
+    private val _smsResponse = MutableSharedFlow<Response<SendSMSResponse>>()
+    private val smsResponse = _smsResponse.asSharedFlow()
 
     private var lastSmsVerificationCodeRequestTime = 0L
     fun requestSmsVerificationCode(phoneNumber: String) {
@@ -116,7 +117,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     }
 
     val verificationResultState = combine(certificationNumberState, smsResponse) { number, response ->
-        val phoneConfirmID = response?.body()?.data?.phoneConfirmId
+        val phoneConfirmID = response.body()?.data?.phoneConfirmId
         if (number.length == 4 && phoneConfirmID != null) {
             withContext(Dispatchers.IO) {
                 networkRepository.checkSMS(phoneConfirmID, number)
