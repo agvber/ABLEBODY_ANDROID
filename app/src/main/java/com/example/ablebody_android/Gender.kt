@@ -1,5 +1,5 @@
 package com.example.ablebody_android
 
-enum class Gender {
-    남자, 여자
+enum class Gender(val resourceID: Int) {
+    MALE(R.string.male), FEMALE(R.string.female)
 }

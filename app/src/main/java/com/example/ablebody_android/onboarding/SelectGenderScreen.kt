@@ -3,8 +3,9 @@ package com.example.ablebody_android.onboarding
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
@@ -15,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -87,18 +89,15 @@ fun SelectGenderLayout(
             ),
             modifier = Modifier.padding(top=15.dp)
         )
-
-        Row {
-            SelectGenderButton(
-                text = Gender.남자.name,
-                isChecked = Gender.남자 == gender,
-                onClick = { onClick(Gender.남자) }
-            )
-            SelectGenderButton(
-                text = Gender.여자.name,
-                isChecked = Gender.여자 == gender,
-                onClick = { onClick(Gender.여자) }
-            )
+        
+        LazyRow {
+            items(Gender.values()) {
+                SelectGenderButton(
+                    text = stringResource(id = it.resourceID),
+                    isChecked = gender == it,
+                    onClick = { onClick(it) }
+                )
+            }
         }
     }
 }
@@ -106,7 +105,7 @@ fun SelectGenderLayout(
 @Preview(showBackground = true)
 @Composable
 fun SelectGenderLayoutPreview() {
-    var gender by remember { mutableStateOf<Gender>(Gender.남자) }
+    var gender by remember { mutableStateOf<Gender>(Gender.MALE) }
 
     SelectGenderLayout(gender = gender) {
         gender = it

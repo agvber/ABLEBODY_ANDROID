@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">ABLEBODY_Android</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="title_activity_login_input_phone_number_screen">LoginInputPhoneNumberScreen
+    <string name="app_name" translatable="false">ABLEBODY_Android</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="title_activity_login_input_phone_number_screen" translatable="false">LoginInputPhoneNumberScreen
     </string>
-    <string name="title_activity_onboarding">OnboardingActivity</string>
+    <string name="title_activity_onboarding" translatable="false">OnboardingActivity</string>
+
+    <string name="male">남자</string>
+    <string name="female">여자</string>
 </resources>
