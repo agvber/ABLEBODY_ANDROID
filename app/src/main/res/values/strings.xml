@@ -7,4 +7,7 @@
 
     <string name="male">남자</string>
     <string name="female">여자</string>
+    <string name="brand_gender_filter_type_all">전체</string>
+    <string name="brand_order_filter_type_popularity">인기순</string>
+    <string name="brand_gender_filter_type_name">이름순</string>
 </resources>
