@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

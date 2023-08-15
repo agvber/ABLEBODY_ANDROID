@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult

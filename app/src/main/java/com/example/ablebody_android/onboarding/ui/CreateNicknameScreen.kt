@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
+import com.example.ablebody_android.onboarding.OnboardingViewModel
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark

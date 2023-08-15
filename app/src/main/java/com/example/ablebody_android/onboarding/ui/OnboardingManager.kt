@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.login.LoginInputPhoneNumberScreen
+import com.example.ablebody_android.onboarding.OnboardingViewModel
 
 
 @Composable

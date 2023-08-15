@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

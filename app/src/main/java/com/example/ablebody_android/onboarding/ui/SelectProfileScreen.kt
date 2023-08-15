@@ -1,4 +1,4 @@
-package com.example.ablebody_android.onboarding
+package com.example.ablebody_android.onboarding.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
+import com.example.ablebody_android.onboarding.OnboardingViewModel
 import com.example.ablebody_android.onboarding.data.ProfileImages
 import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleBlue
