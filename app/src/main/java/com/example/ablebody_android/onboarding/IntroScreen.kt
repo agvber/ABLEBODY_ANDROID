@@ -51,7 +51,7 @@ private fun IntroContentLayout(modifier: Modifier = Modifier) {
                 fontSize = 27.sp,
                 color = AbleDark,
                 lineHeight = 40.sp,
-                fontFamily = FontFamily(Font(resId = R.font.noto_sans_cjkr_black))
+                fontFamily = FontFamily(Font(resId = R.font.noto_sans_cjk_kr_black))
             ),
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
         )
@@ -64,7 +64,7 @@ private fun IntroContentLayout(modifier: Modifier = Modifier) {
                 fontSize = 17.sp,
                 color = SmallTextGrey,
                 lineHeight = 27.2.sp,
-                fontFamily = FontFamily(Font(resId = R.font.noto_sans_cjkr_black))
+                fontFamily = FontFamily(Font(resId = R.font.noto_sans_cjk_kr_black))
             ),
             modifier = Modifier.padding(vertical = 28.dp, horizontal = 16.dp)
         )

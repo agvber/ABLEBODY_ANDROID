@@ -60,7 +60,7 @@ fun WelcomeScreen(viewModel: OnboardingViewModel, navController: NavController) 
             text = "로그인 완료!",
             style = TextStyle(
                 fontSize = 18.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                 fontWeight = FontWeight(400),
                 color = SmallTextGrey,
                 textAlign = TextAlign.Center,
@@ -73,7 +73,7 @@ fun WelcomeScreen(viewModel: OnboardingViewModel, navController: NavController) 
             color = AbleBlue,
             style = TextStyle(
                 fontSize = 25.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                 fontWeight = FontWeight(700),
                 color = AbleDark,
                 textAlign = TextAlign.Center,

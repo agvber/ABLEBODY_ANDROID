@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,9 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.onboarding.SelectGenderButton
 import com.example.ablebody_android.utils.HighlightText
-import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
@@ -38,7 +34,7 @@ fun alertDialog() {
                     lineHeight = 35.sp,
                     fontWeight = FontWeight(700),
                     color = AbleDark,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black))
                 )
             )
         },

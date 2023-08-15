@@ -55,7 +55,7 @@ fun SelectProfileTitleLayout() {
             style = TextStyle(
                 fontSize = 22.sp,
                 lineHeight = 35.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                 fontWeight = FontWeight(700),
                 color = AbleDark,
             )
@@ -65,7 +65,7 @@ fun SelectProfileTitleLayout() {
             style = TextStyle(
                 fontSize = 12.sp,
                 lineHeight = 35.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                 fontWeight = FontWeight(400),
                 color = SmallTextGrey,
             )

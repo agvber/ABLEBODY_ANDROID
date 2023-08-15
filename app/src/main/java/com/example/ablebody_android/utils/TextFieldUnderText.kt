@@ -20,7 +20,7 @@ fun TextFieldUnderCorrectText(
         text = value,
         style = TextStyle(
             fontSize = 12.sp,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
             fontWeight = FontWeight(400),
             color = AbleBlue,
         )
@@ -41,7 +41,7 @@ fun TextFieldUnderWrongText(
         text = value,
         style = TextStyle(
             fontSize = 12.sp,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
             fontWeight = FontWeight(400),
             color = AbleRed,
         )
@@ -66,7 +66,7 @@ fun TextFieldUnderText(
         text = text,
         style = TextStyle(
             fontSize = 12.sp,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
             fontWeight = FontWeight(400),
             color = textColor,
         )

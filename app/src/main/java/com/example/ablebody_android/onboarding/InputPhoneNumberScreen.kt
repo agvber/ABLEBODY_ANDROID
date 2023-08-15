@@ -44,7 +44,7 @@ fun PhoneNumberJoinExplanation() {
             lineHeight = 35.sp,
             fontWeight = FontWeight(700),
             color = AbleDark,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black))
         )
     )
 }

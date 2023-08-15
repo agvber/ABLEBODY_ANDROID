@@ -62,7 +62,7 @@ fun TermsAgreementSheetContentControlAllSwitches(
             style = TextStyle(
                 fontSize = 18.sp,
                 lineHeight = 26.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                 fontWeight = FontWeight(700),
                 color = AbleDark,
             ),

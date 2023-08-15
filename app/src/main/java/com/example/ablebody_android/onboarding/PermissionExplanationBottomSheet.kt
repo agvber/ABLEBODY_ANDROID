@@ -48,7 +48,7 @@ private fun PermissionExplanationItemLayout(
                 text = title,
                 style = TextStyle(
                     fontSize = 18.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                     fontWeight = FontWeight(700),
                     color = Color(0xFF191E29),
                 )
@@ -58,7 +58,7 @@ private fun PermissionExplanationItemLayout(
                 text = description,
                 style = TextStyle(
                     fontSize = 15.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black)),
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black)),
                     fontWeight = FontWeight(400),
                     color = Color(0xFF191E29),
                 )
@@ -90,7 +90,7 @@ private fun PermissionExplanationContentLayout(
                     lineHeight = 35.sp,
                     fontWeight = FontWeight(700),
                     color = AbleDark,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black))
                 ),
             )
         }

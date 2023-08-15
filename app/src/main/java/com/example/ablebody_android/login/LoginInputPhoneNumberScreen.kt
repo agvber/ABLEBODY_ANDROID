@@ -29,14 +29,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.InputPhoneNumberWithRuleLayout
-import com.example.ablebody_android.onboarding.InputPhoneNumberWithoutRuleLayout
 import com.example.ablebody_android.onboarding.OnboardingViewModel
-import com.example.ablebody_android.onboarding.PhoneNumberJoinExplanation
 import com.example.ablebody_android.utils.BottomCustomButtonLayout
 import com.example.ablebody_android.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.TextFieldUnderText
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -50,7 +47,7 @@ fun LoginPhoneNumberJoinExplanation() {
             lineHeight = 35.sp,
             fontWeight = FontWeight(700),
             color = AbleDark,
-            fontFamily = FontFamily(Font(R.font.noto_sans_cjkr_black))
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_black))
         )
     )
 }
