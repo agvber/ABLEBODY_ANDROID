@@ -8,6 +8,9 @@ import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
+import com.example.ablebody_android.retrofit.dto.response.BrandDetaiItemResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -84,4 +87,41 @@ class NetworkRepository(
         val request = FCMTokenAndAppVersionUpdateRequest(fcmToken = fcmToken, appVersion = appVersion)
         return networkService.updateFCMTokenAndAppVersion(header, request).execute()
     }
+
+//    fun brandMain(
+//        authToken: String,
+//        sort: SortingMethod
+//    ): Response<BrandMainResponse> {
+//        val header = "Bearer $authToken"
+//        val request = //TODO
+//
+//    }
+//
+//    fun brandDetaiItem(
+//        authToken: String,
+//        sort: SortingMethod,
+//        brandId: Long,
+//        itemGender: ItemGender,
+//        parentCategory: ItemParentCategory,
+//        childCategory: ItemChildCategory,
+//        page: Int,
+//        size: Int
+//    ): Response<BrandDetaiItemResponse>{
+//
+//    }
+//
+//    fun brandDetailCody(
+//        authToken: String,
+//        brandId: Long,
+//        gender: Gender,
+//        category: HomeCategory,
+//        height1: Int? = null,
+//        height2: Int? = null,
+//        page: Int? = null,
+//        size: Int? = null
+//    ): Response<BrandDetailCodyResponse>{
+//
+//    }
+
+
 }

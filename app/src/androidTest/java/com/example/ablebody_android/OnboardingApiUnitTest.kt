@@ -22,7 +22,7 @@ class OnboardingApiUnitTest {
     @Test
     fun sendSMS() {
         val response = networkRepository.sendSMS(
-            phoneNumber = "01026289219",
+            phoneNumber = "01092393487",
             isNotTestMessage = true
         )
 
