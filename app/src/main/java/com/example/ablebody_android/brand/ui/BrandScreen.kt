@@ -99,7 +99,7 @@ fun BrandFilterTab(
             )
             Image(
                 painter = painterResource(id = R.drawable.chevrondown),
-                contentDescription = "chevronDownButton",
+                contentDescription = "chevron down button",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(start = 4.dp)

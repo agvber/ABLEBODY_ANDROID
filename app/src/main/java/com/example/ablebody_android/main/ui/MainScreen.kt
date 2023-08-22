@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.brand.ui.BrandScreen
 import com.example.ablebody_android.main.data.NavigationItems
-import com.example.ablebody_android.main.utils.ui.AbleBodyBottomNavigationItem
+import com.example.ablebody_android.main.ui.utils.AbleBodyBottomNavigationItem
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.AbleLight
 import com.example.ablebody_android.ui.theme.White

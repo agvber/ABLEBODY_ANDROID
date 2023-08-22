@@ -49,6 +49,6 @@ class TokenAuthenticator(
     }
 
     private fun buildResponse(response: Response, authToken: String) =
-        response.request().newBuilder()
+        response.request.newBuilder()
             .header("Authorization", "Bearer $authToken").build()
 }
