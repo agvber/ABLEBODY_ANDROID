@@ -17,13 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -40,6 +41,8 @@ import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.ui.utils.DefaultFilterBottomSheet
+import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 
 @Composable
 fun BrandFilterTab(
@@ -81,30 +84,10 @@ fun BrandFilterTab(
                 )
             }
         }
-
-        Row(
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = orderFilterTabClicked,
-            )
-        ) {
-            Text(
-                text = stringResource(id = orderFilter.stringResourceID),
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight(400),
-                    color = AbleDark,
-                ),
-            )
-            Image(
-                painter = painterResource(id = R.drawable.chevrondown),
-                contentDescription = "chevron down button",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(start = 4.dp)
-            )
-        }
+        DropDownFilterLayout(
+            value = stringResource(id = orderFilter.stringResourceID),
+            onClick = orderFilterTabClicked
+        )
     }
 }
 
@@ -207,24 +190,35 @@ fun BrandListItemLayoutPreview() {
 
 @Composable
 fun BrandScreen(modifier: Modifier = Modifier) {
-    var isBrandFilterBottomSheetShow by remember { mutableStateOf(false) }
-    var currentGenderFilterType by remember { mutableStateOf(GenderFilterType.ALL) }
-    var currentOrderFilterType by remember { mutableStateOf(OrderFilterType.Popularity) }
+    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
+    var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
+    var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
+    val context = LocalContext.current
+
+    if (isFilterBottomSheetShow) {
+        val filterBottomSheetValueList by remember {
+            derivedStateOf {
+                OrderFilterType.values().map { context.getString(it.stringResourceID) }
+            }
+        }
+        DefaultFilterBottomSheet(
+            valueList = filterBottomSheetValueList,
+            onDismissRequest = { orderFilterType ->
+                orderFilterType?.let { value ->
+                    orderFilterState = OrderFilterType.values()
+                        .filter { context.getString(it.stringResourceID) == value } [0]
+                }
+                isFilterBottomSheetShow = false
+            }
+        )
+    }
 
     Column(modifier) {
-        if (isBrandFilterBottomSheetShow) {
-            BrandFilterBottomSheet(
-                onDismissRequest = { orderFilterType ->
-                    orderFilterType?.let { currentOrderFilterType = it }
-                    isBrandFilterBottomSheetShow = false
-                }
-            )
-        }
         BrandFilterTab(
-            genderFilter = currentGenderFilterType,
-            genderFilterTabClicked = { currentGenderFilterType = it },
-            orderFilter = currentOrderFilterType,
-            orderFilterTabClicked = { isBrandFilterBottomSheetShow = true }
+            genderFilter = genderFilterState,
+            genderFilterTabClicked = { genderFilterState = it },
+            orderFilter = orderFilterState,
+            orderFilterTabClicked = { isFilterBottomSheetShow = true }
         )
         LazyColumn {
             items(items = (0..10).toList()) {

@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -20,30 +17,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
-import com.example.ablebody_android.brand.data.OrderFilterType
-import com.example.ablebody_android.brand.ui.BrandFilterBottomSheet
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleDark
 
 @Composable
 fun DropDownFilterLayout(
     value: String,
-    onValueChange: (OrderFilterType) -> Unit
+    onClick: () -> Unit
 ) {
-    var isBrandFilterBottomSheetShow by remember { mutableStateOf(false) }
-    if (isBrandFilterBottomSheetShow) {
-        BrandFilterBottomSheet(
-            onDismissRequest = { orderFilterType ->
-                orderFilterType?.let(onValueChange)
-                isBrandFilterBottomSheetShow = false
-            }
-        )
-    }
     Row(
         modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = { isBrandFilterBottomSheetShow = true },
+            onClick = onClick,
         )
     ) {
         Text(

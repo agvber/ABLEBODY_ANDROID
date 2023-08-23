@@ -1,41 +1,24 @@
 package com.example.ablebody_android.brand.ui
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.ablebody_android.R
+import com.example.ablebody_android.Gender
+import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
-import com.example.ablebody_android.ui.theme.AbleBlue
-import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.ui.theme.White
+import com.example.ablebody_android.ui.utils.DefaultFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DefaultFilterTab
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.GenderSwitch
@@ -43,73 +26,41 @@ import com.example.ablebody_android.ui.utils.ProductItemListLayout
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTab
 
 @Composable
-fun BrandDetailListScreen() {
+fun BrandItemListScreen() {
+    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     var parentFilterState by remember { mutableStateOf("전체") }
-    var orderFilterState by remember { mutableStateOf("인기순") }
+    var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
     var childFilterState by remember { mutableStateOf("") }
-    var selectedTabIndexState by remember { mutableIntStateOf(1) }
+    var genderState by remember { mutableStateOf(Gender.MALE) }
+    val context = LocalContext.current
+
+    if (isFilterBottomSheetShow) {
+        val filterBottomSheetValueList by remember {
+            derivedStateOf {
+                OrderFilterType.values().map { context.getString(it.stringResourceID) }
+            }
+        }
+        DefaultFilterBottomSheet(
+            valueList = filterBottomSheetValueList,
+            onDismissRequest = { orderFilterType ->
+                orderFilterType?.let { value ->
+                    orderFilterState = OrderFilterType.values()
+                        .filter { context.getString(it.stringResourceID) == value } [0]
+                }
+                isFilterBottomSheetShow = false
+            }
+        )
+    }
 
     Column {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "오옴",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                        fontWeight = FontWeight(400),
-                        color = AbleDark,
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier.padding(horizontal = 20.dp)
-                )
-            },
-            navigationIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_appbar_back_button),
-                    contentDescription = "back button",
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {
-                                // TODO: BackButton click
-                            }
-                        )
-                )
-            },
-            backgroundColor = White,
-        )
-        TabRow(
-            selectedTabIndex = selectedTabIndexState,
-            contentColor = AbleBlue,
-            indicator = @Composable { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndexState]),
-                    color = AbleBlue
-                )
-            },
-        ) {
-            TabTextLayout(
-                selected = selectedTabIndexState == 0,
-                text = "아이템",
-                onclick = { selectedTabIndexState = 0 }
-            )
-            TabTextLayout(
-                selected = selectedTabIndexState == 1,
-                text = "코디",
-                onclick = { selectedTabIndexState = 1 }
-            )
-        }
         DefaultFilterTab(
             filterItemList = listOf("전체", "상의", "하의", "아우터", "ACC"),
             value = parentFilterState,
             onValueChange = { parentFilterState = it },
             actionContent = {
                 DropDownFilterLayout(
-                    value = orderFilterState,
-                    onValueChange = { orderFilterState = it.name }
+                    value = stringResource(id = orderFilterState.stringResourceID),
+                    onClick = { isFilterBottomSheetShow = true }
                 )
             }
         )
@@ -120,10 +71,9 @@ fun BrandDetailListScreen() {
         )
         Box {
             ProductItemListLayout()
-            var state by remember { mutableStateOf(false) }
             GenderSwitch(
-                checked = state,
-                onCheckedChange = { state = it },
+                checked = genderState == Gender.MALE,
+                onCheckedChange = { genderState = if (it) Gender.MALE else Gender.FEMALE },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(horizontal = 10.dp, vertical = 25.dp)
@@ -134,38 +84,8 @@ fun BrandDetailListScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun BrandDetailListScreenPreview() {
+fun BrandItemListScreenPreview() {
     ABLEBODY_AndroidTheme {
-        BrandDetailListScreen()
+        BrandItemListScreen()
     }
-}
-
-@Composable
-private fun TabTextLayout(
-    selected: Boolean,
-    text: String,
-    onclick: () -> Unit
-) {
-    val textColor by animateColorAsState(
-        targetValue = if (selected) AbleBlue else SmallTextGrey
-    )
-    val textWeight by animateIntAsState(
-        targetValue = if (selected) 500 else 400
-    )
-    val fontResourceID = if (selected) R.font.noto_sans_cjk_kr_regular else R.font.noto_sans_cjk_kr_medium
-    Text(
-        text = text,
-        style = TextStyle(
-            fontSize = 15.sp,
-            fontFamily = FontFamily(Font(fontResourceID)),
-            fontWeight = FontWeight(textWeight),
-            color = textColor,
-            textAlign = TextAlign.Center,
-        ),
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onclick
-        )
-    )
 }
