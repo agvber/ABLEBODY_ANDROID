@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImage
 import com.example.ablebody_android.R
 import com.example.ablebody_android.brand.data.GenderFilterType
 import com.example.ablebody_android.brand.data.OrderFilterType
@@ -45,7 +46,9 @@ import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 
 @Composable
-fun BrandScreen(modifier: Modifier = Modifier) {
+fun BrandScreen(
+    modifier: Modifier = Modifier
+) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
     var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
@@ -61,15 +64,21 @@ fun BrandScreen(modifier: Modifier = Modifier) {
             valueList = filterBottomSheetValueList,
             onDismissRequest = { orderFilterType ->
                 orderFilterType?.let { value ->
-                    orderFilterState = OrderFilterType.values()
-                        .filter { context.getString(it.stringResourceID) == value } [0]
+                    try {
+                        orderFilterState = OrderFilterType.values()
+                            .first { context.getString(it.stringResourceID) == value }
+                    } catch (e: NoSuchElementException) {
+                        // TODO: 브랜드 페이지 null
+                    }
                 }
                 isFilterBottomSheetShow = false
             }
         )
     }
 
-    Column(modifier) {
+    Column(
+        modifier = modifier
+    ) {
         BrandFilterTab(
             genderFilter = genderFilterState,
             genderFilterTabClicked = { genderFilterState = it },
@@ -78,7 +87,13 @@ fun BrandScreen(modifier: Modifier = Modifier) {
         )
         LazyColumn {
             items(items = (0..10).toList()) {
-                BrandListItemLayout()
+                BrandListItemLayout(
+                    brandName = "제이엘브",
+                    subName = "JELEVE",
+                    thumbnailURL = "https://",
+                    maxDisCountString = "최대 51% 할인 중",
+                    onClick = {  }
+                )
             }
         }
     }
@@ -91,27 +106,38 @@ fun BrandScreenPreview() {
 }
 
 @Composable
-fun BrandListItemLayout() {
+fun BrandListItemLayout(
+    brandName: String,
+    subName: String,
+    thumbnailURL: String,
+    maxDisCountString: String?,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
     ConstraintLayout(
         modifier = Modifier
-            .padding(horizontal = 25.dp, vertical = 15.dp)
             .fillMaxWidth()
+            .padding(horizontal = 25.dp, vertical = 15.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
     ) {
         val (brandImage, brandKoreanName, brandEnglishName, discountText, chevronButton) = createRefs()
 
-        Image(
-            painter = painterResource(id = R.drawable.brand_test),
-            contentDescription = "brandImage",
+        AsyncImage(
+            model = thumbnailURL,
+            contentDescription = "brand image",
             modifier = Modifier
                 .padding(end = 15.dp)
                 .shadow(3.dp, shape = CircleShape)
-                .constrainAs(ref = brandImage) {
-                    parent.start
-                },
+                .constrainAs(ref = brandImage) { parent.start },
+            placeholder = painterResource(id = R.drawable.brand_test)
         )
 
         Text(
-            text = "제이엘브",
+            text = brandName,
             style = TextStyle(
                 fontSize = 15.sp,
                 fontWeight = FontWeight(500),
@@ -125,7 +151,7 @@ fun BrandListItemLayout() {
         )
 
         Text(
-            text = "JELEVE",
+            text = subName,
             style = TextStyle(
                 fontSize = 12.sp,
                 fontWeight = FontWeight(500),
@@ -138,21 +164,23 @@ fun BrandListItemLayout() {
             }
         )
 
-        Text(
-            text = "최대 51% 할인 중",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight(500),
-                color = AbleBlue,
-            ),
-            modifier = Modifier
-                .padding(horizontal = 5.dp)
-                .constrainAs(discountText) {
-                    top.linkTo(brandKoreanName.bottom)
-                    bottom.linkTo(parent.bottom)
-                    absoluteLeft.linkTo(brandEnglishName.absoluteRight)
-                }
-        )
+        if (maxDisCountString != null) {
+            Text(
+                text = maxDisCountString,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight(500),
+                    color = AbleBlue,
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 5.dp)
+                    .constrainAs(discountText) {
+                        top.linkTo(brandKoreanName.bottom)
+                        bottom.linkTo(parent.bottom)
+                        absoluteLeft.linkTo(brandEnglishName.absoluteRight)
+                    }
+            )
+        }
 
         IconButton(
             onClick = {  },
@@ -173,7 +201,13 @@ fun BrandListItemLayout() {
 @Preview(showBackground = true)
 @Composable
 fun BrandListItemLayoutPreview() {
-    BrandListItemLayout()
+    BrandListItemLayout(
+        brandName = "제이엘브",
+        subName = "JELEVE",
+        thumbnailURL = "https://",
+        maxDisCountString = "최대 51% 할인 중",
+        onClick = {  }
+    )
 }
 
 @Composable
