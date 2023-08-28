@@ -45,61 +45,49 @@ import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 
 @Composable
-fun BrandFilterTab(
-    genderFilter: GenderFilterType,
-    genderFilterTabClicked: (GenderFilterType) -> Unit,
-    orderFilter: OrderFilterType,
-    orderFilterTabClicked: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        LazyRow(
-            modifier = Modifier.padding(start = 15.dp)
-        ) {
-            items(items = GenderFilterType.values()) { filterType ->
-                val animateTextColor by animateColorAsState(
-                    targetValue = if (genderFilter == filterType) AbleDark else SmallTextGrey,
-                )
-                val animateTextSize by animateIntAsState(
-                    targetValue = if (genderFilter == filterType) 700 else 500
-                )
-                Text(
-                    text = stringResource(id = filterType.stringResourceID),
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(animateTextSize),
-                        color = animateTextColor,
-                    ),
-                    modifier = Modifier
-                        .padding(end = 15.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { genderFilterTabClicked(filterType) }
-                        )
-                )
+fun BrandScreen(modifier: Modifier = Modifier) {
+    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
+    var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
+    var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
+    val context = LocalContext.current
+
+    if (isFilterBottomSheetShow) {
+        val filterBottomSheetValueList by remember {
+            derivedStateOf {
+                OrderFilterType.values().map { context.getString(it.stringResourceID) }
             }
         }
-        DropDownFilterLayout(
-            value = stringResource(id = orderFilter.stringResourceID),
-            onClick = orderFilterTabClicked
+        ProductItemFilterBottomSheet(
+            valueList = filterBottomSheetValueList,
+            onDismissRequest = { orderFilterType ->
+                orderFilterType?.let { value ->
+                    orderFilterState = OrderFilterType.values()
+                        .filter { context.getString(it.stringResourceID) == value } [0]
+                }
+                isFilterBottomSheetShow = false
+            }
         )
+    }
+
+    Column(modifier) {
+        BrandFilterTab(
+            genderFilter = genderFilterState,
+            genderFilterTabClicked = { genderFilterState = it },
+            orderFilter = orderFilterState,
+            orderFilterTabClicked = { isFilterBottomSheetShow = true }
+        )
+        LazyColumn {
+            items(items = (0..10).toList()) {
+                BrandListItemLayout()
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
-fun BrandFilterTabPreview() {
-    BrandFilterTab(
-        genderFilter = GenderFilterType.ALL,
-        genderFilterTabClicked = {  },
-        orderFilter = OrderFilterType.Popularity,
-        orderFilterTabClicked = {  }
-    )
+fun BrandScreenPreview() {
+    BrandScreen()
 }
 
 @Composable
@@ -189,47 +177,59 @@ fun BrandListItemLayoutPreview() {
 }
 
 @Composable
-fun BrandScreen(modifier: Modifier = Modifier) {
-    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
-    var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
-    var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
-    val context = LocalContext.current
-
-    if (isFilterBottomSheetShow) {
-        val filterBottomSheetValueList by remember {
-            derivedStateOf {
-                OrderFilterType.values().map { context.getString(it.stringResourceID) }
+fun BrandFilterTab(
+    genderFilter: GenderFilterType,
+    genderFilterTabClicked: (GenderFilterType) -> Unit,
+    orderFilter: OrderFilterType,
+    orderFilterTabClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        LazyRow(
+            modifier = Modifier.padding(start = 15.dp)
+        ) {
+            items(items = GenderFilterType.values()) { filterType ->
+                val animateTextColor by animateColorAsState(
+                    targetValue = if (genderFilter == filterType) AbleDark else SmallTextGrey,
+                )
+                val animateTextSize by animateIntAsState(
+                    targetValue = if (genderFilter == filterType) 700 else 500
+                )
+                Text(
+                    text = stringResource(id = filterType.stringResourceID),
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(animateTextSize),
+                        color = animateTextColor,
+                    ),
+                    modifier = Modifier
+                        .padding(end = 15.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { genderFilterTabClicked(filterType) }
+                        )
+                )
             }
         }
-        ProductItemFilterBottomSheet(
-            valueList = filterBottomSheetValueList,
-            onDismissRequest = { orderFilterType ->
-                orderFilterType?.let { value ->
-                    orderFilterState = OrderFilterType.values()
-                        .filter { context.getString(it.stringResourceID) == value } [0]
-                }
-                isFilterBottomSheetShow = false
-            }
+        DropDownFilterLayout(
+            value = stringResource(id = orderFilter.stringResourceID),
+            onClick = orderFilterTabClicked
         )
-    }
-
-    Column(modifier) {
-        BrandFilterTab(
-            genderFilter = genderFilterState,
-            genderFilterTabClicked = { genderFilterState = it },
-            orderFilter = orderFilterState,
-            orderFilterTabClicked = { isFilterBottomSheetShow = true }
-        )
-        LazyColumn {
-            items(items = (0..10).toList()) {
-                BrandListItemLayout()
-            }
-        }
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun BrandScreenPreview() {
-    BrandScreen()
+fun BrandFilterTabPreview() {
+    BrandFilterTab(
+        genderFilter = GenderFilterType.ALL,
+        genderFilterTabClicked = {  },
+        orderFilter = OrderFilterType.Popularity,
+        orderFilterTabClicked = {  }
+    )
 }
