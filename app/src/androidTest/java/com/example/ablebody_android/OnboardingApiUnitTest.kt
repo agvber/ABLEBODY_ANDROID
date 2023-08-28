@@ -16,8 +16,8 @@ class OnboardingApiUnitTest {
     private val tokenSharedPreferencesRepository = TokenSharedPreferencesRepository(applicationContext = appContext)
     private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
 
-    private val authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiODc1NTM4MCIsImV4cCI6MTY4OTE1MTM0N30.o96O1ijkZreWOMHllSHxcxR3xQ6yvlvA7j1XneXORoq_7aquOOwxMTa-ShFeOUdp0PaqiYm2ZIdMTSqXarqJjA"
-    private val refreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoLXRva2VuIiwidWlkIjoiODc1NTM4MCIsImV4cCI6MTY5MDQ0OTg2OH0.j9j-yOX5JNt4ENCA-6A4KuLpNoBK6CiBwLbJwW1nuPVZEUFJYp1DxVs03p3eUg89qG8CJNZ-BgieN4oaWG6MXA"
+    private val authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5MjY5MjE1NX0.Y4J7fM5gtLzRjdeCsggdJj7tkOuL5Hjgtx0Tb3JDzVkUAtN9uyAD_LKodyKJ56tJQOnad8jYNGuR_lx9bdwS-Q"
+    private val refreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5Mzg5OTk1NX0.CcrV-6-Op2ETWlGyP6GzoSizDN1YDBFIcKWSoZ6KagcfKtRNfSra3T1ZfQ5VX_tROj8eXsZ7T1kn1GoIUkaVOQ"
 
     @Test
     fun sendSMS() {
@@ -33,10 +33,9 @@ class OnboardingApiUnitTest {
     @Test
     fun checkSMS() {
         val response = networkRepository.checkSMS(
-            phoneConfirmId = 39,
-            verifyingCode = "9092"
+            phoneConfirmId = 98,
+            verifyingCode = "6063"
         )
-
         println("response: $response, body: ${response.body()}")
         Assert.assertEquals(response.code(), 200)
     }

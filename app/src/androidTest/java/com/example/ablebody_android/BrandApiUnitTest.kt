@@ -11,55 +11,61 @@ import org.junit.runner.RunWith
 class BrandApiUnitTest {
     private val appContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val tokenSharedPreferencesRepository = TokenSharedPreferencesRepository(applicationContext = appContext)
+    private val tokenSharedPreferencesRepository =
+        TokenSharedPreferencesRepository(applicationContext = appContext)
     private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
 
-    private val authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiODc1NTM4MCIsImV4cCI6MTY4OTE1MTM0N30.o96O1ijkZreWOMHllSHxcxR3xQ6yvlvA7j1XneXORoq_7aquOOwxMTa-ShFeOUdp0PaqiYm2ZIdMTSqXarqJjA"
-    private val refreshToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoLXRva2VuIiwidWlkIjoiODc1NTM4MCIsImV4cCI6MTY5MDQ0OTg2OH0.j9j-yOX5JNt4ENCA-6A4KuLpNoBK6CiBwLbJwW1nuPVZEUFJYp1DxVs03p3eUg89qG8CJNZ-BgieN4oaWG6MXA"
+    private val authToken =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5Mjc5ODUxMH0.Fcp-eGchEUE2Hhjf9PxaXy705bgSCGLWDRypmeumavUu1ZcVOh0Jof5dN8ZFMzkMnfUtiHD_U5dAWZdU9YWrgg"
+    private val refreshToken =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5NDAwNjMxMH0.ULp-X1X8uBTXaQOrwofoz0T9BW-feLxJfyfTYGT2YIHt2l0fPl94zBl4YxZAHGEM_4Y0C6GQXp7nuWoCZ7gGAA"
 
-//    @Test
-//    fun brandMain(){
-//        val response = networkRepository.brandMain(
-//            authToken = authToken,
-//            sort = SortingMethod.POPULAR,
-//
-//        )
-//
-//        println("response: $response, body: ${response.body()}")
-//        Assert.assertEquals(response.code(), 200)
-//    }
-//
-//    @Test
-//    fun brandDetaiItem(){
-//        val response = networkRepository.brandDetaiItem(
-//            authToken = authToken,
-//            sort = SortingMethod.POPULAR,
-//            brandId = 3,
-//            itemGender = ItemGender.MALE,
-//            parentCategory = ItemParentCategory.ALL,
-//            childCategory = ItemChildCategory.SHORT_SLEEVE,
-//            page = 0,
-//            size = 20
-//        )
-//
-//        println("response: $response, body: ${response.body()}")
-//        Assert.assertEquals(response.code(), 200)
-//    }
-//
-//    @Test
-//    fun brandDetailCody(){
-//        val response = networkRepository.brandDetailCody(
-//            authToken = authToken,
-//            brandId = 3,
-//            gender = Gender.MALE,
-//            category = HomeCategory.GYMWEAR,
-//            height1 = null,
-//            height2 = null,
-//            page = 0,
-//            size = 20
-//        )
-//
-//        println("response: $response, body: ${response.body()}")
-//        Assert.assertEquals(response.code(), 200)
-//    }
+    @Test
+    fun brandMain() {
+        val response = networkRepository.brandMain(
+            authToken = authToken,
+            sort = SortingMethod.POPULAR
+        )
+        println("response: $response, body: ${response.body()}")
+        println("response: ${response.errorBody()}")
+        Assert.assertEquals(response.code(), 200)
+    }
+
+    @Test
+    fun brandDetaiItem() {
+        val response = networkRepository.brandDetaiItem(
+            authToken = authToken,
+            sort = SortingMethod.POPULAR,
+            brandId = 3,
+            itemGender = ItemGender.MALE,
+            parentCategory = ItemParentCategory.ALL,
+            childCategory = ItemChildCategory.SHORT_SLEEVE,
+            page = 0,
+            size = 20
+        )
+
+        println("response: $response, body: ${response.body()}")
+        Assert.assertEquals(response.code(), 200)
+    }
+
+
+    @Test
+    fun brandDetailCody(){
+        val genders: List<Gender> = listOf(Gender.MALE, Gender.FEMALE)
+        val categories: List<HomeCategory> = listOf(HomeCategory.GYMWEAR, HomeCategory.PILATES, HomeCategory.RUNNING, HomeCategory.TENNIS)
+
+        val response = networkRepository.brandDetailCody(
+            authToken = authToken,
+            brandId = 3,
+            gender = listOf("MALE"),
+            category = categories,
+            height1 = null,
+            height2 = null,
+            page = 0,
+            size = 20
+        )
+
+        println("response: $response, body: ${response.body()}")
+        Assert.assertEquals(response.code(), 200)
+    }
 }

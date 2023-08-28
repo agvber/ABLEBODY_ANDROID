@@ -17,7 +17,7 @@ typealias NewUserCreateResponse = AbleBodyResponse<NewUserCreateResponseData>
 typealias RefreshTokenResponse = AbleBodyResponse<RefreshTokenResponseData>
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
 typealias FCMTokenAndAppVersionUpdateResponse = AbleBodyResponse<FCMTokenAndAppVersionUpdateResponseData>
-typealias BrandMainResponse = AbleBodyResponse<BrandMainResponseData>
+typealias BrandMainResponse = AbleBodyListResponse<List<BrandMainResponseData>>
 typealias BrandDetaiItemResponse = AbleBodyResponse<BrandDetaiItemResponseData>
 typealias BrandDetailCodyResponse = AbleBodyResponse<BrandDetailCodyResponseData>
 

@@ -88,40 +88,41 @@ class NetworkRepository(
         return networkService.updateFCMTokenAndAppVersion(header, request).execute()
     }
 
-//    fun brandMain(
-//        authToken: String,
-//        sort: SortingMethod
-//    ): Response<BrandMainResponse> {
-//        val header = "Bearer $authToken"
-//        val request = //TODO
-//
-//    }
-//
-//    fun brandDetaiItem(
-//        authToken: String,
-//        sort: SortingMethod,
-//        brandId: Long,
-//        itemGender: ItemGender,
-//        parentCategory: ItemParentCategory,
-//        childCategory: ItemChildCategory,
-//        page: Int,
-//        size: Int
-//    ): Response<BrandDetaiItemResponse>{
-//
-//    }
-//
-//    fun brandDetailCody(
-//        authToken: String,
-//        brandId: Long,
-//        gender: Gender,
-//        category: HomeCategory,
-//        height1: Int? = null,
-//        height2: Int? = null,
-//        page: Int? = null,
-//        size: Int? = null
-//    ): Response<BrandDetailCodyResponse>{
-//
-//    }
+    fun brandMain(
+        authToken: String,
+        sort: SortingMethod
+    ): Response<BrandMainResponse> {
+        val header = "Bearer $authToken"
+        return networkService.brandMain(header, sort).execute()
+    }
+
+    fun brandDetaiItem(
+        authToken: String,
+        sort: SortingMethod,
+        brandId: Long,
+        itemGender: ItemGender,
+        parentCategory: ItemParentCategory,
+        childCategory: ItemChildCategory? = null,
+        page: Int? = 0,
+        size: Int? = 20
+    ): Response<BrandDetaiItemResponse>{
+        val header = "Bearer $authToken"
+        return networkService.brandDetaiItem(header, sort, brandId, itemGender, parentCategory, childCategory, page, size).execute()
+    }
+
+    fun brandDetailCody(
+        authToken: String,
+        brandId: Long,
+        gender: List<Gender>,
+        category: List<HomeCategory>,
+        height1: Int? = null,
+        height2: Int? = null,
+        page: Int? = 0,
+        size: Int? = 20
+    ): Response<BrandDetailCodyResponse>{
+        val header = "Bearer $authToken"
+        return networkService.brandDetailCody(header, brandId, gender, category, height1, height2, page, size).execute()
+    }
 
 
 }

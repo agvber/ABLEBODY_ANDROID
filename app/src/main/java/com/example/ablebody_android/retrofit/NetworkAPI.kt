@@ -21,9 +21,6 @@ import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionU
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetaiItemResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -73,26 +70,36 @@ interface NetworkAPI {
         @Body fcmTokenAndAppVersionUpdateRequest: FCMTokenAndAppVersionUpdateRequest
     ): Call<FCMTokenAndAppVersionUpdateResponse>
 
-    @GET("/api/brand")
+    @GET("/api/brand/main")
     fun brandMain(
+        @Header("Authorization") authorizationHeader: String,
         @Query("sort") sort: SortingMethod
     ): Call<BrandMainResponse>
 
     @GET("/api/brand/detail/item")
     fun brandDetaiItem(
+        @Header("Authorization") authorizationHeader: String,
         @Query("sort") sort: SortingMethod,
-        @Query("brandId") brandId: Int,
+        @Query("brandId") brandId: Long,
         @Query("itemGender") itemGender: ItemGender,
         @Query("parentCategory") parentCategory: ItemParentCategory,
-        @Query("childCategory") childCategory: ItemChildCategory
+        @Query("childCategory") childCategory: ItemChildCategory?,
+        @Query("page") page: Int?,
+        @Query("size") size: Int?
+
     ): Call<BrandDetaiItemResponse>
 
     @GET("/api/brand/detail/cody")
-    fun getBrandDetailCody(
-        @Query("brandId") brandId: Int,
-        @Query("gender") gender: Gender,
-        @Query("category") category: HomeCategory,
-        @Query("height1") height1: Int,
-        @Query("height2") height2: Int
+    fun brandDetailCody(
+        @Header("Authorization") authorizationHeader: String,
+        @Query("brandId") brandId: Long,
+        @Query("gender") gender: List<Gender>,
+        @Query("category") category: List<HomeCategory>,
+        @Query("height1") height1: Int?,
+        @Query("height2") height2: Int?,
+        @Query("page") page: Int?,
+        @Query("size") size: Int?
+
     ): Call<BrandDetailCodyResponse>
+
 }
