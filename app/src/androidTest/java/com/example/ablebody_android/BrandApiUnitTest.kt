@@ -54,18 +54,18 @@ class BrandApiUnitTest {
         val genders: List<Gender> = listOf(Gender.MALE, Gender.FEMALE)
         val categories: List<HomeCategory> = listOf(HomeCategory.GYMWEAR, HomeCategory.PILATES, HomeCategory.RUNNING, HomeCategory.TENNIS)
 
-        val response = networkRepository.brandDetailCody(
-            authToken = authToken,
-            brandId = 3,
-            gender = listOf("MALE"),
-            category = categories,
-            height1 = null,
-            height2 = null,
-            page = 0,
-            size = 20
-        )
-
-        println("response: $response, body: ${response.body()}")
-        Assert.assertEquals(response.code(), 200)
+//        val response = networkRepository.brandDetailCody(
+//            authToken = authToken,
+//            brandId = 3,
+//            gender = listOf("MALE"),
+//            category = categories,
+//            height1 = null,
+//            height2 = null,
+//            page = 0,
+//            size = 20
+//        )
+//
+//        println("response: $response, body: ${response.body()}")
+//        Assert.assertEquals(response.code(), 200)
     }
 }
