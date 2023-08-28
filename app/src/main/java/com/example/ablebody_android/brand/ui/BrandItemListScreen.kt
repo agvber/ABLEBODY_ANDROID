@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
-import com.example.ablebody_android.ui.utils.DefaultFilterBottomSheet
+import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DefaultFilterTab
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.GenderSwitch
@@ -40,7 +40,7 @@ fun BrandItemListScreen() {
                 OrderFilterType.values().map { context.getString(it.stringResourceID) }
             }
         }
-        DefaultFilterBottomSheet(
+        ProductItemFilterBottomSheet(
             valueList = filterBottomSheetValueList,
             onDismissRequest = { orderFilterType ->
                 orderFilterType?.let { value ->

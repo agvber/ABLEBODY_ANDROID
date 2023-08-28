@@ -41,7 +41,7 @@ import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.ui.utils.DefaultFilterBottomSheet
+import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 
 @Composable
@@ -201,7 +201,7 @@ fun BrandScreen(modifier: Modifier = Modifier) {
                 OrderFilterType.values().map { context.getString(it.stringResourceID) }
             }
         }
-        DefaultFilterBottomSheet(
+        ProductItemFilterBottomSheet(
             valueList = filterBottomSheetValueList,
             onDismissRequest = { orderFilterType ->
                 orderFilterType?.let { value ->

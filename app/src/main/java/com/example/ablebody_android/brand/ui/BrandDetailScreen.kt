@@ -2,11 +2,14 @@ package com.example.ablebody_android.brand.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
@@ -18,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -35,24 +39,35 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrandDetailScreen() {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(pageCount = { 2 })
+
     Scaffold(
         topBar = {
             BrandDetailTopBarLayout(
                 titleText = "오옴",
                 backButtonClicked = { /*TODO*/ },
-                selectedTabIndex = selectedTabIndex,
-                tabOnClick = { selectedTabIndex = it }
+                selectedTabIndex = pagerState.currentPage,
+                tabOnClick = { scope.launch { pagerState.animateScrollToPage(it) } }
             )
         },
         content = { paddingValue ->
             Surface(
                 modifier = Modifier.padding(paddingValue)
             ) {
-                BrandItemListScreen()
+                HorizontalPager(
+                    state = pagerState,
+                ) {
+                    when(it) {
+                        0 -> BrandItemListScreen()
+                        1 -> BrandCodyListScreen()
+                    }
+                }
             }
         }
     )

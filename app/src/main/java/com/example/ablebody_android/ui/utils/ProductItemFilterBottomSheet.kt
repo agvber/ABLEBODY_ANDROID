@@ -26,8 +26,39 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.White
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DefaultFilterBottomSheetContent(
+fun ProductItemFilterBottomSheet(
+    valueList: List<String>,
+    onDismissRequest: (String?) -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismissRequest(null) },
+        sheetState = sheetState,
+        containerColor = White,
+        dragHandle = null,
+        content = {
+            ProductItemFilterBottomSheetContent(
+                valueList = valueList,
+                clicked = { value ->
+                    scope.launch {
+                        if (sheetState.currentValue == SheetValue.Expanded && sheetState.hasPartiallyExpandedState) {
+                            scope.launch { sheetState.partialExpand() }
+                        } else { // Is expanded without collapsed state or is collapsed.
+                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest(value) }
+                        }
+                    }
+                }
+            )
+        }
+    )
+}
+
+@Composable
+private fun ProductItemFilterBottomSheetContent(
     valueList: List<String>,
     clicked: (String) -> Unit
 ) {
@@ -63,41 +94,11 @@ private fun DefaultFilterBottomSheetContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun DefaultFilterBottomSheetContentPreview() {
+private fun ProductItemFilterBottomSheetContentPreview() {
     ABLEBODY_AndroidTheme {
-        DefaultFilterBottomSheetContent(
+        ProductItemFilterBottomSheetContent(
             valueList = listOf("인기순", "이름순", "최신순"),
             clicked = {  }
         )
     }
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DefaultFilterBottomSheet(
-    valueList: List<String>,
-    onDismissRequest: (String?) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-
-    ModalBottomSheet(
-        onDismissRequest = { onDismissRequest(null) },
-        sheetState = sheetState,
-        containerColor = White,
-        dragHandle = null,
-        content = {
-            DefaultFilterBottomSheetContent(
-                valueList = valueList,
-                clicked = { value ->
-                    scope.launch {
-                        if (sheetState.currentValue == SheetValue.Expanded && sheetState.hasPartiallyExpandedState) {
-                            scope.launch { sheetState.partialExpand() }
-                        } else { // Is expanded without collapsed state or is collapsed.
-                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest(value) }
-                        }
-                    }
-                }
-            )
-        }
-    )
 }

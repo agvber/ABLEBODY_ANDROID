@@ -18,7 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,12 +37,25 @@ import com.example.ablebody_android.ui.theme.White
 
 @Composable
 fun RoundedCornerCategoryFilterTab(
+    modifier: Modifier = Modifier,
     filterStringList: List<String>,
     value: String,
     onValueChange: (String) -> Unit
 ) {
     LazyRow(
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
+        modifier = modifier
+            .padding(horizontal = 10.dp, vertical = 10.dp)
+            .nestedScroll(
+                object : NestedScrollConnection {
+                    override fun onPostScroll(
+                        consumed: Offset,
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
+                        return available.copy(y = 0f)
+                    }
+                }
+            )
     ) {
         items(filterStringList) { text ->
             val borderStrokeColor by animateColorAsState(
