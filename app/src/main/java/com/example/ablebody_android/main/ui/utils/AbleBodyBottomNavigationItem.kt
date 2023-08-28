@@ -1,4 +1,4 @@
-package com.example.ablebody_android.main.utils.ui
+package com.example.ablebody_android.main.ui.utils
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
