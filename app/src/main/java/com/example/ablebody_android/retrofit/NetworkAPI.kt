@@ -57,16 +57,13 @@ interface NetworkAPI {
     ): Call<RefreshTokenResponse>
 
     @GET("/api/onboarding/splash")
-    fun getUserData(
-        @Header("Authorization") authorizationHeader: String
-    ): Call<UserDataResponse>
+    fun getUserData(): Call<UserDataResponse>
 
     @GET("/api/onboarding/dummy")
     fun getDummyToken(): Call<StringResponse>
 
     @POST("/api/onboarding/fcm-appVersion")
     fun updateFCMTokenAndAppVersion(
-        @Header("Authorization") authorizationHeader: String,
         @Body fcmTokenAndAppVersionUpdateRequest: FCMTokenAndAppVersionUpdateRequest
     ): Call<FCMTokenAndAppVersionUpdateResponse>
 

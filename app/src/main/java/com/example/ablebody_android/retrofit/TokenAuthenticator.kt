@@ -1,6 +1,5 @@
 package com.example.ablebody_android.retrofit
 
-import android.util.Log
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
@@ -14,34 +13,29 @@ class TokenAuthenticator(
     private val tokenSharedPreferencesRepository: TokenSharedPreferencesRepository,
     private val networkRepository: NetworkRepository
 ): Authenticator {
+    private var retryCount = 0
     override fun authenticate(route: Route?, response: Response): Request? {
+        if (response.code == 401 && retryCount < 5) {
+            retryCount += 1
+            val refreshTokenResponse = getRefreshTokenResponse()
 
-        val refreshTokenResponse = repeatRequest()
+            if (refreshTokenResponse?.isSuccessful != true) {
+                networkRepository.invalidRefreshToken()
+                return null
+            }
 
-        if (refreshTokenResponse?.isSuccessful != true) {
-            networkRepository.invalidRefreshToken()
-            return null
+            putToken(refreshTokenResponse.body()!!.data!!)
+
+            return buildResponse(response, refreshTokenResponse.body()?.data!!.authToken)
         }
-
-        putToken(refreshTokenResponse.body()!!.data!!)
-        Log.d("TokenAuthenticator", refreshTokenResponse.body().toString())
-
-        return buildResponse(response, refreshTokenResponse.body()?.data!!.authToken)
+        return null
     }
 
-    private fun repeatRequest(): retrofit2.Response<RefreshTokenResponse>? {
-        var response: retrofit2.Response<RefreshTokenResponse>? = null
-        for (i in 0..3) {
-            response = getRefreshTokenResponse()
-            if (response?.isSuccessful == true) return response
-        }
-        return response
-    }
-
-    private fun getRefreshTokenResponse(): retrofit2.Response<RefreshTokenResponse>? {
+    private fun getRefreshTokenResponse(): retrofit2.Response<RefreshTokenResponse>?  {
         val refreshToken = tokenSharedPreferencesRepository.getRefreshToken() ?: return null
         return networkRepository.getRefreshToken(refreshToken)
     }
+
 
     private fun putToken(data: RefreshTokenResponseData) {
         tokenSharedPreferencesRepository.putAuthToken(data.authToken)
@@ -50,5 +44,6 @@ class TokenAuthenticator(
 
     private fun buildResponse(response: Response, authToken: String) =
         response.request.newBuilder()
-            .header("Authorization", "Bearer $authToken").build()
+            .header("Authorization", "Bearer $authToken")
+            .build()
 }

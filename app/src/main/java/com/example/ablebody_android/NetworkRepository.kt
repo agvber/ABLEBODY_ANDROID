@@ -5,18 +5,18 @@ import com.example.ablebody_android.retrofit.NetworkAPI
 import com.example.ablebody_android.retrofit.NetworkService
 import com.example.ablebody_android.retrofit.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
+import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
-import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.response.BrandDetaiItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
-import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
-import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
+import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
+import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Response
 
@@ -71,21 +71,16 @@ class NetworkRepository(
         Log.d(this::class.java.name, "invalid refresh token")
     }
 
-    fun getUserData(authToken: String): Response<UserDataResponse> {
-        val header = "Bearer $authToken"
-        return networkService.getUserData(header).execute()
-    }
+    fun getUserData(): Response<UserDataResponse> = networkService.getUserData().execute()
 
     fun getDummyToken(): Response<StringResponse> = networkService.getDummyToken().execute()
 
     fun updateFCMTokenAndAppVersion(
-        authToken: String,
         fcmToken: String,
         appVersion: String
     ): Response<FCMTokenAndAppVersionUpdateResponse> {
-        val header = "Bearer $authToken"
         val request = FCMTokenAndAppVersionUpdateRequest(fcmToken = fcmToken, appVersion = appVersion)
-        return networkService.updateFCMTokenAndAppVersion(header, request).execute()
+        return networkService.updateFCMTokenAndAppVersion(request).execute()
     }
 
     fun brandMain(

@@ -33,7 +33,16 @@ object NetworkService {
     private fun buildOkHttpClient(
         tokenSharedPreferencesRepository: TokenSharedPreferencesRepository,
         networkRepository: NetworkRepository
-    ) = OkHttpClient.Builder()
+    ) = OkHttpClient
+        .Builder()
+        .addInterceptor {
+            with(it) {
+                val newRequest = request().newBuilder()
+                    .addHeader("Authorization", "Bearer ${tokenSharedPreferencesRepository.getAuthToken()}")
+                    .build()
+                proceed(newRequest)
+            }
+        }
         .authenticator(TokenAuthenticator(tokenSharedPreferencesRepository, networkRepository))
         .build()
 
