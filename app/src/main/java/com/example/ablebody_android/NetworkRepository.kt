@@ -84,11 +84,9 @@ class NetworkRepository(
     }
 
     fun brandMain(
-        authToken: String,
         sort: SortingMethod
     ): Response<BrandMainResponse> {
-        val header = "Bearer $authToken"
-        return networkService.brandMain(header, sort).execute()
+        return networkService.brandMain(sort).execute()
     }
 
     fun brandDetaiItem(
