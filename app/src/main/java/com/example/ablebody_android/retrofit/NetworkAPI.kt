@@ -69,7 +69,6 @@ interface NetworkAPI {
 
     @GET("/api/brand/main")
     fun brandMain(
-        @Header("Authorization") authorizationHeader: String,
         @Query("sort") sort: SortingMethod
     ): Call<BrandMainResponse>
 

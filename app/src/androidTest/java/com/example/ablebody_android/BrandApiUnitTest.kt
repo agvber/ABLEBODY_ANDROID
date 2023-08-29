@@ -23,7 +23,6 @@ class BrandApiUnitTest {
     @Test
     fun brandMain() {
         val response = networkRepository.brandMain(
-            authToken = authToken,
             sort = SortingMethod.POPULAR
         )
         println("response: $response, body: ${response.body()}")
