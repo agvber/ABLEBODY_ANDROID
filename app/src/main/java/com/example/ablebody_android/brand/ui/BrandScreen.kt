@@ -17,8 +17,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.AsyncImage
 import com.example.ablebody_android.R
+import com.example.ablebody_android.SortingMethod
+import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.brand.data.GenderFilterType
 import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -47,12 +51,19 @@ import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 
 @Composable
 fun BrandScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: BrandViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
     var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit){
+        viewModel.brandMain(SortingMethod.POPULAR)
+    }
+
+    val brandMain by viewModel.brandMain.observeAsState()
 
     if (isFilterBottomSheetShow) {
         val filterBottomSheetValueList by remember {
@@ -86,12 +97,13 @@ fun BrandScreen(
             orderFilterTabClicked = { isFilterBottomSheetShow = true }
         )
         LazyColumn {
-            items(items = (0..10).toList()) {
+            if(brandMain?.body()?.dataList != null)
+            items(brandMain!!.body()!!.dataList!!) {
                 BrandListItemLayout(
-                    brandName = "제이엘브",
-                    subName = "JELEVE",
-                    thumbnailURL = "https://",
-                    maxDisCountString = "최대 51% 할인 중",
+                    brandName = it.name,
+                    subName = it.subName,
+                    thumbnailURL = it.thumbnail,
+                    maxDisCountString = it.maxDiscount.toString(),
                     onClick = {  }
                 )
             }
