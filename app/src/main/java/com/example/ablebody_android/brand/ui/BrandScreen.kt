@@ -96,16 +96,17 @@ fun BrandScreen(
             orderFilter = orderFilterState,
             orderFilterTabClicked = { isFilterBottomSheetShow = true }
         )
-        LazyColumn {
-            if(brandMain?.body()?.dataList != null)
-            items(brandMain!!.body()!!.dataList!!) {
-                BrandListItemLayout(
-                    brandName = it.name,
-                    subName = it.subName,
-                    thumbnailURL = it.thumbnail,
-                    maxDisCountString = it.maxDiscount.toString(),
-                    onClick = {  }
-                )
+        if (brandMain?.body()?.data != null) {
+            LazyColumn {
+                items(brandMain!!.body()!!.data!!) {
+                    BrandListItemLayout(
+                        brandName = it.name,
+                        subName = it.subName,
+                        thumbnailURL = it.thumbnail,
+                        maxDisCountString = it.maxDiscount.toString(),
+                        onClick = {  }
+                    )
+                }
             }
         }
     }

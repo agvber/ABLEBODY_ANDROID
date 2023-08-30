@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.example.ablebody_android.utils.printResponse
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,9 +46,7 @@ class OnboardingApiUnitTest {
             phoneNumber = "01026289219",
             isNotTestMessage = true
         )
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
@@ -57,17 +55,13 @@ class OnboardingApiUnitTest {
             phoneConfirmId = 101,
             verifyingCode = "3373"
         )
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
     fun checkNickname() {
         val response = networkRepository.checkNickname("김민준")
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
@@ -80,33 +74,25 @@ class OnboardingApiUnitTest {
             true,
             agreeMarketingConsent = true
         )
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
     fun refreshToken() {
         val response = networkRepository.getRefreshToken(refreshToken = refreshToken)
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
     fun getUserData() {
         val response = networkRepository.getUserData()
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
     fun getDummyToken() {
         val response = networkRepository.getDummyToken()
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
@@ -114,8 +100,6 @@ class OnboardingApiUnitTest {
         val response = networkRepository.updateFCMTokenAndAppVersion(
             fcmToken = "hello", appVersion = "2.0.0"
         )
-        Log.d("response", response.toString())
-        Log.d("body", response.body().toString())
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 }

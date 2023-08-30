@@ -1,9 +1,12 @@
 package com.example.ablebody_android
 
 import android.content.Context
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
+import com.example.ablebody_android.utils.printResponse
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -16,24 +19,39 @@ class BrandApiUnitTest {
     private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
 
     private val authToken =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5Mjc5ODUxMH0.Fcp-eGchEUE2Hhjf9PxaXy705bgSCGLWDRypmeumavUu1ZcVOh0Jof5dN8ZFMzkMnfUtiHD_U5dAWZdU9YWrgg"
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ"
     private val refreshToken =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyZWZyZXNoLXRva2VuIiwidWlkIjoiNjYzNDUxNCIsImV4cCI6MTY5NDAwNjMxMH0.ULp-X1X8uBTXaQOrwofoz0T9BW-feLxJfyfTYGT2YIHt2l0fPl94zBl4YxZAHGEM_4Y0C6GQXp7nuWoCZ7gGAA"
+
+    @Before
+    fun putToken() {
+        tokenSharedPreferencesRepository.putAuthToken(authToken)
+        tokenSharedPreferencesRepository.putRefreshToken(refreshToken)
+    }
+
+    @After
+    fun checkToken() {
+        val authToken = tokenSharedPreferencesRepository.getAuthToken()
+        val refreshToken = tokenSharedPreferencesRepository.getRefreshToken()
+
+        if (this.authToken != authToken) {
+            Log.w("OnboardingUnitTest", "토큰이 변경되었습니다")
+            Log.w("authToken", authToken.toString())
+            Log.w("refreshToken", refreshToken.toString())
+        }
+    }
 
     @Test
     fun brandMain() {
         val response = networkRepository.brandMain(
             sort = SortingMethod.POPULAR
         )
-        println("response: $response, body: ${response.body()}")
-        println("response: ${response.errorBody()}")
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
     @Test
-    fun brandDetaiItem() {
-        val response = networkRepository.brandDetaiItem(
-            authToken = authToken,
+    fun brandDetailItem() {
+        val response = networkRepository.brandDetailItem(
             sort = SortingMethod.POPULAR,
             brandId = 3,
             itemGender = ItemGender.MALE,
@@ -42,29 +60,24 @@ class BrandApiUnitTest {
             page = 0,
             size = 20
         )
-
-        println("response: $response, body: ${response.body()}")
-        Assert.assertEquals(response.code(), 200)
+        printResponse(response)
     }
 
 
     @Test
-    fun brandDetailCody(){
+    fun brandDetailCody() {
         val genders: List<Gender> = listOf(Gender.MALE, Gender.FEMALE)
         val categories: List<HomeCategory> = listOf(HomeCategory.GYMWEAR, HomeCategory.PILATES, HomeCategory.RUNNING, HomeCategory.TENNIS)
 
-//        val response = networkRepository.brandDetailCody(
-//            authToken = authToken,
-//            brandId = 3,
-//            gender = listOf("MALE"),
-//            category = categories,
-//            height1 = null,
-//            height2 = null,
-//            page = 0,
-//            size = 20
-//        )
-//
-//        println("response: $response, body: ${response.body()}")
-//        Assert.assertEquals(response.code(), 200)
+        val response = networkRepository.brandDetailCody(
+            brandId = 3,
+            gender = genders,
+            category = categories,
+            height1 = null,
+            height2 = null,
+            page = 0,
+            size = 20
+        )
+        printResponse(response)
     }
 }

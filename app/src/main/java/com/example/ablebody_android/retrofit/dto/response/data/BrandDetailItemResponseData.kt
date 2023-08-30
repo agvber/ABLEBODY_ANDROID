@@ -2,7 +2,7 @@ package com.example.ablebody_android.retrofit.dto.response.data
 
 import com.google.gson.annotations.SerializedName
 
-data class BrandDetailCodyResponseData(
+data class BrandDetailItemResponseData(
     val content: List<Item>,
     val pageable: Pageable,
     val totalPages: Int,
@@ -14,14 +14,17 @@ data class BrandDetailCodyResponseData(
     val numberOfElements: Int,
     val first: Boolean,
     val empty: Boolean
-) { data class Item(
+) {
+    data class Item(
         val id: Long,
-        val imageURL: String,
-        val createDate: String,
-        val comments: Int,
-        val likes: Int,
-        val views: Int,
-        val plural: Boolean
+        val name: String,
+        val price: Int,
+        val salePrice: Int?,
+        val brandName: String,
+        val image: String,
+        val isPlural: Boolean,
+        val url: String,
+        val avgStarRating: String?
     )
     data class Pageable(
         val sort: Sort,
