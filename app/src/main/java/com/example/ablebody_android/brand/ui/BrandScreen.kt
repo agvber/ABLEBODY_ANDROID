@@ -8,19 +8,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,40 +31,34 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.ablebody_android.R
-import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.brand.data.GenderFilterType
 import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
+import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 
 @Composable
 fun BrandScreen(
     modifier: Modifier = Modifier,
-    viewModel: BrandViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: BrandViewModel
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
-    var genderFilterState by remember { mutableStateOf(GenderFilterType.ALL) }
-    var orderFilterState by remember { mutableStateOf(OrderFilterType.Popularity) }
+    val genderFilterState by viewModel.genderFilterType.collectAsStateWithLifecycle()
+    val orderFilterState by viewModel.orderFilterType.collectAsStateWithLifecycle()
+    val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    LaunchedEffect(key1 = Unit){
-        viewModel.brandMain(SortingMethod.POPULAR)
-    }
-
-    val brandMain by viewModel.brandMain.observeAsState()
 
     if (isFilterBottomSheetShow) {
         val filterBottomSheetValueList by remember {
@@ -75,12 +70,9 @@ fun BrandScreen(
             valueList = filterBottomSheetValueList,
             onDismissRequest = { orderFilterType ->
                 orderFilterType?.let { value ->
-                    try {
-                        orderFilterState = OrderFilterType.values()
-                            .first { context.getString(it.stringResourceID) == value }
-                    } catch (e: NoSuchElementException) {
-                        // TODO: 브랜드 페이지 null
-                    }
+                    OrderFilterType.values()
+                        .first { context.getString(it.stringResourceID) == value }
+                        .let { viewModel.updateOrderFilterType(it) }
                 }
                 isFilterBottomSheetShow = false
             }
@@ -92,19 +84,24 @@ fun BrandScreen(
     ) {
         BrandFilterTab(
             genderFilter = genderFilterState,
-            genderFilterTabClicked = { genderFilterState = it },
+            genderFilterTabClicked = { viewModel.updateGenderFilterType(it) },
             orderFilter = orderFilterState,
             orderFilterTabClicked = { isFilterBottomSheetShow = true }
         )
-        if (brandMain?.body()?.data != null) {
+        brandItemList?.let { items ->
             LazyColumn {
-                items(brandMain!!.body()!!.data!!) {
+                items(items) {
                     BrandListItemLayout(
                         brandName = it.name,
                         subName = it.subName,
                         thumbnailURL = it.thumbnail,
-                        maxDisCountString = it.maxDiscount.toString(),
+                        maxDisCountString = it.maxDiscount,
                         onClick = {  }
+                    )
+                    Divider(
+                        thickness = 1.dp,
+                        startIndent = 1.dp,
+                        modifier = Modifier.height(1.dp)
                     )
                 }
             }
@@ -115,7 +112,8 @@ fun BrandScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun BrandScreenPreview() {
-    BrandScreen()
+    val viewModel: BrandViewModel = viewModel()
+    BrandScreen(viewModel = viewModel)
 }
 
 @Composable
@@ -123,13 +121,14 @@ fun BrandListItemLayout(
     brandName: String,
     subName: String,
     thumbnailURL: String,
-    maxDisCountString: String?,
+    maxDisCountString: Int,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
+            .height(86.dp)
             .padding(horizontal = 25.dp, vertical = 15.dp)
             .clickable(
                 interactionSource = interactionSource,
@@ -137,15 +136,21 @@ fun BrandListItemLayout(
                 onClick = onClick
             )
     ) {
-        val (brandImage, brandKoreanName, brandEnglishName, discountText, chevronButton) = createRefs()
+        val (brandImage, brandMainName, brandSubName, discountText, chevronButton) = createRefs()
 
         AsyncImage(
             model = thumbnailURL,
             contentDescription = "brand image",
             modifier = Modifier
-                .padding(end = 15.dp)
+                .fillMaxHeight()
+                .padding(top = 4.dp, bottom = 4.dp, end = 15.dp)
                 .shadow(3.dp, shape = CircleShape)
-                .constrainAs(ref = brandImage) { parent.start },
+                .constrainAs(ref = brandImage) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                }
+            ,
             placeholder = painterResource(id = R.drawable.brand_test)
         )
 
@@ -154,11 +159,10 @@ fun BrandListItemLayout(
             style = TextStyle(
                 fontSize = 15.sp,
                 fontWeight = FontWeight(500),
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold))
             ),
-            modifier = Modifier.constrainAs(brandKoreanName) {
-                top.linkTo(parent.top)
-                bottom.linkTo(brandEnglishName.top)
+            modifier = Modifier.constrainAs(brandMainName) {
+                top.linkTo(brandImage.top)
+                bottom.linkTo(brandSubName.top)
                 absoluteLeft.linkTo(brandImage.absoluteRight)
             }
         )
@@ -170,16 +174,16 @@ fun BrandListItemLayout(
                 fontWeight = FontWeight(500),
                 color = SmallTextGrey,
             ),
-            modifier = Modifier.constrainAs(brandEnglishName) {
-                top.linkTo(brandKoreanName.bottom)
-                bottom.linkTo(parent.bottom)
+            modifier = Modifier.constrainAs(brandSubName) {
+                top.linkTo(brandMainName.bottom)
+                bottom.linkTo(brandImage.bottom)
                 absoluteLeft.linkTo(brandImage.absoluteRight)
             }
         )
 
-        if (maxDisCountString != null) {
+        if (maxDisCountString != 0) {
             Text(
-                text = maxDisCountString,
+                text = "최대 $maxDisCountString% 할인 중",
                 style = TextStyle(
                     fontSize = 12.sp,
                     fontWeight = FontWeight(500),
@@ -188,9 +192,9 @@ fun BrandListItemLayout(
                 modifier = Modifier
                     .padding(horizontal = 5.dp)
                     .constrainAs(discountText) {
-                        top.linkTo(brandKoreanName.bottom)
-                        bottom.linkTo(parent.bottom)
-                        absoluteLeft.linkTo(brandEnglishName.absoluteRight)
+                        top.linkTo(brandMainName.bottom)
+                        bottom.linkTo(brandImage.bottom)
+                        absoluteLeft.linkTo(brandSubName.absoluteRight)
                     }
             )
         }
@@ -218,7 +222,7 @@ fun BrandListItemLayoutPreview() {
         brandName = "제이엘브",
         subName = "JELEVE",
         thumbnailURL = "https://",
-        maxDisCountString = "최대 51% 할인 중",
+        maxDisCountString = 51,
         onClick = {  }
     )
 }

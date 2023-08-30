@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.brand.ui.BrandScreen
 import com.example.ablebody_android.main.data.NavigationItems
 import com.example.ablebody_android.main.ui.utils.AbleBodyBottomNavigationItem
@@ -36,6 +37,31 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.AbleLight
 import com.example.ablebody_android.ui.theme.White
 import com.example.ablebody_android.utils.ItemSearchBar
+
+@Composable
+fun MainScreen(viewModel: BrandViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    Scaffold(
+        topBar = {
+            ItemSearchBar(
+                textFiledOnClick = { /*TODO*/ },
+                alertOnClick = { /*TODO*/ }
+            )
+        },
+        bottomBar = { MainNavigationBar() },
+        content = {
+            BrandScreen(
+                modifier = Modifier.padding(it),
+                viewModel = viewModel
+            )
+        }
+    )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun MainScreenPreview() {
+    MainScreen()
+}
 
 @Composable
 fun MainNavigationBar() {
@@ -100,25 +126,4 @@ fun MainNavigationBar() {
 @Composable
 fun MainNavigationBarPreview() {
     MainNavigationBar()
-}
-
-@Composable
-fun MainScreen() {
-    Scaffold(
-        topBar = {
-            ItemSearchBar(
-                textFiledOnClick = { /*TODO*/ },
-                alertOnClick = { /*TODO*/ }
-            )
-        },
-        bottomBar = { MainNavigationBar() },
-        content = { BrandScreen(modifier = Modifier.padding(it)) }
-    )
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun MainScreenPreview() {
-    MainScreen()
-
 }
