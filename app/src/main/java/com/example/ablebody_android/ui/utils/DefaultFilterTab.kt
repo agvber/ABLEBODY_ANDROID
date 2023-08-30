@@ -6,13 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +44,7 @@ fun DefaultFilterTab(
         LazyRow(
             modifier = Modifier.padding(start = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             items(items = filterItemList) { item ->
                 val animateTextColor by animateColorAsState(
@@ -63,7 +61,6 @@ fun DefaultFilterTab(
                         color = animateTextColor,
                     ),
                     modifier = Modifier
-                        .padding(end = 15.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,

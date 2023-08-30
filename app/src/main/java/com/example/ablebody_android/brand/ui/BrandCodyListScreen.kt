@@ -17,11 +17,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.ablebody_android.CodyItemFilterBottomSheetPersonHeightFilterType
+import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.CodyItemFilterTabFilterType
@@ -29,7 +30,8 @@ import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet
-import com.example.ablebody_android.ui.utils.CodyItemFilterTabLayout
+import com.example.ablebody_android.ui.utils.CodyItemFilterTabRow
+import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +44,7 @@ fun BrandCodyListScreen() {
     var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
     val genderSelectList: SnapshotStateList<Gender> = remember { mutableStateListOf() }
     val sportItemList = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
-    var personHeight by remember { mutableStateOf(CodyItemFilterBottomSheetPersonHeightFilterType.ALL) }
+    var personHeight by remember { mutableStateOf(PersonHeightFilterType.ALL) }
 
     if (isCodyItemFilterBottomSheetShow) {
         CodyItemFilterBottomSheet(
@@ -72,7 +74,7 @@ fun BrandCodyListScreen() {
                     codyFilterSelectList.add(CodyItemFilterTabFilterType.SPORT)
                 }
 
-                if (personHeight == CodyItemFilterBottomSheetPersonHeightFilterType.ALL) {
+                if (personHeight == PersonHeightFilterType.ALL) {
                     codyFilterSelectList.remove(CodyItemFilterTabFilterType.HEIGHT)
                 } else {
                     codyFilterSelectList.add(CodyItemFilterTabFilterType.HEIGHT)
@@ -87,28 +89,30 @@ fun BrandCodyListScreen() {
     }
 
     Column {
-        CodyItemFilterTabLayout(
-            selectedItemList = codyFilterSelectList,
-            onItemSelectChange = { codyFilterType, checked ->
-                when(codyFilterType) {
-                    CodyItemFilterTabFilterType.SPORT -> {
-                        tabFilter = CodyItemFilterBottomSheetTabFilterType.SPORT
-                        isCodyItemFilterBottomSheetShow = true
-                    }
-                    CodyItemFilterTabFilterType.HEIGHT -> {
-                        tabFilter = CodyItemFilterBottomSheetTabFilterType.PERSON_HEIGHT
-                        isCodyItemFilterBottomSheetShow = true
-                    }
-                    else -> {
-                        if (checked) {
-                            codyFilterSelectList.remove(codyFilterType)
+        CodyItemFilterTabRow(
+            resetRequest = { /*TODO*/ }
+        ) {
+            for (value in CodyItemFilterTabFilterType.values()) {
+                val isSelected = codyFilterSelectList.contains(value)
+                CodyItemFilterTabRowItem(
+                    selected = isSelected,
+                    isPopup = value.isPopup,
+                    text = stringResource(id = value.stringResourceID),
+                    onClick = {
+                        if (value == CodyItemFilterTabFilterType.SPORT || value == CodyItemFilterTabFilterType.HEIGHT) {
+                            tabFilter = CodyItemFilterBottomSheetTabFilterType.PERSON_HEIGHT
+                            isCodyItemFilterBottomSheetShow = true
                         } else {
-                            codyFilterSelectList.add(codyFilterType)
+                            if (isSelected) {
+                                codyFilterSelectList.remove(value)
+                            } else {
+                                codyFilterSelectList.add(value)
+                            }
                         }
                     }
-                }
+                )
             }
-        )
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             state = scrollableState,
