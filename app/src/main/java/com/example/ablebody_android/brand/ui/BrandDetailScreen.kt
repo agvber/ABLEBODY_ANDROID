@@ -17,6 +17,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
+import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
@@ -42,15 +46,26 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrandDetailScreen() {
+fun BrandDetailScreen(
+    onBackClick: () -> Unit,
+    contentID: Long?,
+    contentName: String,
+    viewModel: BrandViewModel = viewModel()
+) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
+
+    LaunchedEffect(key1 = Unit) {
+        if (contentID != null) {
+            viewModel.updateContentID(contentID)
+        }
+    }
 
     Scaffold(
         topBar = {
             BrandDetailTopBarLayout(
-                titleText = "오옴",
-                backButtonClicked = { /*TODO*/ },
+                titleText = contentName,
+                backButtonClicked = onBackClick,
                 selectedTabIndex = pagerState.currentPage,
                 tabOnClick = { scope.launch { pagerState.animateScrollToPage(it) } }
             )
@@ -59,9 +74,20 @@ fun BrandDetailScreen() {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.padding(paddingValue)
-            ) {
-                when(it) {
-                    0 -> BrandProductItemListScreen()
+            ) { page ->
+                when(page) {
+                    0 -> BrandProductItemListLayout(
+                            orderFilterState = viewModel.brandProductItemOrderFilterType.collectAsStateWithLifecycle().value,
+                            onOrderFilterTypeStateChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
+                            parentFilterState = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
+                            onParentFilterStateChange = { viewModel.updateBrandProductItemParentFilter(it) },
+                            itemChildCategory = viewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
+                            childFilterState = viewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
+                            onChildFilterStateChange = { viewModel.updateBrandProductItemChildFilter(it) },
+                            genderState = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
+                            onGenderStateChange = { viewModel.updateBrandProductItemGender(it) },
+                            productItems = viewModel.productItemList.collectAsStateWithLifecycle().value
+                    )
                     1 -> BrandCodyListScreen()
                 }
             }
@@ -71,9 +97,9 @@ fun BrandDetailScreen() {
 
 @Preview(showSystemUi = true)
 @Composable
-fun BrandDetailScreenPreview() {
+fun BrandDetailScreenPreview(viewModel: BrandViewModel = viewModel()) {
     ABLEBODY_AndroidTheme {
-        BrandDetailScreen()
+        BrandDetailScreen(onBackClick = {  }, contentID = 3L, contentName = "")
     }
 }
 

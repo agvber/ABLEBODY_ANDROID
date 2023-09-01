@@ -51,8 +51,8 @@ import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 
 @Composable
 fun BrandScreen(
-    modifier: Modifier = Modifier,
-    viewModel: BrandViewModel
+    onItemClick: (Long, String) -> Unit,
+    viewModel: BrandViewModel = viewModel()
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     val genderFilterState by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
@@ -80,7 +80,7 @@ fun BrandScreen(
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
     ) {
         BrandFilterTab(
             genderFilter = genderFilterState,
@@ -90,13 +90,16 @@ fun BrandScreen(
         )
         brandItemList?.let { items ->
             LazyColumn {
-                items(items) {
+                items(
+                    items = items,
+                    key = { it.id }
+                ) {
                     BrandListItemLayout(
                         brandName = it.name,
                         subName = it.subName,
                         thumbnailURL = it.thumbnail,
                         maxDisCountString = it.maxDiscount,
-                        onClick = {  }
+                        onClick = { onItemClick(it.id, it.name) }
                     )
                     Divider(
                         thickness = 1.dp,
@@ -112,8 +115,7 @@ fun BrandScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun BrandScreenPreview() {
-    val viewModel: BrandViewModel = viewModel()
-    BrandScreen(viewModel = viewModel)
+    BrandScreen(onItemClick = { id, name -> })
 }
 
 @Composable

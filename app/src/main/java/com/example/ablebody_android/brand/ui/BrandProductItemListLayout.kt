@@ -28,13 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.R
-import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.brand.data.OrderFilterType
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -49,30 +46,7 @@ import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 
 @Composable
-fun BrandProductItemListScreen(viewModel: BrandViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    BrandProductItemListScreen(
-        orderFilterState = viewModel.brandProductItemOrderFilterType.collectAsStateWithLifecycle().value,
-        onOrderFilterTypeStateChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
-        parentFilterState = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        onParentFilterStateChange = { viewModel.updateBrandProductItemParentFilter(it) },
-        itemChildCategory = viewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
-        childFilterState = viewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-        onChildFilterStateChange = { viewModel.updateBrandProductItemChildFilter(it) },
-        genderState = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        onGenderStateChange = { viewModel.updateBrandProductItemGender(it) },
-        productItems = viewModel.productItemList.collectAsStateWithLifecycle().value
-    )
-}
-
-@Preview
-@Composable
-fun BrandProductItemListScreenPreview() {
-    val viewModel: BrandViewModel = viewModel()
-    BrandProductItemListScreen(viewModel = viewModel)
-}
-
-@Composable
-private fun BrandProductItemListScreen(
+fun BrandProductItemListLayout(
     orderFilterState: OrderFilterType,
     onOrderFilterTypeStateChange: (OrderFilterType) -> Unit,
     parentFilterState: ItemParentCategory,
@@ -191,7 +165,7 @@ private fun BrandProductItemListScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun BrandProductItemListScreenNotViewModelPreview(
+fun BrandProductItemListLayoutPreview(
     orderFilterState: OrderFilterType = OrderFilterType.Popularity,
     gender: ItemGender = ItemGender.UNISEX,
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
@@ -199,7 +173,7 @@ private fun BrandProductItemListScreenNotViewModelPreview(
     productItems: BrandDetailItemResponseData? = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
     itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList()
     ) {
-    BrandProductItemListScreen(
+    BrandProductItemListLayout(
         orderFilterState = orderFilterState,
         onOrderFilterTypeStateChange = {  },
         genderState = gender,

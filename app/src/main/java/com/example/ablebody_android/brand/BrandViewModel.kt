@@ -91,6 +91,13 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                     initialValue = null
                 )
 
+    private val _contentID = MutableStateFlow<Long?>(null)
+    val contentID = _contentID.asStateFlow()
+
+    fun updateContentID(id: Long) {
+        viewModelScope.launch { _contentID.emit(id) }
+    }
+
     private val _brandProductItemOrderFilterType = MutableStateFlow(OrderFilterType.Popularity)
     val brandProductItemOrderFilterType = _brandProductItemOrderFilterType.asStateFlow()
 
@@ -167,13 +174,15 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                 OrderFilterType.Popularity ->  SortingMethod.POPULAR
                 OrderFilterType.Name ->  SortingMethod.ALPHABET
             }
-            networkRepository.brandDetailItem(
-                sort = sort,
-                brandId = 3L,
-                itemGender = gender,
-                parentCategory = parent,
-                childCategory = child
-            ).body()?.data
+            contentID.value?.let { id ->
+                networkRepository.brandDetailItem(
+                    sort = sort,
+                    brandId = id,
+                    itemGender = gender,
+                    parentCategory = parent,
+                    childCategory = child
+                ).body()?.data
+            }
         }
             .flowOn(ioDispatcher)
             .stateIn(
