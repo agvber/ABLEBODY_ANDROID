@@ -21,7 +21,7 @@ private fun NavGraphBuilder.brandListScreen(
     onItemClick: (Long, String) -> Unit
 ) {
     composable(route = "BrandListScreen") {
-        BrandScreen(onItemClick = onItemClick)
+        BrandListScreen(onItemClick = onItemClick)
     }
 }
 private fun NavGraphBuilder.brandDetailScreen(

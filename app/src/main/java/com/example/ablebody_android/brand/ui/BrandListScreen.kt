@@ -50,7 +50,7 @@ import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 
 @Composable
-fun BrandScreen(
+fun BrandListScreen(
     onItemClick: (Long, String) -> Unit,
     viewModel: BrandViewModel = viewModel()
 ) {
@@ -114,8 +114,8 @@ fun BrandScreen(
 
 @Preview(showSystemUi = true)
 @Composable
-fun BrandScreenPreview() {
-    BrandScreen(onItemClick = { id, name -> })
+fun BrandScreenListPreview() {
+    BrandListScreen(onItemClick = { id, name -> })
 }
 
 @Composable
