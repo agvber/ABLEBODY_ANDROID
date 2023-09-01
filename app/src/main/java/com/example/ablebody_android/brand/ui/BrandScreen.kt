@@ -55,8 +55,8 @@ fun BrandScreen(
     viewModel: BrandViewModel
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
-    val genderFilterState by viewModel.genderFilterType.collectAsStateWithLifecycle()
-    val orderFilterState by viewModel.orderFilterType.collectAsStateWithLifecycle()
+    val genderFilterState by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
+    val orderFilterState by viewModel.brandListOrderFilterType.collectAsStateWithLifecycle()
     val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -72,7 +72,7 @@ fun BrandScreen(
                 orderFilterType?.let { value ->
                     OrderFilterType.values()
                         .first { context.getString(it.stringResourceID) == value }
-                        .let { viewModel.updateOrderFilterType(it) }
+                        .let { viewModel.updateBrandListOrderFilterType(it) }
                 }
                 isFilterBottomSheetShow = false
             }
@@ -84,7 +84,7 @@ fun BrandScreen(
     ) {
         BrandFilterTab(
             genderFilter = genderFilterState,
-            genderFilterTabClicked = { viewModel.updateGenderFilterType(it) },
+            genderFilterTabClicked = { viewModel.updateBrandListGenderFilterType(it) },
             orderFilter = orderFilterState,
             orderFilterTabClicked = { isFilterBottomSheetShow = true }
         )

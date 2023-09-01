@@ -3,12 +3,15 @@ package com.example.ablebody_android.brand
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
+import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.brand.data.GenderFilterType
 import com.example.ablebody_android.brand.data.OrderFilterType
+import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,27 +39,27 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                 "0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
     }
 
-    private val _orderFilterType = MutableStateFlow(OrderFilterType.Popularity)
-    val orderFilterType = _orderFilterType.asStateFlow()
+    private val _brandListOrderFilterType = MutableStateFlow(OrderFilterType.Popularity)
+    val brandListOrderFilterType = _brandListOrderFilterType.asStateFlow()
 
-    fun updateOrderFilterType(orderFilterType: OrderFilterType) {
-        viewModelScope.launch(ioDispatcher) {
-            _orderFilterType.emit(orderFilterType)
+    fun updateBrandListOrderFilterType(orderFilterType: OrderFilterType) {
+        viewModelScope.launch {
+            _brandListOrderFilterType.emit(orderFilterType)
         }
     }
 
-    private val _genderFilterType = MutableStateFlow(GenderFilterType.ALL)
-    val genderFilterType = _genderFilterType.asStateFlow()
+    private val _brandListGenderFilterType = MutableStateFlow(GenderFilterType.ALL)
+    val brandListGenderFilterType = _brandListGenderFilterType.asStateFlow()
 
-    fun updateGenderFilterType(genderFilterType: GenderFilterType) {
-        viewModelScope.launch(ioDispatcher) {
-            _genderFilterType.emit(genderFilterType)
+    fun updateBrandListGenderFilterType(genderFilterType: GenderFilterType) {
+        viewModelScope.launch {
+            _brandListGenderFilterType.emit(genderFilterType)
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val brandItemList: StateFlow<List<BrandMainResponseData>?> =
-        orderFilterType.flatMapLatest {
+        brandListOrderFilterType.flatMapLatest {
             when (it) {
                 OrderFilterType.Popularity -> {
                     flowOf(networkRepository.brandMain(SortingMethod.POPULAR).body()?.data)
@@ -66,7 +69,7 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                 }
             }
         }
-            .combine(genderFilterType) { data, gender ->
+            .combine(brandListGenderFilterType) { data, gender ->
                 data?.filter {
                     when (gender) {
                         GenderFilterType.ALL -> {
@@ -87,4 +90,95 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                     started = SharingStarted.WhileSubscribed(5_000),
                     initialValue = null
                 )
+
+    private val _brandProductItemOrderFilterType = MutableStateFlow(OrderFilterType.Popularity)
+    val brandProductItemOrderFilterType = _brandProductItemOrderFilterType.asStateFlow()
+
+    fun updateBrandProductItemOrderFilterType(orderFilterType: OrderFilterType) {
+        viewModelScope.launch {
+            _brandProductItemOrderFilterType.emit(orderFilterType)
+        }
+    }
+
+    private val _brandProductItemGender = MutableStateFlow(ItemGender.MALE)
+    val brandProductItemGender = _brandProductItemGender.asStateFlow()
+
+    fun updateBrandProductItemGender(gender: ItemGender) {
+        viewModelScope.launch {
+            _brandProductItemGender.emit(gender)
+        }
+    }
+
+    private val _brandProductItemParentFilter = MutableStateFlow<ItemParentCategory>(ItemParentCategory.ALL)
+    val brandProductItemParentFilter = _brandProductItemParentFilter.asStateFlow()
+
+    fun updateBrandProductItemParentFilter(parentCategory: ItemParentCategory) {
+        viewModelScope.launch {
+            _brandProductItemParentFilter.emit(parentCategory)
+            _brandProductItemChildFilter.emit(null)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val brandProductItemChildCategory: StateFlow<List<ItemChildCategory>> =
+        brandProductItemParentFilter.flatMapLatest { parentCategory ->
+            flowOf(
+                ItemChildCategory.values().filter {
+                    when (parentCategory) {
+                        ItemParentCategory.ALL -> true
+                        else -> it.parentCategory == parentCategory
+                    }
+                }
+            )
+        }
+            .combine(brandProductItemGender) { parentCategory, gender ->
+                parentCategory.filter {
+                    when (gender) {
+                        ItemGender.UNISEX -> true
+                        ItemGender.MALE -> it.gender != ItemGender.FEMALE
+                        ItemGender.FEMALE -> it.gender != ItemGender.MALE
+                    }
+                }
+            }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = ItemChildCategory.values().toList()
+                )
+
+
+    private val _brandProductItemChildFilter = MutableStateFlow<ItemChildCategory?>(null)
+    val brandProductItemChildFilter = _brandProductItemChildFilter.asStateFlow()
+
+    fun updateBrandProductItemChildFilter(childCategory: ItemChildCategory?) {
+        viewModelScope.launch {
+            _brandProductItemChildFilter.emit(childCategory)
+        }
+    }
+
+    val productItemList: StateFlow<BrandDetailItemResponseData?> =
+        combine(
+            brandProductItemOrderFilterType,
+            brandProductItemParentFilter,
+            brandProductItemChildFilter,
+            brandProductItemGender
+        ) { order, parent, child, gender ->
+            val sort = when (order) {
+                OrderFilterType.Popularity ->  SortingMethod.POPULAR
+                OrderFilterType.Name ->  SortingMethod.ALPHABET
+            }
+            networkRepository.brandDetailItem(
+                sort = sort,
+                brandId = 3L,
+                itemGender = gender,
+                parentCategory = parent,
+                childCategory = child
+            ).body()?.data
+        }
+            .flowOn(ioDispatcher)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = null
+            )
 }

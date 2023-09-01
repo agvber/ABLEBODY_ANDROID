@@ -1,14 +1,10 @@
 package com.example.ablebody_android.ui.utils
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,19 +30,20 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-private fun ProductItemListContent(
+fun ProductItemLayout(
     productName: String,
     productPrice: Int,
     productSalePrice: Int?,
     brandName: String,
-    averageStarRating: String,
-    isSingleImage: Boolean = false
+    thumbnail: Any?,
+    averageStarRating: String?,
+    isSingleImage: Boolean
 ) {
     Column {
         Box {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(data = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/item/ABLE-0000039.png")
+                    .data(data = thumbnail)
                     .placeholder(R.drawable.product_item_test)
                     .build(),
                 contentDescription = "product image"
@@ -115,21 +112,23 @@ private fun ProductItemListContent(
                     )
                 }
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_product_item_star),
-                    contentDescription = "product start"
-                )
-                Text(
-                    text = averageStarRating,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight(400),
-                        color = SmallTextGrey,
+            if (averageStarRating != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_product_item_star),
+                        contentDescription = "product start"
                     )
-                )
+                    Text(
+                        text = averageStarRating,
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight(400),
+                            color = SmallTextGrey,
+                        )
+                    )
+                }
             }
         }
     }
@@ -139,38 +138,14 @@ private fun ProductItemListContent(
 @Composable
 private fun ProductItemListContentPreview() {
     ABLEBODY_AndroidTheme {
-        ProductItemListContent(
+        ProductItemLayout(
             productName = "데일리 크롭 슬리브리스 그레이 옐로우",
             productPrice = 36000,
             productSalePrice = 29000,
             brandName = "오옴",
-            averageStarRating = "0.0(0)"
+            averageStarRating = "0.0(0)",
+            thumbnail = R.drawable.product_item_test,
+            isSingleImage = false
         )
-    }
-}
-
-@Composable
-fun ProductItemListLayout() {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        items(items = (0..30).toList()) {
-            ProductItemListContent(
-                productName = "데일리 크롭 슬리브리스 그레이 옐로우",
-                productPrice = 36000,
-                productSalePrice = 29000,
-                brandName = "오옴",
-                averageStarRating = "0.0(0)"
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProductItemListLayoutPreview() {
-    ABLEBODY_AndroidTheme {
-        ProductItemListLayout()
     }
 }

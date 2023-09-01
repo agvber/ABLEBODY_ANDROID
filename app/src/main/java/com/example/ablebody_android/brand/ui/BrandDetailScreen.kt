@@ -33,7 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
+import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
@@ -43,7 +45,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrandDetailScreen() {
+fun BrandDetailScreen(viewModel: BrandViewModel) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
 
@@ -64,7 +66,7 @@ fun BrandDetailScreen() {
                     state = pagerState,
                 ) {
                     when(it) {
-                        0 -> BrandItemListScreen()
+                        0 -> BrandProductItemListLayout(viewModel = viewModel)
                         1 -> BrandCodyListScreen()
                     }
                 }
@@ -76,8 +78,9 @@ fun BrandDetailScreen() {
 @Preview(showSystemUi = true)
 @Composable
 fun BrandDetailScreenPreview() {
+    val viewModel: BrandViewModel = viewModel()
     ABLEBODY_AndroidTheme {
-        BrandDetailScreen()
+        BrandDetailScreen(viewModel = viewModel)
     }
 }
 
