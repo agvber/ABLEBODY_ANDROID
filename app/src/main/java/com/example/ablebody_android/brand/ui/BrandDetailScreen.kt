@@ -13,7 +13,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -33,9 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ablebody_android.R
-import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
@@ -45,7 +42,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrandDetailScreen(viewModel: BrandViewModel) {
+fun BrandDetailScreen() {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
 
@@ -59,16 +56,13 @@ fun BrandDetailScreen(viewModel: BrandViewModel) {
             )
         },
         content = { paddingValue ->
-            Surface(
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier.padding(paddingValue)
             ) {
-                HorizontalPager(
-                    state = pagerState,
-                ) {
-                    when(it) {
-                        0 -> BrandProductItemListLayout(viewModel = viewModel)
-                        1 -> BrandCodyListScreen()
-                    }
+                when(it) {
+                    0 -> BrandProductItemListScreen()
+                    1 -> BrandCodyListScreen()
                 }
             }
         }
@@ -78,9 +72,8 @@ fun BrandDetailScreen(viewModel: BrandViewModel) {
 @Preview(showSystemUi = true)
 @Composable
 fun BrandDetailScreenPreview() {
-    val viewModel: BrandViewModel = viewModel()
     ABLEBODY_AndroidTheme {
-        BrandDetailScreen(viewModel = viewModel)
+        BrandDetailScreen()
     }
 }
 

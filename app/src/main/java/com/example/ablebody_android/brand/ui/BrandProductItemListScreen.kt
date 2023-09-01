@@ -49,8 +49,8 @@ import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 
 @Composable
-fun BrandProductItemListLayout(viewModel: BrandViewModel) {
-    BrandProductItemListLayout(
+fun BrandProductItemListScreen(viewModel: BrandViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    BrandProductItemListScreen(
         orderFilterState = viewModel.brandProductItemOrderFilterType.collectAsStateWithLifecycle().value,
         onOrderFilterTypeStateChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
         parentFilterState = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
@@ -68,11 +68,11 @@ fun BrandProductItemListLayout(viewModel: BrandViewModel) {
 @Composable
 fun BrandProductItemListScreenPreview() {
     val viewModel: BrandViewModel = viewModel()
-    BrandProductItemListLayout(viewModel = viewModel)
+    BrandProductItemListScreen(viewModel = viewModel)
 }
 
 @Composable
-private fun BrandProductItemListLayout(
+private fun BrandProductItemListScreen(
     orderFilterState: OrderFilterType,
     onOrderFilterTypeStateChange: (OrderFilterType) -> Unit,
     parentFilterState: ItemParentCategory,
@@ -191,7 +191,7 @@ private fun BrandProductItemListLayout(
 
 @Preview(showBackground = true)
 @Composable
-private fun BrandProductItemListLayoutPreview(
+private fun BrandProductItemListScreenNotViewModelPreview(
     orderFilterState: OrderFilterType = OrderFilterType.Popularity,
     gender: ItemGender = ItemGender.UNISEX,
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
@@ -199,7 +199,7 @@ private fun BrandProductItemListLayoutPreview(
     productItems: BrandDetailItemResponseData? = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
     itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList()
     ) {
-    BrandProductItemListLayout(
+    BrandProductItemListScreen(
         orderFilterState = orderFilterState,
         onOrderFilterTypeStateChange = {  },
         genderState = gender,
