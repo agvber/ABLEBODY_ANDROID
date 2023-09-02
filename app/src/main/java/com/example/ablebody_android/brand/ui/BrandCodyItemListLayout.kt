@@ -25,7 +25,7 @@ import coil.request.ImageRequest
 import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
-import com.example.ablebody_android.CodyItemFilterTabFilterType
+import com.example.ablebody_android.CodyItemListTabFilterType
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
@@ -36,7 +36,7 @@ import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandCodyItemListLayout() {
-    val codyFilterSelectList = remember { mutableStateListOf<CodyItemFilterTabFilterType>() }
+    val codyFilterSelectList = remember { mutableStateListOf<CodyItemListTabFilterType>() }
     val scrollableState = rememberLazyGridState()
     var isCodyItemFilterBottomSheetShow by remember { mutableStateOf(false) }
 
@@ -57,27 +57,27 @@ fun BrandCodyItemListLayout() {
                 personHeight = personHeightFilterType
 
                 if (genderFilterTypeList.contains(Gender.MALE)) {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.MALE)
+                    codyFilterSelectList.add(CodyItemListTabFilterType.MALE)
                 } else {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.MALE)
+                    codyFilterSelectList.remove(CodyItemListTabFilterType.MALE)
                 }
 
                 if (genderFilterTypeList.contains(Gender.FEMALE)) {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.FEMALE)
+                    codyFilterSelectList.add(CodyItemListTabFilterType.FEMALE)
                 } else {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.FEMALE)
+                    codyFilterSelectList.remove(CodyItemListTabFilterType.FEMALE)
                 }
 
                 if (sportItemList.containsAll(CodyItemFilterBottomSheetSportFilterType.values().toList())) {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.SPORT)
+                    codyFilterSelectList.remove(CodyItemListTabFilterType.SPORT)
                 } else {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.SPORT)
+                    codyFilterSelectList.add(CodyItemListTabFilterType.SPORT)
                 }
 
                 if (personHeight == PersonHeightFilterType.ALL) {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.HEIGHT)
+                    codyFilterSelectList.remove(CodyItemListTabFilterType.HEIGHT)
                 } else {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.HEIGHT)
+                    codyFilterSelectList.add(CodyItemListTabFilterType.HEIGHT)
                 }
             },
             onResetRequest = {  },
@@ -92,14 +92,14 @@ fun BrandCodyItemListLayout() {
         CodyItemFilterTabRow(
             resetRequest = { /*TODO*/ }
         ) {
-            for (value in CodyItemFilterTabFilterType.values()) {
+            for (value in CodyItemListTabFilterType.values()) {
                 val isSelected = codyFilterSelectList.contains(value)
                 CodyItemFilterTabRowItem(
                     selected = isSelected,
                     isPopup = value.isPopup,
                     text = stringResource(id = value.stringResourceID),
                     onClick = {
-                        if (value == CodyItemFilterTabFilterType.SPORT || value == CodyItemFilterTabFilterType.HEIGHT) {
+                        if (value == CodyItemListTabFilterType.SPORT || value == CodyItemListTabFilterType.HEIGHT) {
                             tabFilter = CodyItemFilterBottomSheetTabFilterType.PERSON_HEIGHT
                             isCodyItemFilterBottomSheetShow = true
                         } else {

@@ -1,6 +1,6 @@
 package com.example.ablebody_android
 
-enum class CodyItemFilterTabFilterType(
+enum class CodyItemListTabFilterType(
     val stringResourceID: Int,
     val isPopup: Boolean
     ) {
