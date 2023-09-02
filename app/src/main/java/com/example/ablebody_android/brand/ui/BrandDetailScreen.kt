@@ -119,7 +119,7 @@ fun BrandDetailScreen(
                             onGenderChange = { onProductItemGenderChange(it) },
                             productItems = productItems
                     )
-                    1 -> BrandCodyListScreen()
+                    1 -> BrandCodyItemListLayout()
                 }
             }
         }

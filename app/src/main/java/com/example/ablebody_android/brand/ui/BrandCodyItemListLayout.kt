@@ -35,7 +35,7 @@ import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrandCodyListScreen() {
+fun BrandCodyItemListLayout() {
     val codyFilterSelectList = remember { mutableStateListOf<CodyItemFilterTabFilterType>() }
     val scrollableState = rememberLazyGridState()
     var isCodyItemFilterBottomSheetShow by remember { mutableStateOf(false) }
@@ -137,6 +137,6 @@ fun BrandCodyListScreen() {
 @Composable
 fun BrandCodyListScreenPreview() {
     ABLEBODY_AndroidTheme {
-        BrandCodyListScreen()
+        BrandCodyItemListLayout()
     }
 }
