@@ -151,9 +151,10 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
             brandProductItemSortingMethod,
             brandProductItemParentFilter,
             brandProductItemChildFilter,
-            brandProductItemGender
-        ) { sort, parent, child, gender ->
-            contentID.value?.let { id ->
+            brandProductItemGender,
+            contentID
+        ) { sort, parent, child, gender, id ->
+            id?.let {
                 networkRepository.brandDetailItem(
                     sort = sort,
                     brandId = id,
