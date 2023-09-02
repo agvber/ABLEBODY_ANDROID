@@ -12,16 +12,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,7 +31,7 @@ import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.R
-import com.example.ablebody_android.brand.data.OrderFilterType
+import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
@@ -41,59 +40,57 @@ import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.GenderSwitch
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
+import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 import com.example.ablebody_android.ui.utils.ProductItemLayout
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandProductItemListLayout(
-    orderFilterState: OrderFilterType,
-    onOrderFilterTypeStateChange: (OrderFilterType) -> Unit,
-    parentFilterState: ItemParentCategory,
-    onParentFilterStateChange: (ItemParentCategory) -> Unit,
+    sortingMethod: SortingMethod,
+    onSortingMethodChange: (SortingMethod) -> Unit,
+    parentFilter: ItemParentCategory,
+    onParentFilterChange: (ItemParentCategory) -> Unit,
     itemChildCategory: List<ItemChildCategory>,
-    childFilterState: ItemChildCategory?,
-    onChildFilterStateChange: (ItemChildCategory?) -> Unit,
-    genderState: ItemGender,
-    onGenderStateChange: (ItemGender) -> Unit,
+    childFilter: ItemChildCategory?,
+    onChildFilterChange: (ItemChildCategory?) -> Unit,
+    gender: ItemGender,
+    onGenderChange: (ItemGender) -> Unit,
     productItems: BrandDetailItemResponseData?
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (isFilterBottomSheetShow) {
-        val filterBottomSheetValueList by remember {
-            derivedStateOf {
-                OrderFilterType.values().map { context.getString(it.stringResourceID) }
+        ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
+            items(items = SortingMethod.values()) { sortingMethod ->
+                ProductItemFilterBottomSheetItem(
+                    sheetState = sheetState,
+                    value = sortingMethod.string,
+                    onValueChange = {
+                        onSortingMethodChange(sortingMethod)
+                        isFilterBottomSheetShow = false
+                    }
+                )
             }
         }
-        ProductItemFilterBottomSheet(
-            valueList = filterBottomSheetValueList,
-            onDismissRequest = { orderFilterType ->
-                orderFilterType?.let { value ->
-                    OrderFilterType.values()
-                        .first { context.getString(it.stringResourceID) == value }
-                        .let { onOrderFilterTypeStateChange(it) }
-                }
-                isFilterBottomSheetShow = false
-            }
-        )
     }
 
     Column {
         DefaultFilterTabRow(
             actionContent =  {
                 DropDownFilterLayout(
-                    value = stringResource(id = orderFilterState.stringResourceID),
+                    value = sortingMethod.string,
                     onClick = { isFilterBottomSheetShow = true }
                 )
             }
         ) {
             items(items = ItemParentCategory.values()) { category ->
                 DefaultFilterTabItem(
-                    selected = parentFilterState == category,
+                    selected = parentFilter == category,
                     text = category.string,
-                    onClick = { onParentFilterStateChange(category) }
+                    onClick = { onParentFilterChange(category) }
                 )
             }
         }
@@ -101,20 +98,20 @@ fun BrandProductItemListLayout(
         RoundedCornerCategoryFilterTabRow {
             items(itemChildCategory) { category ->
                 RoundedCornerCategoryFilterTabItem(
-                    selected = childFilterState == category,
+                    selected = childFilter == category,
                     onClick = {
-                        if (childFilterState != category) {
-                            onChildFilterStateChange(category)
+                        if (childFilter != category) {
+                            onChildFilterChange(category)
                         } else {
-                            onChildFilterStateChange(null)
+                            onChildFilterChange(null)
                         }
                     }
                 ) {
                     val textColor by animateColorAsState(
-                        targetValue = if (childFilterState == category) AbleBlue else AbleDeep
+                        targetValue = if (childFilter == category) AbleBlue else AbleDeep
                     )
                     val textWeight by animateIntAsState(
-                        targetValue = if (childFilterState == category) 500 else 400
+                        targetValue = if (childFilter == category) 500 else 400
                     )
                     Text(
                         text = category.string,
@@ -153,8 +150,8 @@ fun BrandProductItemListLayout(
                 }
             }
             GenderSwitch(
-                checked = genderState == ItemGender.MALE,
-                onCheckedChange = { onGenderStateChange(if (it) ItemGender.MALE else ItemGender.FEMALE) },
+                checked = gender == ItemGender.MALE,
+                onCheckedChange = { onGenderChange(if (it) ItemGender.MALE else ItemGender.FEMALE) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(horizontal = 10.dp, vertical = 25.dp)
@@ -166,7 +163,7 @@ fun BrandProductItemListLayout(
 @Preview(showBackground = true)
 @Composable
 fun BrandProductItemListLayoutPreview(
-    orderFilterState: OrderFilterType = OrderFilterType.Popularity,
+    orderFilterState: SortingMethod = SortingMethod.POPULAR,
     gender: ItemGender = ItemGender.UNISEX,
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
     childFilterState: ItemChildCategory? = null,
@@ -174,14 +171,14 @@ fun BrandProductItemListLayoutPreview(
     itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList()
     ) {
     BrandProductItemListLayout(
-        orderFilterState = orderFilterState,
-        onOrderFilterTypeStateChange = {  },
-        genderState = gender,
-        onGenderStateChange = { },
-        parentFilterState = parentFilterState,
-        onParentFilterStateChange = {  },
-        childFilterState = childFilterState,
-        onChildFilterStateChange = { },
+        sortingMethod = orderFilterState,
+        onSortingMethodChange = {  },
+        gender = gender,
+        onGenderChange = { },
+        parentFilter = parentFilterState,
+        onParentFilterChange = {  },
+        childFilter = childFilterState,
+        onChildFilterChange = { },
         productItems = productItems,
         itemChildCategory = itemChildCategory
     )

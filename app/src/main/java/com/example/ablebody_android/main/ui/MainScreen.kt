@@ -1,5 +1,6 @@
 package com.example.ablebody_android.main.ui
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -21,7 +22,7 @@ fun MainScreen() {
         bottomBar = { MainNavigationBar() },
         content = { paddingValue ->
             Surface(
-                modifier = Modifier.padding(paddingValue)
+                modifier = Modifier.padding(paddingValue).navigationBarsPadding()
             ) {
                 BrandNavHost()
             }

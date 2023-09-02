@@ -35,8 +35,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ablebody_android.ItemChildCategory
+import com.example.ablebody_android.ItemGender
+import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.R
+import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
@@ -44,22 +49,48 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BrandDetailScreen(
+fun BrandDetailRoute(
     onBackClick: () -> Unit,
     contentID: Long?,
     contentName: String,
     viewModel: BrandViewModel = viewModel()
 ) {
+    LaunchedEffect(key1 = Unit) { contentID?.let { viewModel.updateContentID(it) } }
+    BrandDetailScreen(
+        onBackClick = onBackClick,
+        contentName = contentName,
+        productItemSortingMethod = viewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
+        onProductItemSortingMethodChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
+        productItemParentFilter = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
+        onProductItemParentFilterChange = { viewModel.updateBrandProductItemParentFilter(it) },
+        productItemChildCategory = viewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
+        productItemChildFilter = viewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
+        onProductItemChildFilterChange = { viewModel.updateBrandProductItemChildFilter(it) },
+        productItemGender = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
+        onProductItemGenderChange = { viewModel.updateBrandProductItemGender(it) },
+        productItems = viewModel.productItemList.collectAsStateWithLifecycle().value
+    )
+
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun BrandDetailScreen(
+    onBackClick: () -> Unit,
+    contentName: String,
+    productItemSortingMethod: SortingMethod,
+    onProductItemSortingMethodChange: (SortingMethod) -> Unit,
+    productItemParentFilter: ItemParentCategory,
+    onProductItemParentFilterChange: (ItemParentCategory) -> Unit,
+    productItemChildCategory: List<ItemChildCategory>,
+    productItemChildFilter: ItemChildCategory?,
+    onProductItemChildFilterChange: (ItemChildCategory?) -> Unit,
+    productItemGender: ItemGender,
+    onProductItemGenderChange: (ItemGender) -> Unit,
+    productItems: BrandDetailItemResponseData?
+) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
-
-    LaunchedEffect(key1 = Unit) {
-        if (contentID != null) {
-            viewModel.updateContentID(contentID)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -77,16 +108,16 @@ fun BrandDetailScreen(
             ) { page ->
                 when(page) {
                     0 -> BrandProductItemListLayout(
-                            orderFilterState = viewModel.brandProductItemOrderFilterType.collectAsStateWithLifecycle().value,
-                            onOrderFilterTypeStateChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
-                            parentFilterState = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-                            onParentFilterStateChange = { viewModel.updateBrandProductItemParentFilter(it) },
-                            itemChildCategory = viewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
-                            childFilterState = viewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-                            onChildFilterStateChange = { viewModel.updateBrandProductItemChildFilter(it) },
-                            genderState = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-                            onGenderStateChange = { viewModel.updateBrandProductItemGender(it) },
-                            productItems = viewModel.productItemList.collectAsStateWithLifecycle().value
+                            sortingMethod = productItemSortingMethod,
+                            onSortingMethodChange = { onProductItemSortingMethodChange(it) },
+                            parentFilter = productItemParentFilter,
+                            onParentFilterChange = { onProductItemParentFilterChange(it) },
+                            itemChildCategory = productItemChildCategory,
+                            childFilter = productItemChildFilter,
+                            onChildFilterChange = { onProductItemChildFilterChange(it) },
+                            gender = productItemGender,
+                            onGenderChange = { onProductItemGenderChange(it) },
+                            productItems = productItems
                     )
                     1 -> BrandCodyListScreen()
                 }
@@ -95,11 +126,37 @@ fun BrandDetailScreen(
     )
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun BrandDetailScreenPreview(viewModel: BrandViewModel = viewModel()) {
+fun BrandDetailScreenPreview(
+    onBackClick: () -> Unit = {},
+    contentName: String = "",
+    productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
+    onProductItemSortingMethodChange: (SortingMethod) -> Unit = {},
+    productItemParentFilter: ItemParentCategory = ItemParentCategory.ALL,
+    onProductItemParentFilterChange: (ItemParentCategory) -> Unit = {},
+    productItemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
+    productItemChildFilter: ItemChildCategory? = null,
+    onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
+    productItemGender: ItemGender = ItemGender.UNISEX,
+    onProductItemGenderChange: (ItemGender) -> Unit ={},
+    productItems: BrandDetailItemResponseData = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false)
+) {
     ABLEBODY_AndroidTheme {
-        BrandDetailScreen(onBackClick = {  }, contentID = 3L, contentName = "")
+        BrandDetailScreen(
+            onBackClick = onBackClick,
+            contentName = contentName,
+            productItemSortingMethod = productItemSortingMethod,
+            onProductItemSortingMethodChange = onProductItemSortingMethodChange,
+            productItemParentFilter = productItemParentFilter,
+            onProductItemParentFilterChange = onProductItemParentFilterChange,
+            productItemChildCategory = productItemChildCategory,
+            productItemChildFilter = productItemChildFilter,
+            onProductItemChildFilterChange = onProductItemChildFilterChange,
+            productItemGender = productItemGender,
+            onProductItemGenderChange = onProductItemGenderChange,
+            productItems = productItems
+        )
     }
 }
 

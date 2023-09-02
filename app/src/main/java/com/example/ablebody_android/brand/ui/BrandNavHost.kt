@@ -21,7 +21,7 @@ private fun NavGraphBuilder.brandListScreen(
     onItemClick: (Long, String) -> Unit
 ) {
     composable(route = "BrandListScreen") {
-        BrandListScreen(onItemClick = onItemClick)
+        BrandListRoute(onItemClick = onItemClick)
     }
 }
 private fun NavGraphBuilder.brandDetailScreen(
@@ -33,7 +33,7 @@ private fun NavGraphBuilder.brandDetailScreen(
             navArgument("content_name") { type = NavType.StringType }
         )
     ) { backStackEntry ->
-        BrandDetailScreen(
+        BrandDetailRoute(
             onBackClick = onBackClick,
             contentID = backStackEntry.arguments?.getLong("content_id"),
             contentName = backStackEntry.arguments?.getString("content_name", "")!!

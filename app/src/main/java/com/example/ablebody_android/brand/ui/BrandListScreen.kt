@@ -1,35 +1,29 @@
 package com.example.ablebody_android.brand.ui
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,74 +33,92 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.R
+import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
-import com.example.ablebody_android.brand.data.GenderFilterType
-import com.example.ablebody_android.brand.data.OrderFilterType
+import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
+import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
-import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.ui.utils.DefaultFilterTabItem
+import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
+import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 
 @Composable
-fun BrandListScreen(
+fun BrandListRoute(
     onItemClick: (Long, String) -> Unit,
     viewModel: BrandViewModel = viewModel()
 ) {
-    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
-    val genderFilterState by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
-    val orderFilterState by viewModel.brandListOrderFilterType.collectAsStateWithLifecycle()
+    val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
+    val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
     val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    BrandListScreen(
+        sortingMethod = sortingMethod,
+        onSortingMethodChange = { viewModel.updateBrandListOrderFilterType(it) },
+        genderFilter = genderFilter,
+        onGenderFilterChange = { viewModel.updateBrandListGenderFilterType(it) },
+        brandItemList = brandItemList,
+        onItemClick = onItemClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BrandListScreen(
+    sortingMethod: SortingMethod,
+    onSortingMethodChange: (SortingMethod) -> Unit,
+    genderFilter: ItemGender,
+    onGenderFilterChange: (ItemGender) -> Unit,
+    brandItemList: List<BrandMainResponseData>,
+    onItemClick: (Long, String) -> Unit
+) {
+    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (isFilterBottomSheetShow) {
-        val filterBottomSheetValueList by remember {
-            derivedStateOf {
-                OrderFilterType.values().map { context.getString(it.stringResourceID) }
+        ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
+            items(items = SortingMethod.values()) { sortingMethod ->
+                ProductItemFilterBottomSheetItem(
+                    sheetState = sheetState,
+                    value = sortingMethod.string,
+                    onValueChange = {
+                        onSortingMethodChange(sortingMethod)
+                        isFilterBottomSheetShow = false
+                    }
+                )
             }
         }
-        ProductItemFilterBottomSheet(
-            valueList = filterBottomSheetValueList,
-            onDismissRequest = { orderFilterType ->
-                orderFilterType?.let { value ->
-                    OrderFilterType.values()
-                        .first { context.getString(it.stringResourceID) == value }
-                        .let { viewModel.updateBrandListOrderFilterType(it) }
-                }
-                isFilterBottomSheetShow = false
-            }
-        )
     }
 
     Column(
         modifier = Modifier
     ) {
         BrandFilterTab(
-            genderFilter = genderFilterState,
-            genderFilterTabClicked = { viewModel.updateBrandListGenderFilterType(it) },
-            orderFilter = orderFilterState,
-            orderFilterTabClicked = { isFilterBottomSheetShow = true }
+            genderFilter = genderFilter,
+            onGenderFilterChange = { onGenderFilterChange(it) },
+            sortingMethod = sortingMethod,
+            onSortingMethodChange = { isFilterBottomSheetShow = true }
         )
-        brandItemList?.let { items ->
-            LazyColumn {
-                items(
-                    items = items,
-                    key = { it.id }
-                ) {
-                    BrandListItemLayout(
-                        brandName = it.name,
-                        subName = it.subName,
-                        thumbnailURL = it.thumbnail,
-                        maxDisCountString = it.maxDiscount,
-                        onClick = { onItemClick(it.id, it.name) }
-                    )
-                    Divider(
-                        thickness = 1.dp,
-                        startIndent = 1.dp,
-                        modifier = Modifier.height(1.dp)
-                    )
-                }
+        LazyColumn {
+            items(
+                items = brandItemList,
+                key = { it.id }
+            ) {
+                BrandListItemLayout(
+                    brandName = it.name,
+                    subName = it.subName,
+                    thumbnailURL = it.thumbnail,
+                    maxDisCountString = it.maxDiscount,
+                    onClick = { onItemClick(it.id, it.name) }
+                )
+                Divider(
+                    thickness = 1.dp,
+                    startIndent = 1.dp,
+                    modifier = Modifier.height(1.dp)
+                )
             }
         }
     }
@@ -115,14 +127,23 @@ fun BrandListScreen(
 @Preview(showSystemUi = true)
 @Composable
 fun BrandScreenListPreview() {
-    BrandListScreen(onItemClick = { id, name -> })
+    ABLEBODY_AndroidTheme {
+        BrandListScreen(
+            sortingMethod = SortingMethod.POPULAR,
+            onSortingMethodChange = {},
+            genderFilter = ItemGender.UNISEX,
+            onGenderFilterChange = {},
+            brandItemList = listOf(BrandMainResponseData(name="NIKE", id=3, thumbnail="", subName="나이키", brandGender=ItemGender.UNISEX, maxDiscount=0), BrandMainResponseData(name="Positive Me", id=36, thumbnail="", subName="포지티브미", brandGender= ItemGender.FEMALE, maxDiscount=0), BrandMainResponseData(name="MAVRK", id=30, thumbnail="", subName="매버릭", brandGender= ItemGender.MALE, maxDiscount=46), BrandMainResponseData(name="adidas", id=1, thumbnail="", subName="아디다스", brandGender=ItemGender.UNISEX, maxDiscount=0)),
+            onItemClick = { id, name -> }
+        )
+    }
 }
 
 @Composable
 fun BrandListItemLayout(
     brandName: String,
     subName: String,
-    thumbnailURL: String,
+    thumbnailURL: Any?,
     maxDisCountString: Int,
     onClick: () -> Unit
 ) {
@@ -231,58 +252,41 @@ fun BrandListItemLayoutPreview() {
 
 @Composable
 fun BrandFilterTab(
-    genderFilter: GenderFilterType,
-    genderFilterTabClicked: (GenderFilterType) -> Unit,
-    orderFilter: OrderFilterType,
-    orderFilterTabClicked: () -> Unit
+    sortingMethod: SortingMethod,
+    onSortingMethodChange: () -> Unit,
+    genderFilter: ItemGender,
+    onGenderFilterChange: (ItemGender) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        LazyRow(
-            modifier = Modifier.padding(start = 15.dp)
-        ) {
-            items(items = GenderFilterType.values()) { filterType ->
-                val animateTextColor by animateColorAsState(
-                    targetValue = if (genderFilter == filterType) AbleDark else SmallTextGrey,
-                )
-                val animateTextSize by animateIntAsState(
-                    targetValue = if (genderFilter == filterType) 700 else 500
-                )
-                Text(
-                    text = stringResource(id = filterType.stringResourceID),
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(animateTextSize),
-                        color = animateTextColor,
-                    ),
-                    modifier = Modifier
-                        .padding(end = 15.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = { genderFilterTabClicked(filterType) }
-                        )
-                )
-            }
+    DefaultFilterTabRow(
+        actionContent = {
+            DropDownFilterLayout(
+                value = sortingMethod.string,
+                onClick = onSortingMethodChange
+            )
         }
-        DropDownFilterLayout(
-            value = stringResource(id = orderFilter.stringResourceID),
-            onClick = orderFilterTabClicked
-        )
+    ) {
+        items(items = ItemGender.values()) {
+            DefaultFilterTabItem(
+                selected = genderFilter == it,
+                text = it.string,
+                onClick = { onGenderFilterChange(it) }
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun BrandFilterTabPreview() {
+fun BrandFilterTabPreview(
+    sortingMethod: SortingMethod = SortingMethod.POPULAR,
+    onSortingMethodChange: () -> Unit = {},
+    genderFilter: ItemGender = ItemGender.UNISEX,
+    onGenderFilterChange: (ItemGender) -> Unit = {},
+) {
     BrandFilterTab(
-        genderFilter = GenderFilterType.ALL,
-        genderFilterTabClicked = {  },
-        orderFilter = OrderFilterType.Popularity,
-        orderFilterTabClicked = {  }
+        sortingMethod = sortingMethod,
+        onSortingMethodChange = onSortingMethodChange,
+        genderFilter = genderFilter,
+        onGenderFilterChange = onGenderFilterChange,
     )
 }
