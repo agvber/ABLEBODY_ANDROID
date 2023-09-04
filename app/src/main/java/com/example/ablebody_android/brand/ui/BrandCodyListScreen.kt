@@ -26,6 +26,7 @@ import com.example.ablebody_android.CodyItemFilterTabFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabLayout
+import com.example.ablebody_android.utils.BackButtonTopBarLayout
 
 @Composable
 fun BrandCodyListScreen() {
@@ -43,6 +44,10 @@ fun BrandCodyListScreen() {
 
 
     Column {
+        BackButtonTopBarLayout(
+            onClick = { /*TODO*/ },
+            titleText = "오옴"
+        )
         AnimatedVisibility(visible = isFilterTabShow) {
             CodyItemFilterTabLayout(
                 selectedItemList = codyFilterSelectList,
@@ -60,8 +65,8 @@ fun BrandCodyListScreen() {
             items(items = (0..30).toList()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(data = R.drawable.cody_item_test)
-                        .placeholder(R.drawable.cody_item_test)
+                        .data(data = R.drawable.detail_page_image_test)
+                        .placeholder(R.drawable.detail_page_image_test)
                         .build(),
                     contentDescription = "cody recommended image",
                     contentScale = ContentScale.Crop
