@@ -22,15 +22,18 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -57,26 +60,34 @@ import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.theme.InactiveGrey
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CodyItemFilterBottomSheet(
     tabFilter: CodyItemFilterBottomSheetTabFilterType,
     onTabFilterChange: (CodyItemFilterBottomSheetTabFilterType) -> Unit,
-    gender: Gender,
-    sportItemList: SnapshotStateList<CodyItemFilterBottomSheetSportFilterType>,
+    genderSelectList: List<Gender>,
+    sportItemList: List<CodyItemFilterBottomSheetSportFilterType>,
     personHeight: CodyItemFilterBottomSheetPersonHeightFilterType,
-    onConfirmRequest: (Gender, SnapshotStateList<CodyItemFilterBottomSheetSportFilterType>, CodyItemFilterBottomSheetPersonHeightFilterType) -> Unit,
+    onConfirmRequest: (List<Gender>, List<CodyItemFilterBottomSheetSportFilterType>, CodyItemFilterBottomSheetPersonHeightFilterType) -> Unit,
     onResetRequest: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState,
 ) {
-    var genderState by remember { mutableStateOf(gender) }
-    val sportItemListState = remember { sportItemList }
+    val scope = rememberCoroutineScope()
+    val genderSelectListState = remember { mutableStateListOf<Gender>() }
+    val sportItemListState = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
     var personHeightState by remember { mutableStateOf(personHeight) }
+
+    SideEffect {
+        sportItemListState.apply { clear(); addAll(sportItemList) }
+        genderSelectListState.apply { clear(); addAll(genderSelectList) }
+    }
+
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = { onDismissRequest() },
         modifier = Modifier.height(500.dp),
         containerColor = White,
         sheetState = sheetState
@@ -92,8 +103,14 @@ fun CodyItemFilterBottomSheet(
                 when (tabFilter) {
                     CodyItemFilterBottomSheetTabFilterType.GENDER -> {
                         CodyItemFilterBottomSheetGenderContent(
-                            value = genderState,
-                            onChangeValue = { genderState = it }
+                            itemSelectedList = genderSelectListState,
+                            onChangeItem = { gender, checked ->
+                                if (checked) {
+                                    genderSelectListState.remove(gender)
+                                } else {
+                                    genderSelectListState.add(gender)
+                                }
+                            }
                         )
                     }
                     CodyItemFilterBottomSheetTabFilterType.SPORT -> {
@@ -129,7 +146,14 @@ fun CodyItemFilterBottomSheet(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 onResetRequest = onResetRequest,
                 onConfirmRequest = {
-                    onConfirmRequest(genderState, sportItemListState, personHeightState)
+                    onConfirmRequest(genderSelectListState, sportItemListState, personHeightState)
+                    scope.launch {
+                        if (sheetState.currentValue == SheetValue.Expanded && sheetState.hasPartiallyExpandedState) {
+                            scope.launch { sheetState.partialExpand() }
+                        } else { // Is expanded without collapsed state or is collapsed.
+                            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+                        }
+                    }
                 }
             )
         }
@@ -143,23 +167,23 @@ fun CodyItemFilterBottomSheetPreview() {
     ABLEBODY_AndroidTheme {
         val sheetState = rememberModalBottomSheetState()
         var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
-        var gender by remember { mutableStateOf(Gender.MALE) }
-        var sportItemList = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
+        val genderSelectList = remember { mutableStateListOf<Gender>() }
+        val sportItemList = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
         var personHeight by remember { mutableStateOf(CodyItemFilterBottomSheetPersonHeightFilterType.ALL) }
         CodyItemFilterBottomSheet(
-            gender = gender,
+            tabFilter = tabFilter,
+            onTabFilterChange =  { tabFilter = it },
+            genderSelectList = genderSelectList,
             sportItemList = sportItemList,
             personHeight = personHeight,
-            onConfirmRequest = { genderType, sportFilterTypeList, personHeightFilterType ->
-                gender = genderType
-                sportItemList = sportFilterTypeList
+            onConfirmRequest = { genderFilterTypeList, sportFilterTypeList, personHeightFilterType ->
+                genderSelectList.apply { clear(); addAll(genderFilterTypeList) }
+                sportItemList.apply { clear(); addAll(sportFilterTypeList) }
                 personHeight = personHeightFilterType
             },
             onResetRequest = {  },
             onDismissRequest = {  },
             sheetState = sheetState,
-            tabFilter = tabFilter,
-            onTabFilterChange =  { tabFilter = it }
         )
     }
 }
@@ -285,8 +309,8 @@ private fun CodyFilterBottomSheetBottomPreview() {
 @Composable
 private fun CodyItemFilterBottomSheetGenderContent(
     modifier: Modifier = Modifier,
-    value: Gender,
-    onChangeValue: (Gender) -> Unit
+    itemSelectedList: SnapshotStateList<Gender>,
+    onChangeItem: (Gender, Boolean) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -295,14 +319,15 @@ private fun CodyItemFilterBottomSheetGenderContent(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         for (gender in Gender.values()) {
+            val isContains by remember { derivedStateOf { itemSelectedList.contains(gender) } }
             val textColor by animateColorAsState(
-                targetValue = if (gender == value) AbleBlue else Color(0xFF505863)
+                targetValue = if (isContains) AbleBlue else Color(0xFF505863)
             )
             val backgroundColor by animateColorAsState(
-                targetValue = if (gender == value) Color(0xFFE9F1FE) else White
+                targetValue = if (isContains) Color(0xFFE9F1FE) else White
             )
             val strokeColor by animateColorAsState(
-                targetValue = if (gender == value) AbleBlue else Color(0xFFCCE1FF)
+                targetValue = if (isContains) AbleBlue else Color(0xFFCCE1FF)
             )
             val interactionSource = remember { MutableInteractionSource() }
             Surface(
@@ -311,7 +336,7 @@ private fun CodyItemFilterBottomSheetGenderContent(
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null,
-                        onClick = { onChangeValue(gender) }
+                        onClick = { onChangeItem(gender, isContains) }
                     ),
                 color = backgroundColor,
                 border = BorderStroke(width = 1.dp, color = strokeColor),
@@ -336,10 +361,12 @@ private fun CodyItemFilterBottomSheetGenderContent(
 @Composable
 private fun CodyItemFilterBottomSheetGenderContentPreview() {
     ABLEBODY_AndroidTheme {
-        var state by remember { mutableStateOf(Gender.MALE) }
+        val state = remember { mutableStateListOf<Gender>() }
         CodyItemFilterBottomSheetGenderContent(
-            value = state,
-            onChangeValue = { state = it }
+            itemSelectedList = state,
+            onChangeItem = { gender, checked ->
+                if (checked) state.remove(gender) else state.add(gender)
+            }
         )
     }
 }
