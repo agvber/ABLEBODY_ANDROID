@@ -68,7 +68,7 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                 data.filter {
                     when (gender) {
                         ItemGender.UNISEX -> true
-                        else -> it.brandGender == gender
+                        else -> it.brandGender == ItemGender.UNISEX || it.brandGender == gender
                     }
                 }
             }
