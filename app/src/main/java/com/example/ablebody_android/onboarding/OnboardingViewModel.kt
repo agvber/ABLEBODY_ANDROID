@@ -141,7 +141,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
                         tokenSharedPreferencesRepository.putAuthToken(it.authToken)
                         tokenSharedPreferencesRepository.putRefreshToken(it.refreshToken)
                     }
-                    CertificationNumberInfoMessageUiState.Success
+                    CertificationNumberInfoMessageUiState.Already
                 }
                 result.body()?.success == true -> {
                     CertificationNumberInfoMessageUiState.Success
