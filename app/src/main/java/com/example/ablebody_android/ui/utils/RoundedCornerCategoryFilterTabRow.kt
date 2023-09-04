@@ -1,12 +1,12 @@
 package com.example.ablebody_android.ui.utils
 
-import android.graphics.Color.parseColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,18 +29,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.theme.InactiveGrey
 import com.example.ablebody_android.ui.theme.White
 
 @Composable
-fun RoundedCornerCategoryFilterTab(
+fun RoundedCornerCategoryFilterTabRow(
     modifier: Modifier = Modifier,
-    filterStringList: List<String>,
-    value: String,
-    onValueChange: (String) -> Unit
+    content: LazyListScope.() -> Unit
 ) {
     LazyRow(
         modifier = modifier
@@ -55,35 +52,29 @@ fun RoundedCornerCategoryFilterTab(
                         return available.copy(y = 0f)
                     }
                 }
-            )
-    ) {
-        items(filterStringList) { text ->
-            val borderStrokeColor by animateColorAsState(
-                targetValue = if (value == text) AbleBlue else InactiveGrey
-            )
-            val backgroundColor by animateColorAsState(
-                targetValue = if (value == text) Color(parseColor("#E9F1FE")) else White
-            )
-            val textColor by animateColorAsState(
-                targetValue = if (value == text) AbleBlue else AbleDeep
-            )
-            val textWeight by animateIntAsState(
-                targetValue = if (value == text) 500 else 400
-            )
-            Card(
-                shape = RoundedCornerShape(size = 50.dp),
-                backgroundColor = backgroundColor,
-                border = BorderStroke(width = 1.dp, color = borderStrokeColor),
-                modifier = Modifier
-                    .padding(horizontal = 6.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onValueChange(text) }
-                    )
+            ),
+        content = content
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoundedCornerCategoryFilterTabRowPreview() {
+    var state by remember { mutableStateOf("") }
+    RoundedCornerCategoryFilterTabRow {
+        items(listOf("숏슬리브", "롱슬리브", "슬리브리스", "스웻&후디", "쇼츠", "팬츠", "레깅스")) {
+            RoundedCornerCategoryFilterTabItem(
+                selected = state == it,
+                onClick = { state = it }
             ) {
+                val textColor by animateColorAsState(
+                    targetValue = if (state == it) AbleBlue else AbleDeep
+                )
+                val textWeight by animateIntAsState(
+                    targetValue = if (state == it) 500 else 400
+                )
                 Text(
-                    text = text,
+                    text = it,
                     style = TextStyle(
                         fontSize = 13.sp,
                         lineHeight = 20.sp,
@@ -98,15 +89,40 @@ fun RoundedCornerCategoryFilterTab(
     }
 }
 
+@Composable
+fun RoundedCornerCategoryFilterTabItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val borderStrokeColor by animateColorAsState(
+        targetValue = if (selected) AbleBlue else InactiveGrey
+    )
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) Color(android.graphics.Color.parseColor("#E9F1FE")) else White
+    )
+    Card(
+        shape = RoundedCornerShape(size = 50.dp),
+        backgroundColor = backgroundColor,
+        border = BorderStroke(width = 1.dp, color = borderStrokeColor),
+        modifier = Modifier
+            .padding(horizontal = 6.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        content = content
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun RoundedCornerCategoryFilterTabPreview() {
-    var state by remember { mutableStateOf("") }
-    ABLEBODY_AndroidTheme {
-        RoundedCornerCategoryFilterTab(
-            filterStringList = listOf("숏슬리브", "롱슬리브", "슬리브리스", "스웻&후디", "쇼츠", "팬츠", "레깅스"),
-            value = state,
-            onValueChange = { state = it }
-        )
+fun RoundedCornerCategoryFilterTabItemPreview() {
+    RoundedCornerCategoryFilterTabItem(
+        selected = false,
+        onClick = {  },
+        ) {
+
     }
 }

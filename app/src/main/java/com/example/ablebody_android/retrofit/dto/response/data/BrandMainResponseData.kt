@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class BrandMainResponseData(
     val name: String,
-    val id: Int,
+    val id: Long,
     val thumbnail: String,
     @SerializedName("sub_name") val subName: String,
     @SerializedName("brand_gender") val brandGender: ItemGender,

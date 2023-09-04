@@ -1,6 +1,6 @@
 package com.example.ablebody_android.retrofit.dto.response
 
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetaiItemResponseData
+import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
@@ -17,7 +17,7 @@ typealias NewUserCreateResponse = AbleBodyResponse<NewUserCreateResponseData>
 typealias RefreshTokenResponse = AbleBodyResponse<RefreshTokenResponseData>
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
 typealias FCMTokenAndAppVersionUpdateResponse = AbleBodyResponse<FCMTokenAndAppVersionUpdateResponseData>
-typealias BrandMainResponse = AbleBodyListResponse<BrandMainResponseData>
-typealias BrandDetaiItemResponse = AbleBodyResponse<BrandDetaiItemResponseData>
+typealias BrandMainResponse = AbleBodyResponse<List<BrandMainResponseData>>
+typealias BrandDetailItemResponse = AbleBodyResponse<BrandDetailItemResponseData>
 typealias BrandDetailCodyResponse = AbleBodyResponse<BrandDetailCodyResponseData>
 

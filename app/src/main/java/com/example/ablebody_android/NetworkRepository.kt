@@ -8,7 +8,7 @@ import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
-import com.example.ablebody_android.retrofit.dto.response.BrandDetaiItemResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
@@ -89,8 +89,7 @@ class NetworkRepository(
         return networkService.brandMain(sort).execute()
     }
 
-    fun brandDetaiItem(
-        authToken: String,
+    fun brandDetailItem(
         sort: SortingMethod,
         brandId: Long,
         itemGender: ItemGender,
@@ -98,13 +97,17 @@ class NetworkRepository(
         childCategory: ItemChildCategory? = null,
         page: Int? = 0,
         size: Int? = 20
-    ): Response<BrandDetaiItemResponse>{
-        val header = "Bearer $authToken"
-        return networkService.brandDetaiItem(header, sort, brandId, itemGender, parentCategory, childCategory, page, size).execute()
-    }
+    ): Response<BrandDetailItemResponse> = networkService.brandDetailItem(
+        sort,
+        brandId,
+        itemGender,
+        parentCategory,
+        childCategory,
+        page,
+        size
+    ).execute()
 
     fun brandDetailCody(
-        authToken: String,
         brandId: Long,
         gender: List<Gender>,
         category: List<HomeCategory>,
@@ -113,8 +116,7 @@ class NetworkRepository(
         page: Int? = 0,
         size: Int? = 20
     ): Response<BrandDetailCodyResponse>{
-        val header = "Bearer $authToken"
-        return networkService.brandDetailCody(header, brandId, gender, category, height1, height2, page, size).execute()
+        return networkService.brandDetailCody(brandId, gender.toString().replace("[", "").replace("]", ""), category.toString().replace("[", "").replace("]", ""), height1, height2, page, size).execute()
     }
 
 

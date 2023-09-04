@@ -1,9 +1,8 @@
 package com.example.ablebody_android
 
-import com.google.gson.annotations.SerializedName
 
-enum class SortingMethod {
-    POPULAR,
-    RECENT,
-    @SerializedName("ALPHABET") NAME
+enum class SortingMethod(val string: String) {
+    POPULAR(string = "인기순"),
+    RECENT(string = "최신순"),
+    ALPHABET(string = "이름순")
 }

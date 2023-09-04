@@ -1,7 +1,5 @@
 package com.example.ablebody_android.retrofit
 
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
@@ -12,7 +10,7 @@ import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
-import com.example.ablebody_android.retrofit.dto.response.BrandDetaiItemResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
@@ -24,7 +22,6 @@ import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -73,8 +70,7 @@ interface NetworkAPI {
     ): Call<BrandMainResponse>
 
     @GET("/api/brand/detail/item")
-    fun brandDetaiItem(
-        @Header("Authorization") authorizationHeader: String,
+    fun brandDetailItem(
         @Query("sort") sort: SortingMethod,
         @Query("brandId") brandId: Long,
         @Query("itemGender") itemGender: ItemGender,
@@ -83,19 +79,17 @@ interface NetworkAPI {
         @Query("page") page: Int?,
         @Query("size") size: Int?
 
-    ): Call<BrandDetaiItemResponse>
+    ): Call<BrandDetailItemResponse>
 
     @GET("/api/brand/detail/cody")
     fun brandDetailCody(
-        @Header("Authorization") authorizationHeader: String,
         @Query("brandId") brandId: Long,
-        @Query("gender") gender: List<Gender>,
-        @Query("category") category: List<HomeCategory>,
+        @Query("gender") gender: String,
+        @Query("category") category: String,
         @Query("height1") height1: Int?,
         @Query("height2") height2: Int?,
         @Query("page") page: Int?,
         @Query("size") size: Int?
-
     ): Call<BrandDetailCodyResponse>
 
 }

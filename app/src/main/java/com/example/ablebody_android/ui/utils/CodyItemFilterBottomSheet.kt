@@ -49,7 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ablebody_android.CodyItemFilterBottomSheetPersonHeightFilterType
+import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.Gender
@@ -69,8 +69,8 @@ fun CodyItemFilterBottomSheet(
     onTabFilterChange: (CodyItemFilterBottomSheetTabFilterType) -> Unit,
     genderSelectList: List<Gender>,
     sportItemList: List<CodyItemFilterBottomSheetSportFilterType>,
-    personHeight: CodyItemFilterBottomSheetPersonHeightFilterType,
-    onConfirmRequest: (List<Gender>, List<CodyItemFilterBottomSheetSportFilterType>, CodyItemFilterBottomSheetPersonHeightFilterType) -> Unit,
+    personHeight: PersonHeightFilterType,
+    onConfirmRequest: (List<Gender>, List<CodyItemFilterBottomSheetSportFilterType>, PersonHeightFilterType) -> Unit,
     onResetRequest: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -96,13 +96,13 @@ fun CodyItemFilterBottomSheet(
             modifier = modifier.fillMaxSize()
         ) {
             Column {
-                CodyItemFilterBottomSheetFilterTabContent(
+                CodyItemFilterTabLayout(
                     value = tabFilter,
                     onValueChange = { onTabFilterChange(it) }
                 )
                 when (tabFilter) {
                     CodyItemFilterBottomSheetTabFilterType.GENDER -> {
-                        CodyItemFilterBottomSheetGenderContent(
+                        GenderSelectLayout(
                             itemSelectedList = genderSelectListState,
                             onChangeItem = { gender, checked ->
                                 if (checked) {
@@ -115,7 +115,7 @@ fun CodyItemFilterBottomSheet(
                     }
                     CodyItemFilterBottomSheetTabFilterType.SPORT -> {
                         val sportList by remember { derivedStateOf { CodyItemFilterBottomSheetSportFilterType.values().filter { it != CodyItemFilterBottomSheetSportFilterType.ALL } } }
-                        CodyItemFilterBottomSheetSportContent(
+                        SportSelectLayout(
                             checkedItemList = sportItemListState,
                             onCheckedChange = { sport, checked ->
                                 when (sport) {
@@ -135,7 +135,7 @@ fun CodyItemFilterBottomSheet(
                         )
                     }
                     CodyItemFilterBottomSheetTabFilterType.PERSON_HEIGHT -> {
-                        CodyItemFilterBottomSheetPersonHeightContent(
+                        PersonHeightSelectLayout(
                             value = personHeightState,
                             onValueChange = { personHeightState = it }
                         )
@@ -169,7 +169,7 @@ fun CodyItemFilterBottomSheetPreview() {
         var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
         val genderSelectList = remember { mutableStateListOf<Gender>() }
         val sportItemList = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
-        var personHeight by remember { mutableStateOf(CodyItemFilterBottomSheetPersonHeightFilterType.ALL) }
+        var personHeight by remember { mutableStateOf(PersonHeightFilterType.ALL) }
         CodyItemFilterBottomSheet(
             tabFilter = tabFilter,
             onTabFilterChange =  { tabFilter = it },
@@ -189,7 +189,7 @@ fun CodyItemFilterBottomSheetPreview() {
 }
 
 @Composable
-private fun CodyItemFilterBottomSheetFilterTabContent(
+private fun CodyItemFilterTabLayout(
     modifier: Modifier = Modifier,
     value: CodyItemFilterBottomSheetTabFilterType,
     onValueChange: (CodyItemFilterBottomSheetTabFilterType) -> Unit
@@ -223,10 +223,10 @@ private fun CodyItemFilterBottomSheetFilterTabContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun CodyItemFilterBottomSheetFilterTabContentPreview() {
+private fun CodyItemFilterTabLayoutPreview() {
     ABLEBODY_AndroidTheme {
         var state by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
-        CodyItemFilterBottomSheetFilterTabContent(
+        CodyItemFilterTabLayout(
             value = state,
             onValueChange = { state = it }
         )
@@ -307,7 +307,7 @@ private fun CodyFilterBottomSheetBottomPreview() {
 }
 
 @Composable
-private fun CodyItemFilterBottomSheetGenderContent(
+private fun GenderSelectLayout(
     modifier: Modifier = Modifier,
     itemSelectedList: SnapshotStateList<Gender>,
     onChangeItem: (Gender, Boolean) -> Unit
@@ -359,10 +359,10 @@ private fun CodyItemFilterBottomSheetGenderContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun CodyItemFilterBottomSheetGenderContentPreview() {
+private fun GenderSelectLayoutPreview() {
     ABLEBODY_AndroidTheme {
         val state = remember { mutableStateListOf<Gender>() }
-        CodyItemFilterBottomSheetGenderContent(
+        GenderSelectLayout(
             itemSelectedList = state,
             onChangeItem = { gender, checked ->
                 if (checked) state.remove(gender) else state.add(gender)
@@ -372,7 +372,7 @@ private fun CodyItemFilterBottomSheetGenderContentPreview() {
 }
 
 @Composable
-private fun CodyItemFilterBottomSheetSportContent(
+private fun SportSelectLayout(
     modifier: Modifier = Modifier,
     checkedItemList: List<CodyItemFilterBottomSheetSportFilterType>,
     onCheckedChange: (CodyItemFilterBottomSheetSportFilterType, Boolean) -> Unit
@@ -419,10 +419,10 @@ private fun CodyItemFilterBottomSheetSportContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun CodyItemFilterBottomSheetSportContentPreview() {
+private fun SportSelectLayoutPreview() {
     val state = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
     val sportList = CodyItemFilterBottomSheetSportFilterType.values().filter { it != CodyItemFilterBottomSheetSportFilterType.ALL }
-    CodyItemFilterBottomSheetSportContent(
+    SportSelectLayout(
         checkedItemList = state,
         onCheckedChange = { sport, checked ->
             when (sport) {
@@ -443,10 +443,10 @@ private fun CodyItemFilterBottomSheetSportContentPreview() {
     )
 }
 @Composable
-private fun CodyItemFilterBottomSheetPersonHeightContent(
+private fun PersonHeightSelectLayout(
     modifier: Modifier = Modifier,
-    value: CodyItemFilterBottomSheetPersonHeightFilterType,
-    onValueChange: (CodyItemFilterBottomSheetPersonHeightFilterType) -> Unit
+    value: PersonHeightFilterType,
+    onValueChange: (PersonHeightFilterType) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -455,7 +455,7 @@ private fun CodyItemFilterBottomSheetPersonHeightContent(
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(items = CodyItemFilterBottomSheetPersonHeightFilterType.values()) { personHeight ->
+        items(items = PersonHeightFilterType.values()) { personHeight ->
             val interaction = remember { MutableInteractionSource() }
             Row(
                 modifier = Modifier.clickable(
@@ -490,9 +490,9 @@ private fun CodyItemFilterBottomSheetPersonHeightContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun CodyItemFilterBottomSheetPersonHeightContentPreview() {
-    var state by remember { mutableStateOf(CodyItemFilterBottomSheetPersonHeightFilterType.ALL) }
-    CodyItemFilterBottomSheetPersonHeightContent(
+private fun PersonHeightSelectLayoutPreview() {
+    var state by remember { mutableStateOf(PersonHeightFilterType.ALL) }
+    PersonHeightSelectLayout(
         value = state,
         onValueChange = { height ->
             state = height

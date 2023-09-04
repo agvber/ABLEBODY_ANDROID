@@ -40,7 +40,7 @@ object NetworkService {
                 val newRequest = request().newBuilder()
                     .addHeader("Authorization", "Bearer ${tokenSharedPreferencesRepository.getAuthToken()}")
                     .build()
-                proceed(newRequest)
+                return@with proceed(newRequest)
             }
         }
         .authenticator(TokenAuthenticator(tokenSharedPreferencesRepository, networkRepository))
