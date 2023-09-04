@@ -6,18 +6,18 @@ import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.retrofit.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
-import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
-import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
-import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
-import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
+import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
+import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
-import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
+import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
+import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -86,10 +86,10 @@ interface NetworkAPI {
         @Query("brandId") brandId: Long,
         @Query("gender") gender: String,
         @Query("category") category: String,
-        @Query("height1") height1: Int?,
-        @Query("height2") height2: Int?,
+        @Query("height1") personHeightRangeStart: Int?,
+        @Query("height2") personHeightRangeEnd: Int?,
         @Query("page") page: Int?,
-        @Query("size") size: Int?
+        @Query("size") size: Int?,
     ): Call<BrandDetailCodyResponse>
 
 }

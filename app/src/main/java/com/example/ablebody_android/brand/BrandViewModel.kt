@@ -201,14 +201,6 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
     val codyItemList: StateFlow<BrandDetailCodyResponseData?> =
         combine(contentID, codyItemListGenderFilter, codyItemListSportFilter) { id, gender, sport ->
 
-//            val homeCategory = when(sport) {
-//                CodyItemFilterBottomSheetSportFilterType.ALL -> { listOf(HomeCategory.PILATES, HomeCategory.GYMWEAR, HomeCategory.TENNIS, HomeCategory.RUNNING) }
-//                CodyItemFilterBottomSheetSportFilterType.RUNNING -> { listOf(HomeCategory.RUNNING) }
-//                CodyItemFilterBottomSheetSportFilterType.PILATES -> { listOf(HomeCategory.PILATES) }
-//                CodyItemFilterBottomSheetSportFilterType.TENNIS -> { listOf(listOf(HomeCategory.TENNIS)) }
-//                CodyItemFilterBottomSheetSportFilterType.WEIGHT -> { listOf(listOf(HomeCategory.GYMWEAR)) }
-//            }
-
             id?.let { id ->
                 networkRepository.brandDetailCody(
                     brandId = id,

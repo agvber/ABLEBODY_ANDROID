@@ -111,13 +111,20 @@ class NetworkRepository(
         brandId: Long,
         gender: List<Gender>,
         category: List<HomeCategory>,
-        height1: Int? = null,
-        height2: Int? = null,
+        personHeightRangeStart: Int? = null,
+        personHeightRangeEnd: Int? = null,
         page: Int? = 0,
         size: Int? = 20
-    ): Response<BrandDetailCodyResponse>{
-        return networkService.brandDetailCody(brandId, gender.toString().replace("[", "").replace("]", ""), category.toString().replace("[", "").replace("]", ""), height1, height2, page, size).execute()
-    }
+    ): Response<BrandDetailCodyResponse> = networkService.brandDetailCody(
+        brandId,
+        removeSquareBrackets(gender),
+        removeSquareBrackets(category),
+        personHeightRangeStart,
+        personHeightRangeEnd,
+        page,
+        size
+    ).execute()
 
-
+    private fun<T> removeSquareBrackets(list: List<T>) =
+        list.joinToString (",","","",-1)
 }

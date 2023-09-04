@@ -73,8 +73,8 @@ class BrandApiUnitTest {
             brandId = 3,
             gender = genders,
             category = categories,
-            height1 = null,
-            height2 = null,
+            personHeightRangeStart = null,
+            personHeightRangeEnd = null,
             page = 0,
             size = 20
         )
