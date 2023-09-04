@@ -116,7 +116,7 @@ class NetworkRepository(
         page: Int? = 0,
         size: Int? = 20
     ): Response<BrandDetailCodyResponse>{
-        return networkService.brandDetailCody(brandId, gender.toString(), category.toString(), height1, height2, page, size).execute()
+        return networkService.brandDetailCody(brandId, gender.toString().replace("[", "").replace("]", ""), category.toString().replace("[", "").replace("]", ""), height1, height2, page, size).execute()
     }
 
 

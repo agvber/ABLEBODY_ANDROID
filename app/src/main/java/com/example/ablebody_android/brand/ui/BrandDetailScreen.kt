@@ -35,12 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
+import com.example.ablebody_android.Gender
 import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
+import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -69,9 +73,15 @@ fun BrandDetailRoute(
         onProductItemChildFilterChange = { viewModel.updateBrandProductItemChildFilter(it) },
         productItemGender = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
         onProductItemGenderChange = { viewModel.updateBrandProductItemGender(it) },
-        productItems = viewModel.productItemList.collectAsStateWithLifecycle().value
+        productItems = viewModel.productItemList.collectAsStateWithLifecycle().value,
+        codyItemListGenderFilterList = viewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListGenderFilterChange = { viewModel.updateCodyItemListGendersFilter(it) },
+        codyItemListSportFilter = viewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListSportFilterChange = { viewModel.updateCodyItemListSportFilter(it) },
+        codyItemListPersonHeightFilter = viewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListPersonHeightFilterChange = { viewModel.updateCodyItemListPersonHeightFilter(it) },
+        codyItemList = viewModel.codyItemList.collectAsStateWithLifecycle().value,
     )
-
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,7 +97,14 @@ fun BrandDetailScreen(
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit,
     productItemGender: ItemGender,
     onProductItemGenderChange: (ItemGender) -> Unit,
-    productItems: BrandDetailItemResponseData?
+    productItems: BrandDetailItemResponseData?,
+    codyItemListGenderFilterList: List<Gender>,
+    onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
+    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType>,
+    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit,
+    codyItemListPersonHeightFilter: PersonHeightFilterType,
+    onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
+    codyItemList: BrandDetailCodyResponseData?
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -119,7 +136,15 @@ fun BrandDetailScreen(
                             onGenderChange = { onProductItemGenderChange(it) },
                             productItems = productItems
                     )
-                    1 -> BrandCodyItemListLayout()
+                    1 -> BrandCodyItemListLayout(
+                        codyItemListGenderFilterList = codyItemListGenderFilterList,
+                        onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
+                        codyItemListSportFilter = codyItemListSportFilter,
+                        onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
+                        codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
+                        onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
+                        codyItemList = codyItemList
+                    )
                 }
             }
         }
@@ -140,7 +165,14 @@ fun BrandDetailScreenPreview(
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
     productItemGender: ItemGender = ItemGender.UNISEX,
     onProductItemGenderChange: (ItemGender) -> Unit ={},
-    productItems: BrandDetailItemResponseData = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false)
+    productItems: BrandDetailItemResponseData = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
+    codyItemListGenderFilterList: List<Gender> = listOf(),
+    onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
+    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType> = listOf(),
+    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit = {},
+    codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
+    onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
+    codyItemList: BrandDetailCodyResponseData? = null
 ) {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
@@ -155,7 +187,14 @@ fun BrandDetailScreenPreview(
             onProductItemChildFilterChange = onProductItemChildFilterChange,
             productItemGender = productItemGender,
             onProductItemGenderChange = onProductItemGenderChange,
-            productItems = productItems
+            productItems = productItems,
+            codyItemListGenderFilterList = codyItemListGenderFilterList,
+            onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
+            codyItemListSportFilter = codyItemListSportFilter,
+            onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
+            codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
+            onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
+            codyItemList = codyItemList
         )
     }
 }
