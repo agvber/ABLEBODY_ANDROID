@@ -82,7 +82,7 @@ fun BrandDetailScreenPreview() {
 }
 
 @Composable
-private fun BrandDetailTopBarLayout(
+fun BrandDetailTopBarLayout(
     titleText: String,
     backButtonClicked: () -> Unit,
     selectedTabIndex: Int,

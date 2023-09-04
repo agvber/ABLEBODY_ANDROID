@@ -1,37 +1,32 @@
 package com.example.ablebody_android.brand.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.ablebody_android.CodyItemFilterBottomSheetPersonHeightFilterType
-import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
-import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.CodyItemFilterTabFilterType
-import com.example.ablebody_android.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
-import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabLayout
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandCodyListScreen() {
     val codyFilterSelectList = remember { mutableStateListOf<CodyItemFilterTabFilterType>() }
@@ -66,46 +61,17 @@ fun BrandCodyListScreen() {
                     codyFilterSelectList.remove(CodyItemFilterTabFilterType.FEMALE)
                 }
 
-                if (sportItemList.containsAll(CodyItemFilterBottomSheetSportFilterType.values().toList())) {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.SPORT)
-                } else {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.SPORT)
-                }
-
-                if (personHeight == CodyItemFilterBottomSheetPersonHeightFilterType.ALL) {
-                    codyFilterSelectList.remove(CodyItemFilterTabFilterType.HEIGHT)
-                } else {
-                    codyFilterSelectList.add(CodyItemFilterTabFilterType.HEIGHT)
-                }
-            },
-            onResetRequest = {  },
-            onDismissRequest = { isCodyItemFilterBottomSheetShow = false },
-            sheetState = sheetState,
-            tabFilter = tabFilter,
-            onTabFilterChange =  { tabFilter = it }
-        )
-    }
 
     Column {
-        CodyItemFilterTabLayout(
-            selectedItemList = codyFilterSelectList,
-            onItemSelectChange = { codyFilterType, checked ->
-                when(codyFilterType) {
-                    CodyItemFilterTabFilterType.SPORT -> {
-                        tabFilter = CodyItemFilterBottomSheetTabFilterType.SPORT
-                        isCodyItemFilterBottomSheetShow = true
-                    }
-                    CodyItemFilterTabFilterType.HEIGHT -> {
-                        tabFilter = CodyItemFilterBottomSheetTabFilterType.PERSON_HEIGHT
-                        isCodyItemFilterBottomSheetShow = true
-                    }
-                    else -> {
-                        if (checked) {
-                            codyFilterSelectList.remove(codyFilterType)
-                        } else {
-                            codyFilterSelectList.add(codyFilterType)
-                        }
-                    }
+        BackButtonTopBarLayout(
+            onClick = { /*TODO*/ },
+            titleText = "오옴"
+        )
+        AnimatedVisibility(visible = isFilterTabShow) {
+            CodyItemFilterTabLayout(
+                selectedItemList = codyFilterSelectList,
+                onItemSelectChange = { codyFilterType, checked ->
+                    if (checked) codyFilterSelectList.remove(codyFilterType) else codyFilterSelectList.add(codyFilterType)
                 }
             }
         )
