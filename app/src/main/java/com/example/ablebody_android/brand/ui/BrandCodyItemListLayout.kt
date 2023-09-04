@@ -19,9 +19,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.Gender
+import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
@@ -33,10 +33,11 @@ import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandCodyItemListLayout(
+    resetRequest: () -> Unit,
     codyItemListGenderFilterList: List<Gender>,
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
-    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType>,
-    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit,
+    codyItemListSportFilter: List<HomeCategory>,
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
     codyItemList: BrandDetailCodyResponseData?
@@ -46,27 +47,26 @@ fun BrandCodyItemListLayout(
     var isCodyItemFilterBottomSheetShow by remember { mutableStateOf(false) }
     var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
 
-    if (isCodyItemFilterBottomSheetShow) {
-        CodyItemFilterBottomSheet(
-            genderSelectList = codyItemListGenderFilterList,
-            sportItemList = codyItemListSportFilter,
-            personHeight = codyItemListPersonHeightFilter,
-            onConfirmRequest = { genderFilterTypeList, sportFilterTypeList, personHeightFilterType ->
-                onCodyItemListGenderFilterChange(genderFilterTypeList)
-                onCodyItemListSportFilterChange(sportFilterTypeList)
-                onCodyItemListPersonHeightFilterChange(personHeightFilterType)
-            },
-            onResetRequest = {  },
-            onDismissRequest = { isCodyItemFilterBottomSheetShow = false },
-            sheetState = sheetState,
-            tabFilter = tabFilter,
-            onTabFilterChange =  { tabFilter = it }
-        )
-    }
-
     Column {
+        if (isCodyItemFilterBottomSheetShow) {
+            CodyItemFilterBottomSheet(
+                genderSelectList = codyItemListGenderFilterList,
+                sportItemList = codyItemListSportFilter,
+                personHeight = codyItemListPersonHeightFilter,
+                onConfirmRequest = { genderFilterTypeList, sportFilterTypeList, personHeightFilterType ->
+                    onCodyItemListGenderFilterChange(genderFilterTypeList)
+                    onCodyItemListSportFilterChange(sportFilterTypeList)
+                    onCodyItemListPersonHeightFilterChange(personHeightFilterType)
+                },
+                onDismissRequest = { isCodyItemFilterBottomSheetShow = false },
+                sheetState = sheetState,
+                tabFilter = tabFilter,
+                onTabFilterChange =  { tabFilter = it }
+            )
+        }
+
         CodyItemFilterTabRow(
-            resetRequest = { /*TODO*/ }
+            resetRequest = resetRequest
         ) {
             CodyItemFilterTabRowItem(
                 selected = codyItemListGenderFilterList.contains(Gender.MALE),
@@ -91,7 +91,7 @@ fun BrandCodyItemListLayout(
                 }
             )
             CodyItemFilterTabRowItem(
-                selected = !codyItemListSportFilter.contains(CodyItemFilterBottomSheetSportFilterType.ALL),
+                selected = codyItemListSportFilter.isNotEmpty(),
                 isPopup = true,
                 text = "종목",
                 onClick = {
@@ -134,15 +134,17 @@ fun BrandCodyItemListLayout(
 @Preview(showSystemUi = true)
 @Composable
 fun BrandCodyListScreenPreview(
+    resetRequest: () -> Unit = {},
     codyItemListGenderFilterList: List<Gender> = listOf(),
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
-    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType> = listOf(),
-    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit = {},
+    codyItemListSportFilter: List<HomeCategory> = listOf(),
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {}
 ) {
     ABLEBODY_AndroidTheme {
         BrandCodyItemListLayout(
+            resetRequest = resetRequest,
             codyItemListGenderFilterList = codyItemListGenderFilterList,
             onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
             codyItemListSportFilter = codyItemListSportFilter,

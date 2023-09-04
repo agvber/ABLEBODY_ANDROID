@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.Gender
+import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
@@ -58,34 +58,36 @@ fun BrandDetailRoute(
     onBackClick: () -> Unit,
     contentID: Long?,
     contentName: String,
-    viewModel: BrandViewModel = viewModel()
+    brandViewModel: BrandViewModel = viewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { contentID?.let { viewModel.updateContentID(it) } }
+    LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
     BrandDetailScreen(
+        resetRequest = { brandViewModel.resetCodyItemListFilter() },
         onBackClick = onBackClick,
         contentName = contentName,
-        productItemSortingMethod = viewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
-        onProductItemSortingMethodChange = { viewModel.updateBrandProductItemOrderFilterType(it) },
-        productItemParentFilter = viewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        onProductItemParentFilterChange = { viewModel.updateBrandProductItemParentFilter(it) },
-        productItemChildCategory = viewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
-        productItemChildFilter = viewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-        onProductItemChildFilterChange = { viewModel.updateBrandProductItemChildFilter(it) },
-        productItemGender = viewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        onProductItemGenderChange = { viewModel.updateBrandProductItemGender(it) },
-        productItems = viewModel.productItemList.collectAsStateWithLifecycle().value,
-        codyItemListGenderFilterList = viewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListGenderFilterChange = { viewModel.updateCodyItemListGendersFilter(it) },
-        codyItemListSportFilter = viewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListSportFilterChange = { viewModel.updateCodyItemListSportFilter(it) },
-        codyItemListPersonHeightFilter = viewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListPersonHeightFilterChange = { viewModel.updateCodyItemListPersonHeightFilter(it) },
-        codyItemList = viewModel.codyItemList.collectAsStateWithLifecycle().value,
+        productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
+        onProductItemSortingMethodChange = { brandViewModel.updateBrandProductItemOrderFilterType(it) },
+        productItemParentFilter = brandViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
+        onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
+        productItemChildCategory = brandViewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
+        productItemChildFilter = brandViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
+        onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
+        productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
+        onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
+        productItems = brandViewModel.productItemList.collectAsStateWithLifecycle().value,
+        codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
+        codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
+        codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
+        onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
+        codyItemList = brandViewModel.codyItemList.collectAsStateWithLifecycle().value,
     )
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrandDetailScreen(
+    resetRequest: () -> Unit,
     onBackClick: () -> Unit,
     contentName: String,
     productItemSortingMethod: SortingMethod,
@@ -100,8 +102,8 @@ fun BrandDetailScreen(
     productItems: BrandDetailItemResponseData?,
     codyItemListGenderFilterList: List<Gender>,
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
-    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType>,
-    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit,
+    codyItemListSportFilter: List<HomeCategory>,
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
     codyItemList: BrandDetailCodyResponseData?
@@ -137,6 +139,7 @@ fun BrandDetailScreen(
                             productItems = productItems
                     )
                     1 -> BrandCodyItemListLayout(
+                        resetRequest = resetRequest,
                         codyItemListGenderFilterList = codyItemListGenderFilterList,
                         onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
                         codyItemListSportFilter = codyItemListSportFilter,
@@ -154,6 +157,7 @@ fun BrandDetailScreen(
 @Preview(showBackground = true)
 @Composable
 fun BrandDetailScreenPreview(
+    resetRequest: () -> Unit = {},
     onBackClick: () -> Unit = {},
     contentName: String = "",
     productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
@@ -168,14 +172,15 @@ fun BrandDetailScreenPreview(
     productItems: BrandDetailItemResponseData = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
     codyItemListGenderFilterList: List<Gender> = listOf(),
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
-    codyItemListSportFilter: List<CodyItemFilterBottomSheetSportFilterType> = listOf(),
-    onCodyItemListSportFilterChange: (List<CodyItemFilterBottomSheetSportFilterType>) -> Unit = {},
+    codyItemListSportFilter: List<HomeCategory> = listOf(),
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
     codyItemList: BrandDetailCodyResponseData? = null
 ) {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
+            resetRequest = resetRequest,
             onBackClick = onBackClick,
             contentName = contentName,
             productItemSortingMethod = productItemSortingMethod,

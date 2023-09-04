@@ -3,7 +3,6 @@ package com.example.ablebody_android.brand
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.ItemChildCategory
@@ -177,17 +176,17 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
             )
 
 
-    private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf(Gender.MALE))
+    private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf())
     val codyItemListGenderFilter = _codyItemListGenderFilter.asStateFlow()
 
     fun updateCodyItemListGendersFilter(genders: List<Gender>) {
         viewModelScope.launch { _codyItemListGenderFilter.emit(genders) }
     }
 
-    private val _codyItemListSportFilter = MutableStateFlow<List<CodyItemFilterBottomSheetSportFilterType>>(listOf())
+    private val _codyItemListSportFilter = MutableStateFlow<List<HomeCategory>>(listOf())
     val codyItemListSportFilter = _codyItemListSportFilter.asStateFlow()
 
-    fun updateCodyItemListSportFilter(sports: List<CodyItemFilterBottomSheetSportFilterType>) {
+    fun updateCodyItemListSportFilter(sports: List<HomeCategory>) {
         viewModelScope.launch { _codyItemListSportFilter.emit(sports) }
     }
 
@@ -198,14 +197,28 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch { _codyItemListPersonHeightFilter.emit(sports) }
     }
 
-    val codyItemList: StateFlow<BrandDetailCodyResponseData?> =
-        combine(contentID, codyItemListGenderFilter, codyItemListSportFilter) { id, gender, sport ->
+    fun resetCodyItemListFilter() {
+        viewModelScope.launch {
+            _codyItemListGenderFilter.emit(listOf())
+            _codyItemListSportFilter.emit(listOf())
+            _codyItemListPersonHeightFilter.emit(PersonHeightFilterType.ALL)
+        }
+    }
 
+    val codyItemList: StateFlow<BrandDetailCodyResponseData?> =
+        combine(
+            contentID,
+            codyItemListGenderFilter,
+            codyItemListSportFilter,
+            codyItemListPersonHeightFilter
+        ) { id, gender, sport, height ->
             id?.let { id ->
                 networkRepository.brandDetailCody(
                     brandId = id,
                     gender = gender,
-                    category = listOf(HomeCategory.GYMWEAR)
+                    category = sport,
+                    personHeightRangeStart = height.rangeStart,
+                    personHeightRangeEnd = height.rangeEnd
                 ).body()?.data
             }
         }

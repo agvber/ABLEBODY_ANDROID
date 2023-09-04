@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -36,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,10 +48,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ablebody_android.PersonHeightFilterType
-import com.example.ablebody_android.CodyItemFilterBottomSheetSportFilterType
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.Gender
+import com.example.ablebody_android.HomeCategory
+import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -68,23 +67,17 @@ fun CodyItemFilterBottomSheet(
     tabFilter: CodyItemFilterBottomSheetTabFilterType,
     onTabFilterChange: (CodyItemFilterBottomSheetTabFilterType) -> Unit,
     genderSelectList: List<Gender>,
-    sportItemList: List<CodyItemFilterBottomSheetSportFilterType>,
+    sportItemList: List<HomeCategory>,
     personHeight: PersonHeightFilterType,
-    onConfirmRequest: (List<Gender>, List<CodyItemFilterBottomSheetSportFilterType>, PersonHeightFilterType) -> Unit,
-    onResetRequest: () -> Unit,
+    onConfirmRequest: (List<Gender>, List<HomeCategory>, PersonHeightFilterType) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState,
 ) {
     val scope = rememberCoroutineScope()
-    val genderSelectListState = remember { mutableStateListOf<Gender>() }
-    val sportItemListState = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
+    val genderSelectListState = remember { genderSelectList.toMutableStateList() }
+    val sportItemListState = remember { sportItemList.toMutableStateList() }
     var personHeightState by remember { mutableStateOf(personHeight) }
-
-    SideEffect {
-        sportItemListState.apply { clear(); addAll(sportItemList) }
-        genderSelectListState.apply { clear(); addAll(genderSelectList) }
-    }
 
     ModalBottomSheet(
         onDismissRequest = { onDismissRequest() },
@@ -114,23 +107,10 @@ fun CodyItemFilterBottomSheet(
                         )
                     }
                     CodyItemFilterBottomSheetTabFilterType.SPORT -> {
-                        val sportList by remember { derivedStateOf { CodyItemFilterBottomSheetSportFilterType.values().filter { it != CodyItemFilterBottomSheetSportFilterType.ALL } } }
                         SportSelectLayout(
                             checkedItemList = sportItemListState,
                             onCheckedChange = { sport, checked ->
-                                when (sport) {
-                                    CodyItemFilterBottomSheetSportFilterType.ALL -> {
-                                        if (checked) sportItemListState.clear() else sportItemListState.addAll(CodyItemFilterBottomSheetSportFilterType.values())
-                                    }
-                                    else -> {
-                                        if (checked) sportItemListState.remove(sport) else sportItemListState.add(sport)
-                                        if (sportItemListState.containsAll(sportList)) {
-                                            sportItemListState.add(CodyItemFilterBottomSheetSportFilterType.ALL)
-                                        } else {
-                                            sportItemListState.remove(CodyItemFilterBottomSheetSportFilterType.ALL)
-                                        }
-                                    }
-                                }
+                                if (checked) sportItemListState.remove(sport) else sportItemListState.add(sport)
                             }
                         )
                     }
@@ -144,7 +124,11 @@ fun CodyItemFilterBottomSheet(
             }
             CodyFilterBottomSheetBottom(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                onResetRequest = onResetRequest,
+                onResetRequest = {
+                    genderSelectListState.clear()
+                    sportItemListState.clear()
+                    personHeightState = PersonHeightFilterType.ALL
+                },
                 onConfirmRequest = {
                     onConfirmRequest(genderSelectListState, sportItemListState, personHeightState)
                     scope.launch {
@@ -168,7 +152,7 @@ fun CodyItemFilterBottomSheetPreview() {
         val sheetState = rememberModalBottomSheetState()
         var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
         val genderSelectList = remember { mutableStateListOf<Gender>() }
-        val sportItemList = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
+        val sportItemList = remember { mutableStateListOf<HomeCategory>() }
         var personHeight by remember { mutableStateOf(PersonHeightFilterType.ALL) }
         CodyItemFilterBottomSheet(
             tabFilter = tabFilter,
@@ -181,7 +165,6 @@ fun CodyItemFilterBottomSheetPreview() {
                 sportItemList.apply { clear(); addAll(sportFilterTypeList) }
                 personHeight = personHeightFilterType
             },
-            onResetRequest = {  },
             onDismissRequest = {  },
             sheetState = sheetState,
         )
@@ -374,73 +357,81 @@ private fun GenderSelectLayoutPreview() {
 @Composable
 private fun SportSelectLayout(
     modifier: Modifier = Modifier,
-    checkedItemList: List<CodyItemFilterBottomSheetSportFilterType>,
-    onCheckedChange: (CodyItemFilterBottomSheetSportFilterType, Boolean) -> Unit
+    checkedItemList: List<HomeCategory>,
+    onCheckedChange: (HomeCategory, Boolean) -> Unit
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
             .padding(vertical = 16.dp)
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(items = CodyItemFilterBottomSheetSportFilterType.values()) { sport ->
-            val interaction = remember { MutableInteractionSource() }
-            Row(
-                modifier = Modifier.clickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    onClick = { onCheckedChange(sport, checkedItemList.contains(sport)) }
-                )
-            ) {
-                val checkBoxResourceID = if (checkedItemList.contains(sport)) {
-                    R.drawable.ic_product_item_filter_bottom_sheet_check_box_enable
-                } else {
-                    R.drawable.ic_product_item_filter_bottom_sheet_check_box_disable
-                }
-                Image(
-                    painter = painterResource(id = checkBoxResourceID),
-                    contentDescription = "check box"
-                )
-                Text(
-                    text = sport.string,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF000000),
-                    ),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
+        SportSelectItem(
+            checked = checkedItemList.contains(HomeCategory.GYMWEAR),
+            text = "웨이트",
+            onClick = { checked -> onCheckedChange(HomeCategory.GYMWEAR, checked) }
+        )
+        SportSelectItem(
+            checked = checkedItemList.contains(HomeCategory.PILATES),
+            text = "필라테스",
+            onClick = { checked -> onCheckedChange(HomeCategory.PILATES, checked) }
+        )
+        SportSelectItem(
+            checked = checkedItemList.contains(HomeCategory.RUNNING),
+            text = "러닝",
+            onClick = { checked -> onCheckedChange(HomeCategory.RUNNING, checked) }
+        )
+        SportSelectItem(
+            checked = checkedItemList.contains(HomeCategory.TENNIS),
+            text = "테니스",
+            onClick = { checked -> onCheckedChange(HomeCategory.TENNIS, checked) }
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun SportSelectLayoutPreview() {
-    val state = remember { mutableStateListOf<CodyItemFilterBottomSheetSportFilterType>() }
-    val sportList = CodyItemFilterBottomSheetSportFilterType.values().filter { it != CodyItemFilterBottomSheetSportFilterType.ALL }
     SportSelectLayout(
-        checkedItemList = state,
-        onCheckedChange = { sport, checked ->
-            when (sport) {
-                CodyItemFilterBottomSheetSportFilterType.ALL -> {
-                    if (checked) state.clear() else state.addAll(CodyItemFilterBottomSheetSportFilterType.values())
-                }
-                else -> {
-                    if (checked) state.remove(sport) else state.add(sport)
-
-                    if (state.containsAll(sportList)) {
-                        state.add(CodyItemFilterBottomSheetSportFilterType.ALL)
-                    } else {
-                        state.remove(CodyItemFilterBottomSheetSportFilterType.ALL)
-                    }
-                }
-            }
-        }
+        checkedItemList = listOf(),
+        onCheckedChange = { sport, checked -> }
     )
+}
+
+@Composable
+private fun SportSelectItem(
+    checked: Boolean,
+    text: String,
+    onClick: (Boolean) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { onClick(checked) }
+        )
+    ) {
+        val checkBoxResourceID = if (checked) {
+            R.drawable.ic_product_item_filter_bottom_sheet_check_box_enable
+        } else {
+            R.drawable.ic_product_item_filter_bottom_sheet_check_box_disable
+        }
+        Image(
+            painter = painterResource(id = checkBoxResourceID),
+            contentDescription = "check box"
+        )
+        Text(
+            text = text,
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF000000),
+            )
+        )
+    }
 }
 @Composable
 private fun PersonHeightSelectLayout(
@@ -448,43 +439,38 @@ private fun PersonHeightSelectLayout(
     value: PersonHeightFilterType,
     onValueChange: (PersonHeightFilterType) -> Unit
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
             .padding(vertical = 16.dp)
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(items = PersonHeightFilterType.values()) { personHeight ->
-            val interaction = remember { MutableInteractionSource() }
-            Row(
-                modifier = Modifier.clickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    onClick = { onValueChange(personHeight) }
-                )
-            ) {
-                val checkBoxResourceID = if (value == personHeight) {
-                    R.drawable.ic_product_item_filter_bottom_sheet_toggle_box_enable
-                } else {
-                    R.drawable.ic_product_item_filter_bottom_sheet_toggle_box_disable
-                }
-                Image(
-                    painter = painterResource(id = checkBoxResourceID),
-                    contentDescription = "check box"
-                )
-                Text(
-                    text = personHeight.string,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFF000000),
-                    ),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
+        PersonHeightSelectItem(
+            checked = value == PersonHeightFilterType.ALL,
+            text = "전체",
+            onClick = { onValueChange(PersonHeightFilterType.ALL) }
+        )
+        PersonHeightSelectItem(
+            checked = value == PersonHeightFilterType.FROM_150_TO_160,
+            text = "150~160cm",
+            onClick = { onValueChange(PersonHeightFilterType.FROM_150_TO_160) }
+        )
+        PersonHeightSelectItem(
+            checked = value == PersonHeightFilterType.FROM_160_TO_170,
+            text = "160~170cm",
+            onClick = { onValueChange(PersonHeightFilterType.FROM_160_TO_170) }
+        )
+        PersonHeightSelectItem(
+            checked = value == PersonHeightFilterType.FROM_170_TO_180,
+            text = "170~180cm",
+            onClick = { onValueChange(PersonHeightFilterType.FROM_170_TO_180) }
+        )
+        PersonHeightSelectItem(
+            checked = value == PersonHeightFilterType.FROM_180_TO_190,
+            text = "180~190cm",
+            onClick = { onValueChange(PersonHeightFilterType.FROM_180_TO_190) }
+        )
     }
 }
 
@@ -498,4 +484,39 @@ private fun PersonHeightSelectLayoutPreview() {
             state = height
         }
     )
+}
+
+@Composable
+fun PersonHeightSelectItem(
+    checked: Boolean,
+    text: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick
+        )
+    ) {
+        val checkBoxResourceID = if (checked) {
+            R.drawable.ic_product_item_filter_bottom_sheet_toggle_box_enable
+        } else {
+            R.drawable.ic_product_item_filter_bottom_sheet_toggle_box_disable
+        }
+        Image(
+            painter = painterResource(id = checkBoxResourceID),
+            contentDescription = "check box"
+        )
+        Text(
+            text = text,
+            style = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF000000),
+            ),
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
 }
