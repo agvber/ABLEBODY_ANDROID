@@ -48,7 +48,7 @@ object NetworkService {
 
 
     private fun buildRetrofit(client: OkHttpClient) = Retrofit.Builder()
-        .baseUrl(MAIN_SERVER_URL)
+        .baseUrl(TEST_SERVER_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()
