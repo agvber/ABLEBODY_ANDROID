@@ -61,6 +61,9 @@ fun BrandDetailRoute(
     brandViewModel: BrandViewModel = viewModel()
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
+
+    val productItemContentList by brandViewModel.productItemContentList.collectAsStateWithLifecycle()
+
     BrandDetailScreen(
         resetRequest = { brandViewModel.resetCodyItemListFilter() },
         onBackClick = onBackClick,
@@ -74,7 +77,7 @@ fun BrandDetailRoute(
         onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
         productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
         onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
-        productItems = brandViewModel.productItemList.collectAsStateWithLifecycle().value,
+        productContentItem = productItemContentList,
         codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
         onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
         codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
@@ -82,6 +85,7 @@ fun BrandDetailRoute(
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         codyItemList = brandViewModel.codyItemList.collectAsStateWithLifecycle().value,
+        loadNextOnPageChangeListener = { brandViewModel.updateProductItemListCurrentPage() }
     )
 }
 @OptIn(ExperimentalFoundationApi::class)
@@ -99,14 +103,15 @@ fun BrandDetailScreen(
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit,
     productItemGender: ItemGender,
     onProductItemGenderChange: (ItemGender) -> Unit,
-    productItems: BrandDetailItemResponseData?,
+    productContentItem: List<BrandDetailItemResponseData.Item>,
     codyItemListGenderFilterList: List<Gender>,
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
     codyItemListSportFilter: List<HomeCategory>,
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
-    codyItemList: BrandDetailCodyResponseData?
+    codyItemList: BrandDetailCodyResponseData?,
+    loadNextOnPageChangeListener: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -136,7 +141,8 @@ fun BrandDetailScreen(
                             onChildFilterChange = { onProductItemChildFilterChange(it) },
                             gender = productItemGender,
                             onGenderChange = { onProductItemGenderChange(it) },
-                            productItems = productItems
+                            productContentItem = productContentItem,
+                            loadNextOnPageChangeListener = loadNextOnPageChangeListener
                     )
                     1 -> BrandCodyItemListLayout(
                         resetRequest = resetRequest,
@@ -176,7 +182,8 @@ fun BrandDetailScreenPreview(
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
-    codyItemList: BrandDetailCodyResponseData? = null
+    codyItemList: BrandDetailCodyResponseData? = null,
+    loadNextOnPageChangeListener: () -> Unit = {}
 ) {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
@@ -192,14 +199,15 @@ fun BrandDetailScreenPreview(
             onProductItemChildFilterChange = onProductItemChildFilterChange,
             productItemGender = productItemGender,
             onProductItemGenderChange = onProductItemGenderChange,
-            productItems = productItems,
+            productContentItem = productItems.content,
             codyItemListGenderFilterList = codyItemListGenderFilterList,
             onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
             codyItemListSportFilter = codyItemListSportFilter,
             onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
             codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
             onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemList = codyItemList
+            codyItemList = codyItemList,
+            loadNextOnPageChangeListener= loadNextOnPageChangeListener
         )
     }
 }

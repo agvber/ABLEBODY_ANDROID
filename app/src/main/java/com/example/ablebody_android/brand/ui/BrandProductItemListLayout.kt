@@ -8,13 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +41,7 @@ import com.example.ablebody_android.ui.utils.DefaultFilterTabItem
 import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.GenderSwitch
+import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 import com.example.ablebody_android.ui.utils.ProductItemLayout
@@ -57,7 +60,8 @@ fun BrandProductItemListLayout(
     onChildFilterChange: (ItemChildCategory?) -> Unit,
     gender: ItemGender,
     onGenderChange: (ItemGender) -> Unit,
-    productItems: BrandDetailItemResponseData?
+    productContentItem: List<BrandDetailItemResponseData.Item>,
+    loadNextOnPageChangeListener: () -> Unit
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -75,6 +79,14 @@ fun BrandProductItemListLayout(
                 )
             }
         }
+    }
+    val gridState = rememberLazyGridState()
+    val roundedCornerCategoryFilterTabStateSheet = rememberLazyListState()
+    LaunchedEffect(key1 = sortingMethod, key2 = parentFilter, key3 = childFilter) {
+        gridState.animateScrollToItem(0)
+    }
+    LaunchedEffect(key1 = sortingMethod, key2 = parentFilter) {
+        roundedCornerCategoryFilterTabStateSheet.animateScrollToItem(0)
     }
 
     Column {
@@ -95,7 +107,9 @@ fun BrandProductItemListLayout(
             }
         }
 
-        RoundedCornerCategoryFilterTabRow {
+        RoundedCornerCategoryFilterTabRow(
+            state = roundedCornerCategoryFilterTabStateSheet
+        ) {
             items(itemChildCategory) { category ->
                 RoundedCornerCategoryFilterTabItem(
                     selected = childFilter == category,
@@ -130,23 +144,28 @@ fun BrandProductItemListLayout(
         Box(
             Modifier.fillMaxSize()
         ) {
-            productItems?.let {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+            InfiniteVerticalGrid(
+                buffer = 4,
+                lastPositionListener = {
+                    loadNextOnPageChangeListener()
+                                       },
+                columns = GridCells.Fixed(2),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                state = gridState
+            ) {
+                items(
+                    items = productContentItem,
+//                    key = { it.id }
                 ) {
-                    items(items = productItems.content) {
-                        ProductItemLayout(
-                            productName = it.name,
-                            productPrice = it.price,
-                            productSalePrice = it.salePrice,
-                            brandName = it.brandName,
-                            averageStarRating = it.avgStarRating,
-                            thumbnail = it.image,
-                            isSingleImage = it.isPlural
-                        )
-                        // TODO: Infinite page 구상 할 것
-                    }
+                    ProductItemLayout(
+                        productName = it.name,
+                        productPrice = it.price,
+                        productSalePrice = it.salePrice,
+                        brandName = it.brandName,
+                        averageStarRating = it.avgStarRating,
+                        thumbnail = it.image,
+                        isSingleImage = it.isPlural
+                    )
                 }
             }
             GenderSwitch(
@@ -168,7 +187,9 @@ fun BrandProductItemListLayoutPreview(
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
     childFilterState: ItemChildCategory? = null,
     productItems: BrandDetailItemResponseData? = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
-    itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList()
+    productContentItem: List<BrandDetailItemResponseData.Item> = listOf(),
+    itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
+    loadNextOnPageChangeListener: () -> Unit = {}
     ) {
     BrandProductItemListLayout(
         sortingMethod = orderFilterState,
@@ -179,7 +200,8 @@ fun BrandProductItemListLayoutPreview(
         onParentFilterChange = {  },
         childFilter = childFilterState,
         onChildFilterChange = { },
-        productItems = productItems,
-        itemChildCategory = itemChildCategory
+        productContentItem = productContentItem,
+        itemChildCategory = itemChildCategory,
+        loadNextOnPageChangeListener = loadNextOnPageChangeListener,
     )
 }

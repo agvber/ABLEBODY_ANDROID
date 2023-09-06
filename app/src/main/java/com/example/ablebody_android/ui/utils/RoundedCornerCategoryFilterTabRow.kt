@@ -4,11 +4,17 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -17,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -37,6 +44,14 @@ import com.example.ablebody_android.ui.theme.White
 @Composable
 fun RoundedCornerCategoryFilterTabRow(
     modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    horizontalArrangement: Arrangement.Horizontal =
+        if (!reverseLayout) Arrangement.Start else Arrangement.End,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
     content: LazyListScope.() -> Unit
 ) {
     LazyRow(
@@ -53,6 +68,13 @@ fun RoundedCornerCategoryFilterTabRow(
                     }
                 }
             ),
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        horizontalArrangement = horizontalArrangement,
+        verticalAlignment = verticalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
         content = content
     )
 }
