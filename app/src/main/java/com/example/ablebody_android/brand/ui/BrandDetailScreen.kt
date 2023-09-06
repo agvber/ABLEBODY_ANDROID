@@ -86,7 +86,7 @@ fun BrandDetailRoute(
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         codyItemContentList = codyItemContentList,
-        loadNextOnPageChangeListener = { brandViewModel.updateProductItemListCurrentPage() }
+        loadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() }
     ) { brandViewModel.requestCodyItemPageChange() }
 }
 @OptIn(ExperimentalFoundationApi::class)

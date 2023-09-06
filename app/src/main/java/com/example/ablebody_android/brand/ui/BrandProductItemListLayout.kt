@@ -146,16 +146,14 @@ fun BrandProductItemListLayout(
         ) {
             InfiniteVerticalGrid(
                 buffer = 4,
-                lastPositionListener = {
-                    loadNextOnPageChangeListener()
-                                       },
+                lastPositionListener = loadNextOnPageChangeListener,
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 state = gridState
             ) {
                 items(
                     items = productContentItem,
-//                    key = { it.id }
+                    key = { it.id }
                 ) {
                     ProductItemLayout(
                         productName = it.name,

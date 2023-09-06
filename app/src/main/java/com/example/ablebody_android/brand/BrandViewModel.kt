@@ -17,7 +17,6 @@ import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemRe
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +25,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -39,11 +37,11 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
 
     private val ioDispatcher = Dispatchers.IO
 
-    init {
-        tokenSharedPreferencesRepository.putAuthToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9" +
-                ".eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE" +
-                "0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
-    }
+//    init {
+//        tokenSharedPreferencesRepository.putAuthToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9" +
+//                ".eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE" +
+//                "0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
+//    }
 
     private val _brandListSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandListSortingMethod = _brandListSortingMethod.asStateFlow()
@@ -83,11 +81,10 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                     initialValue = emptyList()
                 )
 
-    private val _contentID = MutableStateFlow<Long>(-1)
-    val contentID = _contentID.asStateFlow()
+    private val contentID = MutableStateFlow<Long>(-1)
 
     fun updateContentID(id: Long) {
-        viewModelScope.launch { _contentID.emit(id) }
+        viewModelScope.launch { contentID.emit(id) }
     }
 
     private val _brandProductItemSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
@@ -154,69 +151,52 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    private val productItemListCurrentPage = MutableStateFlow(0)
-    fun updateProductItemListCurrentPage() {
-        if (productItemList.value?.last == false) {
-            productItemListCurrentPage.value += 1
+    private val isProductItemListCurrentPageLastIndex = MutableStateFlow(false)
+    private val productItemListCurrentPageIndex = MutableStateFlow(0)
+    fun requestProductItemListPage() {
+        if (!isProductItemListCurrentPageLastIndex.value) {
+            productItemListCurrentPageIndex.value += 1
         }
     }
 
-    init {
-        combine(
-            brandProductItemSortingMethod,
-            brandProductItemParentFilter,
-            brandProductItemChildFilter,
-            brandProductItemGender,
-            contentID,
-        ) { sort, parent, child, gender, id ->
-            productItemListCurrentPage.emit(0)
-        }
-            .launchIn(viewModelScope)
-    }
-
-    private val productItemList: StateFlow<BrandDetailItemResponseData?> =
-        combine(
-            brandProductItemSortingMethod,
-            brandProductItemParentFilter,
-            brandProductItemChildFilter,
-            brandProductItemGender,
-            contentID,
-            productItemListCurrentPage
-        ) { sort, parent, child, gender, id, page ->
-            networkRepository.brandDetailItem(
-                sort = sort,
-                brandId = id,
-                itemGender = gender,
-                parentCategory = parent,
-                childCategory = child,
-                page = page
-            ).body()?.data
-        }
-            .flowOn(ioDispatcher)
-            .onEach { if (it?.first == true) {
-                _productItemContentList.emit(emptyList()); productItemListCurrentPage.emit(0)
-            } }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = null
-            )
-
-    private val _productItemContentList = MutableStateFlow<List<BrandDetailItemResponseData.Item>>(listOf())
+    private val _productItemContentList = MutableStateFlow<List<BrandDetailItemResponseData.Item>>(emptyList())
     val productItemContentList: StateFlow<List<BrandDetailItemResponseData.Item>> =
-        productItemList.flatMapLatest { itemList ->
-            val contentList = _productItemContentList.value
-
-            flowOf(contentList.toMutableList().apply {
-                addAll(itemList?.content ?: emptyList())
-                _productItemContentList.emit(this)
-            })
+        combine(
+            brandProductItemSortingMethod,
+            contentID,
+            brandProductItemGender,
+            brandProductItemParentFilter,
+            brandProductItemChildFilter,
+        ) { sort, id, gender, parent, child, ->
+            _productItemContentList.emit(emptyList())
+            productItemListCurrentPageIndex.emit(0)
+            arrayOf(sort, id, gender, parent, child)
         }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
-            )
+            .combine(productItemListCurrentPageIndex) { requestDataList, page ->
+                networkRepository.brandDetailItem(
+                    sort = requestDataList[0] as SortingMethod,
+                    brandId = requestDataList[1] as Long,
+                    itemGender = requestDataList[2] as ItemGender,
+                    parentCategory = requestDataList[3] as ItemParentCategory,
+                    childCategory = requestDataList[4] as? ItemChildCategory,
+                    page = page
+                ).body()?.data
+            }
+                .onEach {
+                    if (it != null) {
+                        isProductItemListCurrentPageLastIndex.emit(it.last)
+                        _productItemContentList.emit(_productItemContentList.value.toMutableList().apply { addAll(it.content) })
+                    }
+                }
+                    .flatMapLatest {
+                        _productItemContentList
+                    }
+                        .flowOn(ioDispatcher)
+                        .stateIn(
+                            scope = viewModelScope,
+                            started = SharingStarted.WhileSubscribed(5_000),
+                            initialValue = emptyList()
+                        )
 
     private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf())
     val codyItemListGenderFilter = _codyItemListGenderFilter.asStateFlow()
@@ -247,11 +227,11 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    private val isCodyItemPageLastIndex = MutableStateFlow(false)
-    private val codyItemPageIndex = MutableStateFlow(0)
+    private val isCodyItemListPageLastIndex = MutableStateFlow(false)
+    private val codyItemListCurrentPageIndex = MutableStateFlow(0)
     fun requestCodyItemPageChange() {
-        if (isCodyItemPageLastIndex.value) {
-            codyItemPageIndex.value += 1
+        if (!isCodyItemListPageLastIndex.value) {
+            codyItemListCurrentPageIndex.value += 1
         }
     }
 
@@ -264,10 +244,10 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
             codyItemListPersonHeightFilter
         ) { id, gender, sport, height ->
             _codyItemContentList.emit(emptyList())
-            codyItemPageIndex.emit(0)
+            codyItemListCurrentPageIndex.emit(0)
             arrayOf(id, gender, sport, height)
         }
-            .combine(codyItemPageIndex) { requestDataList, page ->
+            .combine(codyItemListCurrentPageIndex) { requestDataList, page ->
                 networkRepository.brandDetailCody(
                     brandId = requestDataList[0] as Long,
                     gender = requestDataList[1] as List<Gender>,
@@ -279,7 +259,7 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
             }
                 .onEach {
                     if (it != null) {
-                        isCodyItemPageLastIndex.emit(!it.last)
+                        isCodyItemListPageLastIndex.emit(it.last)
                         _codyItemContentList.emit(_codyItemContentList.value.toMutableList().apply { addAll(it.content) })
                     }
                 }
@@ -292,27 +272,4 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
                             started = SharingStarted.WhileSubscribed(5_000),
                             initialValue = emptyList()
                         )
-}
-
-
-inline fun <T1, T2, T3, T4, T5, T6, R> combine(
-    flow: Flow<T1>,
-    flow2: Flow<T2>,
-    flow3: Flow<T3>,
-    flow4: Flow<T4>,
-    flow5: Flow<T5>,
-    flow6: Flow<T6>,
-    crossinline transform: suspend (T1, T2, T3, T4, T5, T6) -> R
-): Flow<R> {
-    return kotlinx.coroutines.flow.combine(flow, flow2, flow3, flow4, flow5, flow6) { args: Array<*> ->
-        @Suppress("UNCHECKED_CAST")
-        transform(
-            args[0] as T1,
-            args[1] as T2,
-            args[2] as T3,
-            args[3] as T4,
-            args[4] as T5,
-            args[5] as T6,
-        )
-    }
 }

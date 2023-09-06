@@ -128,7 +128,10 @@ fun BrandCodyItemListLayout(
                 verticalArrangement = Arrangement.spacedBy(1.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                items(items = codyItemContentList) {
+                items(
+                    items = codyItemContentList,
+                    key = { it.id }
+                ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(data = it.imageURL)
