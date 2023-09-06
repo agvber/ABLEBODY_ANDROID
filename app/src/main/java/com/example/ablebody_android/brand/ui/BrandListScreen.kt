@@ -5,18 +5,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,48 +81,58 @@ fun BrandListScreen(
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val lazyListState = rememberLazyListState()
 
-    if (isFilterBottomSheetShow) {
-        ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
-            items(items = SortingMethod.values()) { sortingMethod ->
-                ProductItemFilterBottomSheetItem(
-                    sheetState = sheetState,
-                    value = sortingMethod.string,
-                    onValueChange = {
-                        onSortingMethodChange(sortingMethod)
-                        isFilterBottomSheetShow = false
-                    }
-                )
-            }
-        }
+    LaunchedEffect(key1 = sortingMethod, key2 = genderFilter) {
+        lazyListState.animateScrollToItem(0)
     }
 
-    Column(
-        modifier = Modifier
+    Surface(
+        modifier = Modifier.fillMaxSize()
     ) {
-        BrandFilterTab(
-            genderFilter = genderFilter,
-            onGenderFilterChange = { onGenderFilterChange(it) },
-            sortingMethod = sortingMethod,
-            onSortingMethodChange = { isFilterBottomSheetShow = true }
-        )
-        LazyColumn {
-            items(
-                items = brandItemList,
-                key = { it.id }
+        if (isFilterBottomSheetShow) {
+            ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
+                items(items = SortingMethod.values()) { sortingMethod ->
+                    ProductItemFilterBottomSheetItem(
+                        sheetState = sheetState,
+                        value = sortingMethod.string,
+                        onValueChange = {
+                            onSortingMethodChange(sortingMethod)
+                            isFilterBottomSheetShow = false
+                        }
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+        ) {
+            BrandFilterTab(
+                genderFilter = genderFilter,
+                onGenderFilterChange = { onGenderFilterChange(it) },
+                sortingMethod = sortingMethod,
+                onSortingMethodChange = { isFilterBottomSheetShow = true }
+            )
+            LazyColumn(
+                state = lazyListState
             ) {
-                BrandListItemLayout(
-                    brandName = it.name,
-                    subName = it.subName,
-                    thumbnailURL = it.thumbnail,
-                    maxDisCountString = it.maxDiscount,
-                    onClick = { onItemClick(it.id, it.name) }
-                )
-                Divider(
-                    thickness = 1.dp,
-                    startIndent = 1.dp,
-                    modifier = Modifier.height(1.dp)
-                )
+                items(
+                    items = brandItemList,
+                    key = { it.id }
+                ) {
+                    BrandListItemLayout(
+                        brandName = it.name,
+                        subName = it.subName,
+                        thumbnailURL = it.thumbnail,
+                        maxDisCountString = it.maxDiscount,
+                        onClick = { onItemClick(it.id, it.name) }
+                    )
+                    Divider(
+                        thickness = 1.dp,
+                        startIndent = 1.dp,
+                        modifier = Modifier.height(1.dp)
+                    )
+                }
             }
         }
     }
