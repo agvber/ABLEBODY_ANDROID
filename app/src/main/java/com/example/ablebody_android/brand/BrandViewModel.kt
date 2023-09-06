@@ -247,27 +247,51 @@ class BrandViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    val codyItemList: StateFlow<BrandDetailCodyResponseData?> =
+    private val isCodyItemPageLastIndex = MutableStateFlow(false)
+    private val codyItemPageIndex = MutableStateFlow(0)
+    fun requestCodyItemPageChange() {
+        if (isCodyItemPageLastIndex.value) {
+            codyItemPageIndex.value += 1
+        }
+    }
+
+    private val _codyItemContentList = MutableStateFlow<List<BrandDetailCodyResponseData.Item>>(emptyList())
+    val codyItemContentList: StateFlow<List<BrandDetailCodyResponseData.Item>> =
         combine(
             contentID,
             codyItemListGenderFilter,
             codyItemListSportFilter,
             codyItemListPersonHeightFilter
         ) { id, gender, sport, height ->
-            networkRepository.brandDetailCody(
-                brandId = id,
-                gender = gender,
-                category = sport,
-                personHeightRangeStart = height.rangeStart,
-                personHeightRangeEnd = height.rangeEnd
-            ).body()?.data
+            _codyItemContentList.emit(emptyList())
+            codyItemPageIndex.emit(0)
+            arrayOf(id, gender, sport, height)
         }
-            .flowOn(ioDispatcher)
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = null
-            )
+            .combine(codyItemPageIndex) { requestDataList, page ->
+                networkRepository.brandDetailCody(
+                    brandId = requestDataList[0] as Long,
+                    gender = requestDataList[1] as List<Gender>,
+                    category = requestDataList[2] as List<HomeCategory>,
+                    personHeightRangeStart = (requestDataList[3] as PersonHeightFilterType).rangeStart,
+                    personHeightRangeEnd = (requestDataList[3] as PersonHeightFilterType).rangeEnd,
+                    page = page
+                ).body()?.data
+            }
+                .onEach {
+                    if (it != null) {
+                        isCodyItemPageLastIndex.emit(!it.last)
+                        _codyItemContentList.emit(_codyItemContentList.value.toMutableList().apply { addAll(it.content) })
+                    }
+                }
+                    .flatMapLatest {
+                        _codyItemContentList
+                    }
+                        .flowOn(ioDispatcher)
+                        .stateIn(
+                            scope = viewModelScope,
+                            started = SharingStarted.WhileSubscribed(5_000),
+                            initialValue = emptyList()
+                        )
 }
 
 

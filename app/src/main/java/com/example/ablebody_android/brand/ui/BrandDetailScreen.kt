@@ -63,6 +63,7 @@ fun BrandDetailRoute(
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
 
     val productItemContentList by brandViewModel.productItemContentList.collectAsStateWithLifecycle()
+    val codyItemContentList by brandViewModel.codyItemContentList.collectAsStateWithLifecycle()
 
     BrandDetailScreen(
         resetRequest = { brandViewModel.resetCodyItemListFilter() },
@@ -84,9 +85,9 @@ fun BrandDetailRoute(
         onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
-        codyItemList = brandViewModel.codyItemList.collectAsStateWithLifecycle().value,
+        codyItemContentList = codyItemContentList,
         loadNextOnPageChangeListener = { brandViewModel.updateProductItemListCurrentPage() }
-    )
+    ) { brandViewModel.requestCodyItemPageChange() }
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -110,8 +111,9 @@ fun BrandDetailScreen(
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
-    codyItemList: BrandDetailCodyResponseData?,
-    loadNextOnPageChangeListener: () -> Unit
+    codyItemContentList: List<BrandDetailCodyResponseData.Item>,
+    loadNextOnPageChangeListener: () -> Unit,
+    codyItemLoadNextOnPageChangeListener: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -152,7 +154,8 @@ fun BrandDetailScreen(
                         onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
                         codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
                         onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-                        codyItemList = codyItemList
+                        codyItemContentList = codyItemContentList,
+                        loadNextOnPageChangeListener = codyItemLoadNextOnPageChangeListener
                     )
                 }
             }
@@ -182,8 +185,9 @@ fun BrandDetailScreenPreview(
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
-    codyItemList: BrandDetailCodyResponseData? = null,
-    loadNextOnPageChangeListener: () -> Unit = {}
+    codyItemList: List<BrandDetailCodyResponseData.Item> = emptyList(),
+    loadNextOnPageChangeListener: () -> Unit = {},
+    codyItemLoadNextOnPageChangeListener: () -> Unit = {},
 ) {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
@@ -206,8 +210,9 @@ fun BrandDetailScreenPreview(
             onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
             codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
             onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemList = codyItemList,
-            loadNextOnPageChangeListener= loadNextOnPageChangeListener
+            codyItemContentList = codyItemList,
+            loadNextOnPageChangeListener = loadNextOnPageChangeListener,
+            codyItemLoadNextOnPageChangeListener = codyItemLoadNextOnPageChangeListener
         )
     }
 }
