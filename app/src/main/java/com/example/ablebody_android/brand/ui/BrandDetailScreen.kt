@@ -44,6 +44,8 @@ import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
+import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
@@ -66,7 +68,6 @@ fun BrandDetailRoute(
     val codyItemContentList by brandViewModel.codyItemContentList.collectAsStateWithLifecycle()
 
     BrandDetailScreen(
-        resetRequest = { brandViewModel.resetCodyItemListFilter() },
         onBackClick = onBackClick,
         contentName = contentName,
         productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
@@ -79,6 +80,8 @@ fun BrandDetailRoute(
         productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
         onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
         productContentItem = productItemContentList,
+        productItemLoadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() },
+        codyItemFilterResetRequest = { brandViewModel.resetCodyItemListFilter() },
         codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
         onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
         codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
@@ -86,13 +89,12 @@ fun BrandDetailRoute(
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         codyItemContentList = codyItemContentList,
-        loadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() }
-    ) { brandViewModel.requestCodyItemPageChange() }
+        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() }
+    )
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrandDetailScreen(
-    resetRequest: () -> Unit,
     onBackClick: () -> Unit,
     contentName: String,
     productItemSortingMethod: SortingMethod,
@@ -105,6 +107,8 @@ fun BrandDetailScreen(
     productItemGender: ItemGender,
     onProductItemGenderChange: (ItemGender) -> Unit,
     productContentItem: List<BrandDetailItemResponseData.Item>,
+    productItemLoadNextOnPageChangeListener: () -> Unit,
+    codyItemFilterResetRequest: () -> Unit,
     codyItemListGenderFilterList: List<Gender>,
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
     codyItemListSportFilter: List<HomeCategory>,
@@ -112,7 +116,6 @@ fun BrandDetailScreen(
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
     codyItemContentList: List<BrandDetailCodyResponseData.Item>,
-    loadNextOnPageChangeListener: () -> Unit,
     codyItemLoadNextOnPageChangeListener: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -144,10 +147,10 @@ fun BrandDetailScreen(
                             gender = productItemGender,
                             onGenderChange = { onProductItemGenderChange(it) },
                             productContentItem = productContentItem,
-                            loadNextOnPageChangeListener = loadNextOnPageChangeListener
+                            loadNextOnPageChangeListener = productItemLoadNextOnPageChangeListener
                     )
                     1 -> BrandCodyItemListLayout(
-                        resetRequest = resetRequest,
+                        resetRequest = codyItemFilterResetRequest,
                         codyItemListGenderFilterList = codyItemListGenderFilterList,
                         onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
                         codyItemListSportFilter = codyItemListSportFilter,
@@ -166,7 +169,6 @@ fun BrandDetailScreen(
 @Preview(showBackground = true)
 @Composable
 fun BrandDetailScreenPreview(
-    resetRequest: () -> Unit = {},
     onBackClick: () -> Unit = {},
     contentName: String = "",
     productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
@@ -177,21 +179,21 @@ fun BrandDetailScreenPreview(
     productItemChildFilter: ItemChildCategory? = null,
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
     productItemGender: ItemGender = ItemGender.UNISEX,
-    onProductItemGenderChange: (ItemGender) -> Unit ={},
-    productItems: BrandDetailItemResponseData = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
+    onProductItemGenderChange: (ItemGender) -> Unit = {},
+    productContentItemList: List<BrandDetailItemResponseData.Item> = fakeBrandDetailItemResponseData.content,
+    productItemLoadNextOnPageChangeListener: () -> Unit = {},
+    codyItemFilterResetRequest: () -> Unit = {},
     codyItemListGenderFilterList: List<Gender> = listOf(),
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
     codyItemListSportFilter: List<HomeCategory> = listOf(),
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
-    codyItemList: List<BrandDetailCodyResponseData.Item> = emptyList(),
-    loadNextOnPageChangeListener: () -> Unit = {},
+    codyContentItemList: List<BrandDetailCodyResponseData.Item> = fakeBrandDetailCodyResponseData.content,
     codyItemLoadNextOnPageChangeListener: () -> Unit = {},
 ) {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
-            resetRequest = resetRequest,
             onBackClick = onBackClick,
             contentName = contentName,
             productItemSortingMethod = productItemSortingMethod,
@@ -203,16 +205,17 @@ fun BrandDetailScreenPreview(
             onProductItemChildFilterChange = onProductItemChildFilterChange,
             productItemGender = productItemGender,
             onProductItemGenderChange = onProductItemGenderChange,
-            productContentItem = productItems.content,
+            productContentItem = productContentItemList,
+            productItemLoadNextOnPageChangeListener = productItemLoadNextOnPageChangeListener,
+            codyItemFilterResetRequest = codyItemFilterResetRequest,
             codyItemListGenderFilterList = codyItemListGenderFilterList,
             onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
             codyItemListSportFilter = codyItemListSportFilter,
             onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
             codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
             onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemContentList = codyItemList,
-            loadNextOnPageChangeListener = loadNextOnPageChangeListener,
-            codyItemLoadNextOnPageChangeListener = codyItemLoadNextOnPageChangeListener
+            codyItemContentList = codyContentItemList,
+            codyItemLoadNextOnPageChangeListener = { codyItemLoadNextOnPageChangeListener() }
         )
     }
 }

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.ItemChildCategory
 import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
-import com.example.ablebody_android.R
 import com.example.ablebody_android.SortingMethod
+import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
@@ -184,8 +184,7 @@ fun BrandProductItemListLayoutPreview(
     gender: ItemGender = ItemGender.UNISEX,
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
     childFilterState: ItemChildCategory? = null,
-    productItems: BrandDetailItemResponseData? = BrandDetailItemResponseData(content = listOf(BrandDetailItemResponseData.Item(id = 52, name = "나이키 스포츠웨어 에센셜", price = 35000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = null), BrandDetailItemResponseData.Item(id = 39, name = "나이키 드라이 핏 런 디비전 챌린저", price = 59000, salePrice = null, brandName = "NIKE", image = R.drawable.product_item_test.toString(), isPlural = false, url = "", avgStarRating = "5.0(1)")), pageable = BrandDetailItemResponseData.Pageable(sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), offset = 0, pageNumber = 0, pageSize = 20, paged = true, unPaged = false), totalPages = 1, totalElements = 2, last = true, number = 0, sort = BrandDetailItemResponseData.Sort(empty = false, sorted = true, unsorted = false), size = 20, numberOfElements = 2, first = true, empty = false),
-    productContentItem: List<BrandDetailItemResponseData.Item> = listOf(),
+    productContentItem: List<BrandDetailItemResponseData.Item> = fakeBrandDetailItemResponseData.content,
     itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
     loadNextOnPageChangeListener: () -> Unit = {}
     ) {
