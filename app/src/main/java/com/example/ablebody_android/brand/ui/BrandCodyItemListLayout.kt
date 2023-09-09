@@ -2,6 +2,7 @@ package com.example.ablebody_android.brand.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
+import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet
@@ -154,11 +156,8 @@ fun BrandCodyItemListLayout(
                         modifier = Modifier.animateItemPlacement()
                     )
                 }
-                item(span = { GridItemSpan(1) }) {
-                    Surface(
-                        modifier = Modifier.padding(bottom = 56.dp),
-                        content = {  }
-                    )
+                item(span = { GridItemSpan(2) }) {
+                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
                 }
             }
         }
