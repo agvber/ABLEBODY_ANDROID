@@ -302,7 +302,7 @@ fun BrandFilterTab(
             )
         }
     ) {
-        items(items = ItemGender.values()) {
+        ItemGender.values().forEach {
             DefaultFilterTabItem(
                 selected = genderFilter == it,
                 text = it.string,

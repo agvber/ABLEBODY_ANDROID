@@ -6,11 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,7 +29,7 @@ import com.example.ablebody_android.ui.theme.SmallTextGrey
 fun DefaultFilterTabRow(
     modifier: Modifier = Modifier,
     actionContent: @Composable () -> Unit = {  },
-    content: LazyListScope.() -> Unit
+    content: @Composable() (RowScope.() -> Unit)
 ) {
     Row(
         modifier = modifier
@@ -40,7 +38,7 @@ fun DefaultFilterTabRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LazyRow(
+        Row(
             modifier = Modifier.padding(start = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(15.dp),
@@ -55,7 +53,7 @@ fun DefaultFilterTabRow(
 fun DefaultFilterTabRowPreview() {
     var state by remember { mutableStateOf("전체") }
     DefaultFilterTabRow {
-        items(items = listOf("전체", "남자", "여자", "ACC")) {
+        listOf("전체", "남자", "여자", "ACC").forEach {
             DefaultFilterTabItem(selected = it == state, text = it) {
                 state = it
             }

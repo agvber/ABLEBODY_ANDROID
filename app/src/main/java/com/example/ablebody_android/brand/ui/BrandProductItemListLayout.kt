@@ -18,10 +18,10 @@ import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +50,7 @@ import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 import com.example.ablebody_android.ui.utils.ProductItemLayout
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -66,8 +67,11 @@ fun BrandProductItemListLayout(
     productContentItem: List<BrandDetailItemResponseData.Item>,
     loadNextOnPageChangeListener: () -> Unit
 ) {
-    var isFilterBottomSheetShow by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var isFilterBottomSheetShow by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val roundedCornerCategoryFilterTabStateSheet = rememberLazyListState()
+    val productItemGridState = rememberLazyGridState()
 
     if (isFilterBottomSheetShow) {
         ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
@@ -78,18 +82,14 @@ fun BrandProductItemListLayout(
                     onValueChange = {
                         onSortingMethodChange(sortingMethod)
                         isFilterBottomSheetShow = false
+                        scope.launch {
+                            productItemGridState.animateScrollToItem(0)
+                            roundedCornerCategoryFilterTabStateSheet.animateScrollToItem(0)
+                        }
                     }
                 )
             }
         }
-    }
-    val gridState = rememberLazyGridState()
-    val roundedCornerCategoryFilterTabStateSheet = rememberLazyListState()
-    LaunchedEffect(key1 = sortingMethod, key2 = parentFilter, key3 = childFilter) {
-        gridState.animateScrollToItem(0)
-    }
-    LaunchedEffect(key1 = sortingMethod, key2 = parentFilter) {
-        roundedCornerCategoryFilterTabStateSheet.animateScrollToItem(0)
     }
 
     Column {
@@ -101,11 +101,17 @@ fun BrandProductItemListLayout(
                 )
             }
         ) {
-            items(items = ItemParentCategory.values()) { category ->
+            ItemParentCategory.values().forEach { category ->
                 DefaultFilterTabItem(
                     selected = parentFilter == category,
                     text = category.string,
-                    onClick = { onParentFilterChange(category) }
+                    onClick = {
+                        onParentFilterChange(category)
+                        scope.launch {
+                            productItemGridState.animateScrollToItem(0)
+                            roundedCornerCategoryFilterTabStateSheet.animateScrollToItem(0)
+                        }
+                    }
                 )
             }
         }
@@ -119,6 +125,7 @@ fun BrandProductItemListLayout(
                     onClick = {
                         if (childFilter != category) {
                             onChildFilterChange(category)
+                            scope.launch { productItemGridState.animateScrollToItem(0) }
                         } else {
                             onChildFilterChange(null)
                         }
@@ -152,7 +159,7 @@ fun BrandProductItemListLayout(
                 lastPositionListener = loadNextOnPageChangeListener,
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
-                state = gridState
+                state = productItemGridState
             ) {
                 items(
                     items = productContentItem,

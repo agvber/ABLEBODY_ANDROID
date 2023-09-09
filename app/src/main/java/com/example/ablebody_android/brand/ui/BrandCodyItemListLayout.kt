@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -51,13 +52,17 @@ fun BrandCodyItemListLayout(
     codyItemContentList: List<BrandDetailCodyResponseData.Item>,
     loadNextOnPageChangeListener: () -> Unit
 ) {
+    var isItemRefresh by rememberSaveable { mutableStateOf(false) }
     val scrollableState = rememberLazyGridState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCodyItemFilterBottomSheetShow by remember { mutableStateOf(false) }
     var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
 
-    LaunchedEffect(key1 = codyItemListGenderFilterList, key2 = codyItemListSportFilter, key3 = codyItemListPersonHeightFilter) {
-        scrollableState.animateScrollToItem(0)
+    LaunchedEffect(key1 = isItemRefresh) {
+        if (isItemRefresh) {
+            scrollableState.animateScrollToItem(0)
+            isItemRefresh = false
+        }
     }
 
     Surface(
@@ -72,6 +77,7 @@ fun BrandCodyItemListLayout(
                     onCodyItemListGenderFilterChange(genderFilterTypeList)
                     onCodyItemListSportFilterChange(sportFilterTypeList)
                     onCodyItemListPersonHeightFilterChange(personHeightFilterType)
+                    isItemRefresh = true
                 },
                 onDismissRequest = { isCodyItemFilterBottomSheetShow = false },
                 sheetState = sheetState,
@@ -81,7 +87,7 @@ fun BrandCodyItemListLayout(
         }
         Column {
             CodyItemFilterTabRow(
-                resetRequest = resetRequest
+                resetRequest = { resetRequest(); isItemRefresh = true }
             ) {
                 CodyItemFilterTabRowItem(
                     selected = codyItemListGenderFilterList.contains(Gender.MALE),
@@ -92,6 +98,7 @@ fun BrandCodyItemListLayout(
                             if (it.contains(Gender.MALE)) { it.remove(Gender.MALE) } else { it.add(Gender.MALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
+                        isItemRefresh = true
                     }
                 )
                 CodyItemFilterTabRowItem(
@@ -103,6 +110,7 @@ fun BrandCodyItemListLayout(
                             if (it.contains(Gender.FEMALE)) { it.remove(Gender.FEMALE) } else { it.add(Gender.FEMALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
+                        isItemRefresh = true
                     }
                 )
                 CodyItemFilterTabRowItem(
