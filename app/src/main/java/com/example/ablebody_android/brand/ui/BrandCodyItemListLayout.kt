@@ -1,9 +1,12 @@
 package com.example.ablebody_android.brand.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +38,7 @@ import com.example.ablebody_android.ui.utils.CodyItemFilterTabRow
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BrandCodyItemListLayout(
     resetRequest: () -> Unit,
@@ -139,7 +142,14 @@ fun BrandCodyItemListLayout(
                             .placeholder(R.drawable.cody_item_test)
                             .build(),
                         contentDescription = "cody recommended image",
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                }
+                item(span = { GridItemSpan(1) }) {
+                    Surface(
+                        modifier = Modifier.padding(bottom = 56.dp),
+                        content = {  }
                     )
                 }
             }

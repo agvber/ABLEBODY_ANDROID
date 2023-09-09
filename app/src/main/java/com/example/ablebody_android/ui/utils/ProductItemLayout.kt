@@ -31,6 +31,7 @@ import java.util.Locale
 
 @Composable
 fun ProductItemLayout(
+    modifier: Modifier = Modifier,
     productName: String,
     productPrice: Int,
     productSalePrice: Int?,
@@ -39,7 +40,7 @@ fun ProductItemLayout(
     averageStarRating: String?,
     isSingleImage: Boolean
 ) {
-    Column {
+    Column(modifier = modifier) {
         Box {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)

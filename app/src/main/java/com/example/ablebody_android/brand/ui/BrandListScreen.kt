@@ -1,5 +1,6 @@
 package com.example.ablebody_android.brand.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +18,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -50,11 +53,12 @@ import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
+import com.example.ablebody_android.utils.ItemSearchBar
 
 @Composable
 fun BrandListRoute(
     onItemClick: (Long, String) -> Unit,
-    viewModel: BrandViewModel = viewModel()
+    viewModel: BrandViewModel = viewModel(),
 ) {
     val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
     val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
@@ -69,7 +73,7 @@ fun BrandListRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BrandListScreen(
     sortingMethod: SortingMethod,
@@ -77,7 +81,8 @@ fun BrandListScreen(
     genderFilter: ItemGender,
     onGenderFilterChange: (ItemGender) -> Unit,
     brandItemList: List<BrandMainResponseData>,
-    onItemClick: (Long, String) -> Unit
+    onItemClick: (Long, String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -104,34 +109,51 @@ fun BrandListScreen(
                 }
             }
         }
-        Column(
-            modifier = Modifier
-        ) {
-            BrandFilterTab(
-                genderFilter = genderFilter,
-                onGenderFilterChange = { onGenderFilterChange(it) },
-                sortingMethod = sortingMethod,
-                onSortingMethodChange = { isFilterBottomSheetShow = true }
-            )
-            LazyColumn(
-                state = lazyListState
+        Scaffold(
+            modifier = modifier,
+            topBar = {
+                ItemSearchBar(
+                    textFiledOnClick = {  },
+                    alertOnClick = {  }
+                )
+            }
+        ) { paddingValue ->
+            Column(
+                modifier = Modifier.padding(paddingValue)
             ) {
-                items(
-                    items = brandItemList,
-                    key = { it.id }
+                BrandFilterTab(
+                    genderFilter = genderFilter,
+                    onGenderFilterChange = { onGenderFilterChange(it) },
+                    sortingMethod = sortingMethod,
+                    onSortingMethodChange = { isFilterBottomSheetShow = true }
+                )
+                LazyColumn(
+                    state = lazyListState
                 ) {
-                    BrandListItemLayout(
-                        brandName = it.name,
-                        subName = it.subName,
-                        thumbnailURL = it.thumbnail,
-                        maxDisCountString = it.maxDiscount,
-                        onClick = { onItemClick(it.id, it.name) }
-                    )
-                    Divider(
-                        thickness = 1.dp,
-                        startIndent = 1.dp,
-                        modifier = Modifier.height(1.dp)
-                    )
+                    items(
+                        items = brandItemList,
+                        key = { it.id }
+                    ) {
+                        BrandListItemLayout(
+                            modifier = Modifier.animateItemPlacement(),
+                            brandName = it.name,
+                            subName = it.subName,
+                            thumbnailURL = it.thumbnail,
+                            maxDisCountString = it.maxDiscount,
+                            onClick = { onItemClick(it.id, it.name) }
+                        )
+                        Divider(
+                            thickness = 1.dp,
+                            startIndent = 1.dp,
+                            modifier = Modifier.height(1.dp)
+                        )
+                    }
+                    item {
+                        Surface(
+                            modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current),
+                            content = {  }
+                        )
+                    }
                 }
             }
         }
@@ -155,15 +177,16 @@ fun BrandScreenListPreview() {
 
 @Composable
 fun BrandListItemLayout(
+    modifier: Modifier = Modifier,
     brandName: String,
     subName: String,
     thumbnailURL: Any?,
     maxDisCountString: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     ConstraintLayout(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(86.dp)
             .padding(horizontal = 25.dp, vertical = 15.dp)

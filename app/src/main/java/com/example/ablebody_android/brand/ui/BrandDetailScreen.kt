@@ -60,6 +60,7 @@ fun BrandDetailRoute(
     onBackClick: () -> Unit,
     contentID: Long?,
     contentName: String,
+    modifier: Modifier = Modifier,
     brandViewModel: BrandViewModel = viewModel()
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
@@ -89,7 +90,8 @@ fun BrandDetailRoute(
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         codyItemContentList = codyItemContentList,
-        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() }
+        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() },
+        modifier = modifier
     )
 }
 @OptIn(ExperimentalFoundationApi::class)
@@ -117,11 +119,13 @@ fun BrandDetailScreen(
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
     codyItemContentList: List<BrandDetailCodyResponseData.Item>,
     codyItemLoadNextOnPageChangeListener: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             BrandDetailTopBarLayout(
                 titleText = contentName,

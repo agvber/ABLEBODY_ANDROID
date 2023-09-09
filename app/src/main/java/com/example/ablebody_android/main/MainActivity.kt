@@ -1,8 +1,9 @@
-package com.example.ablebody_android.main.ui
+package com.example.ablebody_android.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.ablebody_android.main.ui.MainScreen
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 
 class MainActivity : ComponentActivity() {

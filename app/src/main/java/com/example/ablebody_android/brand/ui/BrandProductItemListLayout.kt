@@ -2,6 +2,7 @@ package com.example.ablebody_android.brand.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -34,6 +36,7 @@ import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
+import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
@@ -48,7 +51,7 @@ import com.example.ablebody_android.ui.utils.ProductItemLayout
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BrandProductItemListLayout(
     sortingMethod: SortingMethod,
@@ -156,6 +159,7 @@ fun BrandProductItemListLayout(
                     key = { it.id }
                 ) {
                     ProductItemLayout(
+                        modifier = Modifier.animateItemPlacement(),
                         productName = it.name,
                         productPrice = it.price,
                         productSalePrice = it.salePrice,
@@ -163,6 +167,12 @@ fun BrandProductItemListLayout(
                         averageStarRating = it.avgStarRating,
                         thumbnail = it.image,
                         isSingleImage = it.isPlural
+                    )
+                }
+                item {
+                    Surface(
+                        modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current),
+                        content = {  }
                     )
                 }
             }

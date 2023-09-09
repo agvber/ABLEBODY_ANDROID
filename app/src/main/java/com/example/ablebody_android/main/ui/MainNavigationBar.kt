@@ -1,13 +1,7 @@
 package com.example.ablebody_android.main.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.Icon
@@ -35,65 +29,58 @@ import com.example.ablebody_android.ui.theme.AbleLight
 import com.example.ablebody_android.ui.theme.White
 
 @Composable
-fun MainNavigationBar() {
+fun MainNavigationBar(
+    modifier: Modifier = Modifier
+) {
     BottomNavigation(
-        modifier = Modifier
+        modifier = modifier
             .shadow(
                 elevation = 3.dp,
                 shape = RoundedCornerShape(topStart = 25.dp, topEnd = 25.dp),
                 ambientColor = Color.Black,
                 spotColor = Color.Black
             )
-            .fillMaxWidth()
-            .height(78.dp)
         ,
         backgroundColor = White
     ) {
         var selectedItem by remember { mutableStateOf(NavigationItems.Brand) }
 
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            items(items = NavigationItems.values()) { item ->
-                val animateColor by animateColorAsState(
-                    targetValue = if (selectedItem == item) AbleDark else AbleLight
-                )
+        NavigationItems.values().forEach { item ->
+            val animateColor by animateColorAsState(
+                targetValue = if (selectedItem == item) AbleDark else AbleLight
+            )
 
-                AbleBodyBottomNavigationItem(
-                    selected = item == selectedItem,
-                    onClick = { selectedItem = item },
-                    icon = {
-                        Icon(
-                            painter = painterResource(item.imageEnableResourceID),
-                            contentDescription = null,
-                            tint = animateColor
+            AbleBodyBottomNavigationItem(
+                selected = item == selectedItem,
+                onClick = { selectedItem = item },
+                icon = {
+                    Icon(
+                        painter = painterResource(item.imageEnableResourceID),
+                        contentDescription = null,
+                        tint = animateColor
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.labelText,
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight(500),
+                            color = animateColor,
+                            textAlign = TextAlign.Center,
                         )
-                    },
-                    label = {
-                        Text(
-                            text = item.labelText,
-                            style = TextStyle(
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight(500),
-                                color = animateColor,
-                                textAlign = TextAlign.Center,
-                            )
-                        )
-                    },
-                    alwaysShowLabel = true,
-                    modifier = Modifier
-                        .padding(top = 4.dp, bottom = 24.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                )
-            }
+                    )
+                },
+                alwaysShowLabel = true,
+                modifier = Modifier
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(15.dp))
+            )
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview()
 @Composable
 fun MainNavigationBarPreview() {
     MainNavigationBar()
