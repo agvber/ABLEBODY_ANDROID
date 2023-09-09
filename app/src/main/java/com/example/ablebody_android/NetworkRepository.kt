@@ -127,4 +127,22 @@ class NetworkRepository(
 
     private fun<T> removeSquareBrackets(list: List<T>) =
         list.joinToString (",","","",-1)
+
+    fun addBookmarkItem(itemID: Long) = networkService.addBookmarkItem(itemID).execute()
+
+    fun readBookmarkItem(
+        page: Int = 0,
+        size: Int = 20
+    ) = networkService.readBookmarkItem(page, size).execute()
+
+    fun deleteBookmarkItem(itemID: Long) = networkService.deleteBookmarkItem(itemID).execute()
+
+    fun addBookmarkCody(itemID: Long) = networkService.addBookmarkCody(itemID).execute()
+
+    fun readBookmarkCody(
+        page: Int = 0,
+        size: Int = 20
+    ) = networkService.readBookmarkCody(page, size).execute()
+
+    fun deleteBookmarkCody(itemID: Long) = networkService.deleteBookmarkCody(itemID).execute()
 }

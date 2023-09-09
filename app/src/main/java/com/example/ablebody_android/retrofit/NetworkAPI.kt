@@ -9,24 +9,33 @@ import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
+import com.example.ablebody_android.retrofit.dto.response.AddBookmarkCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.AddBookmarkItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
+import com.example.ablebody_android.retrofit.dto.response.DeleteBookmarkCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.DeleteBookmarkItemResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
+import com.example.ablebody_android.retrofit.dto.response.ReadBookmarkCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.ReadBookmarkItemResponse
 import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface NetworkAPI {
+
+    /** Onboarding **/
 
     @POST("/api/onboarding/send-sms")
     fun sendSMS(
@@ -64,6 +73,8 @@ interface NetworkAPI {
         @Body fcmTokenAndAppVersionUpdateRequest: FCMTokenAndAppVersionUpdateRequest
     ): Call<FCMTokenAndAppVersionUpdateResponse>
 
+    /** Brand **/
+
     @GET("/api/brand/main")
     fun brandMain(
         @Query("sort") sort: SortingMethod
@@ -92,4 +103,37 @@ interface NetworkAPI {
         @Query("size") size: Int?,
     ): Call<BrandDetailCodyResponse>
 
+    /** Bookmark **/
+
+    @POST("/api/bookmark/item")
+    fun addBookmarkItem(
+        @Query("itemId") itemID: Long
+    ): Call<AddBookmarkItemResponse>
+
+    @GET("/api/bookmark/item")
+    fun readBookmarkItem(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<ReadBookmarkItemResponse>
+
+    @DELETE("/api/bookmark/item")
+    fun deleteBookmarkItem(
+        @Query("itemId") itemID: Long
+    ): Call<DeleteBookmarkItemResponse>
+
+    @POST("/api/bookmark/cody")
+    fun addBookmarkCody(
+        @Query("codyId") itemID: Long
+    ): Call<AddBookmarkCodyResponse>
+
+    @GET("/api/bookmark/cody")
+    fun readBookmarkCody(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<ReadBookmarkCodyResponse>
+
+    @DELETE("/api/bookmark/cody")
+    fun deleteBookmarkCody(
+        @Query("codyId") codyID: Long
+    ): Call<DeleteBookmarkCodyResponse>
 }
