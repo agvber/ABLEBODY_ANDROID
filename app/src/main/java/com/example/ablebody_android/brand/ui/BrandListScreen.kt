@@ -53,6 +53,7 @@ import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
+import com.example.ablebody_android.ui.utils.previewPlaceHolder
 import com.example.ablebody_android.utils.ItemSearchBar
 
 @Composable
@@ -211,7 +212,7 @@ fun BrandListItemLayout(
                     start.linkTo(parent.start)
                 }
             ,
-            placeholder = painterResource(id = R.drawable.brand_test)
+            placeholder = previewPlaceHolder(id = R.drawable.brand_test)
         )
 
         Text(

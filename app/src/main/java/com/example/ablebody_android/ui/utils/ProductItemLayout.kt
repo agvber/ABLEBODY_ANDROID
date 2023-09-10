@@ -9,7 +9,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -43,11 +41,10 @@ fun ProductItemLayout(
     Column(modifier = modifier) {
         Box {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(data = thumbnail)
-                    .placeholder(R.drawable.product_item_test)
-                    .build(),
-                contentDescription = "product image"
+                model = thumbnail,
+                contentDescription = "product image",
+                placeholder = previewPlaceHolder(id = R.drawable.product_item_test),
+
             )
             if (!isSingleImage) {
                 Image(

@@ -22,11 +22,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.HomeCategory
@@ -40,6 +38,7 @@ import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabRow
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabRowItem
 import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
+import com.example.ablebody_android.ui.utils.previewPlaceHolder
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -147,13 +146,11 @@ fun BrandCodyItemListLayout(
                     key = { it.id }
                 ) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(data = it.imageURL)
-                            .placeholder(R.drawable.cody_item_test)
-                            .build(),
+                        model = it.imageURL,
                         contentDescription = "cody recommended image",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.animateItemPlacement()
+                        modifier = Modifier.animateItemPlacement(),
+                        placeholder = previewPlaceHolder(id = R.drawable.cody_item_test)
                     )
                 }
                 item(span = { GridItemSpan(2) }) {
