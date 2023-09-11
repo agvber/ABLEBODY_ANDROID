@@ -2,18 +2,17 @@ package com.example.ablebody_android.brand.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -52,7 +51,7 @@ import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandProductItemListLayout(
     sortingMethod: SortingMethod,
@@ -166,7 +165,6 @@ fun BrandProductItemListLayout(
                     key = { it.id }
                 ) {
                     ProductItemLayout(
-                        modifier = Modifier.animateItemPlacement(),
                         productName = it.name,
                         productPrice = it.price,
                         productSalePrice = it.salePrice,
@@ -176,11 +174,8 @@ fun BrandProductItemListLayout(
                         isSingleImage = it.isPlural
                     )
                 }
-                item {
-                    Surface(
-                        modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current),
-                        content = {  }
-                    )
+                item(span = { GridItemSpan(2) }) {
+                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
                 }
             }
             GenderSwitch(
