@@ -2,6 +2,7 @@ package com.example.ablebody_android.brand.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,7 +52,7 @@ import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BrandProductItemListLayout(
     sortingMethod: SortingMethod,
@@ -171,7 +172,8 @@ fun BrandProductItemListLayout(
                         brandName = it.brandName,
                         averageStarRating = it.avgStarRating,
                         thumbnail = it.image,
-                        isSingleImage = it.isPlural
+                        isSingleImage = it.isPlural,
+                        modifier = Modifier.animateItemPlacement()
                     )
                 }
                 item(span = { GridItemSpan(2) }) {
