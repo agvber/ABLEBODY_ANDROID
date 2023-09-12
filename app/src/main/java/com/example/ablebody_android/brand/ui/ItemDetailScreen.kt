@@ -108,7 +108,7 @@ fun ItemDetailScreen() {
             }
             Row {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_navigation_bookmark_disable),
+                    painter = painterResource(id = R.drawable.ic_bookmark_empty),
                     contentDescription = "image description",
                     contentScale = ContentScale.None,
                     modifier = Modifier
