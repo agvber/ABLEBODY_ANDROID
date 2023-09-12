@@ -9,7 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.main.MainNavHost
+import com.example.ablebody_android.main.data.NavigationItems
 
 val scaffoldPaddingValueCompositionLocal = staticCompositionLocalOf {
     PaddingValues()
@@ -18,16 +20,24 @@ val scaffoldPaddingValueCompositionLocal = staticCompositionLocalOf {
 @Composable
 fun MainScreen() {
     var isBottomBarShow by remember { mutableStateOf(true) }
+    var currentNavigationItem by remember { mutableStateOf(NavigationItems.Brand) }
+    val navController = rememberNavController()
 
     androidx.compose.material.Scaffold(
         bottomBar = {
             if (isBottomBarShow) {
-                MainNavigationBar()
+                MainNavigationBar(
+                    selected = currentNavigationItem,
+                    onChangeValue = {
+                        currentNavigationItem = it
+                        navController.navigate(it.name)
+                    }
+                )
             }
         },
         content = { paddingValue ->
             CompositionLocalProvider(scaffoldPaddingValueCompositionLocal.provides(paddingValue)) {
-                MainNavHost()
+                MainNavHost(navController = navController)
             }
         }
     )

@@ -8,9 +8,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -30,7 +27,9 @@ import com.example.ablebody_android.ui.theme.White
 
 @Composable
 fun MainNavigationBar(
-    modifier: Modifier = Modifier
+    selected: NavigationItems,
+    onChangeValue: (NavigationItems) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BottomNavigation(
         modifier = modifier
@@ -43,16 +42,14 @@ fun MainNavigationBar(
         ,
         backgroundColor = White
     ) {
-        var selectedItem by remember { mutableStateOf(NavigationItems.Brand) }
-
         NavigationItems.values().forEach { item ->
             val animateColor by animateColorAsState(
-                targetValue = if (selectedItem == item) AbleDark else AbleLight
+                targetValue = if (selected == item) AbleDark else AbleLight
             )
 
             AbleBodyBottomNavigationItem(
-                selected = item == selectedItem,
-                onClick = { selectedItem = item },
+                selected = item == selected,
+                onClick = { onChangeValue(item) },
                 icon = {
                     Icon(
                         painter = painterResource(item.imageEnableResourceID),
@@ -83,5 +80,5 @@ fun MainNavigationBar(
 @Preview()
 @Composable
 fun MainNavigationBarPreview() {
-    MainNavigationBar()
+    MainNavigationBar(selected = NavigationItems.Brand, onChangeValue = { })
 }
