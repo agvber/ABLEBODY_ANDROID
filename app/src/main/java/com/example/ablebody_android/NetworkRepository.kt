@@ -8,6 +8,7 @@ import com.example.ablebody_android.retrofit.dto.request.NewUserCreateRequest
 import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
+import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
@@ -18,6 +19,8 @@ import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
+import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkCodyData
+import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkItemData
 import retrofit2.Response
 
 class NetworkRepository(
@@ -128,21 +131,28 @@ class NetworkRepository(
     private fun<T> removeSquareBrackets(list: List<T>) =
         list.joinToString (",","","",-1)
 
-    fun addBookmarkItem(itemID: Long) = networkService.addBookmarkItem(itemID).execute()
+    fun addBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> = networkService.addBookmarkItem(itemID).execute()
 
     fun readBookmarkItem(
         page: Int = 0,
         size: Int = 20
-    ) = networkService.readBookmarkItem(page, size).execute()
+    ): Response<AbleBodyResponse<ReadBookmarkItemData>> =
+        networkService.readBookmarkItem(page, size).execute()
 
-    fun deleteBookmarkItem(itemID: Long) = networkService.deleteBookmarkItem(itemID).execute()
+    fun deleteBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> =
+        networkService.deleteBookmarkItem(itemID).execute()
 
-    fun addBookmarkCody(itemID: Long) = networkService.addBookmarkCody(itemID).execute()
+    fun addBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>> =
+        networkService.addBookmarkCody(itemID).execute()
 
     fun readBookmarkCody(
         page: Int = 0,
         size: Int = 20
-    ) = networkService.readBookmarkCody(page, size).execute()
+    ): Response<AbleBodyResponse<ReadBookmarkCodyData>> =
+        networkService.readBookmarkCody(page, size).execute()
 
-    fun deleteBookmarkCody(itemID: Long) = networkService.deleteBookmarkCody(itemID).execute()
+    fun deleteBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>> =
+        networkService.deleteBookmarkCody(itemID).execute()
+
+
 }
