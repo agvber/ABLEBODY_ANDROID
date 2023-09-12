@@ -1,7 +1,5 @@
 package com.example.ablebody_android.brand.ui
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -13,9 +11,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,10 +44,10 @@ import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
-import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
+import com.example.ablebody_android.ui.utils.AbleBodyRowTab
+import com.example.ablebody_android.ui.utils.AbleBodyTabItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -261,26 +256,15 @@ fun BrandDetailTopBarLayout(
             },
             backgroundColor = White,
         )
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            contentColor = AbleBlue,
-            indicator = @Composable { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                    color = AbleBlue
-                )
-            },
+        AbleBodyRowTab(
+            selectedTabIndex = selectedTabIndex
         ) {
-            TabTextLayout(
-                selected = selectedTabIndex == 0,
-                text = "아이템",
-                onclick = { tabOnClick(0) }
-            )
-            TabTextLayout(
-                selected = selectedTabIndex == 1,
-                text = "코디",
-                onclick = { tabOnClick(1) }
-            )
+            AbleBodyTabItem(selected = selectedTabIndex == 0, text = "아이템") {
+                tabOnClick(0)
+            }
+            AbleBodyTabItem(selected = selectedTabIndex == 1, text = "코디") {
+                tabOnClick(1)
+            }
         }
     }
 }
@@ -297,34 +281,4 @@ private fun BrandDetailTopBarLayoutPreview() {
             tabOnClick = { state = it }
         )
     }
-}
-
-@Composable
-private fun TabTextLayout(
-    selected: Boolean,
-    text: String,
-    onclick: () -> Unit
-) {
-    val textColor by animateColorAsState(
-        targetValue = if (selected) AbleBlue else SmallTextGrey
-    )
-    val textWeight by animateIntAsState(
-        targetValue = if (selected) 500 else 400
-    )
-    val fontResourceID = if (selected) R.font.noto_sans_cjk_kr_regular else R.font.noto_sans_cjk_kr_medium
-    Text(
-        text = text,
-        style = TextStyle(
-            fontSize = 15.sp,
-            fontFamily = FontFamily(Font(fontResourceID)),
-            fontWeight = FontWeight(textWeight),
-            color = textColor,
-            textAlign = TextAlign.Center,
-        ),
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onclick
-        )
-    )
 }
