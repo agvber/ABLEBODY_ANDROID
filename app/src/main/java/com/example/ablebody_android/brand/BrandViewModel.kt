@@ -1,8 +1,10 @@
 package com.example.ablebody_android.brand
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.ablebody_android.AbleBodyApplication
 import com.example.ablebody_android.Gender
 import com.example.ablebody_android.HomeCategory
 import com.example.ablebody_android.ItemChildCategory
@@ -11,7 +13,6 @@ import com.example.ablebody_android.ItemParentCategory
 import com.example.ablebody_android.NetworkRepository
 import com.example.ablebody_android.PersonHeightFilterType
 import com.example.ablebody_android.SortingMethod
-import com.example.ablebody_android.TokenSharedPreferencesRepository
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
@@ -30,18 +31,24 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class BrandViewModel(application: Application): AndroidViewModel(application) {
+class BrandViewModel(
+    private val networkRepository: NetworkRepository
+): ViewModel() {
+    companion object {
+        val Factory : ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
 
-    private val tokenSharedPreferencesRepository = TokenSharedPreferencesRepository(application.applicationContext)
-    private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
+                return BrandViewModel(
+                    networkRepository = (application as AbleBodyApplication).networkRepository
+                ) as T
+            }
+        }
+    }
 
     private val ioDispatcher = Dispatchers.IO
 
-    init {
-        tokenSharedPreferencesRepository.putAuthToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9" +
-                ".eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE" +
-                "0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
-    }
 
     private val _brandListSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandListSortingMethod = _brandListSortingMethod.asStateFlow()

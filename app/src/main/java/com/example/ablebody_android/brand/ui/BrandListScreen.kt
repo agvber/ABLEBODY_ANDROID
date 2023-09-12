@@ -59,7 +59,7 @@ import com.example.ablebody_android.utils.ItemSearchBar
 @Composable
 fun BrandListRoute(
     onItemClick: (Long, String) -> Unit,
-    viewModel: BrandViewModel = viewModel(),
+    viewModel: BrandViewModel = viewModel(factory = BrandViewModel.Factory),
 ) {
     val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
     val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()

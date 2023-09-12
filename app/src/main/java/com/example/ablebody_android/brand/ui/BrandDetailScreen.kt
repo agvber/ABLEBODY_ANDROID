@@ -61,7 +61,7 @@ fun BrandDetailRoute(
     contentID: Long?,
     contentName: String,
     modifier: Modifier = Modifier,
-    brandViewModel: BrandViewModel = viewModel()
+    brandViewModel: BrandViewModel = viewModel(factory = BrandViewModel.Factory)
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
 
