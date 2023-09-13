@@ -4,6 +4,8 @@ import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemRe
 import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
+import com.example.ablebody_android.retrofit.dto.response.data.FindCodyResponseData
+import com.example.ablebody_android.retrofit.dto.response.data.FindItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.NewUserCreateResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkItemData
@@ -36,3 +38,8 @@ typealias DeleteBookmarkItemResponse = AbleBodyResponse<String>
 typealias AddBookmarkCodyResponse = AbleBodyResponse<String>
 typealias ReadBookmarkCodyResponse = AbleBodyResponse<ReadBookmarkCodyData>
 typealias DeleteBookmarkCodyResponse = AbleBodyResponse<String>
+
+/** Find **/
+
+typealias FindItemResponse = AbleBodyResponse<FindItemResponseData>
+typealias FindCodyResponse = AbleBodyResponse<FindCodyResponseData>

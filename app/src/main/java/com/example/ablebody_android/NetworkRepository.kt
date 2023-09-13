@@ -9,8 +9,8 @@ import com.example.ablebody_android.retrofit.dto.request.RefreshTokenRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSCheckRequest
 import com.example.ablebody_android.retrofit.dto.request.SMSSendRequest
 import com.example.ablebody_android.retrofit.dto.response.AbleBodyResponse
-import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandDetailCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.retrofit.dto.response.BrandMainResponse
 import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -19,6 +19,8 @@ import com.example.ablebody_android.retrofit.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.StringResponse
 import com.example.ablebody_android.retrofit.dto.response.UserDataResponse
+import com.example.ablebody_android.retrofit.dto.response.data.FindCodyResponseData
+import com.example.ablebody_android.retrofit.dto.response.data.FindItemResponseData
 import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkItemData
 import retrofit2.Response
@@ -131,7 +133,8 @@ class NetworkRepository(
     private fun<T> removeSquareBrackets(list: List<T>) =
         list.joinToString (",","","",-1)
 
-    fun addBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> = networkService.addBookmarkItem(itemID).execute()
+    fun addBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> =
+        networkService.addBookmarkItem(itemID).execute()
 
     fun readBookmarkItem(
         page: Int = 0,
@@ -154,5 +157,35 @@ class NetworkRepository(
     fun deleteBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>> =
         networkService.deleteBookmarkCody(itemID).execute()
 
+    fun findItem(
+        itemGender: ItemGender,
+        parentCategory: ItemParentCategory,
+        childCategory: ItemChildCategory? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Response<AbleBodyResponse<FindItemResponseData>> =
+        networkService.findItem(
+            itemGender = itemGender,
+            parentCategory = parentCategory,
+            childCategory = childCategory,
+            page = page,
+            size = size
+        ).execute()
 
+    fun findCody(
+        genders: List<Gender>,
+        category: List<HomeCategory>,
+        personHeightRangeStart: Int? = null,
+        personHeightRangeEnd: Int? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Response<AbleBodyResponse<FindCodyResponseData>> =
+        networkService.findCody(
+            genders = removeSquareBrackets(genders),
+            category = removeSquareBrackets(category),
+            personHeightRangeStart = personHeightRangeStart,
+            personHeightRangeEnd = personHeightRangeEnd,
+            page = page,
+            size = size
+        ).execute()
 }

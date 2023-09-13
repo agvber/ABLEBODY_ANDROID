@@ -18,6 +18,8 @@ import com.example.ablebody_android.retrofit.dto.response.CheckSMSResponse
 import com.example.ablebody_android.retrofit.dto.response.DeleteBookmarkCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.DeleteBookmarkItemResponse
 import com.example.ablebody_android.retrofit.dto.response.FCMTokenAndAppVersionUpdateResponse
+import com.example.ablebody_android.retrofit.dto.response.FindCodyResponse
+import com.example.ablebody_android.retrofit.dto.response.FindItemResponse
 import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.retrofit.dto.response.ReadBookmarkCodyResponse
 import com.example.ablebody_android.retrofit.dto.response.ReadBookmarkItemResponse
@@ -136,4 +138,23 @@ interface NetworkAPI {
     fun deleteBookmarkCody(
         @Query("codyId") codyID: Long
     ): Call<DeleteBookmarkCodyResponse>
+
+    @GET("/api/find/new-item")
+    fun findItem(
+        @Query("itemGender") itemGender: ItemGender,
+        @Query("parentCategory") parentCategory: ItemParentCategory,
+        @Query("childCategory") childCategory: ItemChildCategory? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<FindItemResponse>
+
+    @GET("/api/find/style")
+    fun findCody(
+        @Query("gender") genders: String,
+        @Query("category") category: String,
+        @Query("height1") personHeightRangeStart: Int?,
+        @Query("height2") personHeightRangeEnd: Int?,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<FindCodyResponse>
 }
