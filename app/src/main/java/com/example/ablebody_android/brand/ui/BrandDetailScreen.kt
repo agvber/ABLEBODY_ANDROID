@@ -14,10 +14,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -64,57 +62,57 @@ fun BrandDetailRoute(
     val codyItemContentList by brandViewModel.codyItemContentList.collectAsStateWithLifecycle()
 
     BrandDetailScreen(
+        modifier = modifier,
         onBackClick = onBackClick,
+        productItemLoadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() },
+        onProductItemSortingMethodChange = { brandViewModel.updateBrandProductItemOrderFilterType(it) },
+        onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
+        onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
+        onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
+        codyItemFilterResetRequest = { brandViewModel.resetCodyItemListFilter() },
+        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() },
+        onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
+        onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         contentName = contentName,
         productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
-        onProductItemSortingMethodChange = { brandViewModel.updateBrandProductItemOrderFilterType(it) },
         productItemParentFilter = brandViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
         productItemChildCategory = brandViewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
         productItemChildFilter = brandViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-        onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
         productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
         productContentItem = productItemContentList,
-        productItemLoadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() },
-        codyItemFilterResetRequest = { brandViewModel.resetCodyItemListFilter() },
         codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
         codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
         onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
-        codyItemContentList = codyItemContentList,
-        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() },
-        modifier = modifier
+        codyItemContentList = codyItemContentList
     )
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BrandDetailScreen(
-    onBackClick: () -> Unit,
-    contentName: String,
-    productItemSortingMethod: SortingMethod,
-    onProductItemSortingMethodChange: (SortingMethod) -> Unit,
-    productItemParentFilter: ItemParentCategory,
-    onProductItemParentFilterChange: (ItemParentCategory) -> Unit,
-    productItemChildCategory: List<ItemChildCategory>,
-    productItemChildFilter: ItemChildCategory?,
-    onProductItemChildFilterChange: (ItemChildCategory?) -> Unit,
-    productItemGender: ItemGender,
-    onProductItemGenderChange: (ItemGender) -> Unit,
-    productContentItem: List<BrandDetailItemResponseData.Item>,
-    productItemLoadNextOnPageChangeListener: () -> Unit,
-    codyItemFilterResetRequest: () -> Unit,
-    codyItemListGenderFilterList: List<Gender>,
-    onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
-    codyItemListSportFilter: List<HomeCategory>,
-    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
-    codyItemListPersonHeightFilter: PersonHeightFilterType,
-    onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
-    codyItemContentList: List<BrandDetailCodyResponseData.Item>,
-    codyItemLoadNextOnPageChangeListener: () -> Unit,
     modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {},
+    productItemLoadNextOnPageChangeListener: () -> Unit = {},
+    onProductItemSortingMethodChange: (SortingMethod) -> Unit = {},
+    onProductItemParentFilterChange: (ItemParentCategory) -> Unit = {},
+    onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
+    onProductItemGenderChange: (ItemGender) -> Unit = {},
+    codyItemFilterResetRequest: () -> Unit = {},
+    codyItemLoadNextOnPageChangeListener: () -> Unit = {},
+    onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
+    onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
+    contentName: String = "",
+    productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
+    productItemParentFilter: ItemParentCategory = ItemParentCategory.ALL,
+    productItemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
+    productItemChildFilter: ItemChildCategory? = null,
+    productItemGender: ItemGender = ItemGender.UNISEX,
+    productContentItem: List<BrandDetailItemResponseData.Item>,
+    codyItemListGenderFilterList: List<Gender> = listOf(),
+    codyItemListSportFilter: List<HomeCategory> = listOf(),
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
+    codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
+    codyItemContentList: List<BrandDetailCodyResponseData.Item>,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -167,54 +165,11 @@ fun BrandDetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun BrandDetailScreenPreview(
-    onBackClick: () -> Unit = {},
-    contentName: String = "",
-    productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
-    onProductItemSortingMethodChange: (SortingMethod) -> Unit = {},
-    productItemParentFilter: ItemParentCategory = ItemParentCategory.ALL,
-    onProductItemParentFilterChange: (ItemParentCategory) -> Unit = {},
-    productItemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
-    productItemChildFilter: ItemChildCategory? = null,
-    onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
-    productItemGender: ItemGender = ItemGender.UNISEX,
-    onProductItemGenderChange: (ItemGender) -> Unit = {},
-    productContentItemList: List<BrandDetailItemResponseData.Item> = fakeBrandDetailItemResponseData.content,
-    productItemLoadNextOnPageChangeListener: () -> Unit = {},
-    codyItemFilterResetRequest: () -> Unit = {},
-    codyItemListGenderFilterList: List<Gender> = listOf(),
-    onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
-    codyItemListSportFilter: List<HomeCategory> = listOf(),
-    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
-    codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
-    onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
-    codyContentItemList: List<BrandDetailCodyResponseData.Item> = fakeBrandDetailCodyResponseData.content,
-    codyItemLoadNextOnPageChangeListener: () -> Unit = {},
-) {
+fun BrandDetailScreenPreview() {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
-            onBackClick = onBackClick,
-            contentName = contentName,
-            productItemSortingMethod = productItemSortingMethod,
-            onProductItemSortingMethodChange = onProductItemSortingMethodChange,
-            productItemParentFilter = productItemParentFilter,
-            onProductItemParentFilterChange = onProductItemParentFilterChange,
-            productItemChildCategory = productItemChildCategory,
-            productItemChildFilter = productItemChildFilter,
-            onProductItemChildFilterChange = onProductItemChildFilterChange,
-            productItemGender = productItemGender,
-            onProductItemGenderChange = onProductItemGenderChange,
-            productContentItem = productContentItemList,
-            productItemLoadNextOnPageChangeListener = productItemLoadNextOnPageChangeListener,
-            codyItemFilterResetRequest = codyItemFilterResetRequest,
-            codyItemListGenderFilterList = codyItemListGenderFilterList,
-            onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
-            codyItemListSportFilter = codyItemListSportFilter,
-            onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
-            codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
-            onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemContentList = codyContentItemList,
-            codyItemLoadNextOnPageChangeListener = { codyItemLoadNextOnPageChangeListener() }
+            productContentItem = fakeBrandDetailItemResponseData.content,
+            codyItemContentList = fakeBrandDetailCodyResponseData.content
         )
     }
 }
@@ -272,13 +227,12 @@ fun BrandDetailTopBarLayout(
 @Preview(showBackground = true)
 @Composable
 private fun BrandDetailTopBarLayoutPreview() {
-    var state by remember { mutableIntStateOf(0) }
     ABLEBODY_AndroidTheme {
         BrandDetailTopBarLayout(
-            titleText = "오옴",
-            backButtonClicked = { /*TODO*/ },
-            selectedTabIndex = state,
-            tabOnClick = { state = it }
+            titleText = "",
+            backButtonClicked = {  },
+            selectedTabIndex = 0,
+            tabOnClick = {  }
         )
     }
 }
