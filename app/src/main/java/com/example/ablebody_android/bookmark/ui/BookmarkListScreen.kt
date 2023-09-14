@@ -19,22 +19,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.ablebody_android.bookmark.BookmarkViewModel
+import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
+import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
 import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
-import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkCodyData
-import com.example.ablebody_android.retrofit.dto.response.data.ReadBookmarkItemData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.AbleBodyRowTab
 import com.example.ablebody_android.ui.utils.AbleBodyTabItem
 import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
-import com.example.ablebody_android.utils.ItemSearchBar
+import com.example.ablebody_android.ui.utils.ItemSearchBar
 import kotlinx.coroutines.launch
 
 @Composable
-fun BookmarkListRoute(bookmarkViewModel: BookmarkViewModel = viewModel(factory = BookmarkViewModel.Factory)) {
+fun BookmarkListRoute(bookmarkViewModel: BookmarkViewModel = hiltViewModel()) {
     val bookmarkProductItemList by bookmarkViewModel.productItemList.collectAsStateWithLifecycle()
     val codyItemList by bookmarkViewModel.codyItemList.collectAsStateWithLifecycle()
 

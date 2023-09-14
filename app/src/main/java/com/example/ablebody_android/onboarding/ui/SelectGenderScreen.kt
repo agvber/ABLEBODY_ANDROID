@@ -28,7 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.ablebody_android.Gender
+import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.OnboardingViewModel
 import com.example.ablebody_android.ui.theme.AbleBlue
@@ -36,9 +36,9 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.PlaneGrey
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.theme.White
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.DisableCustomWithLabelTextField
-import com.example.ablebody_android.utils.HighlightText
+import com.example.ablebody_android.ui.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.ui.utils.DisableCustomWithLabelTextField
+import com.example.ablebody_android.ui.utils.HighlightText
 
 
 @Composable

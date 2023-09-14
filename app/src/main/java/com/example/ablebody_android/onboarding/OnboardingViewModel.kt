@@ -1,11 +1,11 @@
 package com.example.ablebody_android.onboarding
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.NetworkRepository
-import com.example.ablebody_android.TokenSharedPreferencesRepository
+import com.example.ablebody_android.data.dto.Gender
+import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
+import com.example.ablebody_android.data.dto.response.SendSMSResponse
+import com.example.ablebody_android.data.repository.OnboardingRepository
 import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.onboarding.data.NicknameRule
 import com.example.ablebody_android.onboarding.data.ProfileImages
@@ -13,8 +13,7 @@ import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.onboarding.utils.CertificationNumberCountDownTimer
 import com.example.ablebody_android.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.onboarding.utils.isNicknameRuleMatch
-import com.example.ablebody_android.retrofit.dto.response.NewUserCreateResponse
-import com.example.ablebody_android.retrofit.dto.response.SendSMSResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -33,11 +32,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import javax.inject.Inject
 
-class OnboardingViewModel(application: Application): AndroidViewModel(application) {
-
-    private val tokenSharedPreferencesRepository = TokenSharedPreferencesRepository(application.applicationContext)
-    private val networkRepository = NetworkRepository(tokenSharedPreferencesRepository)
+@HiltViewModel
+class OnboardingViewModel @Inject constructor(
+    private val onboardingRepository: OnboardingRepository
+): ViewModel() {
 
     private val ioDispatcher = Dispatchers.IO
 
@@ -51,27 +51,29 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     private val phoneNumberRegex = "^01[0-1, 7][0-9]{8}\$".toRegex()
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val isPhoneNumberCorrectState: StateFlow<Boolean> =
-        phoneNumberState.debounce(500L).flatMapLatest { number ->
-            flowOf(number.isNotEmpty() && phoneNumberRegex.matches(number))
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
+        phoneNumberState.debounce(500L)
+            .flatMapLatest { number ->
+                flowOf(number.isNotEmpty() && phoneNumberRegex.matches(number))
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val phoneNumberMessageStateUi: StateFlow<String> =
-        phoneNumberState.debounce(500L).flatMapLatest { number ->
-            if (number.isEmpty() || phoneNumberRegex.matches(number)) {
-                flowOf("")
-            } else {
-                flowOf("휴대폰 번호 양식에 맞지 않아요.")
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ""
-        )
+        phoneNumberState.debounce(500L)
+            .flatMapLatest { number ->
+                if (number.isEmpty() || phoneNumberRegex.matches(number)) {
+                    flowOf("")
+                } else {
+                    flowOf("휴대폰 번호 양식에 맞지 않아요.")
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = ""
+            )
 
 
     private val _smsResponse = MutableSharedFlow<Response<SendSMSResponse>>()
@@ -81,7 +83,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
     fun requestSmsVerificationCode(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
             if (System.currentTimeMillis() - lastSmsVerificationCodeRequestTime >= 1000L) {
-                val response = networkRepository.sendSMS(phoneNumber)
+                val response = onboardingRepository.sendSMS(phoneNumber)
                 _smsResponse.emit(response)
                 lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
             }
@@ -120,7 +122,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         val phoneConfirmID = response.body()?.data?.phoneConfirmId
         if (number.length == 4 && phoneConfirmID != null) {
             withContext(Dispatchers.IO) {
-                networkRepository.checkSMS(phoneConfirmID, number)
+                onboardingRepository.checkSMS(phoneConfirmID, number)
             }
         } else {
             null
@@ -137,10 +139,6 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         } else if (result != null) {
             when {
                 result.body()?.data?.registered == true -> {
-                    result.body()?.data?.tokens?.let {
-                        tokenSharedPreferencesRepository.putAuthToken(it.authToken)
-                        tokenSharedPreferencesRepository.putRefreshToken(it.refreshToken)
-                    }
                     CertificationNumberInfoMessageUiState.Already
                 }
                 result.body()?.success == true -> {
@@ -186,7 +184,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
                 flowOf(NicknameRule.UnAvailable)
             } else {
                 withContext(ioDispatcher) {
-                    if (networkRepository.checkNickname(nickname).body()?.success == true) {
+                    if (onboardingRepository.checkNickname(nickname).body()?.success == true) {
                         flowOf(NicknameRule.Available)
                     } else {
                         flowOf(NicknameRule.InUsed)
@@ -227,7 +225,7 @@ class OnboardingViewModel(application: Application): AndroidViewModel(applicatio
         agreeMarketingConsent: Boolean
     ) {
         viewModelScope.launch(ioDispatcher) {
-            networkRepository.createNewUser(
+            onboardingRepository.createNewUser(
                 gender = gender,
                 nickname = nickname,
                 profileImage = profileImage,

@@ -36,30 +36,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.ablebody_android.ItemGender
 import com.example.ablebody_android.R
-import com.example.ablebody_android.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.data.dto.ItemGender
+import com.example.ablebody_android.data.dto.SortingMethod
+import com.example.ablebody_android.data.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
-import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.SmallTextGrey
 import com.example.ablebody_android.ui.utils.DefaultFilterTabItem
 import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
+import com.example.ablebody_android.ui.utils.ItemSearchBar
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 import com.example.ablebody_android.ui.utils.previewPlaceHolder
-import com.example.ablebody_android.utils.ItemSearchBar
 
 @Composable
 fun BrandListRoute(
     onItemClick: (Long, String) -> Unit,
-    viewModel: BrandViewModel = viewModel(factory = BrandViewModel.Factory),
+    viewModel: BrandViewModel = hiltViewModel()
 ) {
     val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
     val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
@@ -170,7 +170,40 @@ fun BrandScreenListPreview() {
             onSortingMethodChange = {},
             genderFilter = ItemGender.UNISEX,
             onGenderFilterChange = {},
-            brandItemList = listOf(BrandMainResponseData(name="NIKE", id=3, thumbnail="", subName="나이키", brandGender=ItemGender.UNISEX, maxDiscount=0), BrandMainResponseData(name="Positive Me", id=36, thumbnail="", subName="포지티브미", brandGender= ItemGender.FEMALE, maxDiscount=0), BrandMainResponseData(name="MAVRK", id=30, thumbnail="", subName="매버릭", brandGender= ItemGender.MALE, maxDiscount=46), BrandMainResponseData(name="adidas", id=1, thumbnail="", subName="아디다스", brandGender=ItemGender.UNISEX, maxDiscount=0)),
+            brandItemList = listOf(
+                BrandMainResponseData(
+                    name = "NIKE",
+                    id = 3,
+                    thumbnail = "",
+                    subName = "나이키",
+                    brandGender = ItemGender.UNISEX,
+                    maxDiscount = 0
+                ),
+                BrandMainResponseData(
+                    name = "Positive Me",
+                    id = 36,
+                    thumbnail = "",
+                    subName = "포지티브미",
+                    brandGender = ItemGender.FEMALE,
+                    maxDiscount = 0
+                ),
+                BrandMainResponseData(
+                    name = "MAVRK",
+                    id = 30,
+                    thumbnail = "",
+                    subName = "매버릭",
+                    brandGender = ItemGender.MALE,
+                    maxDiscount = 46
+                ),
+                BrandMainResponseData(
+                    name = "adidas",
+                    id = 1,
+                    thumbnail = "",
+                    subName = "아디다스",
+                    brandGender = ItemGender.UNISEX,
+                    maxDiscount = 0
+                )
+            ),
             onItemClick = { id, name -> }
         )
     }

@@ -41,8 +41,8 @@ import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.HighlightText
+import com.example.ablebody_android.ui.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.ui.utils.HighlightText
 import kotlinx.coroutines.launch
 
 

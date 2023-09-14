@@ -30,8 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.ui.InputPhoneNumberWithRuleLayout
 import com.example.ablebody_android.onboarding.OnboardingViewModel
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.HighlightText
+import com.example.ablebody_android.ui.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.ui.utils.HighlightText
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import kotlinx.coroutines.flow.launchIn

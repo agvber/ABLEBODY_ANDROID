@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.CustomButton
+import com.example.ablebody_android.ui.utils.CustomButton
 
 
 @Composable

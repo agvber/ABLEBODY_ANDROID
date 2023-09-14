@@ -36,7 +36,7 @@ import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.utils.BackButtonTopBarLayout
+import com.example.ablebody_android.ui.utils.BackButtonTopBarLayout
 
 @Composable
 fun ItemDetailScreen() {

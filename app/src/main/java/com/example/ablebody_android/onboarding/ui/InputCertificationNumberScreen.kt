@@ -35,11 +35,11 @@ import com.example.ablebody_android.onboarding.OnboardingViewModel
 import com.example.ablebody_android.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.CustomLabelText
-import com.example.ablebody_android.utils.CustomTextField
-import com.example.ablebody_android.utils.HighlightText
-import com.example.ablebody_android.utils.TextFieldUnderText
+import com.example.ablebody_android.ui.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.ui.utils.CustomLabelText
+import com.example.ablebody_android.ui.utils.CustomTextField
+import com.example.ablebody_android.ui.utils.HighlightText
+import com.example.ablebody_android.ui.utils.TextFieldUnderText
 import com.example.ablebody_android.utils.redirectToURL
 
 

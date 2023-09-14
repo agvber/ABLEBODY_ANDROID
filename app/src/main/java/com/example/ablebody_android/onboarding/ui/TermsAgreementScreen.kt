@@ -33,7 +33,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.data.TermsAgreements
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.CustomButton
+import com.example.ablebody_android.ui.utils.CustomButton
 import com.example.ablebody_android.utils.redirectToURL
 
 @Composable

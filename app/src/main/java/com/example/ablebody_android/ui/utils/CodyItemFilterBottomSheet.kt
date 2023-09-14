@@ -49,9 +49,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.HomeCategory
-import com.example.ablebody_android.PersonHeightFilterType
+import com.example.ablebody_android.data.dto.Gender
+import com.example.ablebody_android.data.dto.HomeCategory
+import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleBlue

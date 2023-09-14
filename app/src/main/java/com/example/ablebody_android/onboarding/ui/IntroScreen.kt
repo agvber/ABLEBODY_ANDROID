@@ -33,8 +33,8 @@ import com.example.ablebody_android.onboarding.utils.checkPermission
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.SmallTextGrey
-import com.example.ablebody_android.utils.CustomButton
-import com.example.ablebody_android.utils.HighlightText
+import com.example.ablebody_android.ui.utils.CustomButton
+import com.example.ablebody_android.ui.utils.HighlightText
 import kotlinx.coroutines.launch
 
 

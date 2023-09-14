@@ -27,11 +27,11 @@ import com.example.ablebody_android.R
 import com.example.ablebody_android.onboarding.OnboardingViewModel
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
-import com.example.ablebody_android.utils.BottomCustomButtonLayout
-import com.example.ablebody_android.utils.CustomLabelText
-import com.example.ablebody_android.utils.CustomTextField
-import com.example.ablebody_android.utils.HighlightText
-import com.example.ablebody_android.utils.TextFieldUnderText
+import com.example.ablebody_android.ui.utils.BottomCustomButtonLayout
+import com.example.ablebody_android.ui.utils.CustomLabelText
+import com.example.ablebody_android.ui.utils.CustomTextField
+import com.example.ablebody_android.ui.utils.HighlightText
+import com.example.ablebody_android.ui.utils.TextFieldUnderText
 import kotlinx.coroutines.flow.launchIn
 
 @Composable
@@ -136,7 +136,7 @@ fun InputPhoneNumberScreen(
     navController: NavController
 ) {
     val phoneNumber by viewModel.phoneNumberState.collectAsStateWithLifecycle()
-    val enable by viewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
+    val isPhoneNumberCorrect by viewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
     val phoneNumberMessage by viewModel.phoneNumberMessageStateUi.collectAsStateWithLifecycle()
 
     BottomCustomButtonLayout(
@@ -146,7 +146,7 @@ fun InputPhoneNumberScreen(
             viewModel.startCertificationNumberTimer()
             navController.navigate(route = "InputCertificationNumber")
         },
-        enable = enable
+        enable = isPhoneNumberCorrect
     ) {
         InputPhoneNumberContent(
             value = phoneNumber,

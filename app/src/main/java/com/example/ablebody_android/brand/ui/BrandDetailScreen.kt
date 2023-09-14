@@ -26,21 +26,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.HomeCategory
-import com.example.ablebody_android.ItemChildCategory
-import com.example.ablebody_android.ItemGender
-import com.example.ablebody_android.ItemParentCategory
-import com.example.ablebody_android.PersonHeightFilterType
+import com.example.ablebody_android.data.dto.Gender
+import com.example.ablebody_android.data.dto.HomeCategory
+import com.example.ablebody_android.data.dto.ItemChildCategory
+import com.example.ablebody_android.data.dto.ItemGender
+import com.example.ablebody_android.data.dto.ItemParentCategory
+import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.R
-import com.example.ablebody_android.SortingMethod
+import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.brand.BrandViewModel
 import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
 import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.White
@@ -54,7 +52,7 @@ fun BrandDetailRoute(
     contentID: Long?,
     contentName: String,
     modifier: Modifier = Modifier,
-    brandViewModel: BrandViewModel = viewModel(factory = BrandViewModel.Factory)
+    brandViewModel: BrandViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
 
@@ -107,12 +105,12 @@ fun BrandDetailScreen(
     productItemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
     productItemChildFilter: ItemChildCategory? = null,
     productItemGender: ItemGender = ItemGender.UNISEX,
-    productContentItem: List<BrandDetailItemResponseData.Item>,
+    productContentItem: List<com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData.Item>,
     codyItemListGenderFilterList: List<Gender> = listOf(),
     codyItemListSportFilter: List<HomeCategory> = listOf(),
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
-    codyItemContentList: List<BrandDetailCodyResponseData.Item>,
+    codyItemContentList: List<com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData.Item>,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })

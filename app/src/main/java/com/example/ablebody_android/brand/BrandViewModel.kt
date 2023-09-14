@@ -1,21 +1,18 @@
 package com.example.ablebody_android.brand
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.ablebody_android.AbleBodyApplication
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.HomeCategory
-import com.example.ablebody_android.ItemChildCategory
-import com.example.ablebody_android.ItemGender
-import com.example.ablebody_android.ItemParentCategory
-import com.example.ablebody_android.NetworkRepository
-import com.example.ablebody_android.PersonHeightFilterType
-import com.example.ablebody_android.SortingMethod
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailItemResponseData
-import com.example.ablebody_android.retrofit.dto.response.data.BrandMainResponseData
+import com.example.ablebody_android.data.dto.Gender
+import com.example.ablebody_android.data.dto.HomeCategory
+import com.example.ablebody_android.data.dto.ItemChildCategory
+import com.example.ablebody_android.data.dto.ItemGender
+import com.example.ablebody_android.data.dto.ItemParentCategory
+import com.example.ablebody_android.data.dto.PersonHeightFilterType
+import com.example.ablebody_android.data.dto.SortingMethod
+import com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData
+import com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData
+import com.example.ablebody_android.data.repository.BrandRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,26 +26,15 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class BrandViewModel(
-    private val networkRepository: NetworkRepository
+@HiltViewModel
+class BrandViewModel @Inject constructor(
+    brandRepository: BrandRepository
 ): ViewModel() {
-    companion object {
-        val Factory : ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-                return BrandViewModel(
-                    networkRepository = (application as AbleBodyApplication).networkRepository
-                ) as T
-            }
-        }
-    }
 
     private val ioDispatcher = Dispatchers.IO
-
 
     private val _brandListSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandListSortingMethod = _brandListSortingMethod.asStateFlow()
@@ -69,9 +55,9 @@ class BrandViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val brandItemList: StateFlow<List<BrandMainResponseData>> =
+    val brandItemList: StateFlow<List<com.example.ablebody_android.data.dto.response.data.BrandMainResponseData>> =
         brandListSortingMethod.flatMapLatest { sortingMethod ->
-            flowOf(networkRepository.brandMain(sortingMethod).body()?.data ?: emptyList())
+            flowOf(brandRepository.brandMain(sortingMethod).body()?.data ?: emptyList())
         }
             .combine(brandListGenderFilterType) { data, gender ->
                 data.filter {
@@ -180,7 +166,7 @@ class BrandViewModel(
             arrayOf(sort, id, gender, parent, child)
         }
             .combine(productItemListCurrentPageIndex) { requestDataList, page ->
-                networkRepository.brandDetailItem(
+                brandRepository.brandDetailItem(
                     sort = requestDataList[0] as SortingMethod,
                     brandId = requestDataList[1] as Long,
                     itemGender = requestDataList[2] as ItemGender,
@@ -255,7 +241,7 @@ class BrandViewModel(
             arrayOf(id, gender, sport, height)
         }
             .combine(codyItemListCurrentPageIndex) { requestDataList, page ->
-                networkRepository.brandDetailCody(
+                brandRepository.brandDetailCody(
                     brandId = requestDataList[0] as Long,
                     gender = requestDataList[1] as List<Gender>,
                     category = requestDataList[2] as List<HomeCategory>,

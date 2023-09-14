@@ -27,13 +27,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ablebody_android.CodyItemFilterBottomSheetTabFilterType
-import com.example.ablebody_android.Gender
-import com.example.ablebody_android.HomeCategory
-import com.example.ablebody_android.PersonHeightFilterType
+import com.example.ablebody_android.data.dto.Gender
+import com.example.ablebody_android.data.dto.HomeCategory
+import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.R
 import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
 import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
-import com.example.ablebody_android.retrofit.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.CodyItemFilterTabRow
@@ -51,7 +50,7 @@ fun BrandCodyItemListLayout(
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
-    codyItemContentList: List<BrandDetailCodyResponseData.Item>,
+    codyItemContentList: List<com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData.Item>,
     loadNextOnPageChangeListener: () -> Unit
 ) {
     var isItemRefresh by rememberSaveable { mutableStateOf(false) }
@@ -97,7 +96,9 @@ fun BrandCodyItemListLayout(
                     text = "남자",
                     onClick = {
                         codyItemListGenderFilterList.toMutableList().let {
-                            if (it.contains(Gender.MALE)) { it.remove(Gender.MALE) } else { it.add(Gender.MALE) }
+                            if (it.contains(Gender.MALE)) { it.remove(
+                                Gender.MALE) } else { it.add(
+                                Gender.MALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
                         isItemRefresh = true
@@ -109,7 +110,9 @@ fun BrandCodyItemListLayout(
                     text = "여자",
                     onClick = {
                         codyItemListGenderFilterList.toMutableList().let {
-                            if (it.contains(Gender.FEMALE)) { it.remove(Gender.FEMALE) } else { it.add(Gender.FEMALE) }
+                            if (it.contains(Gender.FEMALE)) { it.remove(
+                                Gender.FEMALE) } else { it.add(
+                                Gender.FEMALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
                         isItemRefresh = true
