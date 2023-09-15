@@ -186,6 +186,7 @@ fun BrandProductItemListLayout(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(horizontal = 10.dp, vertical = 25.dp)
+                    .padding(scaffoldPaddingValueCompositionLocal.current)
             )
         }
     }
