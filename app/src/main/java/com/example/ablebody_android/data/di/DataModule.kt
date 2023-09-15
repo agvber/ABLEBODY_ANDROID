@@ -4,6 +4,8 @@ import com.example.ablebody_android.data.repository.BookmarkRepository
 import com.example.ablebody_android.data.repository.BookmarkRepositoryImpl
 import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.data.repository.BrandRepositoryImpl
+import com.example.ablebody_android.data.repository.ItemRepository
+import com.example.ablebody_android.data.repository.ItemRepositoryImpl
 import com.example.ablebody_android.data.repository.OnboardingRepository
 import com.example.ablebody_android.data.repository.OnboardingRepositoryImpl
 import dagger.Binds
@@ -29,4 +31,9 @@ interface DataModule {
     fun bindBookmarkRepository(
         bookmarkRepositoryImpl: BookmarkRepositoryImpl
     ): BookmarkRepository
+
+    @Binds
+    fun bindItemRepository(
+        itemRepositoryImpl: ItemRepositoryImpl
+    ): ItemRepository
 }

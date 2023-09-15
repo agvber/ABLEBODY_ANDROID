@@ -1,19 +1,28 @@
 package com.example.ablebody_android.network
 
-import com.example.ablebody_android.data.dto.response.*
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
+import com.example.ablebody_android.data.dto.response.AbleBodyResponse
+import com.example.ablebody_android.data.dto.response.AddBookmarkCodyResponse
+import com.example.ablebody_android.data.dto.response.AddBookmarkItemResponse
+import com.example.ablebody_android.data.dto.response.BrandDetailCodyResponse
+import com.example.ablebody_android.data.dto.response.BrandDetailItemResponse
+import com.example.ablebody_android.data.dto.response.BrandMainResponse
 import com.example.ablebody_android.data.dto.response.CheckSMSResponse
+import com.example.ablebody_android.data.dto.response.DeleteBookmarkCodyResponse
+import com.example.ablebody_android.data.dto.response.DeleteBookmarkItemResponse
+import com.example.ablebody_android.data.dto.response.FCMTokenAndAppVersionUpdateResponse
+import com.example.ablebody_android.data.dto.response.FindCodyResponse
+import com.example.ablebody_android.data.dto.response.FindItemResponse
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.data.dto.response.SendSMSResponse
 import com.example.ablebody_android.data.dto.response.StringResponse
-import com.example.ablebody_android.data.dto.response.data.FindCodyResponseData
-import com.example.ablebody_android.data.dto.response.data.FindItemResponseData
+import com.example.ablebody_android.data.dto.response.UserDataResponse
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
 import okhttp3.OkHttpClient
@@ -32,7 +41,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(TEST_SERVER_URL)
+        baseUrl(MAIN_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -141,7 +150,7 @@ class NetworkServiceImpl @Inject constructor(
         page,
         size
     ).execute()
-    override suspend fun addBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> =
+    override suspend fun addBookmarkItem(itemID: Long): Response<AddBookmarkItemResponse> =
         networkAPI.addBookmarkItem(itemID).execute()
 
     override suspend fun readBookmarkItem(
@@ -150,10 +159,10 @@ class NetworkServiceImpl @Inject constructor(
     ): Response<AbleBodyResponse<ReadBookmarkItemData>> =
         networkAPI.readBookmarkItem(page, size).execute()
 
-    override suspend fun deleteBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>> =
+    override suspend fun deleteBookmarkItem(itemID: Long): Response<DeleteBookmarkItemResponse> =
         networkAPI.deleteBookmarkItem(itemID).execute()
 
-    override suspend fun addBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>> =
+    override suspend fun addBookmarkCody(itemID: Long): Response<AddBookmarkCodyResponse> =
         networkAPI.addBookmarkCody(itemID).execute()
 
     override suspend fun readBookmarkCody(
@@ -162,16 +171,17 @@ class NetworkServiceImpl @Inject constructor(
     ): Response<AbleBodyResponse<ReadBookmarkCodyData>> =
         networkAPI.readBookmarkCody(page, size).execute()
 
-    override suspend fun deleteBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>> =
+    override suspend fun deleteBookmarkCody(itemID: Long): Response<DeleteBookmarkCodyResponse> =
         networkAPI.deleteBookmarkCody(itemID).execute()
 
     override suspend fun findItem(
+        sort: SortingMethod,
         itemGender: ItemGender,
         parentCategory: ItemParentCategory,
         childCategory: ItemChildCategory?,
         page: Int,
-        size: Int,
-    ): Response<AbleBodyResponse<FindItemResponseData>> =
+        size: Int
+    ): Response<FindItemResponse> =
         networkAPI.findItem(
             itemGender = itemGender,
             parentCategory = parentCategory,
@@ -187,7 +197,7 @@ class NetworkServiceImpl @Inject constructor(
         personHeightRangeEnd: Int?,
         page: Int,
         size: Int,
-    ): Response<AbleBodyResponse<FindCodyResponseData>> =
+    ): Response<FindCodyResponse> =
         networkAPI.findCody(
             genders = removeSquareBrackets(genders),
             category = removeSquareBrackets(category),

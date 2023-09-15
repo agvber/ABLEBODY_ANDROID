@@ -7,10 +7,14 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.dto.response.AbleBodyResponse
+import com.example.ablebody_android.data.dto.response.AddBookmarkCodyResponse
+import com.example.ablebody_android.data.dto.response.AddBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.data.dto.response.BrandMainResponse
 import com.example.ablebody_android.data.dto.response.CheckSMSResponse
+import com.example.ablebody_android.data.dto.response.DeleteBookmarkCodyResponse
+import com.example.ablebody_android.data.dto.response.DeleteBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.data.dto.response.FindCodyResponse
 import com.example.ablebody_android.data.dto.response.FindItemResponse
@@ -72,24 +76,25 @@ interface NetworkService {
         size: Int? = 20
     ): Response<BrandDetailCodyResponse>
 
-    suspend fun addBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>>
+    suspend fun addBookmarkItem(itemID: Long): Response<AddBookmarkItemResponse>
 
     suspend fun readBookmarkItem(
         page: Int = 0,
         size: Int = 20
     ): Response<AbleBodyResponse<ReadBookmarkItemData>>
 
-    suspend fun deleteBookmarkItem(itemID: Long): Response<AbleBodyResponse<String>>
+    suspend fun deleteBookmarkItem(itemID: Long): Response<DeleteBookmarkItemResponse>
 
-    suspend fun addBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>>
+    suspend fun addBookmarkCody(itemID: Long): Response<AddBookmarkCodyResponse>
 
     suspend fun readBookmarkCody(
         page: Int = 0,
         size: Int = 20
     ): Response<AbleBodyResponse<ReadBookmarkCodyData>>
 
-    suspend fun deleteBookmarkCody(itemID: Long): Response<AbleBodyResponse<String>>
+    suspend fun deleteBookmarkCody(itemID: Long): Response<DeleteBookmarkCodyResponse>
     suspend fun findItem(
+        sort: SortingMethod,
         itemGender: ItemGender,
         parentCategory: ItemParentCategory,
         childCategory: ItemChildCategory? = null,

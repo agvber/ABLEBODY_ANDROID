@@ -6,23 +6,28 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.example.ablebody_android.bookmark.addBookmarkGraph
 import com.example.ablebody_android.brand.addBrandGraph
+import com.example.ablebody_android.item.addItemGraph
+import com.example.ablebody_android.main.data.NavigationItems
 
 @Composable
 fun MainNavHost(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = "Brand") {
+    NavHost(navController = navController, startDestination = NavigationItems.Brand.name) {
 
-        navigation(startDestination = "BrandListScreen", route = "Brand") {
+        navigation(startDestination = "BrandListScreen", route = NavigationItems.Brand.name) {
             addBrandGraph(
                 onBackClick = { navController.popBackStack() },
                 brandItemClick = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
             )
         }
 
-        navigation(startDestination = "BookmarkListRoute", route = "Bookmark") {
+        navigation(startDestination = "BookmarkListRoute", route = NavigationItems.Bookmark.name) {
             addBookmarkGraph()
         }
 
+        navigation(startDestination = "ItemRoute", route = NavigationItems.Item.name) {
+            addItemGraph()
+        }
     }
 }

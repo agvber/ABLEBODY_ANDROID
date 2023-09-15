@@ -1,8 +1,10 @@
-package com.example.ablebody_android.brand.ui
+package com.example.ablebody_android.ui.product_item
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -35,9 +38,8 @@ import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
-import com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
+import com.example.ablebody_android.model.ProductItemData
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.utils.DefaultFilterTabItem
@@ -47,31 +49,31 @@ import com.example.ablebody_android.ui.utils.GenderSwitch
 import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
-import com.example.ablebody_android.ui.product_item.ProductItemLayout
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun BrandProductItemListLayout(
-    sortingMethod: SortingMethod,
+fun ProductItemListLayout(
+    itemClick: (Long) -> Unit,
+    requestNextPage: () -> Unit,
+    productContentItem: List<ProductItemData.Item>,
     onSortingMethodChange: (SortingMethod) -> Unit,
-    parentFilter: ItemParentCategory,
     onParentFilterChange: (ItemParentCategory) -> Unit,
-    itemChildCategory: List<ItemChildCategory>,
-    childFilter: ItemChildCategory?,
     onChildFilterChange: (ItemChildCategory?) -> Unit,
-    gender: ItemGender,
     onGenderChange: (ItemGender) -> Unit,
-    productContentItem: List<BrandDetailItemResponseData.Item>,
-    loadNextOnPageChangeListener: () -> Unit
+    sortingMethod: SortingMethod,
+    itemParentCategory: ItemParentCategory,
+    itemChildCategory: ItemChildCategory?,
+    gender: ItemGender
 ) {
     val scope = rememberCoroutineScope()
-    var isFilterBottomSheetShow by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val roundedCornerCategoryFilterTabStateSheet = rememberLazyListState()
     val productItemGridState = rememberLazyGridState()
+
+    var isFilterBottomSheetShow by rememberSaveable { mutableStateOf(false) }
 
     if (isFilterBottomSheetShow) {
         ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
@@ -103,7 +105,7 @@ fun BrandProductItemListLayout(
         ) {
             ItemParentCategory.values().forEach { category ->
                 DefaultFilterTabItem(
-                    selected = parentFilter == category,
+                    selected = itemParentCategory == category,
                     text = category.string,
                     onClick = {
                         onParentFilterChange(category)
@@ -116,14 +118,25 @@ fun BrandProductItemListLayout(
             }
         }
 
+        val items by remember(itemParentCategory) {
+            derivedStateOf {
+                ItemChildCategory.values().filter {
+                    when (itemParentCategory) {
+                        ItemParentCategory.ALL -> true
+                        else -> it.parentCategory == itemParentCategory
+                    }
+                }
+            }
+        }
+
         RoundedCornerCategoryFilterTabRow(
             state = roundedCornerCategoryFilterTabStateSheet
         ) {
-            items(itemChildCategory) { category ->
+            items(items) { category ->
                 RoundedCornerCategoryFilterTabItem(
-                    selected = childFilter == category,
+                    selected = itemChildCategory == category,
                     onClick = {
-                        if (childFilter != category) {
+                        if (itemChildCategory != category) {
                             onChildFilterChange(category)
                             scope.launch { productItemGridState.animateScrollToItem(0) }
                         } else {
@@ -132,10 +145,10 @@ fun BrandProductItemListLayout(
                     }
                 ) {
                     val textColor by animateColorAsState(
-                        targetValue = if (childFilter == category) AbleBlue else AbleDeep
+                        targetValue = if (itemChildCategory == category) AbleBlue else AbleDeep
                     )
                     val textWeight by animateIntAsState(
-                        targetValue = if (childFilter == category) 500 else 400
+                        targetValue = if (itemChildCategory == category) 500 else 400
                     )
                     Text(
                         text = category.string,
@@ -156,7 +169,7 @@ fun BrandProductItemListLayout(
         ) {
             InfiniteVerticalGrid(
                 buffer = 4,
-                lastPositionListener = loadNextOnPageChangeListener,
+                lastPositionListener = requestNextPage,
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 state = productItemGridState
@@ -171,9 +184,15 @@ fun BrandProductItemListLayout(
                         productSalePrice = it.salePrice,
                         brandName = it.brandName,
                         averageStarRating = it.avgStarRating,
-                        thumbnail = it.image,
-                        isSingleImage = it.isPlural,
-                        modifier = Modifier.animateItemPlacement()
+                        thumbnail = it.imageURL,
+                        isSingleImage = it.isSingleImage,
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { itemClick(it.id) }
+                            )
+                            .animateItemPlacement()
                     )
                 }
                 item(span = { GridItemSpan(2) }) {
@@ -193,26 +212,26 @@ fun BrandProductItemListLayout(
 
 @Preview(showBackground = true)
 @Composable
-fun BrandProductItemListLayoutPreview(
+fun ProductItemListLayoutPreview(
     orderFilterState: SortingMethod = SortingMethod.POPULAR,
     gender: ItemGender = ItemGender.UNISEX,
     parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
     childFilterState: ItemChildCategory? = null,
-    productContentItem: List<BrandDetailItemResponseData.Item> = fakeBrandDetailItemResponseData.content,
-    itemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
+    productContentItem: List<ProductItemData.Item> = emptyList(),
+    itemChildCategory: ItemChildCategory? = ItemChildCategory.STRAP,
     loadNextOnPageChangeListener: () -> Unit = {}
-    ) {
-    BrandProductItemListLayout(
-        sortingMethod = orderFilterState,
-        onSortingMethodChange = {  },
-        gender = gender,
-        onGenderChange = { },
-        parentFilter = parentFilterState,
-        onParentFilterChange = {  },
-        childFilter = childFilterState,
-        onChildFilterChange = { },
+) {
+    ProductItemListLayout(
+        itemClick = {},
+        requestNextPage = loadNextOnPageChangeListener,
         productContentItem = productContentItem,
+        onSortingMethodChange = {  },
+        onParentFilterChange = {  },
+        onChildFilterChange = { },
+        onGenderChange = { },
+        sortingMethod = orderFilterState,
+        itemParentCategory = parentFilterState,
         itemChildCategory = itemChildCategory,
-        loadNextOnPageChangeListener = loadNextOnPageChangeListener,
+        gender = gender,
     )
 }

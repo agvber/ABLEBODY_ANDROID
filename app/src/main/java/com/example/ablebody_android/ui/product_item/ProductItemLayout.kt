@@ -1,4 +1,4 @@
-package com.example.ablebody_android.ui.utils
+package com.example.ablebody_android.ui.product_item
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -27,6 +27,7 @@ import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.AbleLight
 import com.example.ablebody_android.ui.theme.SmallTextGrey
+import com.example.ablebody_android.ui.utils.previewPlaceHolder
 import java.text.NumberFormat
 import java.util.Locale
 
