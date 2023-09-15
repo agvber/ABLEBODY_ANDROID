@@ -10,8 +10,9 @@ import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData
-import com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.data.repository.BrandRepository
+import com.example.ablebody_android.domain.BrandProductItemUseCase
+import com.example.ablebody_android.model.ProductItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +32,8 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BrandViewModel @Inject constructor(
-    brandRepository: BrandRepository
+    brandRepository: BrandRepository,
+    brandProductItemUseCase: BrandProductItemUseCase
 ): ViewModel() {
 
     private val ioDispatcher = Dispatchers.IO
@@ -108,33 +110,6 @@ class BrandViewModel @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val brandProductItemChildCategory: StateFlow<List<ItemChildCategory>> =
-        brandProductItemParentFilter.flatMapLatest { parentCategory ->
-            flowOf(
-                ItemChildCategory.values().filter {
-                    when (parentCategory) {
-                        ItemParentCategory.ALL -> true
-                        else -> it.parentCategory == parentCategory
-                    }
-                }
-            )
-        }
-            .combine(brandProductItemGender) { parentCategory, gender ->
-                parentCategory.filter {
-                    when (gender) {
-                        ItemGender.UNISEX -> true
-                        else -> it.gender != gender
-                    }
-                }
-            }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = ItemChildCategory.values().toList()
-                )
-
-
     private val _brandProductItemChildFilter = MutableStateFlow<ItemChildCategory?>(null)
     val brandProductItemChildFilter = _brandProductItemChildFilter.asStateFlow()
 
@@ -152,8 +127,8 @@ class BrandViewModel @Inject constructor(
         }
     }
 
-    private val _productItemContentList = MutableStateFlow<List<BrandDetailItemResponseData.Item>>(emptyList())
-    val productItemContentList: StateFlow<List<BrandDetailItemResponseData.Item>> =
+    private val _productItemContentList = MutableStateFlow<List<ProductItemData.Item>>(emptyList())
+    val productItemContentList: StateFlow<List<ProductItemData.Item>> =
         combine(
             brandProductItemSortingMethod,
             contentID,
@@ -166,30 +141,26 @@ class BrandViewModel @Inject constructor(
             arrayOf(sort, id, gender, parent, child)
         }
             .combine(productItemListCurrentPageIndex) { requestDataList, page ->
-                brandRepository.brandDetailItem(
-                    sort = requestDataList[0] as SortingMethod,
-                    brandId = requestDataList[1] as Long,
+                brandProductItemUseCase(
+                    sortingMethod = requestDataList[0] as SortingMethod,
+                    brandID = requestDataList[1] as Long,
                     itemGender = requestDataList[2] as ItemGender,
                     parentCategory = requestDataList[3] as ItemParentCategory,
                     childCategory = requestDataList[4] as? ItemChildCategory,
                     page = page
-                ).body()?.data
+                )
+                    .also { isProductItemListCurrentPageLastIndex.emit(it.last) }
+                    .content
             }
-                .onEach {
-                    if (it != null) {
-                        isProductItemListCurrentPageLastIndex.emit(it.last)
-                        _productItemContentList.emit(_productItemContentList.value.toMutableList().apply { addAll(it.content) })
-                    }
+                .flatMapLatest {
+                    _productItemContentList.apply { emit(_productItemContentList.value.toMutableList().apply { addAll(it) }) }
                 }
-                    .flatMapLatest {
-                        _productItemContentList
-                    }
-                        .flowOn(ioDispatcher)
-                        .stateIn(
-                            scope = viewModelScope,
-                            started = SharingStarted.WhileSubscribed(5_000),
-                            initialValue = emptyList()
-                        )
+                    .flowOn(ioDispatcher)
+                    .stateIn(
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(5_000),
+                        initialValue = emptyList()
+                    )
 
     private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf())
     val codyItemListGenderFilter = _codyItemListGenderFilter.asStateFlow()

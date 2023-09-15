@@ -28,17 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ablebody_android.R
+import com.example.ablebody_android.brand.BrandViewModel
+import com.example.ablebody_android.model.fakeProductItemData
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
-import com.example.ablebody_android.R
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.brand.BrandViewModel
-import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
-import com.example.ablebody_android.brand.data.fakeBrandDetailItemResponseData
+import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.ui.product_item.ProductItemListLayout
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.White
@@ -74,7 +75,6 @@ fun BrandDetailRoute(
         contentName = contentName,
         productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
         productItemParentFilter = brandViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        productItemChildCategory = brandViewModel.brandProductItemChildCategory.collectAsStateWithLifecycle().value,
         productItemChildFilter = brandViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
         productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
         productContentItem = productItemContentList,
@@ -102,10 +102,9 @@ fun BrandDetailScreen(
     contentName: String = "",
     productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
     productItemParentFilter: ItemParentCategory = ItemParentCategory.ALL,
-    productItemChildCategory: List<ItemChildCategory> = ItemChildCategory.values().toList(),
     productItemChildFilter: ItemChildCategory? = null,
     productItemGender: ItemGender = ItemGender.UNISEX,
-    productContentItem: List<com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData.Item>,
+    productContentItem: List<ProductItemData.Item>,
     codyItemListGenderFilterList: List<Gender> = listOf(),
     codyItemListSportFilter: List<HomeCategory> = listOf(),
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
@@ -131,18 +130,18 @@ fun BrandDetailScreen(
                 modifier = Modifier.padding(paddingValue)
             ) { page ->
                 when(page) {
-                    0 -> BrandProductItemListLayout(
-                            sortingMethod = productItemSortingMethod,
-                            onSortingMethodChange = { onProductItemSortingMethodChange(it) },
-                            parentFilter = productItemParentFilter,
-                            onParentFilterChange = { onProductItemParentFilterChange(it) },
-                            itemChildCategory = productItemChildCategory,
-                            childFilter = productItemChildFilter,
-                            onChildFilterChange = { onProductItemChildFilterChange(it) },
-                            gender = productItemGender,
-                            onGenderChange = { onProductItemGenderChange(it) },
-                            productContentItem = productContentItem,
-                            loadNextOnPageChangeListener = productItemLoadNextOnPageChangeListener
+                    0 -> ProductItemListLayout(
+                        itemClick = {},
+                        requestNextPage = productItemLoadNextOnPageChangeListener,
+                        productContentItem = productContentItem,
+                        onSortingMethodChange = onProductItemSortingMethodChange,
+                        onParentFilterChange = onProductItemParentFilterChange,
+                        onChildFilterChange = onProductItemChildFilterChange,
+                        onGenderChange = onProductItemGenderChange,
+                        sortingMethod = productItemSortingMethod,
+                        itemParentCategory = productItemParentFilter,
+                        itemChildCategory = productItemChildFilter,
+                        gender = productItemGender
                     )
                     1 -> BrandCodyItemListLayout(
                         resetRequest = codyItemFilterResetRequest,
@@ -166,8 +165,8 @@ fun BrandDetailScreen(
 fun BrandDetailScreenPreview() {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
-            productContentItem = fakeBrandDetailItemResponseData.content,
-            codyItemContentList = fakeBrandDetailCodyResponseData.content
+            productContentItem = fakeProductItemData.content,
+            codyItemContentList = emptyList()
         )
     }
 }

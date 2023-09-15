@@ -31,7 +31,7 @@ import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.R
-import com.example.ablebody_android.brand.data.fakeBrandDetailCodyResponseData
+import com.example.ablebody_android.model.fakeBrandDetailCodyResponseData
 import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.CodyItemFilterBottomSheet

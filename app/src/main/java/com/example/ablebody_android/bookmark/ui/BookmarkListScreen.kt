@@ -92,7 +92,10 @@ fun BookmarkListScreen(
                         lastPositionListener = productItemLoadNextOnPageChangeListener,
                         columns = GridCells.Fixed(2)
                     ) {
-                        items(productItemList) { item ->
+                        items(
+                            items = productItemList,
+                            key = { it.id }
+                        ) { item ->
                             BookmarkProductItemLayout(
                                 requestWebPage = { /*TODO*/ },
                                 bookmarkClick = {
@@ -121,7 +124,10 @@ fun BookmarkListScreen(
                         lastPositionListener = codyItemLoadNextOnPageChangeListener,
                         columns = GridCells.Fixed(3)
                     ) {
-                        items(codyItemList) { item ->
+                        items(
+                            items = codyItemList,
+                            key = { it.id }
+                        ) { item ->
                             AsyncImage(
                                 model = item.imageURL,
                                 contentDescription = "cody item"
