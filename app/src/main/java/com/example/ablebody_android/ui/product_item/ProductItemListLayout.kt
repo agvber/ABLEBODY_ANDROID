@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ProductItemListLayout(
+    modifier: Modifier = Modifier,
     itemClick: (Long) -> Unit,
     requestNextPage: () -> Unit,
     productContentItem: List<ProductItemData.Item>,
@@ -94,7 +95,7 @@ fun ProductItemListLayout(
         }
     }
 
-    Column {
+    Column(modifier = modifier) {
         DefaultFilterTabRow(
             actionContent =  {
                 DropDownFilterLayout(

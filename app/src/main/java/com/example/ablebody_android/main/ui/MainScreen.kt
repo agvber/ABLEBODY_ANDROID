@@ -1,6 +1,7 @@
 package com.example.ablebody_android.main.ui
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -9,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.main.MainNavHost
 import com.example.ablebody_android.main.data.NavigationItems
@@ -24,7 +24,7 @@ fun MainScreen() {
     var currentNavigationItem by remember { mutableStateOf(NavigationItems.Brand) }
     val navController = rememberNavController()
 
-    androidx.compose.material.Scaffold(
+    Scaffold(
         bottomBar = {
             if (isBottomBarShow) {
                 MainNavigationBar(
