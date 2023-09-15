@@ -4,6 +4,7 @@ import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
+import com.example.ablebody_android.data.dto.response.data.FindItemResponseData
 import com.example.ablebody_android.data.repository.ItemRepository
 import com.example.ablebody_android.model.ProductItemData
 import javax.inject.Inject
@@ -18,33 +19,32 @@ class ItemUseCase @Inject constructor(
         childCategory: ItemChildCategory? = null,
         page: Int = 0,
         size: Int = 20
-    ): ProductItemData {
-        val result = itemRepository.findItem(sortingMethod,itemGender, parentCategory, childCategory, page, size)
+    ): ProductItemData =
+        itemRepository
+            .findItem(sortingMethod,itemGender, parentCategory, childCategory, page, size)
+            .body()
+            ?.data
+            ?.toDomain()
+            ?: ProductItemData(emptyList(), 0, true, 0, true)
 
-        return result.body()?.data?.let { data ->
-            ProductItemData(
-                content = data.content.map {
-                    ProductItemData.Item(
-                        id = it.id,
-                        name = it.name,
-                        price = it.price,
-                        salePrice = it.salePrice,
-                        brandName = it.brandName,
-                        imageURL = it.image,
-                        isSingleImage = it.isPlural,
-                        url = it.url,
-                        avgStarRating = it.avgStarRating
-                    )
-                },
-                totalPages = data.totalPages,
-                totalElements = data.totalElements,
-                last = data.last,
-                number = data.number,
-                size = data.size,
-                empty = data.empty,
-                first = data.first,
-                numberOfElements = data.numberOfElements
-            )
-        } ?: ProductItemData(emptyList(), 0, 0, true, 0, 0, 0, true, true)
-    }
 }
+
+private fun FindItemResponseData.toDomain() = ProductItemData(
+    content = content.map { it.toDomain() },
+    totalPages = totalPages,
+    last = last,
+    number = number,
+    first = first
+)
+
+private fun FindItemResponseData.Item.toDomain() = ProductItemData.Item(
+    id = id,
+    name = name,
+    price = price,
+    salePrice = salePrice,
+    brandName = brandName,
+    imageURL = image,
+    isSingleImage = isPlural,
+    url = url,
+    avgStarRating = avgStarRating
+)
