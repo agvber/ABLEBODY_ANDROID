@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ablebody_android.main.MainNavHost
 import com.example.ablebody_android.main.data.NavigationItems
@@ -30,7 +31,11 @@ fun MainScreen() {
                     selected = currentNavigationItem,
                     onChangeValue = {
                         currentNavigationItem = it
-                        navController.navigate(it.name)
+                        navController.navigate(it.name) {
+                            popUpTo(navController.graph.id){
+                                inclusive = true
+                            }
+                        }
                     }
                 )
             }
