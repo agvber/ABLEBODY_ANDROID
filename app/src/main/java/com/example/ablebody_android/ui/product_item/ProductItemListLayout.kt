@@ -38,7 +38,7 @@ import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.main.ui.scaffoldPaddingValueCompositionLocal
+import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.model.ProductItemData
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
