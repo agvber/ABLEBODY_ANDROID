@@ -2,6 +2,7 @@ package com.example.ablebody_android.presentation.brand
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
@@ -10,12 +11,14 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.data.repository.BrandRepository
+import com.example.ablebody_android.domain.CodyItemPagerUseCase
 import com.example.ablebody_android.domain.ProductItemAutoPagerUseCase
+import com.example.ablebody_android.model.CodyItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +27,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,7 +35,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrandViewModel @Inject constructor(
     brandRepository: BrandRepository,
-    productItemAutoPagerUseCase: ProductItemAutoPagerUseCase
+    productItemAutoPagerUseCase: ProductItemAutoPagerUseCase,
+    codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
 
     private val ioDispatcher = Dispatchers.IO
@@ -133,6 +136,14 @@ class BrandViewModel @Inject constructor(
             it.cachedIn(viewModelScope)
         }
 
+    fun resetCodyItemFilter() {
+        viewModelScope.launch {
+            _codyItemListGenderFilter.emit(emptyList())
+            _codyItemListSportFilter.emit(emptyList())
+            _codyItemListPersonHeightFilter.emit(PersonHeightFilterType.ALL)
+        }
+    }
+
     private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf())
     val codyItemListGenderFilter = _codyItemListGenderFilter.asStateFlow()
 
@@ -154,57 +165,16 @@ class BrandViewModel @Inject constructor(
         viewModelScope.launch { _codyItemListPersonHeightFilter.emit(sports) }
     }
 
-    fun resetCodyItemListFilter() {
-        viewModelScope.launch {
-            _codyItemListGenderFilter.emit(listOf())
-            _codyItemListSportFilter.emit(listOf())
-            _codyItemListPersonHeightFilter.emit(PersonHeightFilterType.ALL)
-        }
-    }
-
-    private val isCodyItemListPageLastIndex = MutableStateFlow(false)
-    private val codyItemListCurrentPageIndex = MutableStateFlow(0)
-    fun requestCodyItemPageChange() {
-        if (!isCodyItemListPageLastIndex.value) {
-            codyItemListCurrentPageIndex.value += 1
-        }
-    }
-
-    private val _codyItemContentList = MutableStateFlow<List<BrandDetailCodyResponseData.Item>>(emptyList())
-    val codyItemContentList: StateFlow<List<BrandDetailCodyResponseData.Item>> =
+    val codyPagingItem: Flow<PagingData<CodyItemData.Item>> =
         combine(
             contentID,
             codyItemListGenderFilter,
             codyItemListSportFilter,
             codyItemListPersonHeightFilter
         ) { id, gender, sport, height ->
-            _codyItemContentList.emit(emptyList())
-            codyItemListCurrentPageIndex.emit(0)
-            arrayOf(id, gender, sport, height)
+            codyItemPagerUseCase(id, gender, sport, height.rangeStart, height.rangeEnd)
         }
-            .combine(codyItemListCurrentPageIndex) { requestDataList, page ->
-                brandRepository.brandDetailCody(
-                    brandId = requestDataList[0] as Long,
-                    gender = requestDataList[1] as List<Gender>,
-                    category = requestDataList[2] as List<HomeCategory>,
-                    personHeightRangeStart = (requestDataList[3] as PersonHeightFilterType).rangeStart,
-                    personHeightRangeEnd = (requestDataList[3] as PersonHeightFilterType).rangeEnd,
-                    page = page
-                ).body()?.data
+            .flatMapLatest {
+                it.cachedIn(viewModelScope)
             }
-                .onEach {
-                    if (it != null) {
-                        isCodyItemListPageLastIndex.emit(it.last)
-                        _codyItemContentList.emit(_codyItemContentList.value.toMutableList().apply { addAll(it.content) })
-                    }
-                }
-                    .flatMapLatest {
-                        _codyItemContentList
-                    }
-                        .flowOn(ioDispatcher)
-                        .stateIn(
-                            scope = viewModelScope,
-                            started = SharingStarted.WhileSubscribed(5_000),
-                            initialValue = emptyList()
-                        )
 }

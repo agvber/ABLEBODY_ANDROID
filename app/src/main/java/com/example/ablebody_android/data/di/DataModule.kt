@@ -4,8 +4,10 @@ import com.example.ablebody_android.data.repository.BookmarkRepository
 import com.example.ablebody_android.data.repository.BookmarkRepositoryImpl
 import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.data.repository.BrandRepositoryImpl
-import com.example.ablebody_android.data.repository.ItemRepository
-import com.example.ablebody_android.data.repository.ItemRepositoryImpl
+import com.example.ablebody_android.data.repository.FindCodyRepository
+import com.example.ablebody_android.data.repository.FindCodyRepositoryImpl
+import com.example.ablebody_android.data.repository.FindItemRepository
+import com.example.ablebody_android.data.repository.FindItemRepositoryImpl
 import com.example.ablebody_android.data.repository.OnboardingRepository
 import com.example.ablebody_android.data.repository.OnboardingRepositoryImpl
 import dagger.Binds
@@ -33,7 +35,12 @@ interface DataModule {
     ): BookmarkRepository
 
     @Binds
-    fun bindItemRepository(
-        itemRepositoryImpl: ItemRepositoryImpl
-    ): ItemRepository
+    fun bindFindItemRepository(
+        findItemRepositoryImpl: FindItemRepositoryImpl
+    ): FindItemRepository
+
+    @Binds
+    fun bindFindCodyRepository(
+        findCodyRepositoryImpl: FindCodyRepositoryImpl
+    ): FindCodyRepository
 }

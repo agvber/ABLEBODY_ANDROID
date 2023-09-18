@@ -13,7 +13,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -32,8 +31,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ablebody_android.R
-import com.example.ablebody_android.presentation.brand.BrandViewModel
-import com.example.ablebody_android.model.fakeProductItemData
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.ItemChildCategory
@@ -41,7 +38,12 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
+import com.example.ablebody_android.model.CodyItemData
 import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.model.fakeCodyItemData
+import com.example.ablebody_android.model.fakeProductItemData
+import com.example.ablebody_android.presentation.brand.BrandViewModel
+import com.example.ablebody_android.ui.cody_item.CodyItemListLayout
 import com.example.ablebody_android.ui.product_item.ProductItemListLayout
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.theme.AbleDark
@@ -61,8 +63,6 @@ fun BrandDetailRoute(
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
 
-    val codyItemContentList by brandViewModel.codyItemContentList.collectAsStateWithLifecycle()
-
     BrandDetailScreen(
         modifier = modifier,
         onBackClick = onBackClick,
@@ -71,9 +71,10 @@ fun BrandDetailRoute(
         onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
         onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
         onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
-        codyItemFilterResetRequest = { brandViewModel.resetCodyItemListFilter() },
-        codyItemLoadNextOnPageChangeListener = { brandViewModel.requestCodyItemPageChange() },
+        codyItemClick = { /* TODO 코디 아이템 버튼 클릭 */ },
+        codyItemFilterResetRequest = { brandViewModel.resetCodyItemFilter() },
         onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
+        onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
         onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
         contentName = contentName,
         productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
@@ -83,9 +84,8 @@ fun BrandDetailRoute(
         productPagingItems = brandViewModel.productItemContentList.collectAsLazyPagingItems(),
         codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
         codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
-        onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
         codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        codyItemContentList = codyItemContentList
+        codyPagingItem = brandViewModel.codyPagingItem.collectAsLazyPagingItems()
     )
 }
 @OptIn(ExperimentalFoundationApi::class)
@@ -98,9 +98,10 @@ fun BrandDetailScreen(
     onProductItemParentFilterChange: (ItemParentCategory) -> Unit = {},
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
     onProductItemGenderChange: (ItemGender) -> Unit = {},
+    codyItemClick: (Long) -> Unit = {} ,
     codyItemFilterResetRequest: () -> Unit = {},
-    codyItemLoadNextOnPageChangeListener: () -> Unit = {},
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
+    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
     contentName: String = "",
     productItemSortingMethod: SortingMethod = SortingMethod.POPULAR,
@@ -110,9 +111,8 @@ fun BrandDetailScreen(
     productPagingItems: LazyPagingItems<ProductItemData.Item>,
     codyItemListGenderFilterList: List<Gender> = listOf(),
     codyItemListSportFilter: List<HomeCategory> = listOf(),
-    onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
     codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
-    codyItemContentList: List<com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData.Item>,
+    codyPagingItem: LazyPagingItems<CodyItemData.Item>
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -145,16 +145,16 @@ fun BrandDetailScreen(
                         gender = productItemGender,
                         productPagingItems = productPagingItems
                     )
-                    1 -> BrandCodyItemListLayout(
+                    1 -> CodyItemListLayout(
+                        itemClick = codyItemClick,
                         resetRequest = codyItemFilterResetRequest,
-                        codyItemListGenderFilterList = codyItemListGenderFilterList,
                         onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
-                        codyItemListSportFilter = codyItemListSportFilter,
                         onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
-                        codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
                         onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-                        codyItemContentList = codyItemContentList,
-                        loadNextOnPageChangeListener = codyItemLoadNextOnPageChangeListener
+                        codyItemListGenderFilterList = codyItemListGenderFilterList,
+                        codyItemListSportFilter = codyItemListSportFilter,
+                        codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
+                        codyItemData = codyPagingItem
                     )
                 }
             }
@@ -168,7 +168,7 @@ fun BrandDetailScreenPreview() {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
             productPagingItems = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems(),
-            codyItemContentList = emptyList()
+            codyPagingItem = flowOf(PagingData.from(fakeCodyItemData.content)).collectAsLazyPagingItems()
         )
     }
 }

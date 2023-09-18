@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
@@ -27,32 +27,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.ablebody_android.model.CodyItemFilterBottomSheetTabFilterType
+import com.example.ablebody_android.R
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
-import com.example.ablebody_android.R
 import com.example.ablebody_android.model.CodyItemData
+import com.example.ablebody_android.model.CodyItemFilterBottomSheetTabFilterType
+import com.example.ablebody_android.model.fakeCodyItemData
 import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
-import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 import com.example.ablebody_android.ui.utils.previewPlaceHolder
+import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CodyItemListLayout(
-    modifier: Modifier = Modifier,
     itemClick: (Long) -> Unit,
-    requestNextPage: () -> Unit,
     resetRequest: () -> Unit,
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit,
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit,
-    codyItemList: List<CodyItemData.Item>,
+    modifier: Modifier = Modifier,
     codyItemListGenderFilterList: List<Gender>,
     codyItemListSportFilter: List<HomeCategory>,
     codyItemListPersonHeightFilter: PersonHeightFilterType,
+    codyItemData: LazyPagingItems<CodyItemData.Item>
 ) {
     var isItemRefresh by rememberSaveable { mutableStateOf(false) }
     val scrollableState = rememberLazyGridState()
@@ -138,20 +141,15 @@ fun CodyItemListLayout(
                     }
                 )
             }
-            InfiniteVerticalGrid(
-                buffer = 6,
-                lastPositionListener = requestNextPage,
+            LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 state = scrollableState,
                 verticalArrangement = Arrangement.spacedBy(1.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                items(
-                    items = codyItemList,
-                    key = { it.id }
-                ) {
+                items(count = codyItemData.itemCount) { index ->
                     AsyncImage(
-                        model = it.imageURL,
+                        model = codyItemData[index]?.imageURL,
                         contentDescription = "cody recommended image",
                         contentScale = ContentScale.Crop,
                         placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
@@ -160,7 +158,7 @@ fun CodyItemListLayout(
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
-                                onClick = { itemClick(it.id) }
+                                onClick = { codyItemData[index]?.id?.let { itemClick(it) } }
                             )
                             .animateItemPlacement(),
                     )
@@ -176,19 +174,19 @@ fun CodyItemListLayout(
 @Preview(showSystemUi = true)
 @Composable
 fun CodyListScreenPreview(
+    itemClick: (Long) -> Unit = {},
     resetRequest: () -> Unit = {},
-    codyItemListGenderFilterList: List<Gender> = listOf(),
     onCodyItemListGenderFilterChange: (List<Gender>) -> Unit = {},
-    codyItemListSportFilter: List<HomeCategory> = listOf(),
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
-    codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
     onCodyItemListPersonHeightFilterChange: (PersonHeightFilterType) -> Unit = {},
-    loadNextOnPageChangeListener: () -> Unit = {},
+    codyItemListGenderFilterList: List<Gender> = emptyList(),
+    codyItemListSportFilter: List<HomeCategory> = emptyList(),
+    codyItemListPersonHeightFilter: PersonHeightFilterType = PersonHeightFilterType.ALL,
+    codyItemData: LazyPagingItems<CodyItemData.Item> = flowOf(PagingData.from(fakeCodyItemData.content)).collectAsLazyPagingItems()
 ) {
     ABLEBODY_AndroidTheme {
         CodyItemListLayout(
             itemClick = {},
-            requestNextPage = {},
             resetRequest = resetRequest,
             codyItemListGenderFilterList = codyItemListGenderFilterList,
             onCodyItemListGenderFilterChange = onCodyItemListGenderFilterChange,
@@ -196,7 +194,7 @@ fun CodyListScreenPreview(
             onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
             codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
             onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemList = emptyList()
+            codyItemData = codyItemData
         )
     }
 }

@@ -1,7 +1,5 @@
 package com.example.ablebody_android.model
 
-import com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData
-
 val fakeProductItemData =
     ProductItemData(
         content = listOf(
@@ -34,52 +32,30 @@ val fakeProductItemData =
         totalPages = 1
     )
 
-val fakeBrandDetailCodyResponseData =
-    BrandDetailCodyResponseData(
+val fakeCodyItemData =
+    CodyItemData(
         content = listOf(
-            BrandDetailCodyResponseData.Item(
+            CodyItemData.Item(
                 id = 29,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/29/6246673 bytes_1686277691881.jpg",
                 createDate = "2023-07-30",
                 comments = 0,
                 likes = 1,
                 views = 51,
-                plural = false
+                isSingleImage = false
             ),
-            BrandDetailCodyResponseData.Item(
+            CodyItemData.Item(
                 id = 24,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/24/3911923 bytes_1684756948931.jpg",
                 createDate = "2023-07-29",
                 comments = 0,
                 likes = 0,
                 views = 76,
-                plural = false
+                isSingleImage = true
             ),
-            // 다른 코디 아이템들도 추가
-        ),
-        pageable = BrandDetailCodyResponseData.Pageable(
-            sort = BrandDetailCodyResponseData.Sort(
-                empty = false,
-                sorted = true,
-                unsorted = false
-            ),
-            offset = 0,
-            pageNumber = 0,
-            pageSize = 20,
-            paged = true,
-            unPaged = false
         ),
         totalPages = 1,
-        totalElements = 2,
         last = true,
         number = 0,
-        sort = BrandDetailCodyResponseData.Sort(
-            empty = false,
-            sorted = true,
-            unsorted = false
-        ),
-        size = 20,
-        numberOfElements = 2,
-        first = true,
-        empty = false
+        first = true
     )

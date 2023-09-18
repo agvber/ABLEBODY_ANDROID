@@ -31,7 +31,6 @@ import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.R
-import com.example.ablebody_android.model.fakeBrandDetailCodyResponseData
 import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.cody_item.CodyItemFilterBottomSheet
@@ -188,7 +187,7 @@ fun BrandCodyListScreenPreview(
             onCodyItemListSportFilterChange = onCodyItemListSportFilterChange,
             codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
             onCodyItemListPersonHeightFilterChange = onCodyItemListPersonHeightFilterChange,
-            codyItemContentList = fakeBrandDetailCodyResponseData.content,
+            codyItemContentList = emptyList(),
             loadNextOnPageChangeListener = loadNextOnPageChangeListener
         )
     }

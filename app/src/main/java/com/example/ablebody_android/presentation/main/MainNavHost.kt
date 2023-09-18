@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.example.ablebody_android.presentation.bookmark.addBookmarkGraph
 import com.example.ablebody_android.presentation.brand.addBrandGraph
+import com.example.ablebody_android.presentation.cody_recommended.addCodyRecommendedGraph
 import com.example.ablebody_android.presentation.item.addItemGraph
 import com.example.ablebody_android.presentation.main.data.NavigationItems
 
@@ -28,6 +29,10 @@ fun MainNavHost(
 
         navigation(startDestination = "ItemRoute", route = NavigationItems.Item.name) {
             addItemGraph()
+        }
+
+        navigation(startDestination = "CodyRecommendRoute", route = NavigationItems.CodyRecommendation.name) {
+            addCodyRecommendedGraph()
         }
     }
 }

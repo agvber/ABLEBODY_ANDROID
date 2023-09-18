@@ -12,7 +12,7 @@ import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.dto.response.data.BrandDetailItemResponseData
 import com.example.ablebody_android.data.dto.response.data.FindItemResponseData
 import com.example.ablebody_android.data.repository.BrandRepository
-import com.example.ablebody_android.data.repository.ItemRepository
+import com.example.ablebody_android.data.repository.FindItemRepository
 import com.example.ablebody_android.model.ProductItemData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,16 +21,14 @@ import javax.inject.Inject
 
 class ProductItemAutoPagerUseCase @Inject constructor(
     private val brandRepository: BrandRepository,
-    private val itemRepository: ItemRepository
+    private val findItemRepository: FindItemRepository
 ) {
     operator fun invoke(
         sortingMethod: SortingMethod,
         brandID: Long,
         itemGender: ItemGender,
         parentCategory: ItemParentCategory,
-        childCategory: ItemChildCategory?,
-        page: Int = 0,
-        size: Int = 20
+        childCategory: ItemChildCategory?
     ): Flow<PagingData<ProductItemData.Item>> =
         Pager(
             config = PagingConfig(pageSize = 20),
@@ -44,9 +42,7 @@ class ProductItemAutoPagerUseCase @Inject constructor(
         sortingMethod: SortingMethod,
         itemGender: ItemGender,
         parentCategory: ItemParentCategory,
-        childCategory: ItemChildCategory? = null,
-        page: Int = 0,
-        size: Int = 20
+        childCategory: ItemChildCategory? = null
     ): Flow<PagingData<ProductItemData.Item>> =
         Pager(
             config = PagingConfig(pageSize = 20),
@@ -70,7 +66,7 @@ class ProductItemAutoPagerUseCase @Inject constructor(
             return try {
                 val currentPageIndex = params.key ?: 0
                 val productItemData = withContext(Dispatchers.IO) {
-                    itemRepository.findItem(sortingMethod, itemGender, itemParentCategory, itemChildCategory, currentPageIndex)
+                    findItemRepository.findItem(sortingMethod, itemGender, itemParentCategory, itemChildCategory, currentPageIndex)
                 }
                     .body()?.data?.toDomain()
                     ?: ProductItemData(emptyList(), 0, true, 0, true)
