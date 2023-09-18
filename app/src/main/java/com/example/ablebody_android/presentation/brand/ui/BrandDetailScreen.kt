@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ablebody_android.R
 import com.example.ablebody_android.presentation.brand.BrandViewModel
 import com.example.ablebody_android.model.fakeProductItemData
@@ -45,6 +48,7 @@ import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.White
 import com.example.ablebody_android.ui.utils.AbleBodyRowTab
 import com.example.ablebody_android.ui.utils.AbleBodyTabItem
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 @Composable
@@ -57,13 +61,12 @@ fun BrandDetailRoute(
 ) {
     LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
 
-    val productItemContentList by brandViewModel.productItemContentList.collectAsStateWithLifecycle()
     val codyItemContentList by brandViewModel.codyItemContentList.collectAsStateWithLifecycle()
 
     BrandDetailScreen(
         modifier = modifier,
         onBackClick = onBackClick,
-        productItemLoadNextOnPageChangeListener = { brandViewModel.requestProductItemListPage() },
+        productItemClick = { /* TODO 아이템 버튼 클릭 */ },
         onProductItemSortingMethodChange = { brandViewModel.updateBrandProductItemOrderFilterType(it) },
         onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
         onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
@@ -77,7 +80,7 @@ fun BrandDetailRoute(
         productItemParentFilter = brandViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
         productItemChildFilter = brandViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
         productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        productContentItem = productItemContentList,
+        productPagingItems = brandViewModel.productItemContentList.collectAsLazyPagingItems(),
         codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
         codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
         onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
@@ -90,7 +93,7 @@ fun BrandDetailRoute(
 fun BrandDetailScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
-    productItemLoadNextOnPageChangeListener: () -> Unit = {},
+    productItemClick: (Long) -> Unit = {},
     onProductItemSortingMethodChange: (SortingMethod) -> Unit = {},
     onProductItemParentFilterChange: (ItemParentCategory) -> Unit = {},
     onProductItemChildFilterChange: (ItemChildCategory?) -> Unit = {},
@@ -104,7 +107,7 @@ fun BrandDetailScreen(
     productItemParentFilter: ItemParentCategory = ItemParentCategory.ALL,
     productItemChildFilter: ItemChildCategory? = null,
     productItemGender: ItemGender = ItemGender.UNISEX,
-    productContentItem: List<ProductItemData.Item>,
+    productPagingItems: LazyPagingItems<ProductItemData.Item>,
     codyItemListGenderFilterList: List<Gender> = listOf(),
     codyItemListSportFilter: List<HomeCategory> = listOf(),
     onCodyItemListSportFilterChange: (List<HomeCategory>) -> Unit = {},
@@ -131,9 +134,7 @@ fun BrandDetailScreen(
             ) { page ->
                 when(page) {
                     0 -> ProductItemListLayout(
-                        itemClick = {},
-                        requestNextPage = productItemLoadNextOnPageChangeListener,
-                        productContentItem = productContentItem,
+                        itemClick = productItemClick,
                         onSortingMethodChange = onProductItemSortingMethodChange,
                         onParentFilterChange = onProductItemParentFilterChange,
                         onChildFilterChange = onProductItemChildFilterChange,
@@ -141,7 +142,8 @@ fun BrandDetailScreen(
                         sortingMethod = productItemSortingMethod,
                         itemParentCategory = productItemParentFilter,
                         itemChildCategory = productItemChildFilter,
-                        gender = productItemGender
+                        gender = productItemGender,
+                        productPagingItems = productPagingItems
                     )
                     1 -> BrandCodyItemListLayout(
                         resetRequest = codyItemFilterResetRequest,
@@ -165,7 +167,7 @@ fun BrandDetailScreen(
 fun BrandDetailScreenPreview() {
     ABLEBODY_AndroidTheme {
         BrandDetailScreen(
-            productContentItem = fakeProductItemData.content,
+            productPagingItems = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems(),
             codyItemContentList = emptyList()
         )
     }

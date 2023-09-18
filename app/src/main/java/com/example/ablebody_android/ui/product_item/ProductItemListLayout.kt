@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,9 +20,10 @@ import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -34,23 +35,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDeep
 import com.example.ablebody_android.ui.utils.DefaultFilterTabItem
 import com.example.ablebody_android.ui.utils.DefaultFilterTabRow
 import com.example.ablebody_android.ui.utils.DropDownFilterLayout
 import com.example.ablebody_android.ui.utils.GenderSwitch
-import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheet
 import com.example.ablebody_android.ui.utils.ProductItemFilterBottomSheetItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.example.ablebody_android.ui.utils.RoundedCornerCategoryFilterTabRow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -58,8 +62,6 @@ import kotlinx.coroutines.launch
 fun ProductItemListLayout(
     modifier: Modifier = Modifier,
     itemClick: (Long) -> Unit,
-    requestNextPage: () -> Unit,
-    productContentItem: List<ProductItemData.Item>,
     onSortingMethodChange: (SortingMethod) -> Unit,
     onParentFilterChange: (ItemParentCategory) -> Unit,
     onChildFilterChange: (ItemChildCategory?) -> Unit,
@@ -67,7 +69,8 @@ fun ProductItemListLayout(
     sortingMethod: SortingMethod,
     itemParentCategory: ItemParentCategory,
     itemChildCategory: ItemChildCategory?,
-    gender: ItemGender
+    gender: ItemGender,
+    productPagingItems: LazyPagingItems<ProductItemData.Item>
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -168,30 +171,27 @@ fun ProductItemListLayout(
         Box(
             Modifier.fillMaxSize()
         ) {
-            InfiniteVerticalGrid(
-                buffer = 4,
-                lastPositionListener = requestNextPage,
+            LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 state = productItemGridState
             ) {
                 items(
-                    items = productContentItem,
-                    key = { it.id }
-                ) {
+                    count = productPagingItems.itemCount,
+                ) { index ->
                     ProductItemLayout(
-                        productName = it.name,
-                        productPrice = it.price,
-                        productSalePrice = it.salePrice,
-                        brandName = it.brandName,
-                        averageStarRating = it.avgStarRating,
-                        thumbnail = it.imageURL,
-                        isSingleImage = it.isSingleImage,
+                        productName = productPagingItems[index]?.name.toString(),
+                        productPrice = productPagingItems[index]?.price ?: 0,
+                        productSalePrice = productPagingItems[index]?.salePrice,
+                        brandName = productPagingItems[index]?.brandName ?: "",
+                        averageStarRating = productPagingItems[index]?.avgStarRating,
+                        thumbnail = productPagingItems[index]?.imageURL,
+                        isSingleImage = productPagingItems[index]?.isSingleImage ?: true,
                         modifier = Modifier
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
-                                onClick = { itemClick(it.id) }
+                                onClick = { productPagingItems[index]?.id?.let { itemClick(it) } }
                             )
                             .animateItemPlacement()
                     )
@@ -215,25 +215,27 @@ fun ProductItemListLayout(
 @Preview(showBackground = true)
 @Composable
 fun ProductItemListLayoutPreview(
-    orderFilterState: SortingMethod = SortingMethod.POPULAR,
+    itemClick: (Long) -> Unit = {},
+    onSortingMethodChange: (SortingMethod) -> Unit = {},
+    onParentFilterChange: (ItemParentCategory) -> Unit = {},
+    onChildFilterChange: (ItemChildCategory?) -> Unit = {},
+    onGenderChange: (ItemGender) -> Unit = {},
+    sortingMethod: SortingMethod = SortingMethod.POPULAR,
+    itemParentCategory: ItemParentCategory = ItemParentCategory.ALL,
+    itemChildCategory: ItemChildCategory? = null,
     gender: ItemGender = ItemGender.UNISEX,
-    parentFilterState: ItemParentCategory = ItemParentCategory.ALL,
-    childFilterState: ItemChildCategory? = null,
-    productContentItem: List<ProductItemData.Item> = emptyList(),
-    itemChildCategory: ItemChildCategory? = ItemChildCategory.STRAP,
-    loadNextOnPageChangeListener: () -> Unit = {}
+    productPagingItems: LazyPagingItems<ProductItemData.Item> = flowOf(PagingData.empty<ProductItemData.Item>()).collectAsLazyPagingItems(),
 ) {
     ProductItemListLayout(
-        itemClick = {},
-        requestNextPage = loadNextOnPageChangeListener,
-        productContentItem = productContentItem,
-        onSortingMethodChange = {  },
-        onParentFilterChange = {  },
-        onChildFilterChange = { },
-        onGenderChange = { },
-        sortingMethod = orderFilterState,
-        itemParentCategory = parentFilterState,
+        itemClick = itemClick,
+        onSortingMethodChange = onSortingMethodChange,
+        onParentFilterChange = onParentFilterChange,
+        onChildFilterChange = onChildFilterChange,
+        onGenderChange = onGenderChange,
+        sortingMethod = sortingMethod,
+        itemParentCategory = itemParentCategory,
         itemChildCategory = itemChildCategory,
         gender = gender,
+        productPagingItems = productPagingItems
     )
 }

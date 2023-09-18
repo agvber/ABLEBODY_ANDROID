@@ -2,6 +2,7 @@ package com.example.ablebody_android.presentation.brand
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.ItemChildCategory
@@ -11,8 +12,7 @@ import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.dto.response.data.BrandDetailCodyResponseData
 import com.example.ablebody_android.data.repository.BrandRepository
-import com.example.ablebody_android.domain.BrandProductItemUseCase
-import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.domain.ProductItemAutoPagerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BrandViewModel @Inject constructor(
     brandRepository: BrandRepository,
-    brandProductItemUseCase: BrandProductItemUseCase
+    productItemAutoPagerUseCase: ProductItemAutoPagerUseCase
 ): ViewModel() {
 
     private val ioDispatcher = Dispatchers.IO
@@ -119,48 +119,19 @@ class BrandViewModel @Inject constructor(
         }
     }
 
-    private val isProductItemListCurrentPageLastIndex = MutableStateFlow(false)
-    private val productItemListCurrentPageIndex = MutableStateFlow(0)
-    fun requestProductItemListPage() {
-        if (!isProductItemListCurrentPageLastIndex.value) {
-            productItemListCurrentPageIndex.value += 1
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val productItemContentList = combine(
+        brandProductItemSortingMethod,
+        contentID,
+        brandProductItemGender,
+        brandProductItemParentFilter,
+        brandProductItemChildFilter
+    ) { sort, id, gender, parent, child, ->
+        productItemAutoPagerUseCase(sort, id, gender, parent, child)
     }
-
-    private val _productItemContentList = MutableStateFlow<List<ProductItemData.Item>>(emptyList())
-    val productItemContentList: StateFlow<List<ProductItemData.Item>> =
-        combine(
-            brandProductItemSortingMethod,
-            contentID,
-            brandProductItemGender,
-            brandProductItemParentFilter,
-            brandProductItemChildFilter,
-        ) { sort, id, gender, parent, child, ->
-            _productItemContentList.emit(emptyList())
-            productItemListCurrentPageIndex.emit(0)
-            arrayOf(sort, id, gender, parent, child)
+        .flatMapLatest {
+            it.cachedIn(viewModelScope)
         }
-            .combine(productItemListCurrentPageIndex) { requestDataList, page ->
-                brandProductItemUseCase(
-                    sortingMethod = requestDataList[0] as SortingMethod,
-                    brandID = requestDataList[1] as Long,
-                    itemGender = requestDataList[2] as ItemGender,
-                    parentCategory = requestDataList[3] as ItemParentCategory,
-                    childCategory = requestDataList[4] as? ItemChildCategory,
-                    page = page
-                )
-                    .also { isProductItemListCurrentPageLastIndex.emit(it.last) }
-                    .content
-            }
-                .flatMapLatest {
-                    _productItemContentList.apply { emit(_productItemContentList.value.toMutableList().apply { addAll(it) }) }
-                }
-                    .flowOn(ioDispatcher)
-                    .stateIn(
-                        scope = viewModelScope,
-                        started = SharingStarted.WhileSubscribed(5_000),
-                        initialValue = emptyList()
-                    )
 
     private val _codyItemListGenderFilter = MutableStateFlow<List<Gender>>(listOf())
     val codyItemListGenderFilter = _codyItemListGenderFilter.asStateFlow()

@@ -7,15 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ablebody_android.data.dto.ItemChildCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
-import com.example.ablebody_android.presentation.item.ItemViewModel
 import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.model.fakeProductItemData
+import com.example.ablebody_android.presentation.item.ItemViewModel
 import com.example.ablebody_android.ui.product_item.ProductItemListLayout
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.ItemSearchBar
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun ItemRoute(itemViewModel: ItemViewModel = hiltViewModel()) {
@@ -23,8 +28,6 @@ fun ItemRoute(itemViewModel: ItemViewModel = hiltViewModel()) {
         onSearchBarClick = { /* TODO 검색화면 바로가기 버튼 클릭 */ },
         onAlertButtonClick = { /* TODO 알림창 바로가기 클릭 */ },
         itemClick = { /* TODO 아이템 버튼 클릭 */ },
-        requestNextPage = { itemViewModel.requestNextPage() },
-        productContentItem = itemViewModel.productItemList.collectAsStateWithLifecycle().value,
         onSortingMethodChange = { itemViewModel.updateSortingMethod(it) },
         onParentFilterChange = { itemViewModel.updateItemParentCategory(it) },
         onChildFilterChange = { itemViewModel.updateItemChildCategory(it) },
@@ -32,7 +35,8 @@ fun ItemRoute(itemViewModel: ItemViewModel = hiltViewModel()) {
         sortingMethod = itemViewModel.sortingMethod.collectAsStateWithLifecycle().value,
         itemParentCategory = itemViewModel.itemParentCategory.collectAsStateWithLifecycle().value,
         itemChildCategory = itemViewModel.itemChildCategory.collectAsStateWithLifecycle().value,
-        gender = itemViewModel.itemGender.collectAsStateWithLifecycle().value
+        gender = itemViewModel.itemGender.collectAsStateWithLifecycle().value,
+        productPagingItems = itemViewModel.productItemListTest.collectAsLazyPagingItems()
     )
 }
 
@@ -41,8 +45,6 @@ fun ItemScreen(
     onSearchBarClick: () -> Unit = {},
     onAlertButtonClick: () -> Unit = {},
     itemClick: (Long) -> Unit = {},
-    requestNextPage: () -> Unit = {},
-    productContentItem: List<ProductItemData.Item> = emptyList(),
     onSortingMethodChange: (SortingMethod) -> Unit = {},
     onParentFilterChange: (ItemParentCategory) -> Unit = {},
     onChildFilterChange: (ItemChildCategory?) -> Unit = {},
@@ -50,7 +52,8 @@ fun ItemScreen(
     sortingMethod: SortingMethod = SortingMethod.POPULAR,
     itemParentCategory: ItemParentCategory = ItemParentCategory.ALL,
     itemChildCategory: ItemChildCategory? = null,
-    gender: ItemGender = ItemGender.UNISEX
+    gender: ItemGender = ItemGender.UNISEX,
+    productPagingItems: LazyPagingItems<ProductItemData.Item>
 ) {
     Scaffold(
         topBar = {
@@ -63,8 +66,6 @@ fun ItemScreen(
         ProductItemListLayout(
             modifier = Modifier.padding(paddingValue),
             itemClick = itemClick,
-            requestNextPage = requestNextPage,
-            productContentItem = productContentItem,
             onSortingMethodChange = onSortingMethodChange,
             onParentFilterChange = onParentFilterChange,
             onChildFilterChange = onChildFilterChange,
@@ -72,7 +73,8 @@ fun ItemScreen(
             sortingMethod = sortingMethod,
             itemParentCategory = itemParentCategory,
             itemChildCategory = itemChildCategory,
-            gender = gender
+            gender = gender,
+            productPagingItems = productPagingItems
         )
     }
 }
@@ -81,6 +83,6 @@ fun ItemScreen(
 @Composable
 fun ItemScreenPreview() {
     ABLEBODY_AndroidTheme {
-        ItemScreen()
+        ItemScreen(productPagingItems = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems())
     }
 }
