@@ -15,11 +15,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (!viewModel.hasAuthToken) {
-            startOnboardingActivity()
-        }
-
         setContent {
             ABLEBODY_AndroidTheme {
                 MainScreen()
