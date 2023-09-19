@@ -15,8 +15,10 @@ import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.domain.CodyItemPagerUseCase
 import com.example.ablebody_android.domain.ProductItemPagerUseCase
 import com.example.ablebody_android.model.CodyItemData
+import com.example.ablebody_android.network.di.AbleBodyDispatcher
+import com.example.ablebody_android.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,12 +36,11 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BrandViewModel @Inject constructor(
+    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     brandRepository: BrandRepository,
     productItemPagerUseCase: ProductItemPagerUseCase,
     codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
-
-    private val ioDispatcher = Dispatchers.IO
 
     private val _brandListSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandListSortingMethod = _brandListSortingMethod.asStateFlow()

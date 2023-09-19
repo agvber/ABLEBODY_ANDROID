@@ -2,11 +2,13 @@ package com.example.ablebody_android.presentation.bookmark
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ablebody_android.data.repository.BookmarkRepository
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
+import com.example.ablebody_android.data.repository.BookmarkRepository
+import com.example.ablebody_android.network.di.AbleBodyDispatcher
+import com.example.ablebody_android.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,10 +21,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
-    private val bookmarkRepository: BookmarkRepository
+    private val bookmarkRepository: BookmarkRepository,
+    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 ): ViewModel() {
-
-    private val ioDispatcher = Dispatchers.IO
 
     fun deleteProductItem(items: List<Long>) {
         viewModelScope.launch(ioDispatcher) {

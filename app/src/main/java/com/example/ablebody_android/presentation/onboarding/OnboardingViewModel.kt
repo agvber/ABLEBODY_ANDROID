@@ -6,6 +6,8 @@ import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.SendSMSResponse
 import com.example.ablebody_android.data.repository.OnboardingRepository
+import com.example.ablebody_android.network.di.AbleBodyDispatcher
+import com.example.ablebody_android.network.di.Dispatcher
 import com.example.ablebody_android.presentation.onboarding.data.CertificationNumberInfoMessageUiState
 import com.example.ablebody_android.presentation.onboarding.data.NicknameRule
 import com.example.ablebody_android.presentation.onboarding.data.ProfileImages
@@ -14,6 +16,7 @@ import com.example.ablebody_android.presentation.onboarding.utils.CertificationN
 import com.example.ablebody_android.presentation.onboarding.utils.convertMillisecondsToFormattedTime
 import com.example.ablebody_android.presentation.onboarding.utils.isNicknameRuleMatch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -36,10 +39,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
+    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val onboardingRepository: OnboardingRepository
 ): ViewModel() {
-
-    private val ioDispatcher = Dispatchers.IO
 
     val phoneNumberState: StateFlow<String> get() =  _phoneNumberState.asStateFlow()
     private val _phoneNumberState = MutableStateFlow<String>("")
