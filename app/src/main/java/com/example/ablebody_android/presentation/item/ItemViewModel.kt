@@ -46,7 +46,7 @@ class ItemViewModel @Inject constructor(
         viewModelScope.launch { _itemChildCategory.emit(itemChildCategory) }
     }
 
-    private val _itemGender = MutableStateFlow(ItemGender.UNISEX)
+    private val _itemGender = MutableStateFlow(ItemGender.MALE)
     val itemGender = _itemGender.asStateFlow()
 
     fun updateItemGender(itemGender: ItemGender) {
