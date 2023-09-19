@@ -1,7 +1,5 @@
 package com.example.ablebody_android.network
 
-import com.example.ablebody_android.data.dto.Gender
-import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
@@ -10,27 +8,35 @@ import com.example.ablebody_android.utils.printResponse
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-class FindApiUnitTest {
-    private val networkAPI: NetworkService = TestRetrofit.getInstance()
+class SearchApiUnitTest {
+    private val networkService: NetworkService = TestRetrofit.getInstance()
+
     @Test
-    fun findItem() {
+    fun uniSearch() {
+        val response = runBlocking { networkService.uniSearch("") }
+        printResponse(response)
+    }
+
+    @Test
+    fun searchItem() {
         val response = runBlocking {
-            networkAPI.findItem(
+            networkService.searchItem(
+                sort = SortingMethod.POPULAR,
+                keyword = "나이키",
                 itemGender = ItemGender.UNISEX,
-                parentCategory = ItemParentCategory.ALL,
-                childCategory = null,
-                sort = SortingMethod.POPULAR
+                parentCategory = ItemParentCategory.ALL
             )
         }
         printResponse(response)
     }
 
     @Test
-    fun findCody() {
+    fun searchCody() {
         val response = runBlocking {
-            networkAPI.findCody(
-                genders = listOf(Gender.MALE, Gender.FEMALE),
-                category = listOf(HomeCategory.GYMWEAR)
+            networkService.searchCody(
+                keyword = "나이키",
+                category = listOf(),
+                genders = listOf()
             )
         }
         printResponse(response)

@@ -20,8 +20,11 @@ import com.example.ablebody_android.data.dto.response.FindCodyResponse
 import com.example.ablebody_android.data.dto.response.FindItemResponse
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.RefreshTokenResponse
+import com.example.ablebody_android.data.dto.response.SearchCodyResponse
+import com.example.ablebody_android.data.dto.response.SearchItemResponse
 import com.example.ablebody_android.data.dto.response.SendSMSResponse
 import com.example.ablebody_android.data.dto.response.StringResponse
+import com.example.ablebody_android.data.dto.response.UniSearchResponse
 import com.example.ablebody_android.data.dto.response.UserDataResponse
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
@@ -110,4 +113,30 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 20
     ): Response<FindCodyResponse>
+
+    suspend fun uniSearch(
+        keyword: String,
+        page: Int = 0,
+        size: Int = 10
+    ): Response<UniSearchResponse>
+
+    suspend fun searchItem(
+        sort: SortingMethod,
+        keyword: String,
+        itemGender: ItemGender,
+        parentCategory: ItemParentCategory,
+        childCategory: ItemChildCategory? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Response<SearchItemResponse>
+
+    suspend fun searchCody(
+        keyword: String,
+        genders: List<Gender>,
+        category: List<HomeCategory>,
+        personHeightRangeStart: Int? = null,
+        personHeightRangeEnd: Int? = null,
+        page: Int = 0,
+        size: Int = 20
+    ): Response<SearchCodyResponse>
 }

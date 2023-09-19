@@ -20,8 +20,11 @@ import com.example.ablebody_android.data.dto.response.FindCodyResponse
 import com.example.ablebody_android.data.dto.response.FindItemResponse
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.RefreshTokenResponse
+import com.example.ablebody_android.data.dto.response.SearchCodyResponse
+import com.example.ablebody_android.data.dto.response.SearchItemResponse
 import com.example.ablebody_android.data.dto.response.SendSMSResponse
 import com.example.ablebody_android.data.dto.response.StringResponse
+import com.example.ablebody_android.data.dto.response.UniSearchResponse
 import com.example.ablebody_android.data.dto.response.UserDataResponse
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
@@ -206,4 +209,42 @@ class NetworkServiceImpl @Inject constructor(
             page = page,
             size = size
         ).execute()
+
+    override suspend fun uniSearch(
+        keyword: String,
+        page: Int,
+        size: Int
+    ): Response<UniSearchResponse> =
+        networkAPI.uniSearch(keyword, page, size).execute()
+
+    override suspend fun searchItem(
+        sort: SortingMethod,
+        keyword: String,
+        itemGender: ItemGender,
+        parentCategory: ItemParentCategory,
+        childCategory: ItemChildCategory?,
+        page: Int,
+        size: Int
+    ): Response<SearchItemResponse> =
+        networkAPI.searchItem(sort, keyword, itemGender, parentCategory, childCategory, page, size).execute()
+
+    override suspend fun searchCody(
+        keyword: String,
+        genders: List<Gender>,
+        category: List<HomeCategory>,
+        personHeightRangeStart: Int?,
+        personHeightRangeEnd: Int?,
+        page: Int,
+        size: Int
+    ): Response<SearchCodyResponse> =
+        networkAPI.searchCody(
+            keyword,
+            removeSquareBrackets(genders),
+            removeSquareBrackets(category),
+            personHeightRangeStart,
+            personHeightRangeEnd,
+            page,
+            size
+        ).execute()
+
 }

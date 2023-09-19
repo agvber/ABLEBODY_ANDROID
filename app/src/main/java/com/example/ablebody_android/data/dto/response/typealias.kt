@@ -12,6 +12,9 @@ import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
 import com.example.ablebody_android.data.dto.response.data.RefreshTokenResponseData
 import com.example.ablebody_android.data.dto.response.data.SMSCheckResponseData
 import com.example.ablebody_android.data.dto.response.data.SMSSendResponseData
+import com.example.ablebody_android.data.dto.response.data.SearchCodyResponseData
+import com.example.ablebody_android.data.dto.response.data.SearchItemResponseData
+import com.example.ablebody_android.data.dto.response.data.UniSearchResponseData
 import com.example.ablebody_android.data.dto.response.data.UserDataResponseData
 
 /** Onboarding **/
@@ -43,3 +46,9 @@ typealias DeleteBookmarkCodyResponse = AbleBodyResponse<String>
 
 typealias FindItemResponse = AbleBodyResponse<FindItemResponseData>
 typealias FindCodyResponse = AbleBodyResponse<FindCodyResponseData>
+
+/** Search **/
+
+typealias UniSearchResponse = AbleBodyResponse<UniSearchResponseData>
+typealias SearchItemResponse = AbleBodyResponse<SearchItemResponseData>
+typealias SearchCodyResponse = AbleBodyResponse<SearchCodyResponseData>

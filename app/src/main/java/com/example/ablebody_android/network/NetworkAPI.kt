@@ -24,8 +24,11 @@ import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.ReadBookmarkCodyResponse
 import com.example.ablebody_android.data.dto.response.ReadBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.RefreshTokenResponse
+import com.example.ablebody_android.data.dto.response.SearchCodyResponse
+import com.example.ablebody_android.data.dto.response.SearchItemResponse
 import com.example.ablebody_android.data.dto.response.SendSMSResponse
 import com.example.ablebody_android.data.dto.response.StringResponse
+import com.example.ablebody_android.data.dto.response.UniSearchResponse
 import com.example.ablebody_android.data.dto.response.UserDataResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -157,4 +160,34 @@ interface NetworkAPI {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
     ): Call<FindCodyResponse>
+
+    @GET("/api/search/uni")
+    fun uniSearch(
+        @Query("keyword") keyword: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): Call<UniSearchResponse>
+
+    @GET("/api/search/item")
+    fun searchItem(
+        @Query("sort") sort: SortingMethod,
+        @Query("keyword") keyword: String,
+        @Query("itemGender") itemGender: ItemGender,
+        @Query("parentCategory") parentCategory: ItemParentCategory,
+        @Query("childCategory") childCategory: ItemChildCategory? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<SearchItemResponse>
+
+    @GET("/api/search/cody")
+    fun searchCody(
+        @Query("keyword") keyword: String,
+        @Query("gender") genders: String,
+        @Query("category") category: String,
+        @Query("height1") personHeightRangeStart: Int? = null,
+        @Query("height2") personHeightRangeEnd: Int? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 20
+    ): Call<SearchCodyResponse>
+
 }
