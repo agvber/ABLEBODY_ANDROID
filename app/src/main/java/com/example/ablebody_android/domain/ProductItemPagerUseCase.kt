@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class ProductItemAutoPagerUseCase @Inject constructor(
+class ProductItemPagerUseCase @Inject constructor(
     private val brandRepository: BrandRepository,
     private val findItemRepository: FindItemRepository
 ) {

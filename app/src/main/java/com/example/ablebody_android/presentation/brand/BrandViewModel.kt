@@ -13,7 +13,7 @@ import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.domain.CodyItemPagerUseCase
-import com.example.ablebody_android.domain.ProductItemAutoPagerUseCase
+import com.example.ablebody_android.domain.ProductItemPagerUseCase
 import com.example.ablebody_android.model.CodyItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BrandViewModel @Inject constructor(
     brandRepository: BrandRepository,
-    productItemAutoPagerUseCase: ProductItemAutoPagerUseCase,
+    productItemPagerUseCase: ProductItemPagerUseCase,
     codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
 
@@ -130,7 +130,7 @@ class BrandViewModel @Inject constructor(
         brandProductItemParentFilter,
         brandProductItemChildFilter
     ) { sort, id, gender, parent, child, ->
-        productItemAutoPagerUseCase(sort, id, gender, parent, child)
+        productItemPagerUseCase(sort, id, gender, parent, child)
     }
         .flatMapLatest {
             it.cachedIn(viewModelScope)
