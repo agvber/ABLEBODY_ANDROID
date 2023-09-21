@@ -4,7 +4,6 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.network.utils.TestRetrofit
-import com.example.ablebody_android.utils.printResponse
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -14,7 +13,7 @@ class SearchApiUnitTest {
     @Test
     fun uniSearch() {
         val response = runBlocking { networkService.uniSearch("") }
-        printResponse(response)
+        println(response.toString())
     }
 
     @Test
@@ -27,7 +26,7 @@ class SearchApiUnitTest {
                 parentCategory = ItemParentCategory.ALL
             )
         }
-        printResponse(response)
+        println(response.toString())
     }
 
     @Test
@@ -39,6 +38,6 @@ class SearchApiUnitTest {
                 genders = listOf()
             )
         }
-        printResponse(response)
+        println(response.toString())
     }
 }

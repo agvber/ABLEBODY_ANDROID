@@ -118,7 +118,7 @@ interface NetworkService {
         keyword: String,
         page: Int = 0,
         size: Int = 10
-    ): Response<UniSearchResponse>
+    ): UniSearchResponse
 
     suspend fun searchItem(
         sort: SortingMethod,
@@ -128,7 +128,7 @@ interface NetworkService {
         childCategory: ItemChildCategory? = null,
         page: Int = 0,
         size: Int = 20
-    ): Response<SearchItemResponse>
+    ): SearchItemResponse
 
     suspend fun searchCody(
         keyword: String,
@@ -138,5 +138,5 @@ interface NetworkService {
         personHeightRangeEnd: Int? = null,
         page: Int = 0,
         size: Int = 20
-    ): Response<SearchCodyResponse>
+    ): SearchCodyResponse
 }

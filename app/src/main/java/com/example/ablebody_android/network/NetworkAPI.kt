@@ -162,14 +162,14 @@ interface NetworkAPI {
     ): Call<FindCodyResponse>
 
     @GET("/api/search/uni")
-    fun uniSearch(
+    suspend fun uniSearch(
         @Query("keyword") keyword: String,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
-    ): Call<UniSearchResponse>
+    ): UniSearchResponse
 
     @GET("/api/search/item")
-    fun searchItem(
+    suspend fun searchItem(
         @Query("sort") sort: SortingMethod,
         @Query("keyword") keyword: String,
         @Query("itemGender") itemGender: ItemGender,
@@ -177,10 +177,10 @@ interface NetworkAPI {
         @Query("childCategory") childCategory: ItemChildCategory? = null,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
-    ): Call<SearchItemResponse>
+    ): SearchItemResponse
 
     @GET("/api/search/cody")
-    fun searchCody(
+    suspend fun searchCody(
         @Query("keyword") keyword: String,
         @Query("gender") genders: String,
         @Query("category") category: String,
@@ -188,6 +188,6 @@ interface NetworkAPI {
         @Query("height2") personHeightRangeEnd: Int? = null,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
-    ): Call<SearchCodyResponse>
+    ): SearchCodyResponse
 
 }

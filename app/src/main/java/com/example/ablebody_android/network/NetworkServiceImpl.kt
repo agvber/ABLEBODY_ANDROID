@@ -214,8 +214,8 @@ class NetworkServiceImpl @Inject constructor(
         keyword: String,
         page: Int,
         size: Int
-    ): Response<UniSearchResponse> =
-        networkAPI.uniSearch(keyword, page, size).execute()
+    ): UniSearchResponse =
+        networkAPI.uniSearch(keyword, page, size)
 
     override suspend fun searchItem(
         sort: SortingMethod,
@@ -225,8 +225,8 @@ class NetworkServiceImpl @Inject constructor(
         childCategory: ItemChildCategory?,
         page: Int,
         size: Int
-    ): Response<SearchItemResponse> =
-        networkAPI.searchItem(sort, keyword, itemGender, parentCategory, childCategory, page, size).execute()
+    ): SearchItemResponse =
+        networkAPI.searchItem(sort, keyword, itemGender, parentCategory, childCategory, page, size)
 
     override suspend fun searchCody(
         keyword: String,
@@ -236,7 +236,7 @@ class NetworkServiceImpl @Inject constructor(
         personHeightRangeEnd: Int?,
         page: Int,
         size: Int
-    ): Response<SearchCodyResponse> =
+    ): SearchCodyResponse =
         networkAPI.searchCody(
             keyword,
             removeSquareBrackets(genders),
@@ -245,6 +245,5 @@ class NetworkServiceImpl @Inject constructor(
             personHeightRangeEnd,
             page,
             size
-        ).execute()
-
+        )
 }
