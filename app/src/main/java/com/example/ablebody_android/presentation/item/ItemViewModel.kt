@@ -8,6 +8,7 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.domain.ProductItemPagerUseCase
+import com.example.ablebody_android.domain.ProductItemPagingSourceData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,7 @@ class ItemViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val productItemListTest = combine(sortingMethod, itemParentCategory, itemChildCategory, itemGender) { sort, parent, child, gender ->
-        productItemPagerUseCase(sort, gender, parent, child)
+        productItemPagerUseCase(ProductItemPagingSourceData.Item(sort, gender, parent, child))
     }
         .flatMapLatest {
             it.cachedIn(viewModelScope)

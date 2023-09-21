@@ -14,6 +14,7 @@ import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.domain.CodyItemPagerUseCase
 import com.example.ablebody_android.domain.ProductItemPagerUseCase
+import com.example.ablebody_android.domain.ProductItemPagingSourceData
 import com.example.ablebody_android.model.CodyItemData
 import com.example.ablebody_android.network.di.AbleBodyDispatcher
 import com.example.ablebody_android.network.di.Dispatcher
@@ -131,7 +132,7 @@ class BrandViewModel @Inject constructor(
         brandProductItemParentFilter,
         brandProductItemChildFilter
     ) { sort, id, gender, parent, child, ->
-        productItemPagerUseCase(sort, id, gender, parent, child)
+        productItemPagerUseCase(ProductItemPagingSourceData.Brand(sort, id, gender, parent, child))
     }
         .flatMapLatest {
             it.cachedIn(viewModelScope)
