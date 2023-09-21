@@ -8,6 +8,7 @@ import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.domain.CodyItemPagerUseCase
+import com.example.ablebody_android.domain.CodyPagingSourceData
 import com.example.ablebody_android.model.CodyItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,7 +61,7 @@ class CodyRecommendViewModel @Inject constructor(
             codyItemListSportFilter,
             codyItemListPersonHeightFilter
         ) { gender, sport, height ->
-            codyItemPagerUseCase(gender, sport, height.rangeStart, height.rangeEnd)
+            codyItemPagerUseCase(CodyPagingSourceData.CodyRecommended(gender, sport, height.rangeStart, height.rangeEnd))
         }
             .flatMapLatest {
                 it.cachedIn(viewModelScope)

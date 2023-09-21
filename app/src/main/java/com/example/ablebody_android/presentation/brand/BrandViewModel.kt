@@ -13,6 +13,7 @@ import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.data.repository.BrandRepository
 import com.example.ablebody_android.domain.CodyItemPagerUseCase
+import com.example.ablebody_android.domain.CodyPagingSourceData
 import com.example.ablebody_android.domain.ProductItemPagerUseCase
 import com.example.ablebody_android.domain.ProductItemPagingSourceData
 import com.example.ablebody_android.model.CodyItemData
@@ -174,7 +175,7 @@ class BrandViewModel @Inject constructor(
             codyItemListSportFilter,
             codyItemListPersonHeightFilter
         ) { id, gender, sport, height ->
-            codyItemPagerUseCase(id, gender, sport, height.rangeStart, height.rangeEnd)
+            codyItemPagerUseCase(CodyPagingSourceData.Brand(id, gender, sport, height.rangeStart, height.rangeEnd))
         }
             .flatMapLatest {
                 it.cachedIn(viewModelScope)

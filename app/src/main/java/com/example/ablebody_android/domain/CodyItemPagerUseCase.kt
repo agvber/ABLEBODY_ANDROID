@@ -21,42 +21,19 @@ class CodyItemPagerUseCase @Inject constructor(
     private val brandRepository: BrandRepository,
     private val findCodyRepository: FindCodyRepository
 ) {
-
     operator fun invoke(
-        brandId: Long,
-        gender: List<Gender>,
-        category: List<HomeCategory>,
-        personHeightRangeStart: Int? = null,
-        personHeightRangeEnd: Int? = null,
+        codyPagingSourceData: CodyPagingSourceData
     ): Flow<PagingData<CodyItemData.Item>> =
         Pager(
             config = PagingConfig(pageSize = 20),
             initialKey = 0
         ) {
-            BrandCodyPagingSource(brandId, gender, category, personHeightRangeStart, personHeightRangeEnd)
+            CodyPagingSource(codyPagingSourceData)
         }
             .flow
 
-    operator fun invoke(
-        gender: List<Gender>,
-        category: List<HomeCategory>,
-        personHeightRangeStart: Int? = null,
-        personHeightRangeEnd: Int? = null,
-    ): Flow<PagingData<CodyItemData.Item>> =
-        Pager(
-            config = PagingConfig(pageSize = 20),
-            initialKey = 0
-        ) {
-            CodyPagingSource(gender, category, personHeightRangeStart, personHeightRangeEnd)
-        }
-            .flow
-
-    inner class BrandCodyPagingSource(
-        private val brandId: Long,
-        private val gender: List<Gender>,
-        private val category: List<HomeCategory>,
-        private val personHeightRangeStart: Int? = null,
-        private val personHeightRangeEnd: Int? = null,
+    private inner class CodyPagingSource(
+        private val codyPagingSourceData: CodyPagingSourceData
     ): PagingSource<Int, CodyItemData.Item>() {
         override fun getRefreshKey(state: PagingState<Int, CodyItemData.Item>): Int? {
             return state.anchorPosition
@@ -65,12 +42,31 @@ class CodyItemPagerUseCase @Inject constructor(
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CodyItemData.Item> {
             return try {
                 val currentPageIndex = params.key ?: 0
-                val codyItemData = withContext(Dispatchers.IO) {
-                    brandRepository.brandDetailCody(
-                        brandId, gender, category, personHeightRangeStart, personHeightRangeEnd, currentPageIndex
-                    )
+                val codyItemData: CodyItemData = withContext(Dispatchers.IO) {
+                    when (codyPagingSourceData) {
+                        is CodyPagingSourceData.Brand -> {
+                            brandRepository.brandDetailCody(
+                                codyPagingSourceData.brandId,
+                                codyPagingSourceData.gender,
+                                codyPagingSourceData.category,
+                                codyPagingSourceData.personHeightRangeStart,
+                                codyPagingSourceData.personHeightRangeEnd,
+                                currentPageIndex
+                            )
+                                .body()?.data?.toDomain()
+                        }
+                        is CodyPagingSourceData.CodyRecommended -> {
+                            findCodyRepository.findCody(
+                                codyPagingSourceData.gender,
+                                codyPagingSourceData.category,
+                                codyPagingSourceData.personHeightRangeStart,
+                                codyPagingSourceData.personHeightRangeEnd,
+                                currentPageIndex
+                            )
+                                .body()?.data?.toDomain()
+                        }
+                    }
                 }
-                    .body()?.data?.toDomain()
                     ?: CodyItemData(emptyList(), 0, true, 0, true)
 
                 LoadResult.Page(
@@ -83,36 +79,23 @@ class CodyItemPagerUseCase @Inject constructor(
             }
         }
     }
+}
 
-    inner class CodyPagingSource(
-        private val gender: List<Gender>,
-        private val category: List<HomeCategory>,
-        private val personHeightRangeStart: Int? = null,
-        private val personHeightRangeEnd: Int? = null,
-    ): PagingSource<Int, CodyItemData.Item>() {
-        override fun getRefreshKey(state: PagingState<Int, CodyItemData.Item>): Int? {
-            return state.anchorPosition
-        }
+sealed interface CodyPagingSourceData {
+    data class Brand(
+        val brandId: Long,
+        val gender: List<Gender>,
+        val category: List<HomeCategory>,
+        val personHeightRangeStart: Int? = null,
+        val personHeightRangeEnd: Int? = null,
+    ): CodyPagingSourceData
 
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CodyItemData.Item> {
-            return try {
-                val currentPageIndex = params.key ?: 0
-                val codyItemData = withContext(Dispatchers.IO) {
-                    findCodyRepository.findCody(gender, category, personHeightRangeStart, personHeightRangeEnd, currentPageIndex)
-                }
-                    .body()?.data?.toDomain()
-                    ?: CodyItemData(emptyList(), 0, true, 0, true)
-
-                LoadResult.Page(
-                    data = codyItemData.content,
-                    prevKey = if (codyItemData.first) null else codyItemData.number - 1,
-                    nextKey = if (codyItemData.last) null else codyItemData.number + 1
-                )
-            } catch (e: Exception) {
-                LoadResult.Error(e)
-            }
-        }
-    }
+    data class CodyRecommended(
+        val gender: List<Gender>,
+        val category: List<HomeCategory>,
+        val personHeightRangeStart: Int? = null,
+        val personHeightRangeEnd: Int? = null,
+    ): CodyPagingSourceData
 }
 
 private fun BrandDetailCodyResponseData.Item.toDomain() =
