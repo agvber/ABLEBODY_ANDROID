@@ -20,14 +20,13 @@ class SearchRepositoryImpl @Inject constructor(
     private val searchHistoryDao: SearchHistoryDao
 ): SearchRepository {
     override suspend fun uniSearch(keyword: String, page: Int, size: Int): UniSearchResponse {
-        searchHistoryDao.insert(SearchHistoryEntity(keyword, System.currentTimeMillis()))
         return networkService.uniSearch(keyword, page, size)
     }
 
     override fun getSearchHistoryQueries(): Flow<List<SearchHistoryEntity>> =
         searchHistoryDao.getAll()
 
-    override fun deleteAllSearchHistory() {
+    override suspend fun deleteAllSearchHistory() {
         searchHistoryDao.deleteAll()
     }
 
@@ -40,6 +39,7 @@ class SearchRepositoryImpl @Inject constructor(
         page: Int,
         size: Int
     ): SearchItemResponse {
+        searchHistoryDao.insert(SearchHistoryEntity(keyword, System.currentTimeMillis()))
         return networkService.searchItem(sort, keyword, itemGender, parentCategory, childCategory, page, size)
     }
 
@@ -52,6 +52,7 @@ class SearchRepositoryImpl @Inject constructor(
         page: Int,
         size: Int
     ): SearchCodyResponse {
+        searchHistoryDao.insert(SearchHistoryEntity(keyword, System.currentTimeMillis()))
         return networkService.searchCody(keyword, genders, category, personHeightRangeStart, personHeightRangeEnd, page, size)
     }
 }

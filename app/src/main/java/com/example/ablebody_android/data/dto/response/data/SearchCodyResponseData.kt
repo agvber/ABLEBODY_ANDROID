@@ -16,7 +16,7 @@ data class SearchCodyResponseData (
     val empty: Boolean
 ) {
     data class Content(
-        val id: Int,
+        val id: Long,
         val imageURL: String,
         val createDate: String,
         val comments: Int,

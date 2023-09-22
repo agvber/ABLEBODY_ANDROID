@@ -9,10 +9,16 @@ import com.example.ablebody_android.presentation.brand.ui.BrandListRoute
 
 fun NavGraphBuilder.addBrandGraph(
     onBackClick: () -> Unit,
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
     brandItemClick: (Long, String) -> Unit,
 ) {
     composable(route = "BrandListScreen") {
-        BrandListRoute(onItemClick = brandItemClick)
+        BrandListRoute(
+            onSearchBarClick = onSearchBarClick,
+            onAlertButtonClick = onAlertButtonClick,
+            onItemClick = brandItemClick,
+        )
     }
     composable(route = "BrandDetailScreen/{content_id}/{content_name}",
         arguments = listOf(

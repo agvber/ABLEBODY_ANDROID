@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,6 +59,8 @@ import com.example.ablebody_android.ui.utils.previewPlaceHolder
 
 @Composable
 fun BrandListRoute(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
     onItemClick: (Long, String) -> Unit,
     viewModel: BrandViewModel = hiltViewModel()
 ) {
@@ -65,6 +68,8 @@ fun BrandListRoute(
     val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
     val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
     BrandListScreen(
+        onSearchBarClick = onSearchBarClick,
+        onAlertButtonClick = onAlertButtonClick,
         sortingMethod = sortingMethod,
         onSortingMethodChange = { viewModel.updateBrandListOrderFilterType(it) },
         genderFilter = genderFilter,
@@ -77,6 +82,8 @@ fun BrandListRoute(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun BrandListScreen(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
     sortingMethod: SortingMethod,
     onSortingMethodChange: (SortingMethod) -> Unit,
     genderFilter: ItemGender,
@@ -114,8 +121,8 @@ fun BrandListScreen(
             modifier = modifier,
             topBar = {
                 ItemSearchBar(
-                    textFiledOnClick = {  },
-                    alertOnClick = {  }
+                    textFiledOnClick = onSearchBarClick,
+                    alertOnClick = onAlertButtonClick
                 )
             }
         ) { paddingValue ->
@@ -150,10 +157,7 @@ fun BrandListScreen(
                         )
                     }
                     item {
-                        Surface(
-                            modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current),
-                            content = {  }
-                        )
+                        Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
                     }
                 }
             }
@@ -166,6 +170,8 @@ fun BrandListScreen(
 fun BrandScreenListPreview() {
     ABLEBODY_AndroidTheme {
         BrandListScreen(
+            onSearchBarClick = {},
+            onAlertButtonClick = {},
             sortingMethod = SortingMethod.POPULAR,
             onSortingMethodChange = {},
             genderFilter = ItemGender.UNISEX,

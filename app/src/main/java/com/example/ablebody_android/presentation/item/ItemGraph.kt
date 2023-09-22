@@ -5,8 +5,16 @@ import androidx.navigation.compose.composable
 import com.example.ablebody_android.presentation.item.ui.ItemRoute
 
 
-fun NavGraphBuilder.addItemGraph() {
+fun NavGraphBuilder.addItemGraph(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    productItemClick: (Long) -> Unit,
+) {
     composable(route = "ItemRoute") {
-        ItemRoute()
+        ItemRoute(
+            onSearchBarClick = onSearchBarClick,
+            onAlertButtonClick = onAlertButtonClick,
+            itemClick = productItemClick
+        )
     }
 }

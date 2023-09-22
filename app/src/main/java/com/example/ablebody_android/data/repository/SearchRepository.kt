@@ -22,7 +22,7 @@ interface SearchRepository {
 
     fun getSearchHistoryQueries(): Flow<List<SearchHistoryEntity>>
 
-    fun deleteAllSearchHistory()
+    suspend fun deleteAllSearchHistory()
     suspend fun searchItem(
         sort: SortingMethod,
         keyword: String,

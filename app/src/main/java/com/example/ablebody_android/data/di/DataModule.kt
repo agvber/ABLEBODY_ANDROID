@@ -10,6 +10,8 @@ import com.example.ablebody_android.data.repository.FindItemRepository
 import com.example.ablebody_android.data.repository.FindItemRepositoryImpl
 import com.example.ablebody_android.data.repository.OnboardingRepository
 import com.example.ablebody_android.data.repository.OnboardingRepositoryImpl
+import com.example.ablebody_android.data.repository.SearchRepository
+import com.example.ablebody_android.data.repository.SearchRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -43,4 +45,9 @@ interface DataModule {
     fun bindFindCodyRepository(
         findCodyRepositoryImpl: FindCodyRepositoryImpl
     ): FindCodyRepository
+
+    @Binds
+    fun bindsSearchRepository(
+        searchRepositoryImpl: SearchRepositoryImpl
+    ): SearchRepository
 }

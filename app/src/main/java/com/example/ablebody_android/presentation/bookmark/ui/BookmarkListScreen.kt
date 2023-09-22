@@ -1,12 +1,14 @@
 package com.example.ablebody_android.presentation.bookmark.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
@@ -20,41 +22,57 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
-import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
+import com.example.ablebody_android.model.CodyItemData
+import com.example.ablebody_android.model.ProductItemData
+import com.example.ablebody_android.model.fakeCodyItemData
+import com.example.ablebody_android.model.fakeProductItemData
 import com.example.ablebody_android.presentation.bookmark.BookmarkViewModel
 import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.AbleBodyRowTab
 import com.example.ablebody_android.ui.utils.AbleBodyTabItem
-import com.example.ablebody_android.ui.utils.InfiniteVerticalGrid
 import com.example.ablebody_android.ui.utils.ItemSearchBar
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 @Composable
-fun BookmarkListRoute(bookmarkViewModel: BookmarkViewModel = hiltViewModel()) {
-    val bookmarkProductItemList by bookmarkViewModel.productItemList.collectAsStateWithLifecycle()
-    val codyItemList by bookmarkViewModel.codyItemList.collectAsStateWithLifecycle()
+fun BookmarkListRoute(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    productItemClick: (Long) -> Unit,
+    codyItemClick: (Long) -> Unit,
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel()
+) {
+    val productPagingItemList = bookmarkViewModel.productPagingItemList.collectAsLazyPagingItems()
+    val codyPagingItemList = bookmarkViewModel.codyPagingItemList.collectAsLazyPagingItems()
 
     BookmarkListScreen(
+        onSearchBarClick = onSearchBarClick,
+        onAlertButtonClick = onAlertButtonClick,
+        productItemClick = productItemClick,
+        codyItemClick = codyItemClick,
+        webPageRequest = { /* TODO 웹페이지로 바로가기 or 구매페이지로 바로가기 */ },
         requestProductItemDelete = { bookmarkViewModel.deleteProductItem(it) },
-        productItemList = bookmarkProductItemList,
-        productItemLoadNextOnPageChangeListener = { bookmarkViewModel.requestProductItemPageChange() },
-        codyItemList = codyItemList,
-        codyItemLoadNextOnPageChangeListener = { bookmarkViewModel.requestCodyItemPageChange() }
+        productPagingItemList = productPagingItemList,
+        codyPagingItemList = codyPagingItemList,
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookmarkListScreen(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    productItemClick: (Long) -> Unit,
+    codyItemClick: (Long) -> Unit,
+    webPageRequest: (String) -> Unit,
     requestProductItemDelete: (List<Long>) -> Unit,
-    productItemList: List<ReadBookmarkItemData.Item>,
-    productItemLoadNextOnPageChangeListener: () -> Unit,
-    codyItemList: List<ReadBookmarkCodyData.Item>,
-    codyItemLoadNextOnPageChangeListener: () -> Unit,
+    productPagingItemList: LazyPagingItems<ProductItemData.Item>,
+    codyPagingItemList: LazyPagingItems<CodyItemData.Item>,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState { 2 }
@@ -68,7 +86,10 @@ fun BookmarkListScreen(
     Scaffold(
         topBar = {
             Column {
-                ItemSearchBar(textFiledOnClick = { /*TODO searchBar*/ }) { }
+                ItemSearchBar(
+                    textFiledOnClick = onSearchBarClick,
+                    alertOnClick = onAlertButtonClick
+                )
                 AbleBodyRowTab(
                     selectedTabIndex = currentPage
                 ) {
@@ -88,30 +109,35 @@ fun BookmarkListScreen(
         ) { page ->
             when(page) {
                 0 -> {
-                    InfiniteVerticalGrid(
-                        lastPositionListener = productItemLoadNextOnPageChangeListener,
+                    LazyVerticalGrid(
                         columns = GridCells.Fixed(2)
                     ) {
                         items(
-                            items = productItemList,
-                            key = { it.id }
-                        ) { item ->
+                            count = productPagingItemList.itemCount
+                        ) { position ->
                             BookmarkProductItemLayout(
-                                requestWebPage = { /*TODO*/ },
+                                requestWebPage = { productPagingItemList[position]?.url?.let(webPageRequest) },
                                 bookmarkClick = {
-                                    if (productItemRemoveList.contains(item.id)) {
-                                        productItemRemoveList.remove(item.id)
-                                    } else {
-                                        productItemRemoveList.add(item.id)
+                                    productPagingItemList[position]?.id?.let { id ->
+                                        if (productItemRemoveList.contains(id)) {
+                                            productItemRemoveList.remove(id)
+                                        } else {
+                                            productItemRemoveList.add(id)
+                                        }
                                     }
-                                                },
-                                selected = !productItemRemoveList.contains(item.id),
-                                productName = item.name,
-                                productPrice = item.price,
-                                productSalePrice = item.salePrice,
-                                brandName = item.brandName,
-                                imageURL = item.image,
-                                isSingleImage = item.isPlural,
+                                },
+                                selected = !productItemRemoveList.contains(productPagingItemList[position]?.id),
+                                productName = productPagingItemList[position]?.name ?: "",
+                                productPrice = productPagingItemList[position]?.price ?: 0,
+                                productSalePrice = productPagingItemList[position]?.salePrice,
+                                brandName = productPagingItemList[position]?.brandName ?: "",
+                                imageURL = productPagingItemList[position]?.imageURL ?: "",
+                                isSingleImage = productPagingItemList[position]?.isSingleImage ?: true,
+                                modifier = Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = { productPagingItemList[position]?.id?.let(productItemClick) }
+                                )
                             )
                         }
                         item(span = { GridItemSpan(2) }) {
@@ -120,17 +146,18 @@ fun BookmarkListScreen(
                     }
                 }
                 1 -> {
-                    InfiniteVerticalGrid(
-                        lastPositionListener = codyItemLoadNextOnPageChangeListener,
-                        columns = GridCells.Fixed(3)
-                    ) {
+                    LazyVerticalGrid(columns = GridCells.Fixed(3)) {
                         items(
-                            items = codyItemList,
-                            key = { it.id }
-                        ) { item ->
+                            count = codyPagingItemList.itemCount,
+                        ) { position ->
                             AsyncImage(
-                                model = item.imageURL,
-                                contentDescription = "cody item"
+                                model = codyPagingItemList[position]?.imageURL,
+                                contentDescription = "cody item",
+                                modifier = Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = { codyPagingItemList[position]?.id?.let(codyItemClick) }
+                                )
                             )
                         }
                         item(span = { GridItemSpan(3) }) {
@@ -148,12 +175,14 @@ fun BookmarkListScreen(
 fun BookmarkListScreenPreview() {
     ABLEBODY_AndroidTheme {
         BookmarkListScreen(
-            {},
-            productItemList = listOf(ReadBookmarkItemData.Item(id = 0L, name = "만두", price = 99999999, salePrice = null, brandName = "만두", image = "", isPlural = false, url = "", avgStarRating = null)),
-            productItemLoadNextOnPageChangeListener = {  },
-            codyItemList = emptyList()
-        ) {
-
-        }
+            onSearchBarClick = {},
+            onAlertButtonClick = {},
+            productItemClick = {},
+            codyItemClick = {},
+            webPageRequest = { },
+            requestProductItemDelete = {},
+            productPagingItemList = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems(),
+            codyPagingItemList = flowOf(PagingData.from(fakeCodyItemData.content)).collectAsLazyPagingItems()
+        )
     }
 }

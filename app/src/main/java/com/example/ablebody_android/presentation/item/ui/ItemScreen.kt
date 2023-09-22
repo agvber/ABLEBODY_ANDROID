@@ -23,11 +23,16 @@ import com.example.ablebody_android.ui.utils.ItemSearchBar
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
-fun ItemRoute(itemViewModel: ItemViewModel = hiltViewModel()) {
+fun ItemRoute(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    itemClick: (Long) -> Unit,
+    itemViewModel: ItemViewModel = hiltViewModel()
+) {
     ItemScreen(
-        onSearchBarClick = { /* TODO 검색화면 바로가기 버튼 클릭 */ },
-        onAlertButtonClick = { /* TODO 알림창 바로가기 클릭 */ },
-        itemClick = { /* TODO 아이템 버튼 클릭 */ },
+        onSearchBarClick = onSearchBarClick,
+        onAlertButtonClick = onAlertButtonClick,
+        itemClick = itemClick,
         onSortingMethodChange = { itemViewModel.updateSortingMethod(it) },
         onParentFilterChange = { itemViewModel.updateItemParentCategory(it) },
         onChildFilterChange = { itemViewModel.updateItemChildCategory(it) },

@@ -9,6 +9,7 @@ import com.example.ablebody_android.presentation.brand.addBrandGraph
 import com.example.ablebody_android.presentation.cody_recommended.addCodyRecommendedGraph
 import com.example.ablebody_android.presentation.item.addItemGraph
 import com.example.ablebody_android.presentation.main.data.NavigationItems
+import com.example.ablebody_android.presentation.search.addSearchScreen
 
 @Composable
 fun MainNavHost(
@@ -19,20 +20,41 @@ fun MainNavHost(
         navigation(startDestination = "BrandListScreen", route = NavigationItems.Brand.name) {
             addBrandGraph(
                 onBackClick = { navController.popBackStack() },
+                onSearchBarClick = { navController.navigate("SearchRoute") },
+                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
                 brandItemClick = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
             )
         }
 
-        navigation(startDestination = "BookmarkListRoute", route = NavigationItems.Bookmark.name) {
-            addBookmarkGraph()
-        }
-
         navigation(startDestination = "ItemRoute", route = NavigationItems.Item.name) {
-            addItemGraph()
+            addItemGraph(
+                onSearchBarClick = { navController.navigate("SearchRoute") },
+                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                productItemClick = { /* TODO productItemDetail 페이지로 가기 */ }
+            )
         }
 
         navigation(startDestination = "CodyRecommendRoute", route = NavigationItems.CodyRecommendation.name) {
-            addCodyRecommendedGraph()
+            addCodyRecommendedGraph(
+                onSearchBarClick = { navController.navigate("SearchRoute") },
+                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
+            )
         }
+
+        navigation(startDestination = "BookmarkListRoute", route = NavigationItems.Bookmark.name) {
+            addBookmarkGraph(
+                onSearchBarClick = { navController.navigate("SearchRoute") },
+                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                productItemClick = { /* TODO productItemDetail 페이지로 가기 */ },
+                codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
+            )
+        }
+
+        addSearchScreen(
+            backRequest = { navController.popBackStack() },
+            productItemClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
+            codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
+        )
     }
 }

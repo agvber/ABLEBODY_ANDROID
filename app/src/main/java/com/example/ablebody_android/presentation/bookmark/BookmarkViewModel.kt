@@ -2,18 +2,21 @@ package com.example.ablebody_android.presentation.bookmark
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
-import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.ablebody_android.data.repository.BookmarkRepository
+import com.example.ablebody_android.domain.CodyItemPagerUseCase
+import com.example.ablebody_android.domain.CodyPagingSourceData
+import com.example.ablebody_android.domain.ProductItemPagerUseCase
+import com.example.ablebody_android.domain.ProductItemPagingSourceData
+import com.example.ablebody_android.model.CodyItemData
+import com.example.ablebody_android.model.ProductItemData
 import com.example.ablebody_android.network.di.AbleBodyDispatcher
 import com.example.ablebody_android.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,8 +24,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
+    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val bookmarkRepository: BookmarkRepository,
-    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
+    productItemPagerUseCase: ProductItemPagerUseCase,
+    codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
 
     fun deleteProductItem(items: List<Long>) {
@@ -31,54 +36,25 @@ class BookmarkViewModel @Inject constructor(
         }
     }
 
-    private val isProductItemPageLastIndex = MutableStateFlow(false)
-    private val productItemCurrentPageIndex = MutableStateFlow(0)
-
-    fun requestProductItemPageChange() {
-        if (_productItemList.value.isNotEmpty() && !isProductItemPageLastIndex.value) {
-            productItemCurrentPageIndex.value += 1
-        }
-    }
-
-    private val _productItemList = MutableStateFlow<List<ReadBookmarkItemData.Item>>(emptyList())
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val productItemList: StateFlow<List<ReadBookmarkItemData.Item>> =
-        productItemCurrentPageIndex.flatMapLatest { page ->
-            bookmarkRepository.readBookmarkItem(page = page).body()?.data
-                ?.also { isProductItemPageLastIndex.emit(it.last) }
-                ?.let { _productItemList.emit(_productItemList.value.toMutableList().apply { addAll(it.content) }) }
-            _productItemList
-        }
+    val productPagingItemList: StateFlow<PagingData<ProductItemData.Item>> =
+        productItemPagerUseCase(ProductItemPagingSourceData.Bookmark)
+            .cachedIn(viewModelScope)
             .flowOn(ioDispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
+                initialValue = PagingData.empty()
             )
 
-    private val isCodyItemPageLastIndex = MutableStateFlow(false)
-    private val codyItemCurrentPageIndex = MutableStateFlow(0)
 
-    fun requestCodyItemPageChange() {
-        if (_codyItemList.value.isNotEmpty() && !isCodyItemPageLastIndex.value) {
-            codyItemCurrentPageIndex.value += 1
-        }
-    }
-
-    private val _codyItemList = MutableStateFlow<List<ReadBookmarkCodyData.Item>>(emptyList())
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val codyItemList: StateFlow<List<ReadBookmarkCodyData.Item>> =
-        codyItemCurrentPageIndex.flatMapLatest { page ->
-            bookmarkRepository.readBookmarkCody(page = page).body()?.data
-                ?.also { isCodyItemPageLastIndex.emit(it.last) }
-                ?.let { _codyItemList.emit(_codyItemList.value.toMutableList().apply { addAll(it.content) }) }
-            _codyItemList
-        }
+    val codyPagingItemList: StateFlow<PagingData<CodyItemData.Item>> =
+        codyItemPagerUseCase(CodyPagingSourceData.Bookmark)
+            .cachedIn(viewModelScope)
             .flowOn(ioDispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = emptyList()
+                initialValue = PagingData.empty()
             )
 
 

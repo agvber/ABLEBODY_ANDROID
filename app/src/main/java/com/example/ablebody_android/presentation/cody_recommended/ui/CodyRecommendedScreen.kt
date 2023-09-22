@@ -22,11 +22,16 @@ import com.example.ablebody_android.ui.utils.ItemSearchBar
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
-fun CodyRecommendedRoute(codyRecommendViewModel: CodyRecommendViewModel = hiltViewModel()) {
+fun CodyRecommendedRoute(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    itemClick: (Long) -> Unit,
+    codyRecommendViewModel: CodyRecommendViewModel = hiltViewModel()
+) {
     CodyRecommendedScreen(
-        onSearchBarClick = { /* TODO 검색 화면으로 넘어가기 */ },
-        onAlertButtonClick = { /* TODO 알림 화면으로 넘어가기 */ },
-        itemClick = { /* TODO creator 화면으로 넘어가기 */ },
+        onSearchBarClick = onSearchBarClick,
+        onAlertButtonClick = onAlertButtonClick,
+        itemClick = itemClick,
         resetRequest = { codyRecommendViewModel.resetCodyItemFilter() },
         onCodyItemListGenderFilterChange = { codyRecommendViewModel.updateCodyItemListGendersFilter(it) },
         onCodyItemListSportFilterChange = { codyRecommendViewModel.updateCodyItemListSportFilter(it) },

@@ -4,14 +4,18 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.ablebody_android.presentation.bookmark.ui.BookmarkListRoute
 
-fun NavGraphBuilder.addBookmarkGraph() {
+fun NavGraphBuilder.addBookmarkGraph(
+    onSearchBarClick: () -> Unit,
+    onAlertButtonClick: () -> Unit,
+    productItemClick: (Long) -> Unit,
+    codyItemClick: (Long) -> Unit,
+) {
     composable(route = "BookmarkListRoute") {
-        BookmarkListRoute()
-    }
-    composable(route = "BookmarkItemDetailScreen") {
-
-    }
-    composable(route = "BookmarkCodyDetailScreen") {
-
+        BookmarkListRoute(
+            onSearchBarClick = onSearchBarClick,
+            onAlertButtonClick = onAlertButtonClick,
+            productItemClick = productItemClick,
+            codyItemClick = codyItemClick
+        )
     }
 }
