@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -22,17 +22,22 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
+import androidx.compose.material.TextField
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -52,6 +57,7 @@ import com.example.ablebody_android.database.model.SearchHistoryEntity
 import com.example.ablebody_android.presentation.search.SearchViewModel
 import com.example.ablebody_android.ui.cody_item.CodyItemListLayout
 import com.example.ablebody_android.ui.product_item.ProductItemListLayout
+import com.example.ablebody_android.ui.theme.AbleBlue
 import com.example.ablebody_android.ui.theme.AbleDark
 import com.example.ablebody_android.ui.theme.PlaneGrey
 import com.example.ablebody_android.ui.theme.SmallTextGrey
@@ -103,7 +109,9 @@ fun SearchScreen(
                 recommendedKeywords = recommendedKeywords
             )
         }
-        AnimatedVisibility(visible = keyword.isNotEmpty()) {
+        AnimatedVisibility(
+            visible = keyword.isNotEmpty(),
+        ) {
             Column {
                 AbleBodyRowTab(
                     selectedTabIndex = pagerState.currentPage
@@ -247,7 +255,7 @@ private fun SearchKeywordLayout(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchScreenTopBar(
     backRequest: () -> Unit,
@@ -277,38 +285,34 @@ private fun SearchScreenTopBar(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
-                .size(32.dp)
+                .height(45.dp)
                 .weight(1f)
-                .focusRequester(focusRequester)
-            ,
+                .focusRequester(focusRequester),
             singleLine = true,
-            decorationBox = {
-                Row(
+            decorationBox = { innerTextField ->
+                Box(
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    contentAlignment = Alignment.CenterStart
                 ) {
                     if (value.isEmpty()) {
                         Text(
                             text = "브랜드, 제품명 등을 검색해 보세요",
                             style = TextStyle(
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = SmallTextGrey,
                             )
                         )
-                    } else {
-                        Text(
-                            text = value,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(400),
-                                color = AbleDark,
-                            )
-                        )
                     }
+                    innerTextField()
                 }
             },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+            ),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search,
             ),
@@ -317,6 +321,14 @@ private fun SearchScreenTopBar(
                     keyboardController?.hide()
                 }
             ),
+            cursorBrush = Brush.verticalGradient(
+                0.00f to Color.Transparent,
+                0.10f to Color.Transparent,
+                0.10f to AbleBlue,
+                0.90f to AbleBlue,
+                0.90f to Color.Transparent,
+                1.00f to Color.Transparent
+            )
         )
         if (value.isNotEmpty()) {
             Image(
@@ -372,4 +384,18 @@ private fun SearchKeywordLayoutPreview() {
         searchHistoryQueries = listOf(SearchHistoryEntity("가위", 0L)),
         recommendedKeywords = Result.Success(listOf("나이키", "애블바디", "가나다"))
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Testw() {
+
+    var status by remember { mutableStateOf("") }
+
+    TextField(
+        value = status,
+        onValueChange = { status = it },
+        placeholder = { Text(text = "AAAAAAAAAAAAAAAAAAAA") }
+    )
+
 }
