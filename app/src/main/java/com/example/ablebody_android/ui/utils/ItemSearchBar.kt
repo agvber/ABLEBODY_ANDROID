@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ fun ItemSearchBar(
     alertOnClick: () -> Unit
 ) {
     Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -76,12 +78,14 @@ fun ItemSearchBar(
 
         IconButton(
             modifier = Modifier
-                .padding(start = 16.dp)
                 .size(24.dp)
                 .align(Alignment.CenterVertically),
             onClick = { alertOnClick() },
         ) {
-            Image(painter = painterResource(id = R.drawable.alertbell), contentDescription = "alertBell")
+            Image(
+                painter = painterResource(id = R.drawable.alertbell),
+                contentDescription = "alertBell"
+            )
         }
     }
 }
