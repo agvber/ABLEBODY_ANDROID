@@ -24,7 +24,8 @@ private val LightColorScheme = lightColorScheme(
     primary = AbleBlue,
     secondary = LightShaded,
     tertiary = AbleRed,
-    background = White
+    background = White,
+    surface = White
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -57,7 +58,7 @@ fun ABLEBODY_AndroidTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = White.toArgb()
+            window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
