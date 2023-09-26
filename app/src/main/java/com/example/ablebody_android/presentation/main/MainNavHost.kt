@@ -9,6 +9,8 @@ import com.example.ablebody_android.presentation.brand.addBrandGraph
 import com.example.ablebody_android.presentation.cody_recommended.addCodyRecommendedGraph
 import com.example.ablebody_android.presentation.item.addItemGraph
 import com.example.ablebody_android.presentation.main.data.NavigationItems
+import com.example.ablebody_android.presentation.notification.NotificationRoute
+import com.example.ablebody_android.presentation.notification.addNotificationScreen
 import com.example.ablebody_android.presentation.search.addSearchScreen
 
 @Composable
@@ -21,7 +23,7 @@ fun MainNavHost(
             addBrandGraph(
                 onBackClick = { navController.popBackStack() },
                 onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                onAlertButtonClick = { navController.navigate(NotificationRoute) },
                 brandItemClick = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
             )
         }
@@ -29,7 +31,7 @@ fun MainNavHost(
         navigation(startDestination = "ItemRoute", route = NavigationItems.Item.name) {
             addItemGraph(
                 onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                onAlertButtonClick = { navController.navigate(NotificationRoute) },
                 productItemClick = { /* TODO productItemDetail 페이지로 가기 */ }
             )
         }
@@ -37,7 +39,7 @@ fun MainNavHost(
         navigation(startDestination = "CodyRecommendRoute", route = NavigationItems.CodyRecommendation.name) {
             addCodyRecommendedGraph(
                 onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                onAlertButtonClick = { navController.navigate(NotificationRoute) },
                 codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
             )
         }
@@ -45,7 +47,7 @@ fun MainNavHost(
         navigation(startDestination = "BookmarkListRoute", route = NavigationItems.Bookmark.name) {
             addBookmarkGraph(
                 onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { /* TODO 알림 페이지로 가기 */ },
+                onAlertButtonClick = { navController.navigate(NotificationRoute) },
                 productItemClick = { /* TODO productItemDetail 페이지로 가기 */ },
                 codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
             )
@@ -55,6 +57,11 @@ fun MainNavHost(
             backRequest = { navController.popBackStack() },
             productItemClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
             codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
+        )
+
+        addNotificationScreen(
+            onBackRequest = { navController.popBackStack() },
+            itemClick = { /* TODO 클릭시 해당 게시글로 이동 */ }
         )
     }
 }

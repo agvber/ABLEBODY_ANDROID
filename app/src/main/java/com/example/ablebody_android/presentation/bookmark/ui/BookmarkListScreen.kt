@@ -28,8 +28,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.ablebody_android.model.CodyItemData
 import com.example.ablebody_android.model.ProductItemData
-import com.example.ablebody_android.model.fakeCodyItemData
-import com.example.ablebody_android.model.fakeProductItemData
+import com.example.ablebody_android.model.fake.fakeCodyItemData
+import com.example.ablebody_android.model.fake.fakeProductItemData
 import com.example.ablebody_android.presentation.bookmark.BookmarkViewModel
 import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme

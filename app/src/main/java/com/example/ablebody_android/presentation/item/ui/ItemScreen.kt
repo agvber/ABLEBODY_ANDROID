@@ -15,7 +15,7 @@ import com.example.ablebody_android.data.dto.ItemGender
 import com.example.ablebody_android.data.dto.ItemParentCategory
 import com.example.ablebody_android.data.dto.SortingMethod
 import com.example.ablebody_android.model.ProductItemData
-import com.example.ablebody_android.model.fakeProductItemData
+import com.example.ablebody_android.model.fake.fakeProductItemData
 import com.example.ablebody_android.presentation.item.ItemViewModel
 import com.example.ablebody_android.ui.product_item.ProductItemListLayout
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme

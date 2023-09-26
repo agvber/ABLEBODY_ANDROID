@@ -14,12 +14,14 @@ import com.example.ablebody_android.data.dto.response.AddBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.data.dto.response.BrandMainResponse
+import com.example.ablebody_android.data.dto.response.CheckMyNotiResponse
 import com.example.ablebody_android.data.dto.response.CheckSMSResponse
 import com.example.ablebody_android.data.dto.response.DeleteBookmarkCodyResponse
 import com.example.ablebody_android.data.dto.response.DeleteBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.data.dto.response.FindCodyResponse
 import com.example.ablebody_android.data.dto.response.FindItemResponse
+import com.example.ablebody_android.data.dto.response.GetMyNotiResponse
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.ReadBookmarkCodyResponse
 import com.example.ablebody_android.data.dto.response.ReadBookmarkItemResponse
@@ -190,4 +192,14 @@ interface NetworkAPI {
         @Query("size") size: Int = 20
     ): SearchCodyResponse
 
+    @GET("/api/my/noti")
+    suspend fun getMyNoti(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 30
+    ): GetMyNotiResponse
+
+    @POST("/api/my/noti")
+    suspend fun checkMyNoti(
+        @Query("id") id: Long
+    ): CheckMyNotiResponse
 }

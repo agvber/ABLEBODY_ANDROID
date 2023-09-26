@@ -15,7 +15,7 @@ interface RetrofitModule {
     @Singleton
     @Binds
     fun bindNetworkService(
-        networkService: NetworkServiceImpl
+        networkServiceImpl: NetworkServiceImpl
     ): NetworkService
 
 }

@@ -14,7 +14,7 @@ import com.example.ablebody_android.data.dto.Gender
 import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.model.CodyItemData
-import com.example.ablebody_android.model.fakeCodyItemData
+import com.example.ablebody_android.model.fake.fakeCodyItemData
 import com.example.ablebody_android.presentation.cody_recommended.CodyRecommendViewModel
 import com.example.ablebody_android.ui.cody_item.CodyItemListLayout
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme

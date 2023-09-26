@@ -8,6 +8,8 @@ import com.example.ablebody_android.data.repository.FindCodyRepository
 import com.example.ablebody_android.data.repository.FindCodyRepositoryImpl
 import com.example.ablebody_android.data.repository.FindItemRepository
 import com.example.ablebody_android.data.repository.FindItemRepositoryImpl
+import com.example.ablebody_android.data.repository.NotificationRepository
+import com.example.ablebody_android.data.repository.NotificationRepositoryImpl
 import com.example.ablebody_android.data.repository.OnboardingRepository
 import com.example.ablebody_android.data.repository.OnboardingRepositoryImpl
 import com.example.ablebody_android.data.repository.SearchRepository
@@ -22,27 +24,27 @@ import dagger.hilt.components.SingletonComponent
 interface DataModule {
 
     @Binds
-    fun bindOnboardingRepository(
+    fun bindsOnboardingRepository(
         onboardingRepositoryImpl: OnboardingRepositoryImpl
     ): OnboardingRepository
 
     @Binds
-    fun bindBrandRepository(
+    fun bindsBrandRepository(
         brandRepositoryImpl: BrandRepositoryImpl
     ): BrandRepository
 
     @Binds
-    fun bindBookmarkRepository(
+    fun bindsBookmarkRepository(
         bookmarkRepositoryImpl: BookmarkRepositoryImpl
     ): BookmarkRepository
 
     @Binds
-    fun bindFindItemRepository(
+    fun bindsFindItemRepository(
         findItemRepositoryImpl: FindItemRepositoryImpl
     ): FindItemRepository
 
     @Binds
-    fun bindFindCodyRepository(
+    fun bindsFindCodyRepository(
         findCodyRepositoryImpl: FindCodyRepositoryImpl
     ): FindCodyRepository
 
@@ -50,4 +52,9 @@ interface DataModule {
     fun bindsSearchRepository(
         searchRepositoryImpl: SearchRepositoryImpl
     ): SearchRepository
+
+    @Binds
+    fun bindsNotificationRepository(
+        notificationRepositoryImpl: NotificationRepositoryImpl
+    ): NotificationRepository
 }

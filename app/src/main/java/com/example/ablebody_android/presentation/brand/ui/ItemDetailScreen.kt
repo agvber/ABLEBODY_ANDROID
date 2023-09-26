@@ -46,7 +46,7 @@ fun ItemDetailScreen() {
         R.drawable.detail_page_image_test
     )
     Column{
-        BackButtonTopBarLayout(onClick = { /*TODO*/ })
+        BackButtonTopBarLayout(onBackRequest = { /*TODO*/ })
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(data = R.drawable.detail_page_image_test)

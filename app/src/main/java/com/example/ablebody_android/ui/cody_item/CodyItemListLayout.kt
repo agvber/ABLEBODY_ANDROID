@@ -37,7 +37,7 @@ import com.example.ablebody_android.data.dto.HomeCategory
 import com.example.ablebody_android.data.dto.PersonHeightFilterType
 import com.example.ablebody_android.model.CodyItemData
 import com.example.ablebody_android.model.CodyItemFilterBottomSheetTabFilterType
-import com.example.ablebody_android.model.fakeCodyItemData
+import com.example.ablebody_android.model.fake.fakeCodyItemData
 import com.example.ablebody_android.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.example.ablebody_android.ui.theme.ABLEBODY_AndroidTheme
 import com.example.ablebody_android.ui.utils.previewPlaceHolder

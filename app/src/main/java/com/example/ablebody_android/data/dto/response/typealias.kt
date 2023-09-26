@@ -6,6 +6,7 @@ import com.example.ablebody_android.data.dto.response.data.BrandMainResponseData
 import com.example.ablebody_android.data.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
 import com.example.ablebody_android.data.dto.response.data.FindCodyResponseData
 import com.example.ablebody_android.data.dto.response.data.FindItemResponseData
+import com.example.ablebody_android.data.dto.response.data.GetMyNotiResponseData
 import com.example.ablebody_android.data.dto.response.data.NewUserCreateResponseData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkCodyData
 import com.example.ablebody_android.data.dto.response.data.ReadBookmarkItemData
@@ -52,3 +53,8 @@ typealias FindCodyResponse = AbleBodyResponse<FindCodyResponseData>
 typealias UniSearchResponse = AbleBodyResponse<UniSearchResponseData>
 typealias SearchItemResponse = AbleBodyResponse<SearchItemResponseData>
 typealias SearchCodyResponse = AbleBodyResponse<SearchCodyResponseData>
+
+/** Notification **/
+
+typealias GetMyNotiResponse = AbleBodyResponse<GetMyNotiResponseData>
+typealias CheckMyNotiResponse = AbleBodyResponse<String>

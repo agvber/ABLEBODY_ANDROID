@@ -1,4 +1,8 @@
-package com.example.ablebody_android.model
+package com.example.ablebody_android.model.fake
+
+import com.example.ablebody_android.model.CodyItemData
+import com.example.ablebody_android.model.NotificationItemData
+import com.example.ablebody_android.model.ProductItemData
 
 val fakeProductItemData =
     ProductItemData(
@@ -58,4 +62,32 @@ val fakeCodyItemData =
         last = true,
         number = 0,
         first = true
+    )
+
+val fakeNotificationItemData =
+    NotificationItemData(
+        content = listOf(
+            NotificationItemData.Content(
+                id = 0L,
+                senderNickname = "sooper",
+                senderProfileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png",
+                createDate ="2023-09-19T17:09:37",
+                text = "sooper님이 회원님의 코디 게시물을 좋아해요.",
+                uri= "",
+                checked = false
+            ),
+            NotificationItemData.Content(
+                id = 0L,
+                senderNickname = "리코더와누네띠네",
+                senderProfileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png",
+                createDate ="2023-09-10T18:27:19",
+                text = "sooper님이 회원님의 코디 게시물을 좋아해요.",
+                uri= "",
+                checked = true
+            )
+        ),
+        totalPages = 1,
+        number = 0,
+        first = true,
+        last = true
     )

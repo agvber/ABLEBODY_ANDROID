@@ -12,12 +12,14 @@ import com.example.ablebody_android.data.dto.response.AddBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailCodyResponse
 import com.example.ablebody_android.data.dto.response.BrandDetailItemResponse
 import com.example.ablebody_android.data.dto.response.BrandMainResponse
+import com.example.ablebody_android.data.dto.response.CheckMyNotiResponse
 import com.example.ablebody_android.data.dto.response.CheckSMSResponse
 import com.example.ablebody_android.data.dto.response.DeleteBookmarkCodyResponse
 import com.example.ablebody_android.data.dto.response.DeleteBookmarkItemResponse
 import com.example.ablebody_android.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.example.ablebody_android.data.dto.response.FindCodyResponse
 import com.example.ablebody_android.data.dto.response.FindItemResponse
+import com.example.ablebody_android.data.dto.response.GetMyNotiResponse
 import com.example.ablebody_android.data.dto.response.NewUserCreateResponse
 import com.example.ablebody_android.data.dto.response.RefreshTokenResponse
 import com.example.ablebody_android.data.dto.response.SearchCodyResponse
@@ -139,4 +141,13 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 20
     ): SearchCodyResponse
+
+    suspend fun getMyNoti(
+        page: Int = 0,
+        size: Int = 30
+    ): GetMyNotiResponse
+
+    suspend fun checkMyNoti(
+        id: Long
+    ): CheckMyNotiResponse
 }
