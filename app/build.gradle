@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.ablebody_android'
+    namespace 'com.smilehunter.ablebody'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.ablebody_android"
+        applicationId "com.smilehunter.ablebody"
         minSdk 24
         targetSdk 34
         versionCode 1

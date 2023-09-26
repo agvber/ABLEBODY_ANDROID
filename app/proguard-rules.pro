@@ -21,10 +21,10 @@
 #-renamesourcefileattribute SourceFile
 
 # Keep DTO Class
--keep class com.example.ablebody_android.data.dto.** { *; }
+-keep class com.smilehunter.ablebody.data.dto.** { *; }
 
 # Keep Model class
--keep class com.example.ablebody_android.model.** { *; }
+-keep class com.smilehunter.ablebody.model.** { *; }
 
 # Keep class names of Hilt injected ViewModels since their name are used as a multibinding map key.
 -keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
