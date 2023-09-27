@@ -17,11 +17,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -42,6 +41,7 @@ import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueComposi
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -57,18 +57,11 @@ fun CodyItemListLayout(
     codyItemListPersonHeightFilter: PersonHeightFilterType,
     codyItemData: LazyPagingItems<CodyItemData.Item>
 ) {
-    var isItemRefresh by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val scrollableState = rememberLazyGridState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isCodyItemFilterBottomSheetShow by remember { mutableStateOf(false) }
     var tabFilter by remember { mutableStateOf(CodyItemFilterBottomSheetTabFilterType.GENDER) }
-
-    LaunchedEffect(key1 = isItemRefresh) {
-        if (isItemRefresh) {
-            scrollableState.animateScrollToItem(0)
-            isItemRefresh = false
-        }
-    }
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -82,7 +75,7 @@ fun CodyItemListLayout(
                     onCodyItemListGenderFilterChange(genderFilterTypeList)
                     onCodyItemListSportFilterChange(sportFilterTypeList)
                     onCodyItemListPersonHeightFilterChange(personHeightFilterType)
-                    isItemRefresh = true
+                    scope.launch { scrollableState.animateScrollToItem(0) }
                 },
                 onDismissRequest = { isCodyItemFilterBottomSheetShow = false },
                 sheetState = sheetState,
@@ -92,7 +85,10 @@ fun CodyItemListLayout(
         }
         Column(modifier = modifier) {
             CodyItemFilterTabRow(
-                resetRequest = { resetRequest(); isItemRefresh = true }
+                resetRequest = {
+                    resetRequest()
+                    scope.launch { scrollableState.animateScrollToItem(0) }
+                }
             ) {
                 CodyItemFilterTabRowItem(
                     selected = codyItemListGenderFilterList.contains(Gender.MALE),
@@ -105,7 +101,7 @@ fun CodyItemListLayout(
                                 Gender.MALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
-                        isItemRefresh = true
+                        scope.launch { scrollableState.animateScrollToItem(0) }
                     }
                 )
                 CodyItemFilterTabRowItem(
@@ -119,7 +115,7 @@ fun CodyItemListLayout(
                                 Gender.FEMALE) }
                             onCodyItemListGenderFilterChange(it)
                         }
-                        isItemRefresh = true
+                        scope.launch { scrollableState.animateScrollToItem(0) }
                     }
                 )
                 CodyItemFilterTabRowItem(

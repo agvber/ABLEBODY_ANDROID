@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.brand.ui
+package com.smilehunter.ablebody.presentation.item_detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

@@ -30,12 +30,18 @@ fun MainScreen() {
                 MainNavigationBar(
                     selected = currentNavigationItem,
                     onChangeValue = {
-                        currentNavigationItem = it
                         navController.navigate(it.name) {
-                            popUpTo(navController.graph.id){
-                                inclusive = true
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                if (currentNavigationItem == it) {
+                                    inclusive = true
+                                } else {
+                                    saveState = true
+                                }
                             }
                         }
+                        currentNavigationItem = it
                     }
                 )
             }

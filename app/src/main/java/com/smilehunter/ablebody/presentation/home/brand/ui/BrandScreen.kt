@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.brand.ui
+package com.smilehunter.ablebody.presentation.home.brand.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -22,10 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -43,7 +43,8 @@ import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
-import com.smilehunter.ablebody.presentation.brand.BrandViewModel
+import com.smilehunter.ablebody.data.result.Result
+import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
 import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -55,9 +56,10 @@ import com.smilehunter.ablebody.ui.utils.ItemSearchBar
 import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheet
 import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheetItem
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
+import kotlinx.coroutines.launch
 
 @Composable
-fun BrandListRoute(
+fun BrandRoute(
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     onItemClick: (Long, String) -> Unit,
@@ -66,7 +68,8 @@ fun BrandListRoute(
     val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
     val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
     val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
-    BrandListScreen(
+
+    BrandScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
         sortingMethod = sortingMethod,
@@ -76,40 +79,41 @@ fun BrandListRoute(
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
+    if (brandItemList is Result.Error) {
+        // TODO: Error Handling
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun BrandListScreen(
+fun BrandScreen(
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     sortingMethod: SortingMethod,
     onSortingMethodChange: (SortingMethod) -> Unit,
     genderFilter: ItemGender,
     onGenderFilterChange: (ItemGender) -> Unit,
-    brandItemList: List<BrandMainResponseData>,
+    brandItemList: Result<List<BrandMainResponseData>>,
     onItemClick: (Long, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isFilterBottomSheetShow by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val lazyListState = rememberLazyListState()
-
-    LaunchedEffect(key1 = sortingMethod, key2 = genderFilter) {
-        lazyListState.animateScrollToItem(0)
-    }
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
         if (isFilterBottomSheetShow) {
             ProductItemFilterBottomSheet(onDismissRequest = { isFilterBottomSheetShow = false }) {
-                items(items = SortingMethod.values()) { sortingMethod ->
+                items(items = SortingMethod.values()) { item ->
                     ProductItemFilterBottomSheetItem(
                         sheetState = sheetState,
-                        value = sortingMethod.string,
+                        value = item.string,
                         onValueChange = {
-                            onSortingMethodChange(sortingMethod)
+                            onSortingMethodChange(item)
+                            scope.launch { lazyListState.animateScrollToItem(0) }
                             isFilterBottomSheetShow = false
                         }
                     )
@@ -130,33 +134,38 @@ fun BrandListScreen(
             ) {
                 BrandFilterTab(
                     genderFilter = genderFilter,
-                    onGenderFilterChange = { onGenderFilterChange(it) },
+                    onGenderFilterChange = {
+                        onGenderFilterChange(it)
+                        scope.launch { lazyListState.animateScrollToItem(0) }
+                    },
                     sortingMethod = sortingMethod,
                     onSortingMethodChange = { isFilterBottomSheetShow = true }
                 )
-                LazyColumn(
-                    state = lazyListState
-                ) {
-                    items(
-                        items = brandItemList,
-                        key = { it.id }
+                if (brandItemList is Result.Success) {
+                    LazyColumn(
+                        state = lazyListState
                     ) {
-                        BrandListItemLayout(
-                            modifier = Modifier.animateItemPlacement(),
-                            brandName = it.name,
-                            subName = it.subName,
-                            thumbnailURL = it.thumbnail,
-                            maxDisCountString = it.maxDiscount,
-                            onClick = { onItemClick(it.id, it.name) }
-                        )
-                        Divider(
-                            thickness = 1.dp,
-                            startIndent = 1.dp,
-                            modifier = Modifier.height(1.dp)
-                        )
-                    }
-                    item {
-                        Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                        items(
+                            items = brandItemList.data,
+                            key = { it.id }
+                        ) {
+                            BrandListItemLayout(
+                                modifier = Modifier.animateItemPlacement(),
+                                brandName = it.name,
+                                subName = it.subName,
+                                thumbnailURL = it.thumbnail,
+                                maxDisCountString = it.maxDiscount,
+                                onClick = { onItemClick(it.id, it.name) }
+                            )
+                            Divider(
+                                thickness = 1.dp,
+                                startIndent = 1.dp,
+                                modifier = Modifier.height(1.dp)
+                            )
+                        }
+                        item {
+                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                        }
                     }
                 }
             }
@@ -166,16 +175,16 @@ fun BrandListScreen(
 
 @Preview(showSystemUi = true)
 @Composable
-fun BrandScreenListPreview() {
+fun BrandScreenPreview() {
     ABLEBODY_AndroidTheme {
-        BrandListScreen(
+        BrandScreen(
             onSearchBarClick = {},
             onAlertButtonClick = {},
             sortingMethod = SortingMethod.POPULAR,
             onSortingMethodChange = {},
             genderFilter = ItemGender.UNISEX,
             onGenderFilterChange = {},
-            brandItemList = listOf(
+            brandItemList = Result.Success(listOf(
                 BrandMainResponseData(
                     name = "NIKE",
                     id = 3,
@@ -208,7 +217,7 @@ fun BrandScreenListPreview() {
                     brandGender = ItemGender.UNISEX,
                     maxDiscount = 0
                 )
-            ),
+            )),
             onItemClick = { id, name -> }
         )
     }

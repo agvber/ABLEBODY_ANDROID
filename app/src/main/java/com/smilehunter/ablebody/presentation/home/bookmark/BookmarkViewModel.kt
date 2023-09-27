@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.bookmark
+package com.smilehunter.ablebody.presentation.home.bookmark
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

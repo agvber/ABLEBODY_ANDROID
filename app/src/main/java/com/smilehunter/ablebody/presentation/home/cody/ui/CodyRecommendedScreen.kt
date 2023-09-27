@@ -1,8 +1,9 @@
-package com.smilehunter.ablebody.presentation.cody_recommended.ui
+package com.smilehunter.ablebody.presentation.home.cody.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -15,7 +16,7 @@ import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
-import com.smilehunter.ablebody.presentation.cody_recommended.CodyRecommendViewModel
+import com.smilehunter.ablebody.presentation.home.cody.CodyRecommendViewModel
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
@@ -28,6 +29,10 @@ fun CodyRecommendedRoute(
     itemClick: (Long) -> Unit,
     codyRecommendViewModel: CodyRecommendViewModel = hiltViewModel()
 ) {
+    val codyItemListGenderFilterList by codyRecommendViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle()
+    val codyItemListSportFilter by codyRecommendViewModel.codyItemListSportFilter.collectAsStateWithLifecycle()
+    val codyItemListPersonHeightFilter by codyRecommendViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle()
+    val codyItemData = codyRecommendViewModel.codyPagingItem.collectAsLazyPagingItems()
     CodyRecommendedScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
@@ -36,10 +41,10 @@ fun CodyRecommendedRoute(
         onCodyItemListGenderFilterChange = { codyRecommendViewModel.updateCodyItemListGendersFilter(it) },
         onCodyItemListSportFilterChange = { codyRecommendViewModel.updateCodyItemListSportFilter(it) },
         onCodyItemListPersonHeightFilterChange = { codyRecommendViewModel.updateCodyItemListPersonHeightFilter(it) },
-        codyItemListGenderFilterList = codyRecommendViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
-        codyItemListSportFilter = codyRecommendViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
-        codyItemListPersonHeightFilter = codyRecommendViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        codyItemData = codyRecommendViewModel.codyPagingItem.collectAsLazyPagingItems(),
+        codyItemListGenderFilterList = codyItemListGenderFilterList,
+        codyItemListSportFilter = codyItemListSportFilter,
+        codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
+        codyItemData = codyItemData,
     )
 }
 

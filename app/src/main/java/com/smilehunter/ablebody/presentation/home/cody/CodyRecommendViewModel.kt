@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.cody_recommended
+package com.smilehunter.ablebody.presentation.home.cody
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,11 +12,13 @@ import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,7 +57,7 @@ class CodyRecommendViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val codyPagingItem: Flow<PagingData<CodyItemData.Item>> =
+    val codyPagingItem: StateFlow<PagingData<CodyItemData.Item>> =
         combine(
             codyItemListGenderFilter,
             codyItemListSportFilter,
@@ -66,4 +68,9 @@ class CodyRecommendViewModel @Inject constructor(
             .flatMapLatest {
                 it.cachedIn(viewModelScope)
             }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = PagingData.empty()
+            )
 }

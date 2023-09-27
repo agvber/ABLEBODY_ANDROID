@@ -2,13 +2,13 @@ package com.smilehunter.ablebody.presentation.main
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.navigation
-import com.smilehunter.ablebody.presentation.bookmark.addBookmarkGraph
-import com.smilehunter.ablebody.presentation.brand.addBrandGraph
-import com.smilehunter.ablebody.presentation.cody_recommended.addCodyRecommendedGraph
-import com.smilehunter.ablebody.presentation.item.addItemGraph
-import com.smilehunter.ablebody.presentation.main.data.NavigationItems
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.smilehunter.ablebody.presentation.brand_detail.ui.BrandDetailRoute
+import com.smilehunter.ablebody.presentation.home.HomeRoute
+import com.smilehunter.ablebody.presentation.home.addHomeGraph
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -17,39 +17,25 @@ import com.smilehunter.ablebody.presentation.search.addSearchScreen
 fun MainNavHost(
     navController: NavHostController
 ) {
-    NavHost(navController = navController, startDestination = NavigationItems.Brand.name) {
+    NavHost(navController = navController, startDestination = HomeRoute) {
+        addHomeGraph(
+            onSearchBarClick = { navController.navigate("SearchRoute") },
+            onAlertButtonClick = { navController.navigate(NotificationRoute) },
+            onBrandDetailRouteRequest = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
+            onProductItemDetailRouteRequest = { /* TODO productItemDetail 페이지로 가기 */ },
+            onCodyItemDetailRouteRequest = { /* TODO CodyItemDetail 페이지로 가기 */ },
+        )
 
-        navigation(startDestination = "BrandListScreen", route = NavigationItems.Brand.name) {
-            addBrandGraph(
+        composable(route = "BrandDetailScreen/{content_id}/{content_name}",
+            arguments = listOf(
+                navArgument("content_id") { type = NavType.LongType },
+                navArgument("content_name") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            BrandDetailRoute(
                 onBackClick = { navController.popBackStack() },
-                onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                brandItemClick = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
-            )
-        }
-
-        navigation(startDestination = "ItemRoute", route = NavigationItems.Item.name) {
-            addItemGraph(
-                onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                productItemClick = { /* TODO productItemDetail 페이지로 가기 */ }
-            )
-        }
-
-        navigation(startDestination = "CodyRecommendRoute", route = NavigationItems.CodyRecommendation.name) {
-            addCodyRecommendedGraph(
-                onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
-            )
-        }
-
-        navigation(startDestination = "BookmarkListRoute", route = NavigationItems.Bookmark.name) {
-            addBookmarkGraph(
-                onSearchBarClick = { navController.navigate("SearchRoute") },
-                onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                productItemClick = { /* TODO productItemDetail 페이지로 가기 */ },
-                codyItemClick = { /* TODO CodyItemDetail 페이지로 가기 */ },
+                contentID = backStackEntry.arguments?.getLong("content_id"),
+                contentName = backStackEntry.arguments?.getString("content_name", "")!!
             )
         }
 

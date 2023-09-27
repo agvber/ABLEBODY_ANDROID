@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.brand.ui
+package com.smilehunter.ablebody.presentation.brand_detail.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -42,7 +42,7 @@ import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
-import com.smilehunter.ablebody.presentation.brand.BrandViewModel
+import com.smilehunter.ablebody.presentation.brand_detail.BrandDetailViewModel
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -59,33 +59,33 @@ fun BrandDetailRoute(
     contentID: Long?,
     contentName: String,
     modifier: Modifier = Modifier,
-    brandViewModel: BrandViewModel = hiltViewModel()
+    brandDetailViewModel: BrandDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { contentID?.let { brandViewModel.updateContentID(it) } }
+    LaunchedEffect(key1 = Unit) { contentID?.let { brandDetailViewModel.updateContentID(it) } }
 
     BrandDetailScreen(
         modifier = modifier,
         onBackClick = onBackClick,
         productItemClick = { /* TODO 아이템 버튼 클릭 */ },
-        onProductItemSortingMethodChange = { brandViewModel.updateBrandProductItemOrderFilterType(it) },
-        onProductItemParentFilterChange = { brandViewModel.updateBrandProductItemParentFilter(it) },
-        onProductItemChildFilterChange = { brandViewModel.updateBrandProductItemChildFilter(it) },
-        onProductItemGenderChange = { brandViewModel.updateBrandProductItemGender(it) },
+        onProductItemSortingMethodChange = { brandDetailViewModel.updateBrandProductItemOrderFilterType(it) },
+        onProductItemParentFilterChange = { brandDetailViewModel.updateBrandProductItemParentFilter(it) },
+        onProductItemChildFilterChange = { brandDetailViewModel.updateBrandProductItemChildFilter(it) },
+        onProductItemGenderChange = { brandDetailViewModel.updateBrandProductItemGender(it) },
         codyItemClick = { /* TODO 코디 아이템 버튼 클릭 */ },
-        codyItemFilterResetRequest = { brandViewModel.resetCodyItemFilter() },
-        onCodyItemListGenderFilterChange = { brandViewModel.updateCodyItemListGendersFilter(it) },
-        onCodyItemListSportFilterChange = { brandViewModel.updateCodyItemListSportFilter(it) },
-        onCodyItemListPersonHeightFilterChange = { brandViewModel.updateCodyItemListPersonHeightFilter(it) },
+        codyItemFilterResetRequest = { brandDetailViewModel.resetCodyItemFilter() },
+        onCodyItemListGenderFilterChange = { brandDetailViewModel.updateCodyItemListGendersFilter(it) },
+        onCodyItemListSportFilterChange = { brandDetailViewModel.updateCodyItemListSportFilter(it) },
+        onCodyItemListPersonHeightFilterChange = { brandDetailViewModel.updateCodyItemListPersonHeightFilter(it) },
         contentName = contentName,
-        productItemSortingMethod = brandViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
-        productItemParentFilter = brandViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        productItemChildFilter = brandViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-        productItemGender = brandViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        productPagingItems = brandViewModel.productItemContentList.collectAsLazyPagingItems(),
-        codyItemListGenderFilterList = brandViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
-        codyItemListSportFilter = brandViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
-        codyItemListPersonHeightFilter = brandViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        codyPagingItem = brandViewModel.codyPagingItem.collectAsLazyPagingItems()
+        productItemSortingMethod = brandDetailViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
+        productItemParentFilter = brandDetailViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
+        productItemChildFilter = brandDetailViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
+        productItemGender = brandDetailViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
+        productPagingItems = brandDetailViewModel.productItemContentList.collectAsLazyPagingItems(),
+        codyItemListGenderFilterList = brandDetailViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
+        codyItemListSportFilter = brandDetailViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
+        codyItemListPersonHeightFilter = brandDetailViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
+        codyPagingItem = brandDetailViewModel.codyPagingItem.collectAsLazyPagingItems()
     )
 }
 @OptIn(ExperimentalFoundationApi::class)

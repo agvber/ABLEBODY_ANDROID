@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.bookmark.ui
+package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -30,7 +30,7 @@ import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
-import com.smilehunter.ablebody.presentation.bookmark.BookmarkViewModel
+import com.smilehunter.ablebody.presentation.home.bookmark.BookmarkViewModel
 import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab

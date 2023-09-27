@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.bookmark.ui
+package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

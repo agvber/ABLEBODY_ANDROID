@@ -1,8 +1,9 @@
-package com.smilehunter.ablebody.presentation.item.ui
+package com.smilehunter.ablebody.presentation.home.item.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,7 +17,7 @@ import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
-import com.smilehunter.ablebody.presentation.item.ItemViewModel
+import com.smilehunter.ablebody.presentation.home.item.ItemViewModel
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
@@ -29,6 +30,11 @@ fun ItemRoute(
     itemClick: (Long) -> Unit,
     itemViewModel: ItemViewModel = hiltViewModel()
 ) {
+    val sortingMethod by itemViewModel.sortingMethod.collectAsStateWithLifecycle()
+    val itemParentCategory by itemViewModel.itemParentCategory.collectAsStateWithLifecycle()
+    val itemChildCategory by itemViewModel.itemChildCategory.collectAsStateWithLifecycle()
+    val gender by itemViewModel.itemGender.collectAsStateWithLifecycle()
+    val productPagingItems = itemViewModel.productItemListTest.collectAsLazyPagingItems()
     ItemScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
@@ -37,11 +43,11 @@ fun ItemRoute(
         onParentFilterChange = { itemViewModel.updateItemParentCategory(it) },
         onChildFilterChange = { itemViewModel.updateItemChildCategory(it) },
         onGenderChange = { itemViewModel.updateItemGender(it) },
-        sortingMethod = itemViewModel.sortingMethod.collectAsStateWithLifecycle().value,
-        itemParentCategory = itemViewModel.itemParentCategory.collectAsStateWithLifecycle().value,
-        itemChildCategory = itemViewModel.itemChildCategory.collectAsStateWithLifecycle().value,
-        gender = itemViewModel.itemGender.collectAsStateWithLifecycle().value,
-        productPagingItems = itemViewModel.productItemListTest.collectAsLazyPagingItems()
+        sortingMethod = sortingMethod,
+        itemParentCategory = itemParentCategory,
+        itemChildCategory = itemChildCategory,
+        gender = gender,
+        productPagingItems = productPagingItems
     )
 }
 
