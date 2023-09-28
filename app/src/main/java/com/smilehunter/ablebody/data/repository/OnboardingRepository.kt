@@ -1,7 +1,6 @@
 package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
-import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
@@ -27,5 +26,4 @@ interface OnboardingRepository {
         agreeMarketingConsent: Boolean
     ): Response<NewUserCreateResponse>
     suspend fun getUserData(): Response<UserDataResponse>
-    suspend fun updateFCMTokenAndAppVersion(fcmToken: String, appVersion: String): Response<FCMTokenAndAppVersionUpdateResponse>
 }

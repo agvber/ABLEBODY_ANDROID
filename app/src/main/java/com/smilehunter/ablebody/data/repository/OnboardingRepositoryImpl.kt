@@ -2,7 +2,6 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
-import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
@@ -57,11 +56,4 @@ class OnboardingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserData(): Response<UserDataResponse> = networkService.getUserData()
-
-    override suspend fun updateFCMTokenAndAppVersion(
-        fcmToken: String,
-        appVersion: String
-    ): Response<FCMTokenAndAppVersionUpdateResponse> {
-        return networkService.updateFCMTokenAndAppVersion(fcmToken = fcmToken, appVersion = appVersion)
-    }
 }
