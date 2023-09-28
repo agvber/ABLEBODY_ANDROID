@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.SortingMethod
-import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
-import com.smilehunter.ablebody.domain.BrandListUseCase
+import com.smilehunter.ablebody.domain.GetBrandListUseCase
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
+import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BrandViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
-    brandListUseCase: BrandListUseCase
+    getBrandListUseCase: GetBrandListUseCase
 ): ViewModel() {
 
     private val _brandListSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
@@ -50,9 +51,9 @@ class BrandViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val brandItemList: StateFlow<Result<List<BrandMainResponseData>>> =
+    val brandItemList: StateFlow<BrandListResultUiState> =
         brandListSortingMethod.flatMapLatest { sortingMethod ->
-            flowOf(brandListUseCase(sortingMethod)!!)
+            flowOf(getBrandListUseCase(sortingMethod))
         }
             .combine(brandListGenderFilterType) { data, gender ->
                 data.filter {
@@ -63,10 +64,17 @@ class BrandViewModel @Inject constructor(
                 }
             }
             .asResult()
+            .map {
+                when (it) {
+                    is Result.Success -> BrandListResultUiState.Success(it.data)
+                    is Result.Loading -> BrandListResultUiState.Loading
+                    is Result.Error -> BrandListResultUiState.Error
+                }
+            }
             .flowOn(ioDispatcher)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = Result.Loading
+                initialValue = BrandListResultUiState.Loading
             )
 }

@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.model.fake
 
+import com.smilehunter.ablebody.data.dto.ItemGender
+import com.smilehunter.ablebody.model.BrandListData
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.ProductItemData
@@ -91,3 +93,37 @@ val fakeNotificationItemData =
         first = true,
         last = true
     )
+val fakeBrandListData = listOf(
+    BrandListData(
+        name = "NIKE",
+        id = 3,
+        thumbnail = "",
+        subName = "나이키",
+        brandGender = ItemGender.UNISEX,
+        maxDiscount = 0
+    ),
+    BrandListData(
+        name = "Positive Me",
+        id = 36,
+        thumbnail = "",
+        subName = "포지티브미",
+        brandGender = ItemGender.FEMALE,
+        maxDiscount = 0
+    ),
+    BrandListData(
+        name = "MAVRK",
+        id = 30,
+        thumbnail = "",
+        subName = "매버릭",
+        brandGender = ItemGender.MALE,
+        maxDiscount = 46
+    ),
+    BrandListData(
+        name = "adidas",
+        id = 1,
+        thumbnail = "",
+        subName = "아디다스",
+        brandGender = ItemGender.UNISEX,
+        maxDiscount = 0
+    )
+)

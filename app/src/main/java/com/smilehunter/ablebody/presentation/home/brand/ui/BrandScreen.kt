@@ -42,9 +42,9 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.SortingMethod
-import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
-import com.smilehunter.ablebody.data.result.Result
+import com.smilehunter.ablebody.model.fake.fakeBrandListData
 import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
+import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
 import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -79,7 +79,7 @@ fun BrandRoute(
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
-    if (brandItemList is Result.Error) {
+    if (brandItemList is BrandListResultUiState.Error) {
         // TODO: Error Handling
     }
 }
@@ -93,7 +93,7 @@ fun BrandScreen(
     onSortingMethodChange: (SortingMethod) -> Unit,
     genderFilter: ItemGender,
     onGenderFilterChange: (ItemGender) -> Unit,
-    brandItemList: Result<List<BrandMainResponseData>>,
+    brandItemList: BrandListResultUiState,
     onItemClick: (Long, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -141,7 +141,7 @@ fun BrandScreen(
                     sortingMethod = sortingMethod,
                     onSortingMethodChange = { isFilterBottomSheetShow = true }
                 )
-                if (brandItemList is Result.Success) {
+                if (brandItemList is BrandListResultUiState.Success) {
                     LazyColumn(
                         state = lazyListState
                     ) {
@@ -184,40 +184,7 @@ fun BrandScreenPreview() {
             onSortingMethodChange = {},
             genderFilter = ItemGender.UNISEX,
             onGenderFilterChange = {},
-            brandItemList = Result.Success(listOf(
-                BrandMainResponseData(
-                    name = "NIKE",
-                    id = 3,
-                    thumbnail = "",
-                    subName = "나이키",
-                    brandGender = ItemGender.UNISEX,
-                    maxDiscount = 0
-                ),
-                BrandMainResponseData(
-                    name = "Positive Me",
-                    id = 36,
-                    thumbnail = "",
-                    subName = "포지티브미",
-                    brandGender = ItemGender.FEMALE,
-                    maxDiscount = 0
-                ),
-                BrandMainResponseData(
-                    name = "MAVRK",
-                    id = 30,
-                    thumbnail = "",
-                    subName = "매버릭",
-                    brandGender = ItemGender.MALE,
-                    maxDiscount = 46
-                ),
-                BrandMainResponseData(
-                    name = "adidas",
-                    id = 1,
-                    thumbnail = "",
-                    subName = "아디다스",
-                    brandGender = ItemGender.UNISEX,
-                    maxDiscount = 0
-                )
-            )),
+            brandItemList = BrandListResultUiState.Success(fakeBrandListData),
             onItemClick = { id, name -> }
         )
     }
