@@ -11,8 +11,11 @@ import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.database.dao.SearchHistoryDao
 import com.smilehunter.ablebody.database.model.SearchHistoryEntity
+import com.smilehunter.ablebody.model.SearchHistoryQuery
+import com.smilehunter.ablebody.model.asExternalModel
 import com.smilehunter.ablebody.network.NetworkService
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(
@@ -23,8 +26,10 @@ class SearchRepositoryImpl @Inject constructor(
         return networkService.uniSearch(keyword, page, size)
     }
 
-    override fun getSearchHistoryQueries(): Flow<List<SearchHistoryEntity>> =
-        searchHistoryDao.getAll()
+    override fun getSearchHistoryQueries(): Flow<List<SearchHistoryQuery>> =
+        searchHistoryDao.getAll().map { searchHistoryQueries ->
+            searchHistoryQueries.map { it.asExternalModel() }
+        }
 
     override suspend fun deleteAllSearchHistory() {
         searchHistoryDao.deleteAll()

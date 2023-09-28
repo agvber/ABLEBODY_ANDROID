@@ -14,13 +14,13 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.repository.SearchRepository
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
-import com.smilehunter.ablebody.database.model.SearchHistoryEntity
 import com.smilehunter.ablebody.domain.CodyItemPagerUseCase
 import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
+import com.smilehunter.ablebody.model.SearchHistoryQuery
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,7 +71,7 @@ class SearchViewModel @Inject constructor(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val searchHistoryQueries: StateFlow<List<SearchHistoryEntity>> =
+    val searchHistoryQueries: StateFlow<List<SearchHistoryQuery>> =
         searchRepository.getSearchHistoryQueries()
             .flatMapLatest {
                 flowOf(it.asReversed())

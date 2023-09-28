@@ -9,7 +9,7 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
-import com.smilehunter.ablebody.database.model.SearchHistoryEntity
+import com.smilehunter.ablebody.model.SearchHistoryQuery
 import kotlinx.coroutines.flow.Flow
 
 interface SearchRepository {
@@ -20,7 +20,7 @@ interface SearchRepository {
         size: Int = 10
     ): UniSearchResponse
 
-    fun getSearchHistoryQueries(): Flow<List<SearchHistoryEntity>>
+    fun getSearchHistoryQueries(): Flow<List<SearchHistoryQuery>>
 
     suspend fun deleteAllSearchHistory()
     suspend fun searchItem(

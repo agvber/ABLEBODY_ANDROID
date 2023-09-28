@@ -52,7 +52,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.database.model.SearchHistoryEntity
+import com.smilehunter.ablebody.data.result.Result
+import com.smilehunter.ablebody.model.SearchHistoryQuery
 import com.smilehunter.ablebody.presentation.search.SearchViewModel
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
@@ -63,7 +64,6 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import kotlinx.coroutines.launch
-import com.smilehunter.ablebody.data.result.Result
 
 @Composable
 fun SearchRoute(
@@ -161,7 +161,7 @@ fun SearchScreen(
 private fun SearchKeywordLayout(
     searchHistoryResetRequest: () -> Unit,
     selectText: (String) -> Unit,
-    searchHistoryQueries: List<SearchHistoryEntity>,
+    searchHistoryQueries: List<SearchHistoryQuery>,
     recommendedKeywords: Result<List<String>>
 ) {
     Column(
@@ -381,7 +381,7 @@ private fun SearchKeywordLayoutPreview() {
     SearchKeywordLayout(
         searchHistoryResetRequest = {},
         selectText = {},
-        searchHistoryQueries = listOf(SearchHistoryEntity("가위", 0L)),
+        searchHistoryQueries = listOf(SearchHistoryQuery("가위", 0L)),
         recommendedKeywords = Result.Success(listOf("나이키", "애블바디", "가나다"))
     )
 }
