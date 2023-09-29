@@ -5,6 +5,7 @@ import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
+import com.smilehunter.ablebody.data.dto.NetworkLikedLocations
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
@@ -14,6 +15,7 @@ import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -150,4 +152,9 @@ interface NetworkService {
     suspend fun checkMyNoti(
         id: Long
     ): CheckMyNotiResponse
+
+    suspend fun creatorDetailLikeUsers(
+        where: NetworkLikedLocations = NetworkLikedLocations.BOARD,
+        id: Long
+    ): CreatorDetailLikeUsersResponse
 }

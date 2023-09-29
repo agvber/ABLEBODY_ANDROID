@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,17 +24,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.LikeListData
+import com.smilehunter.ablebody.presentation.like_list.LikeListViewModel
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 
 @Composable
+fun LikeListRoute(
+    onBackRequest: () -> Unit,
+    likeListViewModel: LikeListViewModel = hiltViewModel()
+) {
+    val likeList by likeListViewModel.likeList.collectAsStateWithLifecycle()
+    LikeListScreen(
+        onBackRequest = onBackRequest,
+        likeList = likeList
+    )
+}
+
+
+@Composable
 fun LikeListScreen(
     onBackRequest: () -> Unit,
-    likeList: List<String>
+    likeList: List<LikeListData>
 ) {
     Scaffold(
         topBar = {
@@ -48,9 +66,9 @@ fun LikeListScreen(
                 items = likeList
             ) {
                 LikeListContentLayout(
-                    nickname = "",
-                    userName = "",
-                    profileImageURL = ""
+                    nickname = it.nickname,
+                    userName = it.userName,
+                    profileImageURL = it.nickname
                 )
             }
         }
@@ -123,5 +141,19 @@ fun LikeListContentLayoutPreview() {
 @Preview(showBackground = true)
 @Composable
 fun LikeListScreenPreview() {
-    LikeListScreen(onBackRequest = {}, likeList = emptyList())
+    LikeListScreen(
+        onBackRequest = {},
+        likeList = listOf(
+            LikeListData(
+                nickname = "nickname1",
+                userName = "userName1",
+                profileImageURL = ""
+            ),
+            LikeListData(
+                nickname = "nickname2",
+                userName = "userName2",
+                profileImageURL = ""
+            ),
+        )
+    )
 }

@@ -16,6 +16,7 @@ import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -202,4 +203,10 @@ interface NetworkAPI {
     suspend fun checkMyNoti(
         @Query("id") id: Long
     ): CheckMyNotiResponse
+
+    @GET("/api/home/unilike")
+    suspend fun creatorDetailLikeUsers(
+        @Query("where") where: String = "board",
+        @Query("id") id: Long
+    ): CreatorDetailLikeUsersResponse
 }

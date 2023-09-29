@@ -10,6 +10,8 @@ import com.smilehunter.ablebody.data.repository.FindCodyRepository
 import com.smilehunter.ablebody.data.repository.FindCodyRepositoryImpl
 import com.smilehunter.ablebody.data.repository.FindItemRepository
 import com.smilehunter.ablebody.data.repository.FindItemRepositoryImpl
+import com.smilehunter.ablebody.data.repository.LikeListRepository
+import com.smilehunter.ablebody.data.repository.LikeListRepositoryImpl
 import com.smilehunter.ablebody.data.repository.NotificationRepository
 import com.smilehunter.ablebody.data.repository.NotificationRepositoryImpl
 import com.smilehunter.ablebody.data.repository.OnboardingRepository
@@ -64,4 +66,9 @@ interface DataModule {
     fun bindsFCMSyncRepository(
         fcmSyncRepositoryImpl: FCMSyncRepositoryImpl
     ): FCMSyncRepository
+
+    @Binds
+    fun bindsLikeListRepository(
+        likeListRepositoryImpl: LikeListRepositoryImpl
+    ): LikeListRepository
 }

@@ -3,6 +3,7 @@ package com.smilehunter.ablebody.data.dto.response
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
+import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailLikeUsersResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
@@ -58,3 +59,7 @@ typealias SearchCodyResponse = AbleBodyResponse<SearchCodyResponseData>
 
 typealias GetMyNotiResponse = AbleBodyResponse<GetMyNotiResponseData>
 typealias CheckMyNotiResponse = AbleBodyResponse<String>
+
+/** Creator **/
+
+typealias CreatorDetailLikeUsersResponse = AbleBodyResponse<List<CreatorDetailLikeUsersResponseData>>
