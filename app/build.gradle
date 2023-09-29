@@ -66,28 +66,6 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.9.10')
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
-    implementation 'androidx.activity:activity-compose:1.7.2'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
-    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha06'
-    implementation 'androidx.core:core-splashscreen:1.0.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.2'
-
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.testng:testng:7.8.0'
-
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
-
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
-}
-
-dependencies {
     def compose_version = "2023.09.01"
 
     implementation platform("androidx.compose:compose-bom:$compose_version")
@@ -186,4 +164,27 @@ dependencies {
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.9.10')
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
+    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha06'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.2'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.testng:testng:7.8.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
 }
