@@ -304,7 +304,7 @@ fun CommentTextFieldLayout(
                     .padding(horizontal = 12.dp)
             ) {
                 Text(
-                    text = "${nickname}님에게 답글 남기는 중",
+                    text = "${replyTargetNickname}님에게 답글 남기는 중",
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight(400),
@@ -393,7 +393,7 @@ fun CommentBottomLayoutPreview() {
         value = "",
         onValueChange ={},
         nickname = "애블바디",
-        profileImageURL = ""
+        profileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png"
     )
 }
 
@@ -407,7 +407,7 @@ fun CommentBottomLayoutReplyPreview() {
         value = "",
         onValueChange ={},
         nickname = "애블바디",
-        profileImageURL = ""
+        profileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png"
     )
 }
 
@@ -423,7 +423,7 @@ fun CommentLayoutPreview() {
         contentText = "가나다라마바사",
         passedTime = "5분 전",
         likeCount = 10,
-        profileImageURL = ""
+        profileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png"
     )
 }
 
@@ -438,7 +438,7 @@ fun ReplyLayoutPreview() {
         contentText = "안녕!",
         passedTime = "5시간 전",
         likeCount = 100,
-        profileImageURL = ""
+        profileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png"
     )
 }
 
