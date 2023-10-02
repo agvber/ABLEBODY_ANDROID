@@ -18,6 +18,8 @@ import com.smilehunter.ablebody.data.repository.OnboardingRepository
 import com.smilehunter.ablebody.data.repository.OnboardingRepositoryImpl
 import com.smilehunter.ablebody.data.repository.SearchRepository
 import com.smilehunter.ablebody.data.repository.SearchRepositoryImpl
+import com.smilehunter.ablebody.data.repository.TokenRepository
+import com.smilehunter.ablebody.data.repository.TokenRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -26,6 +28,11 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 interface DataModule {
+
+    @Binds
+    fun bindsTokenRepository(
+        tokenRepositoryImpl: TokenRepositoryImpl
+    ): TokenRepository
 
     @Binds
     fun bindsOnboardingRepository(

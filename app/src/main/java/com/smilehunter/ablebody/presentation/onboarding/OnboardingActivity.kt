@@ -2,7 +2,6 @@ package com.smilehunter.ablebody.presentation.onboarding
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -28,8 +27,8 @@ class OnboardingActivity : ComponentActivity() {
             }
         }
 
-        onboardingViewModel.certificationNumberInfoMessageUiState.asLiveData().observe(this) {
-            if (it == CertificationNumberInfoMessageUiState.Already) {
+        onboardingViewModel.certificationNumberInfoMessageUiState.asLiveData().observe(this) { result ->
+            if (result is CertificationNumberInfoMessageUiState.Already) {
                 startMainActivity()
             }
         }
@@ -40,9 +39,9 @@ class OnboardingActivity : ComponentActivity() {
     }
 
     private fun startMainActivity() {
-        Log.d("TEST", "startMainActivity")
         val intent = Intent(this@OnboardingActivity, MainActivity::class.java)
         startActivity(intent)
+        onboardingViewModel.updateFCMTokenAndAppVersion()
         finish()
     }
 }

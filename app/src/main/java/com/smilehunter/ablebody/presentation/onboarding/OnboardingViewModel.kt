@@ -2,9 +2,12 @@ package com.smilehunter.ablebody.presentation.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
+import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
+import com.smilehunter.ablebody.data.repository.FCMSyncRepository
 import com.smilehunter.ablebody.data.repository.OnboardingRepository
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
@@ -40,7 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val onboardingRepository: OnboardingRepository
+    private val onboardingRepository: OnboardingRepository,
+    private val fcmSyncRepository: FCMSyncRepository
 ): ViewModel() {
 
     val phoneNumberState: StateFlow<String> get() =  _phoneNumberState.asStateFlow()
@@ -235,6 +239,21 @@ class OnboardingViewModel @Inject constructor(
                 agreeRequiredConsent = agreeRequiredConsent,
                 agreeMarketingConsent = agreeMarketingConsent
             ).let { _createNewUser.emit(it) }
+        }
+    }
+
+    fun updateFCMTokenAndAppVersion() {
+        try {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                viewModelScope.launch(ioDispatcher) {
+                    fcmSyncRepository.updateFCMTokenAndAppVersion(
+                        fcmToken = task.result,
+                        appVersion = BuildConfig.VERSION_NAME
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

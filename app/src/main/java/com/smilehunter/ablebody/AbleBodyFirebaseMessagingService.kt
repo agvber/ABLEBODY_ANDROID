@@ -10,10 +10,13 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.smilehunter.ablebody.data.repository.FCMSyncRepository
+import com.smilehunter.ablebody.data.repository.TokenRepository
+import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
+import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,15 +24,23 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AbleBodyFirebaseMessagingService: FirebaseMessagingService() {
 
-    @Inject
-    lateinit var fcmSyncRepository: FCMSyncRepository
+    @Inject @Dispatcher(AbleBodyDispatcher.IO) lateinit var ioDispatcher: CoroutineDispatcher
+    @Inject lateinit var fcmSyncRepository: FCMSyncRepository
+    @Inject lateinit var tokenRepository: TokenRepository
 
     private val job = Job()
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("onNewToken", token)
-        CoroutineScope(Dispatchers.IO + job).launch {
-            fcmSyncRepository.updateFCMTokenAndAppVersion(token, BuildConfig.VERSION_NAME)
+        Log.d("FCM_TOKEN", token)
+        if (tokenRepository.hasToken) {
+            CoroutineScope(ioDispatcher + job).launch {
+                try {
+                    fcmSyncRepository.updateFCMTokenAndAppVersion(token, BuildConfig.VERSION_NAME)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -63,6 +74,7 @@ class AbleBodyFirebaseMessagingService: FirebaseMessagingService() {
             notify(100, builder.build())
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()

@@ -9,10 +9,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.smilehunter.ablebody.presentation.main.ui.MainScreen
 import com.smilehunter.ablebody.presentation.onboarding.OnboardingActivity
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,6 +27,7 @@ class MainActivity : ComponentActivity() {
                 MainScreen()
             }
         }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Alert" /* TODO 알림센터 이름 지정 */
             val descriptionText = "FCM" /* TODO 알림센터 설명 지정 */
@@ -37,8 +41,10 @@ class MainActivity : ComponentActivity() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        viewModel.responseInvalidRefreshToken.observe(this) {
-            startOnboardingActivity()
+        lifecycleScope.launch {
+            viewModel.responseInvalidRefreshToken.collectLatest {
+                startOnboardingActivity()
+            }
         }
     }
 
