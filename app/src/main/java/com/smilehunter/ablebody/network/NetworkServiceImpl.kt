@@ -5,7 +5,6 @@ import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
-import com.smilehunter.ablebody.data.dto.NetworkLikedLocations
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
@@ -15,7 +14,11 @@ import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -257,12 +260,36 @@ class NetworkServiceImpl @Inject constructor(
     override suspend fun checkMyNoti(id: Long): CheckMyNotiResponse =
         networkAPI.checkMyNoti(id)
 
-    override suspend fun creatorDetailLikeUsers(
-        where: NetworkLikedLocations,
-        id: Long
-    ): CreatorDetailLikeUsersResponse =
-        networkAPI.creatorDetailLikeUsers(
-            where = where.parameter,
-            id = id
-        )
+    override suspend fun creatorDetailLikeBoard(id: Long): CreatorDetailLikeResponse =
+        networkAPI.creatorDetailLike(where = "board", id = id)
+
+    override suspend fun creatorDetailLikeComment(id: Long): CreatorDetailLikeResponse =
+        networkAPI.creatorDetailLike(where = "comment", id = id)
+
+    override suspend fun creatorDetailLikeReply(id: Long): CreatorDetailLikeResponse =
+        networkAPI.creatorDetailLike(where = "reply", id = id)
+
+    override suspend fun creatorDetailLikeUsersBoard(id: Long): CreatorDetailLikeUsersResponse =
+        networkAPI.creatorDetailLikeUsers(where = "board", id = id)
+
+    override suspend fun creatorDetailLikeUsersComment(id: Long): CreatorDetailLikeUsersResponse =
+        networkAPI.creatorDetailLikeUsers(where = "comment", id = id)
+
+    override suspend fun creatorDetailLikeUsersReply(id: Long): CreatorDetailLikeUsersResponse =
+        networkAPI.creatorDetailLikeUsers(where = "reply", id = id)
+
+    override suspend fun creatorDetailComment(
+        id: Long,
+        content: String
+    ): CreatorDetailCommentResponse =
+        networkAPI.creatorDetailComment(id, content)
+
+    override suspend fun creatorDetailReply(id: Long, content: String): CreatorDetailReplyResponse =
+        networkAPI.creatorDetailReply(id, content)
+
+    override suspend fun creatorDetailDeleteComment(id: Long): CreatorDetailDeleteCommentReplyResponse =
+        networkAPI.creatorDetailDeleteCommentReply(where = "comment", id = id)
+
+    override suspend fun creatorDetailDeleteReply(id: Long): CreatorDetailDeleteCommentReplyResponse =
+        networkAPI.creatorDetailDeleteCommentReply(where = "reply", id = id)
 }

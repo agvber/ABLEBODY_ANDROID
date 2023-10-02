@@ -16,7 +16,11 @@ import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -145,6 +149,8 @@ interface NetworkAPI {
         @Query("codyId") codyID: Long
     ): Call<DeleteBookmarkCodyResponse>
 
+    /** Find **/
+
     @GET("/api/find/new-item")
     fun findItem(
         @Query("itemGender") itemGender: ItemGender,
@@ -163,6 +169,8 @@ interface NetworkAPI {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20
     ): Call<FindCodyResponse>
+
+    /** search **/
 
     @GET("/api/search/uni")
     suspend fun uniSearch(
@@ -193,6 +201,8 @@ interface NetworkAPI {
         @Query("size") size: Int = 20
     ): SearchCodyResponse
 
+    /** notification **/
+
     @GET("/api/my/noti")
     suspend fun getMyNoti(
         @Query("page") page: Int = 0,
@@ -204,9 +214,35 @@ interface NetworkAPI {
         @Query("id") id: Long
     ): CheckMyNotiResponse
 
+    /** creator **/
+
+    @POST("/api/home/unilike")
+    suspend fun creatorDetailLike(
+        @Query("where") where: String = "board",
+        @Query("id") id: Long
+    ): CreatorDetailLikeResponse
+
     @GET("/api/home/unilike")
     suspend fun creatorDetailLikeUsers(
         @Query("where") where: String = "board",
         @Query("id") id: Long
     ): CreatorDetailLikeUsersResponse
+
+    @POST("/api/home/comment")
+    suspend fun creatorDetailComment(
+        @Query("id") id: Long,
+        @Body content: String
+    ): CreatorDetailCommentResponse
+
+    @POST("/api/home/reply")
+    suspend fun creatorDetailReply(
+        @Query("id") id: Long,
+        @Body content: String
+    ): CreatorDetailReplyResponse
+
+    @DELETE("/api/home/delete")
+    suspend fun creatorDetailDeleteCommentReply(
+        @Query("where") where: String,
+        @Query("id") id: Long
+    ): CreatorDetailDeleteCommentReplyResponse
 }

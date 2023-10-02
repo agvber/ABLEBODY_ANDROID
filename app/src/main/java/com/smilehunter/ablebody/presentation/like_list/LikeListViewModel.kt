@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.domain.GetLikeListUseCase
 import com.smilehunter.ablebody.model.LikeListData
 import com.smilehunter.ablebody.model.LikedLocations
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,7 @@ class LikeListViewModel @Inject constructor(
     private val getLikeListUseCase: GetLikeListUseCase
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow<Long>(-1)
+    private val contentID = MutableSharedFlow<Long>()
 
     fun updateContentID(id: Long) {
         viewModelScope.launch { contentID.emit(id) }

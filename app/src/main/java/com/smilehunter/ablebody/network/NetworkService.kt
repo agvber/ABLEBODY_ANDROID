@@ -5,7 +5,6 @@ import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
-import com.smilehunter.ablebody.data.dto.NetworkLikedLocations
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
@@ -15,7 +14,11 @@ import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -35,6 +38,9 @@ import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkItemData
 import retrofit2.Response
 
 interface NetworkService {
+
+    /** Onboarding **/
+
     suspend fun sendSMS(phoneNumber: String, isNotTestMessage: Boolean = true): Response<SendSMSResponse>
 
     suspend fun checkSMS(phoneConfirmId: Long, verifyingCode: String): Response<CheckSMSResponse>
@@ -61,6 +67,9 @@ interface NetworkService {
         appVersion: String
     ): Response<FCMTokenAndAppVersionUpdateResponse>
 
+
+    /** Brand **/
+
     suspend fun brandMain(sort: SortingMethod): Response<BrandMainResponse>
 
     suspend fun brandDetailItem(
@@ -83,6 +92,8 @@ interface NetworkService {
         size: Int? = 20
     ): Response<BrandDetailCodyResponse>
 
+    /** Bookmark **/
+
     suspend fun addBookmarkItem(itemID: Long): Response<AddBookmarkItemResponse>
 
     suspend fun readBookmarkItem(
@@ -100,6 +111,9 @@ interface NetworkService {
     ): Response<AbleBodyResponse<ReadBookmarkCodyData>>
 
     suspend fun deleteBookmarkCody(itemID: Long): Response<DeleteBookmarkCodyResponse>
+
+    /** Find **/
+
     suspend fun findItem(
         sort: SortingMethod,
         itemGender: ItemGender,
@@ -117,6 +131,9 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 20
     ): Response<FindCodyResponse>
+
+
+    /** Search **/
 
     suspend fun uniSearch(
         keyword: String,
@@ -144,6 +161,8 @@ interface NetworkService {
         size: Int = 20
     ): SearchCodyResponse
 
+    /** Notification **/
+
     suspend fun getMyNoti(
         page: Int = 0,
         size: Int = 30
@@ -153,8 +172,47 @@ interface NetworkService {
         id: Long
     ): CheckMyNotiResponse
 
-    suspend fun creatorDetailLikeUsers(
-        where: NetworkLikedLocations = NetworkLikedLocations.BOARD,
+    /** Creator **/
+
+    suspend fun creatorDetailLikeBoard(
+        id: Long
+    ): CreatorDetailLikeResponse
+
+    suspend fun creatorDetailLikeComment(
+        id: Long
+    ): CreatorDetailLikeResponse
+
+    suspend fun creatorDetailLikeReply(
+        id: Long
+    ): CreatorDetailLikeResponse
+
+    suspend fun creatorDetailLikeUsersBoard(
         id: Long
     ): CreatorDetailLikeUsersResponse
+
+    suspend fun creatorDetailLikeUsersComment(
+        id: Long
+    ): CreatorDetailLikeUsersResponse
+
+    suspend fun creatorDetailLikeUsersReply(
+        id: Long
+    ): CreatorDetailLikeUsersResponse
+
+    suspend fun creatorDetailComment(
+        id: Long,
+        content: String
+    ): CreatorDetailCommentResponse
+
+    suspend fun creatorDetailReply(
+        id: Long,
+        content: String
+    ): CreatorDetailReplyResponse
+
+    suspend fun creatorDetailDeleteComment(
+        id: Long
+    ): CreatorDetailDeleteCommentReplyResponse
+
+    suspend fun creatorDetailDeleteReply(
+        id: Long
+    ): CreatorDetailDeleteCommentReplyResponse
 }

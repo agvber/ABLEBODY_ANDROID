@@ -14,11 +14,12 @@ class GetLikeListUseCase @Inject constructor(
         likedLocations: LikedLocations,
         id: Long
     ): List<LikeListData> =
-        likeListRepository.creatorDetailLikeUsers(
-            likedLocations,
-            id
-        ).data!!.map { it.toDomain() }
-
+        when (likedLocations) {
+            LikedLocations.BOARD -> likeListRepository.creatorDetailLikeUsersBoard(id)
+            LikedLocations.COMMENT -> likeListRepository.creatorDetailLikeUsersComment(id)
+            LikedLocations.REPLAY -> likeListRepository.creatorDetailLikeUsersReply(id)
+        }
+            .map { it.toDomain() }
 }
 
 private fun CreatorDetailLikeUsersResponseData.toDomain() =
