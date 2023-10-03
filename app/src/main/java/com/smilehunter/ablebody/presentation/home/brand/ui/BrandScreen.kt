@@ -4,13 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,15 +29,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -173,23 +178,6 @@ fun BrandScreen(
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun BrandScreenPreview() {
-    ABLEBODY_AndroidTheme {
-        BrandScreen(
-            onSearchBarClick = {},
-            onAlertButtonClick = {},
-            sortingMethod = SortingMethod.POPULAR,
-            onSortingMethodChange = {},
-            genderFilter = ItemGender.UNISEX,
-            onGenderFilterChange = {},
-            brandItemList = BrandListResultUiState.Success(fakeBrandListData),
-            onItemClick = { id, name -> }
-        )
-    }
-}
-
 @Composable
 fun BrandListItemLayout(
     modifier: Modifier = Modifier,
@@ -200,10 +188,12 @@ fun BrandListItemLayout(
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    ConstraintLayout(
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
             .fillMaxWidth()
-            .height(86.dp)
             .padding(horizontal = 25.dp, vertical = 15.dp)
             .clickable(
                 interactionSource = interactionSource,
@@ -211,91 +201,62 @@ fun BrandListItemLayout(
                 onClick = onClick
             )
     ) {
-        val (brandImage, brandMainName, brandSubName, discountText, chevronButton) = createRefs()
-
         AsyncImage(
             model = thumbnailURL,
             contentDescription = "brand image",
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(top = 4.dp, bottom = 4.dp, end = 15.dp)
+                .padding(top = 4.dp, bottom = 4.dp)
                 .shadow(3.dp, shape = CircleShape)
-                .constrainAs(ref = brandImage) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                }
+                .size(48.dp)
             ,
             placeholder = previewPlaceHolder(id = R.drawable.brand_test)
         )
-
-        Text(
-            text = brandName,
-            style = TextStyle(
-                fontSize = 15.sp,
-                fontWeight = FontWeight(500),
-            ),
-            modifier = Modifier.constrainAs(brandMainName) {
-                top.linkTo(brandImage.top)
-                bottom.linkTo(brandSubName.top)
-                absoluteLeft.linkTo(brandImage.absoluteRight)
-            }
-        )
-
-        Text(
-            text = subName,
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight(500),
-                color = SmallTextGrey,
-            ),
-            modifier = Modifier.constrainAs(brandSubName) {
-                top.linkTo(brandMainName.bottom)
-                bottom.linkTo(brandImage.bottom)
-                absoluteLeft.linkTo(brandImage.absoluteRight)
-            }
-        )
-
-        if (maxDisCountString != 0) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
-                text = "최대 $maxDisCountString% 할인 중",
+                text = brandName,
                 style = TextStyle(
-                    fontSize = 12.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight(500),
-                    color = AbleBlue,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
                 ),
-                modifier = Modifier
-                    .padding(horizontal = 5.dp)
-                    .constrainAs(discountText) {
-                        top.linkTo(brandMainName.bottom)
-                        bottom.linkTo(brandImage.bottom)
-                        absoluteLeft.linkTo(brandSubName.absoluteRight)
-                    }
             )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text(
+                    text = subName,
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight(500),
+                        color = SmallTextGrey,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    )
+                )
+                if (maxDisCountString != 0) {
+                    Text(
+                        text = "최대 $maxDisCountString% 할인 중",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight(500),
+                            color = AbleBlue,
+                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        )
+                    )
+                }
+            }
         }
-
         Image(
             painter = painterResource(id = R.drawable.chevronforward),
             contentDescription = "chevronForwardButton",
-            modifier = Modifier.constrainAs(ref = chevronButton) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                absoluteRight.linkTo(parent.absoluteRight)
-            }
+            modifier = Modifier
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun BrandListItemLayoutPreview() {
-    BrandListItemLayout(
-        brandName = "제이엘브",
-        subName = "JELEVE",
-        thumbnailURL = "https://",
-        maxDisCountString = 51,
-        onClick = {  }
-    )
 }
 
 @Composable
@@ -337,4 +298,33 @@ fun BrandFilterTabPreview(
         genderFilter = genderFilter,
         onGenderFilterChange = onGenderFilterChange,
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BrandListItemLayoutPreview() {
+    BrandListItemLayout(
+        brandName = "제이엘브",
+        subName = "JELEVE",
+        thumbnailURL = "https://",
+        maxDisCountString = 51,
+        onClick = {  }
+    )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun BrandScreenPreview() {
+    ABLEBODY_AndroidTheme {
+        BrandScreen(
+            onSearchBarClick = {},
+            onAlertButtonClick = {},
+            sortingMethod = SortingMethod.POPULAR,
+            onSortingMethodChange = {},
+            genderFilter = ItemGender.UNISEX,
+            onGenderFilterChange = {},
+            brandItemList = BrandListResultUiState.Success(fakeBrandListData),
+            onItemClick = { id, name -> }
+        )
+    }
 }
