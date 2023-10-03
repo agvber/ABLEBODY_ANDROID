@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
@@ -113,7 +114,8 @@ fun BookmarkListScreen(
                         columns = GridCells.Fixed(2)
                     ) {
                         items(
-                            count = productPagingItemList.itemCount
+                            count = productPagingItemList.itemCount,
+                            key = productPagingItemList.itemKey { it.id }
                         ) { position ->
                             BookmarkProductItemLayout(
                                 requestWebPage = { productPagingItemList[position]?.url?.let(webPageRequest) },
@@ -146,9 +148,10 @@ fun BookmarkListScreen(
                     }
                 }
                 1 -> {
-                    LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+                    LazyVerticalGrid(columns = GridCells.Fixed(3),) {
                         items(
                             count = codyPagingItemList.itemCount,
+                            key = codyPagingItemList.itemKey { it.id }
                         ) { position ->
                             AsyncImage(
                                 model = codyPagingItemList[position]?.imageURL,

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
@@ -143,7 +144,10 @@ fun CodyItemListLayout(
                 verticalArrangement = Arrangement.spacedBy(1.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                items(count = codyItemData.itemCount) { index ->
+                items(
+                    count = codyItemData.itemCount,
+                    key = codyItemData.itemKey { it.id }
+                ) { index ->
                     AsyncImage(
                         model = codyItemData[index]?.imageURL,
                         contentDescription = "cody recommended image",

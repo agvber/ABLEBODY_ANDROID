@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
@@ -178,6 +179,7 @@ fun ProductItemListLayout(
             ) {
                 items(
                     count = productPagingItems.itemCount,
+                    key = productPagingItems.itemKey { it.id }
                 ) { index ->
                     ProductItemLayout(
                         productName = productPagingItems[index]?.name.toString(),
