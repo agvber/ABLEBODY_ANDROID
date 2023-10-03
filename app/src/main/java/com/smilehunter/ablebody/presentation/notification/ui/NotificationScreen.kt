@@ -1,6 +1,7 @@
 package com.smilehunter.ablebody.presentation.notification.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.NotificationItemData
@@ -64,12 +66,12 @@ fun NotificationRoute(
         onBackRequest = onBackRequest,
         onAllCheckRequest = {
             notificationViewModel.allCheck()
-            notificationItemData.retry()
                             },
         onCheckedRequest = {
-            notificationViewModel.itemCheck(it)
-            itemClick(it)
-//            notificationItemData.retry()
+            itemClick(it.id)
+            if (!it.checked) {
+                notificationViewModel.itemCheck(it.id)
+            }
                            },
         notificationItemData = notificationItemData
     )
@@ -79,7 +81,7 @@ fun NotificationRoute(
 fun NotificationScreen(
     onBackRequest: () -> Unit,
     onAllCheckRequest: () -> Unit,
-    onCheckedRequest: (Long) -> Unit,
+    onCheckedRequest: (NotificationItemData.Content) -> Unit,
     notificationItemData: LazyPagingItems<NotificationItemData.Content>
 ) {
     val scope = rememberCoroutineScope()
@@ -121,16 +123,18 @@ fun NotificationScreen(
             state = lazyListState,
             modifier = Modifier.padding(paddingValue)
         ) {
-            items(count = notificationItemData.itemCount) { index ->
+            items(
+                count = notificationItemData.itemCount,
+                key = notificationItemData.itemKey { it.id }
+            ) { index ->
                 NotificationContentItem(
-                    itemClick = {
-                        notificationItemData[index]?.let { onCheckedRequest(it.id) }
-                    },
+                    itemClick = { notificationItemData[index]?.let { onCheckedRequest(it) } },
                     isChecked = notificationItemData[index]?.checked ?: true,
                     nickname = notificationItemData[index]?.senderNickname ?: "",
                     contentText = notificationItemData[index]?.text ?: "",
                     profileImageURL = notificationItemData[index]?.senderProfileImageURL ?: "",
-                    passedTime = notificationItemData[index]?.passedTime ?: NotificationPassedTime.Minutes(0)
+                    passedTime = notificationItemData[index]?.passedTime ?: NotificationPassedTime.Minutes(0),
+                    modifier = Modifier.animateContentSize()
                 )
             }
         }
@@ -139,6 +143,7 @@ fun NotificationScreen(
 
 @Composable
 private fun NotificationContentItem(
+    modifier: Modifier = Modifier,
     itemClick: () -> Unit,
     isChecked: Boolean,
     nickname: String,
@@ -152,7 +157,7 @@ private fun NotificationContentItem(
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(color = backgroundColor)
             .padding(horizontal = 16.dp, vertical = 8.dp)

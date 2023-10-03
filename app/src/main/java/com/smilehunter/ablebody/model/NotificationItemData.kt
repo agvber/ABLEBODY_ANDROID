@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.model
 
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 data class NotificationItemData(
@@ -20,10 +21,10 @@ data class NotificationItemData(
         val uri: String,
         val checked: Boolean,
     ) {
-        private val currentDateTime = LocalDateTime.now()
+        private val currentDateTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
         private val targetDateTime = LocalDateTime.parse(createDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-        private val  duration = Duration.between(targetDateTime, currentDateTime)
+        private val duration = Duration.between(targetDateTime, currentDateTime)
         private val secondsPassed = duration.toSeconds()
 
         val passedTime: NotificationPassedTime = when {
