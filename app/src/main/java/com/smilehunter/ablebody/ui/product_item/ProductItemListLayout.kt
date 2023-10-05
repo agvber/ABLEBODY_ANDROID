@@ -185,6 +185,7 @@ fun ProductItemListLayout(
                         productName = productPagingItems[index]?.name.toString(),
                         productPrice = productPagingItems[index]?.price ?: 0,
                         productSalePrice = productPagingItems[index]?.salePrice,
+                        productSalePercent = productPagingItems[index]?.salePercentage,
                         brandName = productPagingItems[index]?.brandName ?: "",
                         averageStarRating = productPagingItems[index]?.avgStarRating,
                         thumbnail = productPagingItems[index]?.imageURL,

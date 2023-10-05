@@ -37,6 +37,7 @@ fun ProductItemLayout(
     productName: String,
     productPrice: Int,
     productSalePrice: Int?,
+    productSalePercent: Int?,
     brandName: String,
     thumbnail: Any?,
     averageStarRating: String?,
@@ -85,7 +86,7 @@ fun ProductItemLayout(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = NumberFormat.getCurrencyInstance(Locale.KOREA).format(productSalePrice ?: productPrice),
+                    text = "${NumberFormat.getInstance(Locale.KOREA).format(productSalePrice ?: productPrice)}원",
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight(700),
@@ -95,7 +96,7 @@ fun ProductItemLayout(
                 )
                 if (productSalePrice != null) {
                     Text(
-                        text = "36,000",
+                        text = NumberFormat.getInstance(Locale.KOREA).format(productPrice),
                         style = TextStyle(
                             fontSize = 11.sp,
                             fontWeight = FontWeight(400),
@@ -106,7 +107,7 @@ fun ProductItemLayout(
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
                     Text(
-                        text = "19%",
+                        text = "$productSalePercent%",
                         style = TextStyle(
                             fontSize = 12.sp,
                             fontWeight = FontWeight(500),
@@ -146,6 +147,7 @@ private fun ProductItemListContentPreview() {
             productName = "데일리 크롭 슬리브리스 그레이 옐로우",
             productPrice = 36000,
             productSalePrice = 29000,
+            productSalePercent = 19,
             brandName = "오옴",
             averageStarRating = "0.0(0)",
             thumbnail = R.drawable.product_item_test,

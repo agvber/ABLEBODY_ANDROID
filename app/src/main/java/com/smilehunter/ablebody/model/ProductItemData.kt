@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.model
 
+import kotlin.math.roundToInt
+
 
 data class ProductItemData(
     val content: List<Item>,
@@ -18,5 +20,7 @@ data class ProductItemData(
         val isSingleImage: Boolean,
         val url: String,
         val avgStarRating: String?
-    )
+    ) {
+        val salePercentage = salePrice?.let { (salePrice.toDouble() / price.toDouble() * 100).roundToInt() }
+    }
 }
