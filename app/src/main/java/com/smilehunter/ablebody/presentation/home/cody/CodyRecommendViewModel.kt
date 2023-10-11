@@ -65,9 +65,8 @@ class CodyRecommendViewModel @Inject constructor(
         ) { gender, sport, height ->
             codyItemPagerUseCase(CodyPagingSourceData.CodyRecommended(gender, sport, height.rangeStart, height.rangeEnd))
         }
-            .flatMapLatest {
-                it.cachedIn(viewModelScope)
-            }
+            .flatMapLatest { it }
+            .cachedIn(viewModelScope)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
