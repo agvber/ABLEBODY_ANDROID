@@ -4,6 +4,8 @@ import com.smilehunter.ablebody.data.repository.BookmarkRepository
 import com.smilehunter.ablebody.data.repository.BookmarkRepositoryImpl
 import com.smilehunter.ablebody.data.repository.BrandRepository
 import com.smilehunter.ablebody.data.repository.BrandRepositoryImpl
+import com.smilehunter.ablebody.data.repository.CreatorDetailRepository
+import com.smilehunter.ablebody.data.repository.CreatorDetailRepositoryImpl
 import com.smilehunter.ablebody.data.repository.FCMSyncRepository
 import com.smilehunter.ablebody.data.repository.FCMSyncRepositoryImpl
 import com.smilehunter.ablebody.data.repository.FindCodyRepository
@@ -78,4 +80,9 @@ interface DataModule {
     fun bindsLikeListRepository(
         likeListRepositoryImpl: LikeListRepositoryImpl
     ): LikeListRepository
+
+    @Binds
+    fun bindsCreatorDetailRepository(
+        creatorDetailRepositoryImpl: CreatorDetailRepositoryImpl
+    ): CreatorDetailRepository
 }

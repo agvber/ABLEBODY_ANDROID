@@ -16,9 +16,11 @@ import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -174,6 +176,10 @@ interface NetworkService {
 
     /** Creator **/
 
+    suspend fun creatorDetail(
+        id: Long
+    ): CreatorDetailResponse
+
     suspend fun creatorDetailLikeBoard(
         id: Long
     ): CreatorDetailLikeResponse
@@ -215,4 +221,8 @@ interface NetworkService {
     suspend fun creatorDetailDeleteReply(
         id: Long
     ): CreatorDetailDeleteCommentReplyResponse
+
+    suspend fun creatorDetailDelete(
+        id: Long
+    ): CreatorDetailDeleteResponse
 }

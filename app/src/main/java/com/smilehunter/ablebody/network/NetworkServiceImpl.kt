@@ -16,9 +16,11 @@ import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -260,6 +262,9 @@ class NetworkServiceImpl @Inject constructor(
     override suspend fun checkMyNoti(id: Long): CheckMyNotiResponse =
         networkAPI.checkMyNoti(id)
 
+    override suspend fun creatorDetail(id: Long): CreatorDetailResponse =
+        networkAPI.creatorDetail(id)
+
     override suspend fun creatorDetailLikeBoard(id: Long): CreatorDetailLikeResponse =
         networkAPI.creatorDetailLike(where = "board", id = id)
 
@@ -292,4 +297,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun creatorDetailDeleteReply(id: Long): CreatorDetailDeleteCommentReplyResponse =
         networkAPI.creatorDetailDeleteCommentReply(where = "reply", id = id)
+
+    override suspend fun creatorDetailDelete(id: Long): CreatorDetailDeleteResponse =
+        networkAPI.creatorDetailDelete(id)
 }

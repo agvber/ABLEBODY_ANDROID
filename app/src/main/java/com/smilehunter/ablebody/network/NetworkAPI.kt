@@ -18,9 +18,11 @@ import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteCommentReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailDeleteResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailLikeUsersResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
+import com.smilehunter.ablebody.data.dto.response.CreatorDetailResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
@@ -216,6 +218,11 @@ interface NetworkAPI {
 
     /** creator **/
 
+    @GET("/api/home/detail")
+    suspend fun creatorDetail(
+        @Query("id") id: Long
+    ): CreatorDetailResponse
+
     @POST("/api/home/unilike")
     suspend fun creatorDetailLike(
         @Query("where") where: String = "board",
@@ -245,4 +252,9 @@ interface NetworkAPI {
         @Query("where") where: String,
         @Query("id") id: Long
     ): CreatorDetailDeleteCommentReplyResponse
+
+    @DELETE("/api/home")
+    suspend fun creatorDetailDelete(
+        @Query("id") id: Long
+    ): CreatorDetailDeleteResponse
 }
