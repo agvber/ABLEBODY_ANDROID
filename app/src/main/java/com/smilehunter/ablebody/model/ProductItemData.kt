@@ -21,6 +21,6 @@ data class ProductItemData(
         val url: String,
         val avgStarRating: String?
     ) {
-        val salePercentage = salePrice?.let { (salePrice.toDouble() / price.toDouble() * 100).roundToInt() }
+        val salePercentage = salePrice?.let { ((price - salePrice).toDouble() / price * 100).roundToInt() }
     }
 }
