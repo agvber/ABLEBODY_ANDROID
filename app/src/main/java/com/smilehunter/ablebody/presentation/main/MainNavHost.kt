@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.smilehunter.ablebody.presentation.brand_detail.ui.BrandDetailRoute
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -22,7 +23,7 @@ fun MainNavHost(
             onSearchBarClick = { navController.navigate("SearchRoute") },
             onAlertButtonClick = { navController.navigate(NotificationRoute) },
             onBrandDetailRouteRequest = { id, name -> navController.navigate("BrandDetailScreen/$id/$name") },
-            onProductItemDetailRouteRequest = { /* TODO productItemDetail 페이지로 가기 */ },
+            onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
             onCodyItemDetailRouteRequest = { /* TODO CodyItemDetail 페이지로 가기 */ },
         )
 
@@ -49,5 +50,13 @@ fun MainNavHost(
             onBackRequest = { navController.popBackStack() },
             itemClick = { /* TODO 클릭시 해당 게시글로 이동 */ }
         )
+
+        composable(route = "ItemDetailScreen/{id}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.LongType}
+            )
+        ){ navBackStackEntry ->
+            navBackStackEntry.arguments?.getLong("id")?.let { ItemDetailScreen(id = it) }
+        }
     }
 }

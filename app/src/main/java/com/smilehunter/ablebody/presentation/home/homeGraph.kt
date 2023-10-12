@@ -48,5 +48,13 @@ fun NavGraphBuilder.addHomeGraph(
                 codyItemClick = onCodyItemDetailRouteRequest,
             )
         }
+//        composable(route = NavigationItems.My.name) {
+//            MyRoute(
+//                onSearchBarClick = onSearchBarClick,
+//                onAlertButtonClick = onAlertButtonClick,
+//                productItemClick = onProductItemDetailRouteRequest,
+//                codyItemClick = onCodyItemDetailRouteRequest,
+//            )
+//        }
     }
 }
