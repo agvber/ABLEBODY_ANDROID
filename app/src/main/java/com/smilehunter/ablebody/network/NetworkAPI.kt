@@ -29,6 +29,7 @@ import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateRes
 import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkItemResponse
@@ -39,6 +40,7 @@ import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
+import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -257,4 +259,10 @@ interface NetworkAPI {
     suspend fun creatorDetailDelete(
         @Query("id") id: Long
     ): CreatorDetailDeleteResponse
+
+    /** item **/
+    @GET("/api/item")
+    suspend fun itemDetail(
+        @Query("id") id: Long
+    ): ItemDetailResponse
 }

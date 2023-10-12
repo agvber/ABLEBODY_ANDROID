@@ -2,7 +2,10 @@ package com.smilehunter.ablebody.presentation.main
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.smilehunter.ablebody.presentation.brand_detail.addBrandDetailScreen
 import com.smilehunter.ablebody.presentation.brand_detail.navigateToBrandDetailScreen
 import com.smilehunter.ablebody.presentation.creator_detail.addCreatorDetailScreen
@@ -11,6 +14,7 @@ import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -30,7 +34,7 @@ fun MainNavHost(
             onSearchBarClick = { navController.navigate("SearchRoute") },
             onAlertButtonClick = { navController.navigate(NotificationRoute) },
             onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen,
-            onProductItemDetailRouteRequest = { /* TODO productItemDetail 페이지로 가기 */ },
+            onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
             onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
         )
 
@@ -74,5 +78,13 @@ fun MainNavHost(
 //            onBackRequest = navController::popBackStack,
 //            isBottomBarShow = isBottomBarShow
 //        )
+
+        composable(route = "ItemDetailScreen/{id}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.LongType}
+            )
+        ){ navBackStackEntry ->
+            navBackStackEntry.arguments?.getLong("id")?.let { ItemDetailScreen(id = it) }
+        }
     }
 }

@@ -11,6 +11,7 @@ import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpda
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
+import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.NewUserCreateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkItemData
@@ -72,3 +73,7 @@ typealias CreatorDetailCommentResponse = AbleBodyResponse<CreatorDetailCommentRe
 typealias CreatorDetailReplyResponse = AbleBodyResponse<CreatorDetailReplyResponseData>
 typealias CreatorDetailDeleteCommentReplyResponse = AbleBodyResponse<Long>
 typealias CreatorDetailDeleteResponse = AbleBodyResponse<Long>
+
+/** Item **/
+
+typealias ItemDetailResponse = AbleBodyResponse<ItemResponseData>

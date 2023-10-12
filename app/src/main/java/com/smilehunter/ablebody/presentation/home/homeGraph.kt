@@ -58,5 +58,13 @@ fun NavGraphBuilder.addHomeGraph(
             )
             isBottomBarShow(true)
         }
+//        composable(route = NavigationItems.My.name) {
+//            MyRoute(
+//                onSearchBarClick = onSearchBarClick,
+//                onAlertButtonClick = onAlertButtonClick,
+//                productItemClick = onProductItemDetailRouteRequest,
+//                codyItemClick = onCodyItemDetailRouteRequest,
+//            )
+//        }
     }
 }

@@ -27,6 +27,7 @@ import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateRes
 import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
@@ -300,4 +301,8 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun creatorDetailDelete(id: Long): CreatorDetailDeleteResponse =
         networkAPI.creatorDetailDelete(id)
+
+    override suspend fun itemDetail(id: Long): ItemDetailResponse =
+        networkAPI.itemDetail(id = id)
+
 }

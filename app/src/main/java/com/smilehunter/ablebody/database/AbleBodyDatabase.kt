@@ -9,7 +9,8 @@ import com.smilehunter.ablebody.database.model.SearchHistoryEntity
     entities = [
         SearchHistoryEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class AbleBodyDatabase: RoomDatabase() {
     abstract fun searchHistoryDao(): SearchHistoryDao
