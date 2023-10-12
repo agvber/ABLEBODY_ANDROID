@@ -24,6 +24,7 @@ class GetLikeListUseCase @Inject constructor(
 
 private fun CreatorDetailLikeUsersResponseData.toDomain() =
     LikeListData(
+        uid = uid,
         nickname = nickname,
         userName = name,
         profileImageURL = profileUrl
