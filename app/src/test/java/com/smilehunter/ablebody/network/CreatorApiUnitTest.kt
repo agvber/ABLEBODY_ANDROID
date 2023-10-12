@@ -8,6 +8,14 @@ class CreatorApiUnitTest {
     private val networkAPI: NetworkService = TestRetrofit.getInstance()
 
     @Test
+    fun creatorDetail() {
+        val response = runBlocking {
+            networkAPI.creatorDetail(id = 832)
+        }
+        println(response)
+    }
+
+    @Test
     fun creatorDetailLikeUsersBoard() {
         val response = runBlocking {
             networkAPI.creatorDetailLikeUsersBoard(id = 2)
