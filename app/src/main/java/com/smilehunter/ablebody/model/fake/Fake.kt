@@ -1,8 +1,11 @@
 package com.smilehunter.ablebody.model.fake
 
+import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.model.BrandListData
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.CreatorDetailData
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.ProductItemData
 
@@ -126,4 +129,94 @@ val fakeBrandListData = listOf(
         brandGender = ItemGender.UNISEX,
         maxDiscount = 0
     )
+)
+
+val fakeCreatorDetailData = CreatorDetailData(
+    id = 1,
+    createDate = "2023-07-13T21:28:40",
+    category = HomeCategory.GYMWEAR,
+    userInfo = CreatorDetailData.UserInfo(
+        uid = "123",
+        nickname = "nick_nick",
+        name = "John Doe",
+        height = 180,
+        weight = 75,
+        gender = Gender.MALE,
+        job = "Fitness Trainer",
+        profileImageURL = "",
+        instagramDeepLink = "https://www.instagram.com/johndoe/",
+        instagramWebLink = "https://www.instagram.com/johndoe/",
+        youtubeDeepLink = "https://www.youtube.com/c/johndoe/",
+        youtubeWebLink = "https://www.youtube.com/c/johndoe/",
+        favoriteExercise = "Running",
+        experienceExercise = "2023-05-04"
+    ),
+    imageURLList = listOf(
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg",
+        "https://example.com/image3.jpg"
+    ),
+    postItems = listOf(
+        CreatorDetailData.PositionItem(
+            id = 1,
+            category = CreatorDetailData.PositionItem.Category.BELT,
+            xPosition = 10.0,
+            yPosition = 20.0,
+            size = "M",
+            item = CreatorDetailData.PositionItem.Item(
+                id = 123,
+                name = "Stylish Shirt",
+                price = 49000,
+                salePrice = 39000,
+                brand = CreatorDetailData.PositionItem.Item.Brand(
+                    id = 0L,
+                    name = "가나다",
+                    thumbnailURL = "",
+                    subName = null,
+                    isLaunched = true
+                ),
+                imageURLList = listOf(
+                    "https://example.com/image1.jpg",
+                    "https://example.com/image2.jpg",
+                    "https://example.com/image3.jpg"
+                ),
+                deleted = false
+            ),
+            hasReview = true
+        ),
+        CreatorDetailData.PositionItem(
+            id = 2,
+            category = CreatorDetailData.PositionItem.Category.CARDIGAN,
+            xPosition = 0.14371980676328502,
+            yPosition = 0.5301932367149759,
+            size = "L",
+            item = CreatorDetailData.PositionItem.Item(
+                id = 123,
+                name = "Stylish Shirt",
+                price = 49000,
+                salePrice = 39000,
+                brand = CreatorDetailData.PositionItem.Item.Brand(
+                    id = 0L,
+                    name = "가나다",
+                    thumbnailURL = "",
+                    subName = null,
+                    isLaunched = true
+                ),
+                imageURLList = listOf(
+                    "https://example.com/image1.jpg",
+                    "https://example.com/image2.jpg",
+                    "https://example.com/image3.jpg"
+                ),
+                deleted = false
+            ),
+            hasReview = false
+        )
+    ),
+    likes = 100,
+    comments = 20,
+    views = 1000,
+    exerciseExperience = 5,
+    commentAndReplies = listOf(),
+    isLiked = true,
+    bookmarked = false
 )
