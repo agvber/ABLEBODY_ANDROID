@@ -154,7 +154,7 @@ fun CodyItemListLayout(
                         contentScale = ContentScale.Crop,
                         placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
                         modifier = Modifier
-                            .aspectRatio(.75f)
+                            .aspectRatio(4f / 5f)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
