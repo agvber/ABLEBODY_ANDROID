@@ -56,6 +56,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun BrandDetailRoute(
     onBackClick: () -> Unit,
+    productItemClick: (Long) -> Unit,
+    codyItemClick: (Long) -> Unit,
     contentID: Long?,
     contentName: String,
     modifier: Modifier = Modifier,
@@ -66,12 +68,12 @@ fun BrandDetailRoute(
     BrandDetailScreen(
         modifier = modifier,
         onBackClick = onBackClick,
-        productItemClick = { /* TODO 아이템 버튼 클릭 */ },
+        productItemClick = productItemClick,
         onProductItemSortingMethodChange = { brandDetailViewModel.updateBrandProductItemOrderFilterType(it) },
         onProductItemParentFilterChange = { brandDetailViewModel.updateBrandProductItemParentFilter(it) },
         onProductItemChildFilterChange = { brandDetailViewModel.updateBrandProductItemChildFilter(it) },
         onProductItemGenderChange = { brandDetailViewModel.updateBrandProductItemGender(it) },
-        codyItemClick = { /* TODO 코디 아이템 버튼 클릭 */ },
+        codyItemClick = codyItemClick,
         codyItemFilterResetRequest = { brandDetailViewModel.resetCodyItemFilter() },
         onCodyItemListGenderFilterChange = { brandDetailViewModel.updateCodyItemListGendersFilter(it) },
         onCodyItemListSportFilterChange = { brandDetailViewModel.updateCodyItemListSportFilter(it) },

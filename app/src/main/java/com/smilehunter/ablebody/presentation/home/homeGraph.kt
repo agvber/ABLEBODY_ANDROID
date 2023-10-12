@@ -12,19 +12,24 @@ import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 const val HomeRoute = "Home"
 
 fun NavGraphBuilder.addHomeGraph(
+    isBottomBarShow: (Boolean) -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     onBrandDetailRouteRequest: (Long, String) -> Unit,
     onProductItemDetailRouteRequest: (Long) -> Unit,
     onCodyItemDetailRouteRequest: (Long) -> Unit,
 ) {
-    navigation(startDestination = NavigationItems.Brand.name, route = "Home") {
+    navigation(
+        startDestination = NavigationItems.Brand.name,
+        route = "Home",
+    ) {
         composable(route = NavigationItems.Brand.name) {
             BrandRoute(
                 onSearchBarClick = onSearchBarClick,
                 onAlertButtonClick = onAlertButtonClick,
                 onItemClick = onBrandDetailRouteRequest,
             )
+            isBottomBarShow(true)
         }
         composable(route = NavigationItems.Item.name) {
             ItemRoute(
@@ -32,13 +37,17 @@ fun NavGraphBuilder.addHomeGraph(
                 onAlertButtonClick = onAlertButtonClick,
                 itemClick = onProductItemDetailRouteRequest
             )
+            isBottomBarShow(true)
         }
-        composable(route = NavigationItems.CodyRecommendation.name) {
+        composable(
+            route = NavigationItems.CodyRecommendation.name,
+        ) {
             CodyRecommendedRoute(
                 onSearchBarClick = onSearchBarClick,
                 onAlertButtonClick = onAlertButtonClick,
                 itemClick = onCodyItemDetailRouteRequest,
             )
+            isBottomBarShow(true)
         }
         composable(route = NavigationItems.Bookmark.name) {
             BookmarkListRoute(
@@ -47,6 +56,7 @@ fun NavGraphBuilder.addHomeGraph(
                 productItemClick = onProductItemDetailRouteRequest,
                 codyItemClick = onCodyItemDetailRouteRequest,
             )
+            isBottomBarShow(true)
         }
     }
 }

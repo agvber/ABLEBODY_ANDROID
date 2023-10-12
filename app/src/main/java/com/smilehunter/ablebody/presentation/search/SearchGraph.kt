@@ -5,6 +5,7 @@ import androidx.navigation.compose.composable
 import com.smilehunter.ablebody.presentation.search.ui.SearchRoute
 
 fun NavGraphBuilder.addSearchScreen(
+    isBottomBarShow: (Boolean) -> Unit,
     backRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
@@ -15,5 +16,6 @@ fun NavGraphBuilder.addSearchScreen(
             productItemClick = productItemClick,
             codyItemClick = codyItemClick,
         )
+        isBottomBarShow(false)
     }
 }
