@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.presentation.like_list.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,10 +14,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -30,19 +33,26 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.LikeListData
 import com.smilehunter.ablebody.presentation.like_list.LikeListViewModel
+import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
+import com.smilehunter.ablebody.utils.nonReplyClickable
 
 @Composable
 fun LikeListRoute(
     onBackRequest: () -> Unit,
+    profileRequest: (String) -> Unit,
+    contentID: Long,
     likeListViewModel: LikeListViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(key1 = Unit) { likeListViewModel.updateContentID(contentID) }
+
     val likeList by likeListViewModel.likeList.collectAsStateWithLifecycle()
     LikeListScreen(
         onBackRequest = onBackRequest,
+        profileImageOnClick = profileRequest,
         likeList = likeList
     )
 }
@@ -51,6 +61,7 @@ fun LikeListRoute(
 @Composable
 fun LikeListScreen(
     onBackRequest: () -> Unit,
+    profileImageOnClick: (String) -> Unit,
     likeList: List<LikeListData>
 ) {
     Scaffold(
@@ -63,20 +74,24 @@ fun LikeListScreen(
     ) { paddingValue ->
         LazyColumn(modifier = Modifier.padding(paddingValue)) {
             items(
-                items = likeList
+                items = likeList,
+                key = { it.uid }
             ) {
                 LikeListContentLayout(
+                    profileImageOnClick = { profileImageOnClick(it.uid) },
                     nickname = it.nickname,
                     userName = it.userName,
-                    profileImageURL = it.nickname
+                    profileImageURL = it.profileImageURL
                 )
             }
+            item { Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current)) }
         }
     }
 }
 
 @Composable
 fun LikeListContentLayout(
+    profileImageOnClick: () -> Unit,
     nickname: String,
     userName: String,
     profileImageURL: String
@@ -93,9 +108,11 @@ fun LikeListContentLayout(
                 model = profileImageURL,
                 contentDescription = "user profile image",
                 placeholder = previewPlaceHolder(id = R.drawable.profile_woman1),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
+                    .nonReplyClickable(profileImageOnClick)
             )
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -132,6 +149,7 @@ fun LikeListContentLayout(
 @Composable
 fun LikeListContentLayoutPreview() {
     LikeListContentLayout(
+        profileImageOnClick = {},
         nickname = "nickname",
         userName = "피아노위의스팸스팸스",
         profileImageURL = "" // placeHolder
@@ -143,13 +161,16 @@ fun LikeListContentLayoutPreview() {
 fun LikeListScreenPreview() {
     LikeListScreen(
         onBackRequest = {},
+        profileImageOnClick = {},
         likeList = listOf(
             LikeListData(
+                uid = "1",
                 nickname = "nickname1",
                 userName = "userName1",
                 profileImageURL = ""
             ),
             LikeListData(
+                uid = "2",
                 nickname = "nickname2",
                 userName = "userName2",
                 profileImageURL = ""
