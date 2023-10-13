@@ -216,7 +216,6 @@ val fakeCreatorDetailData = CreatorDetailData(
     comments = 20,
     views = 1000,
     exerciseExperience = 5,
-    commentAndReplies = listOf(),
     isLiked = true,
     bookmarked = false
 )

@@ -16,7 +16,6 @@ data class CreatorDetailData(
     val comments: Int,
     val views: Int,
     val exerciseExperience: Int,
-    val commentAndReplies: List<CommentOrReply>,
     val isLiked: Boolean,
     val bookmarked: Boolean
 ) {
@@ -85,28 +84,5 @@ data class CreatorDetailData(
                 val isLaunched: Boolean
             )
         }
-    }
-
-
-    data class CommentOrReply(
-        val type: CommentReplyType,
-        val createDate: String,
-        val modifiedDate: String,
-        val id: Long,
-        val writer: User,
-        val contents: String,
-        val likeCount: Int,
-        val parentID: Long?,
-        val isLiked: Boolean
-    ) {
-        val elapsedTime = calculateElapsedTime(createDate)
-        enum class CommentReplyType { COMMENT, REPLY }
-
-        data class User(
-            val uid: String,
-            val nickname: String,
-            val name: String,
-            val profileUrl: String?,
-        )
     }
 }
