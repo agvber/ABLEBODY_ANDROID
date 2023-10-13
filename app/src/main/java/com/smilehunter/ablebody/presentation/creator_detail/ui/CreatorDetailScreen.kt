@@ -290,7 +290,7 @@ fun CreatorDetailScreen(
                         }
                         if (creatorDetailData.userInfo.youtubeWebLink != null) {
                             SNSShortcutButton(
-                                onClick = { creatorDetailData.userInfo.youtubeWebLink },
+                                onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.youtubeWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
                                 textColor = Color(0xFFEA3323),
                                 backgroundColor = Color(0xFFF0E9FE),
