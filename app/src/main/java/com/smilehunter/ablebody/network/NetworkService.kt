@@ -61,7 +61,9 @@ interface NetworkService {
 
     suspend fun getRefreshToken(refreshToken: String): Response<RefreshTokenResponse>
 
-    suspend fun getUserData(): Response<UserDataResponse>
+    suspend fun getMyUserData(): UserDataResponse
+
+    suspend fun getUserData(uid: String): UserDataResponse
 
     suspend fun getDummyToken(): Response<StringResponse>
 

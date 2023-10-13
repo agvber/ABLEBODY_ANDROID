@@ -4,7 +4,6 @@ import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
-import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import retrofit2.Response
 
 interface OnboardingRepository {
@@ -25,5 +24,4 @@ interface OnboardingRepository {
         agreeRequiredConsent: Boolean,
         agreeMarketingConsent: Boolean
     ): Response<NewUserCreateResponse>
-    suspend fun getUserData(): Response<UserDataResponse>
 }

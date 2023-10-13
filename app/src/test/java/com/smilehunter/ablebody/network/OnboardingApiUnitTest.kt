@@ -62,12 +62,6 @@ class OnboardingApiUnitTest {
     }
 
     @Test
-    fun getUserData() {
-        val response = runBlocking { networkService.getUserData() }
-        printResponse(response)
-    }
-
-    @Test
     fun getDummyToken() {
         val response = runBlocking { networkService.getDummyToken() }
         printResponse(response)

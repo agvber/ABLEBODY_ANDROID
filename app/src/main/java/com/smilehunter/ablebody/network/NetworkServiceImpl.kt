@@ -106,7 +106,8 @@ class NetworkServiceImpl @Inject constructor(
         return networkAPI.getRefreshToken(tokenRefreshResponseData).execute()
     }
 
-    override suspend fun getUserData(): Response<UserDataResponse> = networkAPI.getUserData().execute()
+    override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
+    override suspend fun getUserData(uid: String): UserDataResponse = networkAPI.getUserData(uid)
 
     override suspend fun getDummyToken(): Response<StringResponse> = networkAPI.getDummyToken().execute()
 

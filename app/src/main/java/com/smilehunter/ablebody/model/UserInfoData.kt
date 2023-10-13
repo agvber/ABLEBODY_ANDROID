@@ -1,13 +1,13 @@
-package com.smilehunter.ablebody.data.dto.response.data
+package com.smilehunter.ablebody.model
 
 import com.smilehunter.ablebody.data.dto.Gender
 
-data class UserDataResponseData(
+data class UserInfoData(
     val createDate: String,
     val modifiedDate: String,
     val gender: Gender,
     val uid: String,
-    val phone: String,
+    val phoneNumber: String,
     val nickname: String,
     val name: String,
     val height: Int?,

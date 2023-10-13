@@ -40,7 +40,6 @@ import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
-import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -79,7 +78,12 @@ interface NetworkAPI {
     ): Call<RefreshTokenResponse>
 
     @GET("/api/onboarding/splash")
-    fun getUserData(): Call<UserDataResponse>
+    suspend fun getMyUserData(): UserDataResponse
+
+    @GET("/api/my/user")
+    suspend fun getUserData(
+        @Query("uid") uid: String
+    ): UserDataResponse
 
     @GET("/api/onboarding/dummy")
     fun getDummyToken(): Call<StringResponse>

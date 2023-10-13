@@ -4,6 +4,8 @@ import com.smilehunter.ablebody.data.repository.BookmarkRepository
 import com.smilehunter.ablebody.data.repository.BookmarkRepositoryImpl
 import com.smilehunter.ablebody.data.repository.BrandRepository
 import com.smilehunter.ablebody.data.repository.BrandRepositoryImpl
+import com.smilehunter.ablebody.data.repository.CommentRepository
+import com.smilehunter.ablebody.data.repository.CommentRepositoryImpl
 import com.smilehunter.ablebody.data.repository.CreatorDetailRepository
 import com.smilehunter.ablebody.data.repository.CreatorDetailRepositoryImpl
 import com.smilehunter.ablebody.data.repository.FCMSyncRepository
@@ -24,6 +26,8 @@ import com.smilehunter.ablebody.data.repository.SearchRepository
 import com.smilehunter.ablebody.data.repository.SearchRepositoryImpl
 import com.smilehunter.ablebody.data.repository.TokenRepository
 import com.smilehunter.ablebody.data.repository.TokenRepositoryImpl
+import com.smilehunter.ablebody.data.repository.UserRepository
+import com.smilehunter.ablebody.data.repository.UserRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -32,6 +36,11 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 interface DataModule {
+
+    @Binds
+    fun bindsUserRepository(
+        userRepositoryImpl: UserRepositoryImpl
+    ): UserRepository
 
     @Binds
     fun bindsTokenRepository(
@@ -92,4 +101,9 @@ interface DataModule {
     fun bindsItemRepository(
         itemRepositoryImpl: ItemRepositoryImpl
     ): ItemRepository
+
+    @Binds
+    fun bindsCommentRepository(
+        commentRepositoryImpl: CommentRepositoryImpl
+    ): CommentRepository
 }
