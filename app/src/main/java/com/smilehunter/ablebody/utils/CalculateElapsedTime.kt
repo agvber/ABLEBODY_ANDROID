@@ -24,6 +24,7 @@ fun calculateElapsedTime(dateTime: String): CalculateElapsedTime {
     val secondsPassed = duration.toSeconds()
 
     return when {
+        secondsPassed < 0 -> Second(0)
         secondsPassed < 60 ->  Second(secondsPassed)
         secondsPassed < 3600 -> Minutes(duration.toMinutes())
         secondsPassed < 86400 -> Hour(duration.toHours())
