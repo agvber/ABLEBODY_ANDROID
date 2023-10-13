@@ -46,7 +46,8 @@ class CreatorDetailViewModel @Inject constructor(
         .flowOn(ioDispatcher)
         .shareIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.WhileSubscribed(5_000),
+            replay = 1
         )
 
 
