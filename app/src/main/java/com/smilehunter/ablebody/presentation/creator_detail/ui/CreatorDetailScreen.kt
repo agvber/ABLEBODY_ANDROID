@@ -37,8 +37,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -146,8 +146,8 @@ fun CreatorDetailScreen(
     ) { paddingValue ->
         if (creatorDetailUiState is CreatorDetailUiState.Success) {
             val creatorDetailData = creatorDetailUiState.data
-            var isLiked by remember { mutableStateOf(creatorDetailData.isLiked) }
-            var isBookmarked by remember { mutableStateOf(creatorDetailData.bookmarked) }
+            var isLiked by rememberSaveable { mutableStateOf(creatorDetailData.isLiked) }
+            var isBookmarked by rememberSaveable { mutableStateOf(creatorDetailData.bookmarked) }
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -165,7 +165,7 @@ fun CreatorDetailScreen(
                         elapsedTime = creatorDetailData.elapsedTime
                     )
                     Box(modifier = Modifier.aspectRatio(3f / 4f)) {
-                        var visibleTag by remember { mutableStateOf(false) }
+                        var visibleTag by rememberSaveable { mutableStateOf(false) }
                         val pagerState = rememberPagerState(pageCount = { creatorDetailData.imageURLList.size })
                         HorizontalPager(
                             state = pagerState,
