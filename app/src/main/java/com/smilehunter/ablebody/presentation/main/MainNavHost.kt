@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.smilehunter.ablebody.presentation.brand_detail.addBrandDetailScreen
 import com.smilehunter.ablebody.presentation.brand_detail.navigateToBrandDetailScreen
+import com.smilehunter.ablebody.presentation.comment.addCommentScreen
+import com.smilehunter.ablebody.presentation.comment.navigateToCommentScreen
 import com.smilehunter.ablebody.presentation.creator_detail.addCreatorDetailScreen
 import com.smilehunter.ablebody.presentation.creator_detail.navigateToCreatorDetail
 import com.smilehunter.ablebody.presentation.home.HomeRoute
@@ -62,7 +64,7 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
-            commentButtonOnClick = { /* TODO 댓글 페이지 가기 */ },
+            commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
             snsShortcutButtonOnClick = { uriRequest(it) },
             productItemOnClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
@@ -74,10 +76,10 @@ fun MainNavHost(
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
         )
 
-//        addCommentScreen(
-//            onBackRequest = navController::popBackStack,
-//            isBottomBarShow = isBottomBarShow
-//        )
+        addCommentScreen(
+            onBackRequest = navController::popBackStack,
+            isBottomBarShow = isBottomBarShow
+        )
 
         composable(route = "ItemDetailScreen/{id}",
             arguments = listOf(
