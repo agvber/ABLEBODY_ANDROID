@@ -1,7 +1,5 @@
 package com.smilehunter.ablebody.presentation.main.ui.error_handling
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,19 +15,16 @@ import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
-import com.smilehunter.ablebody.ui.utils.CustomButton
 import com.smilehunter.ablebody.ui.utils.HighlightText
 
 @Composable
 fun NotFoundErrorScreen(
-    onExitRequest: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    ErrorScreen(
+        onClick = onClick,
         modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .padding(top = 130.dp)
     ) {
         HighlightText(
             string = "앗, 이미 삭제된\n컨텐츠예요!\n다른 컨텐츠는 어떠세요?",
@@ -40,9 +35,9 @@ fun NotFoundErrorScreen(
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
                 fontWeight = FontWeight(700),
                 color = SmallTextGrey,
-            )
+            ),
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
-        CustomButton(text = "다른 컨텐츠 보러가기", onClick = onExitRequest)
     }
 }
 
@@ -50,6 +45,6 @@ fun NotFoundErrorScreen(
 @Composable
 fun NotFoundErrorScreenPreview() {
     ABLEBODY_AndroidTheme {
-        NotFoundErrorScreen(onExitRequest = {})
+        NotFoundErrorScreen(onClick = {})
     }
 }
