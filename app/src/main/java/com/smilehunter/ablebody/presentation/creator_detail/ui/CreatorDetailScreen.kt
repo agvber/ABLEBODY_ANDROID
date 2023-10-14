@@ -273,7 +273,7 @@ fun CreatorDetailScreen(
                             experienceExercise = creatorDetailData.userInfo.experienceExerciseElapsedTime?.let { convertSportElapsedTimeToString(it) } ?: "",
                             favoriteExercise = creatorDetailData.userInfo.favoriteExercise ?: ""
                         )
-                        if (creatorDetailData.userInfo.instagramWebLink != null) {
+                        if (!creatorDetailData.userInfo.instagramWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
                                 onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.instagramWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 인스타그램 바로 가기",
@@ -288,7 +288,7 @@ fun CreatorDetailScreen(
                                 )
                             }
                         }
-                        if (creatorDetailData.userInfo.youtubeWebLink != null) {
+                        if (!creatorDetailData.userInfo.youtubeWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
                                 onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.youtubeWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
