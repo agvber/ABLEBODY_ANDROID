@@ -161,6 +161,7 @@ interface NetworkAPI {
 
     @GET("/api/find/new-item")
     fun findItem(
+        @Query("sort") sort: SortingMethod,
         @Query("itemGender") itemGender: ItemGender,
         @Query("parentCategory") parentCategory: ItemParentCategory,
         @Query("childCategory") childCategory: ItemChildCategory? = null,

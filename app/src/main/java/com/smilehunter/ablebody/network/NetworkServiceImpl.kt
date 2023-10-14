@@ -197,6 +197,7 @@ class NetworkServiceImpl @Inject constructor(
         size: Int
     ): Response<FindItemResponse> =
         networkAPI.findItem(
+            sort = sort,
             itemGender = itemGender,
             parentCategory = parentCategory,
             childCategory = childCategory,
