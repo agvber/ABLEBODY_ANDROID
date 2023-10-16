@@ -90,7 +90,8 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.theme.White
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
-import com.smilehunter.ablebody.utils.CalculateElapsedTime
+import com.smilehunter.ablebody.utils.CalculateSportElapsedTime
+import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.NonReplyIconButton
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import java.text.NumberFormat
@@ -374,15 +375,15 @@ fun CreatorDetailScreen(
     }
 }
 
-private fun convertSportElapsedTimeToString(elapsedTime: CalculateElapsedTime): String =
+private fun convertSportElapsedTimeToString(elapsedTime: CalculateSportElapsedTime): String =
     when (elapsedTime) {
-        is CalculateElapsedTime.Year -> "${elapsedTime.year}년 운동 중"
-        is CalculateElapsedTime.Month -> "${elapsedTime.month}개월 운동 중"
-        is CalculateElapsedTime.Week -> "${elapsedTime.week}주 운동 중"
-        is CalculateElapsedTime.Day ->"${elapsedTime.day}일 운동 중"
-        is CalculateElapsedTime.Hour -> "${elapsedTime.hour}시간 운동 중"
-        is CalculateElapsedTime.Minutes -> "${elapsedTime.minutes}분 운동 중"
-        is CalculateElapsedTime.Second -> "${elapsedTime.second}초 운동 중"
+        is CalculateSportElapsedTime.Year -> "${elapsedTime.year}년 운동 중"
+        is CalculateSportElapsedTime.Month -> "${elapsedTime.month}개월 운동 중"
+        is CalculateSportElapsedTime.Week -> "${elapsedTime.week}주 운동 중"
+        is CalculateSportElapsedTime.Day ->"${elapsedTime.day}일 운동 중"
+        is CalculateSportElapsedTime.Hour -> "${elapsedTime.hour}시간 운동 중"
+        is CalculateSportElapsedTime.Minutes -> "${elapsedTime.minutes}분 운동 중"
+        is CalculateSportElapsedTime.Second -> "${elapsedTime.second}초 운동 중"
     }
 
 private fun convertItemCategoryToString(category: CreatorDetailData.PositionItem.Category): String =
@@ -414,7 +415,7 @@ fun CreatorInfo(
     height: Int?,
     weight: Int?,
     job: String?,
-    elapsedTime: CalculateElapsedTime
+    elapsedTime: CalculateUserElapsedTime
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -478,15 +479,13 @@ fun CreatorInfo(
     }
 }
 
-private fun convertElapsedTimeToString(elapsedTime: CalculateElapsedTime): String =
+private fun convertElapsedTimeToString(elapsedTime: CalculateUserElapsedTime): String =
     when (elapsedTime) {
-        is CalculateElapsedTime.Year -> "${elapsedTime.year}년 전"
-        is CalculateElapsedTime.Month -> "${elapsedTime.month}개월 전"
-        is CalculateElapsedTime.Week -> "${elapsedTime.week}주 전"
-        is CalculateElapsedTime.Day ->"${elapsedTime.day}일 전"
-        is CalculateElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
-        is CalculateElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
-        is CalculateElapsedTime.Second -> "${elapsedTime.second}초 전"
+        is CalculateUserElapsedTime.Date -> "${elapsedTime.month}월 ${elapsedTime.day}일"
+        is CalculateUserElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
+        is CalculateUserElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
+        is CalculateUserElapsedTime.Recent -> "방금 전"
+        else -> ""
     }
 
 private fun makeUserDescription(vararg values: String?): String =
@@ -934,7 +933,7 @@ fun CreatorInfoPreview() {
         height = 181,
         weight = 76,
         job = null,
-        elapsedTime = CalculateElapsedTime.Minutes(46)
+        elapsedTime = CalculateUserElapsedTime.Minutes(46)
     )
 }
 

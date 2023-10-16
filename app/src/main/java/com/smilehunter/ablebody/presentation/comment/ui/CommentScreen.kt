@@ -87,7 +87,7 @@ import com.smilehunter.ablebody.ui.theme.White
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.HighlightText
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
-import com.smilehunter.ablebody.utils.CalculateElapsedTime
+import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.android.awaitFrame
 
@@ -323,14 +323,12 @@ private fun<E> MutableList<E>.addOrRemove(element: E): MutableList<E> =
         this.apply { add(element) }
     }
 
-private fun elapsedTimeToString(elapsedTime: CalculateElapsedTime) = when (elapsedTime) {
-    is CalculateElapsedTime.Year -> "${elapsedTime.year}년 전"
-    is CalculateElapsedTime.Month -> "${elapsedTime.month}달 전"
-    is CalculateElapsedTime.Week -> "${elapsedTime.week}주 전"
-    is CalculateElapsedTime.Day ->"${elapsedTime.day}일 전"
-    is CalculateElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
-    is CalculateElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
-    is CalculateElapsedTime.Second -> "${elapsedTime.second}초 전"
+private fun elapsedTimeToString(elapsedTime: CalculateUserElapsedTime) = when (elapsedTime) {
+    is CalculateUserElapsedTime.Date -> "${elapsedTime.month}월 ${elapsedTime.day}일"
+    is CalculateUserElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
+    is CalculateUserElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
+    is CalculateUserElapsedTime.Recent -> "방금 전"
+    else -> ""
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

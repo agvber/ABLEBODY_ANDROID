@@ -1,6 +1,6 @@
 package com.smilehunter.ablebody.model
 
-import com.smilehunter.ablebody.utils.calculateElapsedTime
+import com.smilehunter.ablebody.utils.calculateUserElapsedTime
 
 data class CommentListData(
     val type: CommentType,
@@ -13,7 +13,7 @@ data class CommentListData(
     val parentID: Long?,
     val isLiked: Boolean
 ) {
-    val elapsedTime = calculateElapsedTime(createDate)
+    val elapsedTime = calculateUserElapsedTime(createDate)
     enum class CommentType { COMMENT, REPLY }
 
     data class User(
