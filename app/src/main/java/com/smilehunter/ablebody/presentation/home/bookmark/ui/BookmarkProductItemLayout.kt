@@ -1,7 +1,6 @@
 package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +33,7 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleLight
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -94,7 +94,7 @@ fun BookmarkProductItemLayout(
                         painter = painterResource(id = if (selected) R.drawable.ic_bookmark_fill else R.drawable.ic_bookmark_empty),
                         contentDescription = "bookmark",
                         tint = Color.Black,
-                        modifier = Modifier.clickable { bookmarkClick() }
+                        modifier = Modifier.nonReplyClickable(onClick = bookmarkClick)
                     )
                 }
                 Text(
