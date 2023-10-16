@@ -56,7 +56,6 @@ fun BookmarkListRoute(
         onAlertButtonClick = onAlertButtonClick,
         productItemClick = productItemClick,
         codyItemClick = codyItemClick,
-        webPageRequest = { /* TODO 웹페이지로 바로가기 or 구매페이지로 바로가기 */ },
         requestProductItemDelete = { bookmarkViewModel.deleteProductItem(it) },
         productPagingItemList = productPagingItemList,
         codyPagingItemList = codyPagingItemList,
@@ -70,7 +69,6 @@ fun BookmarkListScreen(
     onAlertButtonClick: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
-    webPageRequest: (String) -> Unit,
     requestProductItemDelete: (List<Long>) -> Unit,
     productPagingItemList: LazyPagingItems<ProductItemData.Item>,
     codyPagingItemList: LazyPagingItems<CodyItemData.Item>,
@@ -118,7 +116,6 @@ fun BookmarkListScreen(
                             key = productPagingItemList.itemKey { it.id }
                         ) { position ->
                             BookmarkProductItemLayout(
-                                requestWebPage = { productPagingItemList[position]?.url?.let(webPageRequest) },
                                 bookmarkClick = {
                                     productPagingItemList[position]?.id?.let { id ->
                                         if (productItemRemoveList.contains(id)) {
@@ -182,7 +179,6 @@ fun BookmarkListScreenPreview() {
             onAlertButtonClick = {},
             productItemClick = {},
             codyItemClick = {},
-            webPageRequest = { },
             requestProductItemDelete = {},
             productPagingItemList = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems(),
             codyPagingItemList = flowOf(PagingData.from(fakeCodyItemData.content)).collectAsLazyPagingItems()
