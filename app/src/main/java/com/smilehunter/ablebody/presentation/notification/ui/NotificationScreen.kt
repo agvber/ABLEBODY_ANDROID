@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NotificationRoute(
     onBackRequest: () -> Unit,
-    itemClick: (Long) -> Unit,
+    itemClick: (String) -> Unit,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
     val notificationItemData = notificationViewModel.pagingItemList.collectAsLazyPagingItems()
@@ -68,7 +68,7 @@ fun NotificationRoute(
             notificationViewModel.allCheck()
                             },
         onCheckedRequest = {
-            itemClick(it.id)
+            itemClick(it.uri)
             if (!it.checked) {
                 notificationViewModel.itemCheck(it.id)
             }

@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.main
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,9 +15,9 @@ import com.smilehunter.ablebody.presentation.creator_detail.addCreatorDetailScre
 import com.smilehunter.ablebody.presentation.creator_detail.navigateToCreatorDetail
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -50,7 +51,7 @@ fun MainNavHost(
         addNotificationScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            itemClick = { /* TODO 클릭시 해당 게시글로 이동 */ }
+            itemClick = { uri -> navController.navigate(deepLink = Uri.parse(uri)) }
         )
 
         addBrandDetailScreen(

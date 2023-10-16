@@ -3,6 +3,7 @@ package com.smilehunter.ablebody.presentation.creator_detail
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.NavType
@@ -32,6 +33,9 @@ fun NavGraphBuilder.addCreatorDetailScreen(
         route = "$CreatorDetailRoute/{content_id}",
         arguments = listOf(
             navArgument("content_id") { type = NavType.LongType }
+        ),
+        deepLinks = listOf(
+            NavDeepLink("ablebody-app://ablebody.im/home/creator/{content_id}")
         ),
         exitTransition = { fadeOut(tween(100)) }
     ) { backStackEntry ->

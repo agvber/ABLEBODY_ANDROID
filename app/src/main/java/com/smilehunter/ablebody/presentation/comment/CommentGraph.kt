@@ -1,6 +1,7 @@
 package com.smilehunter.ablebody.presentation.comment
 
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.NavType
@@ -24,7 +25,10 @@ fun NavGraphBuilder.addCommentScreen(
 
     composable(
         route = "$COMMENT_ROUTE/{content_id}",
-        arguments = listOf(navArgument("content_id") { type = NavType.LongType })
+        arguments = listOf(navArgument("content_id") { type = NavType.LongType }),
+        deepLinks = listOf(
+            NavDeepLink("ablebody-app://ablebody.im/home/creatorComment/{content_id}")
+        ),
     ) {  backStackEntry ->
 
         CommentRoute(
