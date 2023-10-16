@@ -1,8 +1,10 @@
 package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,14 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
@@ -38,6 +44,7 @@ import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
@@ -149,21 +156,32 @@ fun BookmarkListScreen(
                 1 -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(1.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(
                             count = codyPagingItemList.itemCount,
                             key = codyPagingItemList.itemKey { it.id }
                         ) { position ->
-                            AsyncImage(
-                                model = codyPagingItemList[position]?.imageURL,
-                                contentDescription = "cody item",
-                                modifier = Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = { codyPagingItemList[position]?.id?.let(codyItemClick) }
+                            Box(
+                                modifier = Modifier
+                                    .nonReplyClickable { codyPagingItemList[position]?.id?.let(codyItemClick) }
+                            ) {
+                                AsyncImage(
+                                    model = codyPagingItemList[position]?.imageURL,
+                                    contentDescription = "cody item",
                                 )
-                            )
+                                if (codyPagingItemList[position]?.isSingleImage == false) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_product_item_squaremultiple),
+                                        contentDescription = "square multiple",
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(10.dp)
+                                    )
+                                }
+                            }
                         }
                         item(span = { GridItemSpan(3) }) {
                             Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
