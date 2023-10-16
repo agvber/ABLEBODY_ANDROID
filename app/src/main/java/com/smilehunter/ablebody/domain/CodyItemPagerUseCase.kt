@@ -138,7 +138,7 @@ private fun BrandDetailCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -156,7 +156,7 @@ private fun FindCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -174,7 +174,7 @@ private fun ReadBookmarkCodyData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -192,7 +192,7 @@ private fun SearchCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
