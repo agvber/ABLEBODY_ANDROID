@@ -3,6 +3,7 @@ package com.smilehunter.ablebody.data.dto.response
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetCouponBagsResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailCommentResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailLikeUsersResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailReplyResponseData
@@ -84,3 +85,7 @@ typealias ItemDetailResponse = AbleBodyResponse<ItemResponseData>
 typealias AddAddressResponse = AbleBodyResponse<String>
 typealias GetAddressResponse = AbleBodyResponse<GetAddressResponseData>
 typealias EditAddressResponse = AbleBodyResponse<String>
+
+/** Coupon **/
+
+typealias GetCouponBagsResponse = AbleBodyResponse<List<GetCouponBagsResponseData>>

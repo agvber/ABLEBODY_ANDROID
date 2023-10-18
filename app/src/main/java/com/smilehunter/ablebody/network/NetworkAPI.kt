@@ -32,6 +32,7 @@ import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateRes
 import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
+import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
@@ -290,4 +291,9 @@ interface NetworkAPI {
     suspend fun editAddress(
         @Body address: AddressRequest
     ): EditAddressResponse
+
+    /** coupon **/
+
+    @GET("/api/couponBags")
+    suspend fun getCouponBags(): GetCouponBagsResponse
 }
