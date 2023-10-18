@@ -11,26 +11,31 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.CodyItemPagerUseCase
 import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.LocalUserInfoData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BrandDetailViewModel @Inject constructor(
     productItemPagerUseCase: ProductItemPagerUseCase,
-    codyItemPagerUseCase: CodyItemPagerUseCase
+    codyItemPagerUseCase: CodyItemPagerUseCase,
+    userRepository: UserRepository
 ): ViewModel() {
 
     private val contentID = MutableStateFlow<Long>(-1)
@@ -48,7 +53,13 @@ class BrandDetailViewModel @Inject constructor(
         }
     }
 
-    private val _brandProductItemGender = MutableStateFlow(ItemGender.MALE)
+    private val _brandProductItemGender = MutableStateFlow(
+        when (runBlocking { userRepository.localUserInfoData.firstOrNull()?.gender }) {
+            LocalUserInfoData.Gender.MALE -> ItemGender.MALE
+            LocalUserInfoData.Gender.FEMALE -> ItemGender.FEMALE
+            else -> ItemGender.MALE
+        }
+    )
     val brandProductItemGender = _brandProductItemGender.asStateFlow()
 
     fun updateBrandProductItemGender(gender: ItemGender) {
@@ -86,9 +97,8 @@ class BrandDetailViewModel @Inject constructor(
     ) { sort, id, gender, parent, child, ->
         productItemPagerUseCase(ProductItemPagingSourceData.Brand(sort, id, gender, parent, child))
     }
-        .flatMapLatest {
-            it.cachedIn(viewModelScope)
-        }
+        .flatMapLatest { it }
+        .cachedIn(viewModelScope)
 
     fun resetCodyItemFilter() {
         viewModelScope.launch {
@@ -128,7 +138,6 @@ class BrandDetailViewModel @Inject constructor(
         ) { id, gender, sport, height ->
             codyItemPagerUseCase(CodyPagingSourceData.Brand(id, gender, sport, height.rangeStart, height.rangeEnd))
         }
-            .flatMapLatest {
-                it.cachedIn(viewModelScope)
-            }
+            .flatMapLatest { it }
+            .cachedIn(viewModelScope)
 }
