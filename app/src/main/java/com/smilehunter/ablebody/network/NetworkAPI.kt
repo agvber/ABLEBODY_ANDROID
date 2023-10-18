@@ -4,11 +4,13 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.smilehunter.ablebody.data.dto.request.NewUserCreateRequest
 import com.smilehunter.ablebody.data.dto.request.RefreshTokenRequest
 import com.smilehunter.ablebody.data.dto.request.SMSCheckRequest
 import com.smilehunter.ablebody.data.dto.request.SMSSendRequest
+import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
@@ -25,9 +27,11 @@ import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.EditAddressResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
+import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
@@ -45,6 +49,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -270,4 +275,19 @@ interface NetworkAPI {
     suspend fun itemDetail(
         @Query("id") id: Long
     ): ItemDetailResponse
+
+    /** address **/
+
+    @POST("/api/address")
+    suspend fun addAddress(
+        @Body address: AddressRequest
+    ): AddAddressResponse
+
+    @GET("/api/address")
+    suspend fun getAddress(): GetAddressResponse
+
+    @PUT("/api/address")
+    suspend fun editAddress(
+        @Body address: AddressRequest
+    ): EditAddressResponse
 }

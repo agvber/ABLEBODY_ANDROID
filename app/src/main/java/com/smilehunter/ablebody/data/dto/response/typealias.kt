@@ -10,6 +10,7 @@ import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetAddressResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.NewUserCreateResponseData
@@ -77,3 +78,9 @@ typealias CreatorDetailDeleteResponse = AbleBodyResponse<Long>
 /** Item **/
 
 typealias ItemDetailResponse = AbleBodyResponse<ItemResponseData>
+
+/** Address **/
+
+typealias AddAddressResponse = AbleBodyResponse<String>
+typealias GetAddressResponse = AbleBodyResponse<GetAddressResponseData>
+typealias EditAddressResponse = AbleBodyResponse<String>

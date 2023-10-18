@@ -7,6 +7,7 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
+import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
@@ -23,9 +24,11 @@ import com.smilehunter.ablebody.data.dto.response.CreatorDetailReplyResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.DeleteBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.EditAddressResponse
 import com.smilehunter.ablebody.data.dto.response.FCMTokenAndAppVersionUpdateResponse
 import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
+import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
@@ -229,7 +232,31 @@ interface NetworkService {
         id: Long
     ): CreatorDetailDeleteResponse
 
+    /** item **/
+
     suspend fun itemDetail(
         id: Long
     ): ItemDetailResponse
+
+    /** address **/
+
+    suspend fun addAddress(
+        receiverName: String,
+        phoneNum: String,
+        addressInfo: String,
+        detailAddress: String,
+        zipCode: String,
+        deliveryRequest: String
+    ): AddAddressResponse
+
+    suspend fun getAddress(): GetAddressResponse
+
+    suspend fun editAddress(
+        receiverName: String,
+        phoneNum: String,
+        addressInfo: String,
+        detailAddress: String,
+        zipCode: String,
+        deliveryRequest: String
+    ): EditAddressResponse
 }
