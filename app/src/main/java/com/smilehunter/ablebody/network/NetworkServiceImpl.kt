@@ -6,14 +6,17 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
+import com.smilehunter.ablebody.data.dto.response.CancelOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
@@ -31,7 +34,9 @@ import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
+import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
@@ -59,7 +64,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(MAIN_SERVER_URL)
+        baseUrl(TEST_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -353,4 +358,47 @@ class NetworkServiceImpl @Inject constructor(
         )
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkAPI.getCouponBags()
+    override suspend fun addOrderList(
+        itemID: Int,
+        addressID: Int,
+        couponBagsID: Int?,
+        refundBankName: String,
+        refundAccount: String,
+        refundAccountHolder: String,
+        paymentMethod: String,
+        price: Int,
+        itemDiscount: Int,
+        couponDiscount: Int,
+        pointDiscount: Int,
+        deliveryPrice: Int,
+        amountOfPayment: Int,
+        itemOptionIdList: List<Long>?
+    ): AddOrderListResponse =
+        networkAPI.addOrderList(
+            AddOrderListRequest(
+                itemId = itemID,
+                addressId = addressID,
+                couponBagsId = couponBagsID,
+                refundBankName = refundBankName,
+                refundAccount = refundAccount,
+                refundAccountHolder = refundAccountHolder,
+                paymentMethod= paymentMethod,
+                price = price,
+                itemDiscount = itemDiscount,
+                couponDiscount = couponDiscount,
+                pointDiscount = pointDiscount,
+                deliveryPrice = deliveryPrice,
+                amountOfPayment = amountOfPayment,
+                itemOptionIdList = itemOptionIdList
+            )
+        )
+
+    override suspend fun getOrderList(): GetOrderListResponse =
+        networkAPI.getOrderList()
+
+    override suspend fun cancelOrderList(id: String): CancelOrderListResponse =
+        networkAPI.cancelOrderList(orderListId = id)
+
+    override suspend fun getDeliveryInfo(id: String): GetDeliveryInfoResponse =
+        networkAPI.getDeliveryInfo(orderListId = id)
 }

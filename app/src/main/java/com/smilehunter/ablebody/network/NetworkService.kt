@@ -10,9 +10,11 @@ import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
+import com.smilehunter.ablebody.data.dto.response.CancelOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
@@ -30,7 +32,9 @@ import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
+import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
@@ -264,4 +268,33 @@ interface NetworkService {
     /** coupon **/
 
     suspend fun getCouponBags(): GetCouponBagsResponse
+
+    /** order **/
+
+    suspend fun addOrderList(
+        itemID: Int,
+        addressID: Int,
+        couponBagsID: Int?,
+        refundBankName: String,
+        refundAccount: String,
+        refundAccountHolder: String,
+        paymentMethod: String,
+        price: Int,
+        itemDiscount: Int,
+        couponDiscount: Int,
+        pointDiscount: Int,
+        deliveryPrice: Int,
+        amountOfPayment: Int,
+        itemOptionIdList: List<Long>?
+    ): AddOrderListResponse
+
+    suspend fun getOrderList(): GetOrderListResponse
+
+    suspend fun cancelOrderList(
+        id: String
+    ): CancelOrderListResponse
+
+    suspend fun getDeliveryInfo(
+        id: String
+    ): GetDeliveryInfoResponse
 }

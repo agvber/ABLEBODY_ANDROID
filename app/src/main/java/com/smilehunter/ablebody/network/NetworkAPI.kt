@@ -4,6 +4,7 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.smilehunter.ablebody.data.dto.request.NewUserCreateRequest
@@ -13,9 +14,11 @@ import com.smilehunter.ablebody.data.dto.request.SMSSendRequest
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
 import com.smilehunter.ablebody.data.dto.response.BrandMainResponse
+import com.smilehunter.ablebody.data.dto.response.CancelOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.CheckMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.CreatorDetailCommentResponse
@@ -33,7 +36,9 @@ import com.smilehunter.ablebody.data.dto.response.FindCodyResponse
 import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
+import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkCodyResponse
@@ -296,4 +301,24 @@ interface NetworkAPI {
 
     @GET("/api/couponBags")
     suspend fun getCouponBags(): GetCouponBagsResponse
+
+    /** order **/
+
+    @POST("/api/order")
+    suspend fun addOrderList(
+        @Body addOrderListRequest: AddOrderListRequest
+    ): AddOrderListResponse
+
+    @GET("/api/order")
+    suspend fun getOrderList(): GetOrderListResponse
+
+    @PUT("/api/order/cancel")
+    suspend fun cancelOrderList(
+        @Query("orderListId") orderListId: String
+    ): CancelOrderListResponse
+
+    @GET("/api/order/delivery-info")
+    suspend fun getDeliveryInfo(
+        @Query("orderListId") orderListId: String
+    ): GetDeliveryInfoResponse
 }

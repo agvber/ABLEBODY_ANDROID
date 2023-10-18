@@ -12,7 +12,9 @@ import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpda
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetAddressResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetDeliveryInfoResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetOrderListResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.NewUserCreateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -89,3 +91,10 @@ typealias EditAddressResponse = AbleBodyResponse<String>
 /** Coupon **/
 
 typealias GetCouponBagsResponse = AbleBodyResponse<List<GetCouponBagsResponseData>>
+
+/** OrderList **/
+
+typealias AddOrderListResponse = AbleBodyResponse<String>
+typealias GetOrderListResponse = AbleBodyResponse<List<GetOrderListResponseData>>
+typealias CancelOrderListResponse = AbleBodyResponse<String>
+typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
