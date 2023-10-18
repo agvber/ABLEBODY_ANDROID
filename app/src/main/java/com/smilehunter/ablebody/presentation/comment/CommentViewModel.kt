@@ -3,10 +3,10 @@ package com.smilehunter.ablebody.presentation.comment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.repository.CommentRepository
+import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.GetCommentListUseCase
-import com.smilehunter.ablebody.domain.GetUserInfoUseCase
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -28,19 +27,17 @@ import javax.inject.Inject
 class CommentViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     getCommentListUseCase: GetCommentListUseCase,
-    getUserInfoUseCase: GetUserInfoUseCase,
-    private val commentRepository: CommentRepository
+    userRepository: UserRepository,
+    private val commentRepository: CommentRepository,
 ): ViewModel() {
 
     private val contentID = MutableStateFlow(0L)
 
     private val renewData = MutableStateFlow(0)
 
-    fun updateContentID(id: Long) {
-        viewModelScope.launch { contentID.emit(id) }
-    }
+    fun updateContentID(id: Long) { viewModelScope.launch { contentID.emit(id) } }
 
-    val myUserInfoData = flow { emit(getUserInfoUseCase()) }
+    val myUserInfoData = userRepository.localUserInfoData
         .flowOn(ioDispatcher)
         .shareIn(
             scope = viewModelScope,

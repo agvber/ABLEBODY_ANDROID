@@ -74,7 +74,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CommentListData
-import com.smilehunter.ablebody.model.UserInfoData
+import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.presentation.comment.CommentViewModel
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -130,7 +130,7 @@ fun CommentScreen(
     deleteReply: (Long) -> Unit,
     toggleLikeComment: (Long) -> Unit,
     toggleLikeReply: (Long) -> Unit,
-    myUserInfoData: UserInfoData?,
+    myUserInfoData: LocalUserInfoData?,
     commentListData: CommentUiState
 ) {
     val lazyListState = rememberLazyListState()
@@ -165,7 +165,7 @@ fun CommentScreen(
                     value = commentText,
                     onValueChange = { commentText = it },
                     nickname = myUserInfoData?.nickname ?: "",
-                    profileImageURL = myUserInfoData?.profileUrl ?: "",
+                    profileImageURL = myUserInfoData?.profileImageUrl ?: "",
                     modifier = Modifier.focusRequester(textFieldFocusRequester)
                 )
             }

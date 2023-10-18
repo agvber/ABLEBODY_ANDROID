@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.repository.BookmarkRepository
 import com.smilehunter.ablebody.data.repository.CreatorDetailRepository
+import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.GetCreatorDetailDataListUseCase
-import com.smilehunter.ablebody.domain.GetUserInfoUseCase
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
@@ -16,10 +16,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
@@ -29,7 +27,7 @@ import javax.inject.Inject
 class CreatorDetailViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     getCreatorDetailDataListUseCase: GetCreatorDetailDataListUseCase,
-    getUserInfoUseCase: GetUserInfoUseCase,
+    userRepository: UserRepository,
     private val creatorDetailRepository: CreatorDetailRepository,
     private val bookmarkRepository: BookmarkRepository
 ): ViewModel() {
@@ -40,20 +38,9 @@ class CreatorDetailViewModel @Inject constructor(
         viewModelScope.launch { contentID.emit(id) }
     }
 
-    private val myUserInfoData = flow {
-        emit(getUserInfoUseCase())
-    }
-        .flowOn(ioDispatcher)
-        .shareIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            replay = 1
-        )
-
-
     val creatorDetailData: StateFlow<CreatorDetailUiState> =
-        contentID.zip(myUserInfoData)  { id, data ->
-            getCreatorDetailDataListUseCase(id, data.uid)
+        contentID.zip(userRepository.localUserInfoData)  { id, userInfo ->
+            getCreatorDetailDataListUseCase(id, userInfo.uid)
         }
             .flowOn(ioDispatcher)
             .asResult()
@@ -71,7 +58,7 @@ class CreatorDetailViewModel @Inject constructor(
             )
 
     fun toggleLike(id: Long) {
-        viewModelScope.launch(context = ioDispatcher) { creatorDetailRepository.toggleLike(id) }
+        viewModelScope.launch(ioDispatcher) { creatorDetailRepository.toggleLike(id) }
     }
 
     fun toggleBookmark(id: Long) {
