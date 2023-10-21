@@ -12,7 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -58,12 +58,10 @@ fun BrandDetailRoute(
     onBackClick: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
-    contentID: Long?,
-    contentName: String,
     modifier: Modifier = Modifier,
     brandDetailViewModel: BrandDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { contentID?.let { brandDetailViewModel.updateContentID(it) } }
+    val contentName by brandDetailViewModel.brandName.collectAsStateWithLifecycle()
 
     BrandDetailScreen(
         modifier = modifier,

@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.brand_detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -35,14 +36,12 @@ import javax.inject.Inject
 class BrandDetailViewModel @Inject constructor(
     productItemPagerUseCase: ProductItemPagerUseCase,
     codyItemPagerUseCase: CodyItemPagerUseCase,
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow<Long>(-1)
-
-    fun updateContentID(id: Long) {
-        viewModelScope.launch { contentID.emit(id) }
-    }
+    val brandName = savedStateHandle.getStateFlow("content_name", "")
+    private val contentID = savedStateHandle.getStateFlow("content_id", 0L)
 
     private val _brandProductItemSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandProductItemSortingMethod = _brandProductItemSortingMethod.asStateFlow()
