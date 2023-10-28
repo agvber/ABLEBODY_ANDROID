@@ -7,6 +7,7 @@ import com.smilehunter.ablebody.model.BrandListData
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.CreatorDetailData
 import com.smilehunter.ablebody.model.NotificationItemData
+import com.smilehunter.ablebody.model.OrderItemData
 import com.smilehunter.ablebody.model.ProductItemData
 
 val fakeProductItemData =
@@ -218,4 +219,37 @@ val fakeCreatorDetailData = CreatorDetailData(
     exerciseExperience = 5,
     isLiked = true,
     bookmarked = false
+)
+
+val fakeOrderItemData = listOf(
+    OrderItemData(
+        id = "202310200001",
+        itemName = "나이키 스포츠웨어 에센셜",
+        itemImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/item/ABLE-0000052.png",
+        amountOfPayment = 38000,
+        brandName = "NIKE",
+        itemOptionDetailList = listOf(
+            OrderItemData.ItemOptionDetail(id = 127, orderNumber = "202310200001", itemOption = "색상", itemOptionDetail = "블랙"),
+            OrderItemData.ItemOptionDetail(id = 128, orderNumber = "202310200001", itemOption = "사이즈", itemOptionDetail = "M"),
+            OrderItemData.ItemOptionDetail(id = 133, orderNumber = "202310200001", itemOption = "색상", itemOptionDetail = "레드"),
+            OrderItemData.ItemOptionDetail(id = 134, orderNumber = "202310200001", itemOption = "사이즈", itemOptionDetail = "L")
+        ),
+        orderStatus = OrderItemData.OrderStatus.DELIVERY_COMPLETED,
+        orderedDate = "2023.10.20"
+    ),
+    OrderItemData(
+        id = "202310200002",
+        itemName = "나이키 스포츠웨어 에센셜",
+        itemImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/item/ABLE-0000052.png",
+        amountOfPayment = 38000,
+        brandName = "NIKE",
+        itemOptionDetailList = listOf(
+            OrderItemData.ItemOptionDetail(id = 127, orderNumber = "202310200001", itemOption = "색상", itemOptionDetail = "블랙"),
+            OrderItemData.ItemOptionDetail(id = 128, orderNumber = "202310200001", itemOption = "사이즈", itemOptionDetail = "M"),
+            OrderItemData.ItemOptionDetail(id = 133, orderNumber = "202310200001", itemOption = "색상", itemOptionDetail = "레드"),
+            OrderItemData.ItemOptionDetail(id = 134, orderNumber = "202310200001", itemOption = "사이즈", itemOptionDetail = "L")
+        ),
+        orderStatus = OrderItemData.OrderStatus.ORDER_CANCELED,
+        orderedDate = "2023.10.20"
+    )
 )
