@@ -20,4 +20,13 @@ interface UserRepository {
 
     suspend fun getMyAddress(): GetAddressResponse
 
+    suspend fun addMyAddress(
+        name: String,
+        phoneNumber: String,
+        roadAddress: String,
+        roadDetailAddress: String,
+        zipCode: String,
+        deliveryRequestMessage: String
+    )
+
 }

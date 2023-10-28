@@ -68,6 +68,24 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
     override suspend fun getMyAddress(): GetAddressResponse = networkService.getAddress()
 
+    override suspend fun addMyAddress(
+        name: String,
+        phoneNumber: String,
+        roadAddress: String,
+        roadDetailAddress: String,
+        zipCode: String,
+        deliveryRequestMessage: String,
+    ) {
+        networkService.addAddress(
+            receiverName = name,
+            phoneNum = phoneNumber,
+            addressInfo = roadAddress,
+            detailAddress = roadDetailAddress,
+            zipCode = zipCode,
+            deliveryRequest = deliveryRequestMessage
+        )
+    }
+
 }
 
 private fun UserInfoPreferences.asExternalModel() =
