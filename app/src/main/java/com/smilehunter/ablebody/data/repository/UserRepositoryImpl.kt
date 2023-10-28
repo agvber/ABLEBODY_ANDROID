@@ -86,6 +86,23 @@ class UserRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun editMyAddress(
+        name: String,
+        phoneNumber: String,
+        roadAddress: String,
+        roadDetailAddress: String,
+        zipCode: String,
+        deliveryRequestMessage: String,
+    ) {
+        networkService.editAddress(
+            receiverName = name,
+            phoneNum = phoneNumber,
+            addressInfo = roadAddress,
+            detailAddress = roadDetailAddress,
+            zipCode = zipCode,
+            deliveryRequest = deliveryRequestMessage
+        )
+    }
 }
 
 private fun UserInfoPreferences.asExternalModel() =

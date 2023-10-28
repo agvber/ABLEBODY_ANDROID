@@ -29,4 +29,12 @@ interface UserRepository {
         deliveryRequestMessage: String
     )
 
+    suspend fun editMyAddress(
+        name: String,
+        phoneNumber: String,
+        roadAddress: String,
+        roadDetailAddress: String,
+        zipCode: String,
+        deliveryRequestMessage: String
+    )
 }
