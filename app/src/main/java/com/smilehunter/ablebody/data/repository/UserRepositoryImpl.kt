@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.datastore.DataStoreService
 import com.smilehunter.ablebody.model.LocalUserInfoData
@@ -16,11 +17,9 @@ class UserRepositoryImpl @Inject constructor(
     private val dataStoreService: DataStoreService
 ): UserRepository {
 
-    override suspend fun getMyUserData(): UserDataResponse =
-        networkService.getMyUserData()
+    override suspend fun getMyUserData(): UserDataResponse = networkService.getMyUserData()
 
-    override suspend fun getUserData(uid: String): UserDataResponse =
-        networkService.getUserData(uid)
+    override suspend fun getUserData(uid: String): UserDataResponse = networkService.getUserData(uid)
 
     override val localUserInfoData: Flow<LocalUserInfoData>
         get() = dataStoreService.getUserInfoData()
@@ -64,6 +63,9 @@ class UserRepositoryImpl @Inject constructor(
                 .build()
         }
     }
+
+    override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
+
 }
 
 private fun UserInfoPreferences.asExternalModel() =
