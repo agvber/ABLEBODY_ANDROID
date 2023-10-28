@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.data.repository
 
+import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.model.LocalUserInfoData
@@ -17,5 +18,6 @@ interface UserRepository {
 
     suspend fun getCouponBags(): GetCouponBagsResponse
 
+    suspend fun getMyAddress(): GetAddressResponse
 
 }

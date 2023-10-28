@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.datastore.DataStoreService
@@ -65,6 +66,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
+    override suspend fun getMyAddress(): GetAddressResponse = networkService.getAddress()
 
 }
 
