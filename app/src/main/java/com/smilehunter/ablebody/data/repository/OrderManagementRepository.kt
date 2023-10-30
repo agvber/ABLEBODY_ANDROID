@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 
 interface OrderManagementRepository {
@@ -28,4 +29,8 @@ interface OrderManagementRepository {
         amountOfPayment: Int,
         itemOptionIdList: List<Long>
     ): AddOrderListResponse
+
+    suspend fun getOrderDetailItem(
+        id: String
+    ): GetOrderListDetailResponse
 }

@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.network.NetworkService
 import javax.inject.Inject
@@ -53,6 +54,10 @@ class OrderManagementRepositoryImpl @Inject constructor(
             amountOfPayment = amountOfPayment,
             itemOptionIdList = itemOptionIdList
         )
+    }
+
+    override suspend fun getOrderDetailItem(id: String): GetOrderListDetailResponse {
+        return networkService.getOrderListDetail(id)
     }
 
 }
