@@ -1,9 +1,8 @@
 package com.smilehunter.ablebody.data.dto.response
 
-import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailCodyResponseData
+import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
-import com.smilehunter.ablebody.data.dto.response.data.GetCouponBagsResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailCommentResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailLikeUsersResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailReplyResponseData
@@ -12,8 +11,10 @@ import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpda
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetAddressResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetCouponBagsResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetDeliveryInfoResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetOrderListDetailResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetOrderListResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.NewUserCreateResponseData
@@ -98,3 +99,4 @@ typealias AddOrderListResponse = AbleBodyResponse<String>
 typealias GetOrderListResponse = AbleBodyResponse<List<GetOrderListResponseData>>
 typealias CancelOrderListResponse = AbleBodyResponse<String>
 typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
+typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailResponseData>
