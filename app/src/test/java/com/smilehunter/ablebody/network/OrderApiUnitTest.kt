@@ -53,4 +53,12 @@ class OrderApiUnitTest {
         }
         println(response)
     }
+
+    @Test
+    fun getOrderListDetail() {
+        val response = runBlocking {
+            networkService.getOrderListDetail(id = "202310270003")
+        }
+        println(response)
+    }
 }
