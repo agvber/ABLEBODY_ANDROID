@@ -35,7 +35,7 @@ class OrderManagementRepositoryImpl @Inject constructor(
         pointDiscount: Int,
         deliveryPrice: Int,
         amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        itemOptionIdList: List<Long>
     ): AddOrderListResponse {
         return networkService.addOrderList(
             itemID = itemID,

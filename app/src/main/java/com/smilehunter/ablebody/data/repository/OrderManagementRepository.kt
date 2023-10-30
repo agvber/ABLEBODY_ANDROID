@@ -26,6 +26,6 @@ interface OrderManagementRepository {
         pointDiscount: Int,
         deliveryPrice: Int,
         amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        itemOptionIdList: List<Long>
     ): AddOrderListResponse
 }
