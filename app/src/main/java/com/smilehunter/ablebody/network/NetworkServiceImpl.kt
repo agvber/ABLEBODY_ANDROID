@@ -36,6 +36,7 @@ import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
@@ -401,4 +402,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getDeliveryInfo(id: String): GetDeliveryInfoResponse =
         networkAPI.getDeliveryInfo(orderListId = id)
+
+    override suspend fun getOrderListDetail(id: String): GetOrderListDetailResponse =
+        networkAPI.getOrderListDetail(id)
 }
