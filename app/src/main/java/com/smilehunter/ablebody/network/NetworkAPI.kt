@@ -38,6 +38,7 @@ import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
+import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
@@ -321,4 +322,9 @@ interface NetworkAPI {
     suspend fun getDeliveryInfo(
         @Query("orderListId") orderListId: String
     ): GetDeliveryInfoResponse
+
+    @GET("/api/order/detail")
+    suspend fun getOrderListDetail(
+        @Query("orderListId") orderListId: String
+    ): GetOrderListDetailResponse
 }
