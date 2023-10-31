@@ -10,6 +10,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.smilehunter.ablebody.presentation.main.ui.MainScreen
 import com.smilehunter.ablebody.presentation.onboarding.OnboardingActivity
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -20,8 +23,11 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        firebaseAnalytics = Firebase.analytics
+
         setContent {
             ABLEBODY_AndroidTheme {
                 MainScreen()
