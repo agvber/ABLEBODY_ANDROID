@@ -9,6 +9,9 @@ import com.smilehunter.ablebody.model.CreatorDetailData
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.OrderItemData
 import com.smilehunter.ablebody.model.ProductItemData
+import com.smilehunter.ablebody.model.ReceiptData
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 val fakeProductItemData =
     ProductItemData(
@@ -252,4 +255,28 @@ val fakeOrderItemData = listOf(
         orderStatus = OrderItemData.OrderStatus.ORDER_CANCELED,
         orderedDate = "2023.10.20"
     )
+)
+
+val fakeReceiptData = ReceiptData(
+    orderID = "202310270003",
+    orderedDate = LocalDateTime.parse("2023-10-27T10:31:42.000+09:00", DateTimeFormatter.ISO_DATE_TIME),
+    itemName = "나이키 스포츠웨어 에센셜",
+    itemImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/item/ABLE-0000052.png",
+    orderStatus = ReceiptData.OrderStatus.ORDER_CANCELED,
+    brandName = "NIKE",
+    receiverName = "이재휘",
+    roadAddress = "경기도 용인시 처인구 낙은로 11",
+    roadAddressDetail = "103-404",
+    itemOptionDetailList = listOf(
+        ReceiptData.ItemOptionDetailList(137, "202310270003", "색상", "블랙"),
+        ReceiptData.ItemOptionDetailList(138, "202310270003", "사이즈", "M")
+    ),
+    phoneNumber = "01024328575",
+    depositDeadline = LocalDateTime.parse("2023-11-03T10:31:42.000+09:00", DateTimeFormatter.ISO_DATE_TIME),
+    price = 35000,
+    itemDiscount = 0,
+    couponDiscount = 0,
+    pointDiscount = 3500,
+    deliveryPrice = 0,
+    amountOfPayment = 3000
 )
