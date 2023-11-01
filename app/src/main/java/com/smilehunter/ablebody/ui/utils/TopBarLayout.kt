@@ -40,6 +40,52 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.White
 
 @Composable
+fun TopBarLayout(
+    titleText: String = "",
+    modifier: Modifier = Modifier,
+    actions: @Composable() (RowScope.() -> Unit) = {}
+) {
+    AppBar(
+        backgroundColor = White,
+        contentColor = White,
+        ContentPadding,
+        RectangleShape,
+        modifier
+    ) {
+        Row(
+            Modifier.fillMaxHeight().weight(1f).padding(horizontal = 35.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ProvideTextStyle(value = MaterialTheme.typography.h6) {
+                CompositionLocalProvider(
+                    LocalContentAlpha provides ContentAlpha.high
+                ) {
+                    Text(
+                        text = titleText,
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                            fontWeight = FontWeight(400),
+                            color = AbleDark,
+                        )
+                    )
+                }
+            }
+        }
+
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+            Row(
+                Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                content = actions
+            )
+        }
+    }
+}
+
+
+@Composable
 fun BackButtonTopBarLayout(
     onBackRequest: () -> Unit,
     titleText: String = "",
