@@ -13,6 +13,11 @@ import com.smilehunter.ablebody.presentation.comment.addCommentScreen
 import com.smilehunter.ablebody.presentation.comment.navigateToCommentScreen
 import com.smilehunter.ablebody.presentation.creator_detail.addCreatorDetailScreen
 import com.smilehunter.ablebody.presentation.creator_detail.navigateToCreatorDetail
+import com.smilehunter.ablebody.presentation.delivery.deliveryScreen
+import com.smilehunter.ablebody.presentation.delivery.navigateToDeliveryScreen
+import com.smilehunter.ablebody.presentation.delivery.navigateToSearchPostCodeWebViewScreen
+import com.smilehunter.ablebody.presentation.delivery.popBackStackForResult
+import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScreen
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
@@ -20,6 +25,12 @@ import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
+import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetailScreen
+import com.smilehunter.ablebody.presentation.order_management.addOrderManagementGraph
+import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
+import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
+import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
+import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
 
 @Composable
@@ -89,5 +100,36 @@ fun MainNavHost(
         ){ navBackStackEntry ->
             navBackStackEntry.arguments?.getLong("id")?.let { ItemDetailScreen(id = it) }
         }
+
+        addPaymentGraph(
+            onBackRequest = navController::popBackStack,
+            addressRequest = navController::navigateToDeliveryScreen,
+            receiptRequest = navController::navigateToReceiptScreen,
+            nestedGraphs = {
+                deliveryScreen(
+                    onBackRequest = navController::popBackStack,
+                    postCodeRequest = navController::navigateToSearchPostCodeWebViewScreen,
+                    isBottomBarShow = isBottomBarShow
+                )
+                searchPostCodeWebViewScreen(
+                    onFinished = navController::popBackStackForResult,
+                    isBottomBarShow = isBottomBarShow
+                )
+                addReceiptScreen(orderComplete = { /* TODO 브랜드 홈으로 가기 */ })
+            },
+            isBottomBarShow = isBottomBarShow
+        )
+
+        addOrderManagementGraph(
+            onBackRequest = navController::popBackStack,
+            itemOnClick = navController::navigateToOrderItemDetailScreen,
+            nestedGraphs = {
+                addOrderItemDetailScreen(
+                    onBackRequest = navController::popBackStack,
+                    isBottomBarShow = isBottomBarShow
+                )
+            },
+            isBottomBarShow = isBottomBarShow
+        )
     }
 }
