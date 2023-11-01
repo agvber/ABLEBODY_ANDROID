@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.comment
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.repository.CommentRepository
@@ -26,16 +27,15 @@ import javax.inject.Inject
 @HiltViewModel
 class CommentViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
+    savedStateHandle: SavedStateHandle,
     getCommentListUseCase: GetCommentListUseCase,
     userRepository: UserRepository,
     private val commentRepository: CommentRepository,
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow(0L)
+    private val contentID = savedStateHandle.getStateFlow("content_id", -1L)
 
     private val renewData = MutableStateFlow(0)
-
-    fun updateContentID(id: Long) { viewModelScope.launch { contentID.emit(id) } }
 
     val myUserInfoData = userRepository.localUserInfoData
         .flowOn(ioDispatcher)

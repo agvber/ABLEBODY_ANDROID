@@ -94,11 +94,8 @@ import kotlinx.coroutines.android.awaitFrame
 @Composable
 fun CommentRoute(
     onBackRequest: () -> Unit,
-    contentID: Long,
     commentViewModel: CommentViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { commentViewModel.updateContentID(contentID) }
-
     val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     val commentListData by commentViewModel.commentListData.collectAsStateWithLifecycle()
     val myUserInfoData by commentViewModel.myUserInfoData.collectAsStateWithLifecycle(
@@ -328,7 +325,6 @@ private fun elapsedTimeToString(elapsedTime: CalculateUserElapsedTime) = when (e
     is CalculateUserElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
     is CalculateUserElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
     is CalculateUserElapsedTime.Recent -> "방금 전"
-    else -> ""
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

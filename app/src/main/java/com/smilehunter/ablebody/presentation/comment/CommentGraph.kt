@@ -31,10 +31,7 @@ fun NavGraphBuilder.addCommentScreen(
         ),
     ) {  backStackEntry ->
 
-        CommentRoute(
-            onBackRequest = onBackRequest,
-            contentID = backStackEntry.arguments?.getLong("content_id", 0L)!!
-        )
+        CommentRoute(onBackRequest = onBackRequest)
         isBottomBarShow(false)
     }
 }
