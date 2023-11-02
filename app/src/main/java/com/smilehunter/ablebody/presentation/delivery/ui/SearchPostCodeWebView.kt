@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 fun SearchPostCodeWebView(
     onFinished: (String, String) -> Unit
 ) {
-    val webViewState = rememberWebViewState(url = "https://agvber.github.io/post-map-for-kakao/")
+    val webViewState = rememberWebViewState(url = "https://smilehunter-ablebody.github.io/ABLEBODY_ADDRESS_ANDROID/")
     val webViewClient = AccompanistWebViewClient()
     val webChromeClient = AccompanistWebChromeClient()
 
