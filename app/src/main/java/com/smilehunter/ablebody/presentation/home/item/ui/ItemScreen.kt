@@ -34,7 +34,7 @@ fun ItemRoute(
     val itemParentCategory by itemViewModel.itemParentCategory.collectAsStateWithLifecycle()
     val itemChildCategory by itemViewModel.itemChildCategory.collectAsStateWithLifecycle()
     val gender by itemViewModel.itemGender.collectAsStateWithLifecycle()
-    val productPagingItems = itemViewModel.productItemListTest.collectAsLazyPagingItems()
+    val productPagingItems = itemViewModel.productPagingItems.collectAsLazyPagingItems()
     ItemScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,

@@ -69,7 +69,7 @@ class ItemViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val productItemListTest = combine(sortingMethod, itemParentCategory, itemChildCategory, itemGender) { sort, parent, child, gender ->
+    val productPagingItems = combine(sortingMethod, itemParentCategory, itemChildCategory, itemGender) { sort, parent, child, gender ->
         productItemPagerUseCase(ProductItemPagingSourceData.Item(sort, gender, parent, child))
     }
         .flatMapLatest { it }
