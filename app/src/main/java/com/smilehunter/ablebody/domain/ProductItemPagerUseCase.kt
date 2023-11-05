@@ -62,7 +62,7 @@ class ProductItemPagerUseCase @Inject constructor(
                                 productItemPagingSourceData. itemChildCategory,
                                 currentPageIndex
                             )
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
                         is ProductItemPagingSourceData.Item -> {
                             findItemRepository.findItem(
@@ -72,7 +72,7 @@ class ProductItemPagerUseCase @Inject constructor(
                                 productItemPagingSourceData.itemChildCategory,
                                 currentPageIndex
                             )
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
                         is ProductItemPagingSourceData.Search -> {
                             searchRepository.searchItem(
@@ -83,16 +83,15 @@ class ProductItemPagerUseCase @Inject constructor(
                                 productItemPagingSourceData.itemChildCategory,
                                 currentPageIndex
                             )
-                                .data?.toDomain()
+                                .data!!.toDomain()
                         }
 
                         ProductItemPagingSourceData.Bookmark -> {
                             bookmarkRepository.readBookmarkItem(currentPageIndex)
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
                     }
                 }
-                    ?: ProductItemData(emptyList(), 0, true, 0, true)
 
                 LoadResult.Page(
                     data = productItemData.content,
