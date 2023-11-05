@@ -1,13 +1,18 @@
 package com.smilehunter.ablebody.presentation.home.cody.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -17,6 +22,7 @@ import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.presentation.home.cody.CodyRecommendViewModel
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
@@ -46,6 +52,18 @@ fun CodyRecommendedRoute(
         codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
         codyItemData = codyItemData,
     )
+
+    if (codyItemData.loadState.refresh is LoadState.Error) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { codyRecommendViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 
 

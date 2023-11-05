@@ -12,12 +12,15 @@ import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +29,13 @@ import javax.inject.Inject
 class CodyRecommendViewModel @Inject constructor(
     codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
+
+    private val _networkRefreshFlow = MutableSharedFlow<Unit>()
+    private val networkRefreshFlow = _networkRefreshFlow.asSharedFlow()
+
+    fun refreshNetwork() {
+        viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
+    }
 
     fun resetCodyItemFilter() {
         viewModelScope.launch {
@@ -58,15 +68,17 @@ class CodyRecommendViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val codyPagingItem: StateFlow<PagingData<CodyItemData.Item>> =
-        combine(
-            codyItemListGenderFilter,
-            codyItemListSportFilter,
-            codyItemListPersonHeightFilter
-        ) { gender, sport, height ->
-            codyItemPagerUseCase(CodyPagingSourceData.CodyRecommended(gender, sport, height.rangeStart, height.rangeEnd))
+        networkRefreshFlow.onSubscription { emit(Unit) }.flatMapLatest {
+            combine(
+                codyItemListGenderFilter,
+                codyItemListSportFilter,
+                codyItemListPersonHeightFilter
+            ) { gender, sport, height ->
+                codyItemPagerUseCase(CodyPagingSourceData.CodyRecommended(gender, sport, height.rangeStart, height.rangeEnd))
+            }
+                .flatMapLatest { it }
+                .cachedIn(viewModelScope)
         }
-            .flatMapLatest { it }
-            .cachedIn(viewModelScope)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
