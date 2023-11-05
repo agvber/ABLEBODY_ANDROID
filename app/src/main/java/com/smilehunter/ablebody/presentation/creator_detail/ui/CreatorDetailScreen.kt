@@ -79,7 +79,7 @@ import com.smilehunter.ablebody.model.CreatorDetailData
 import com.smilehunter.ablebody.model.fake.fakeCreatorDetailData
 import com.smilehunter.ablebody.presentation.creator_detail.CreatorDetailViewModel
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -350,7 +350,7 @@ fun CreatorDetailScreen(
                     }
                 }
                 item {
-                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                 }
             }
             val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)

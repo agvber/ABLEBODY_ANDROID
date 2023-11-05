@@ -33,7 +33,7 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.LikeListData
 import com.smilehunter.ablebody.presentation.like_list.LikeListViewModel
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
@@ -84,7 +84,7 @@ fun LikeListScreen(
                     profileImageURL = it.profileImageURL
                 )
             }
-            item { Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current)) }
+            item { Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current)) }
         }
     }
 }

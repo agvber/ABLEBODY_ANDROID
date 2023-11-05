@@ -39,7 +39,7 @@ import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.bookmark.BookmarkViewModel
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
@@ -149,7 +149,7 @@ fun BookmarkListScreen(
                             )
                         }
                         item(span = { GridItemSpan(2) }) {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }
@@ -184,7 +184,7 @@ fun BookmarkListScreen(
                             }
                         }
                         item(span = { GridItemSpan(3) }) {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }

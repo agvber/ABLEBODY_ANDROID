@@ -50,7 +50,7 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.fake.fakeBrandListData
 import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
 import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
@@ -169,7 +169,7 @@ fun BrandScreen(
                             )
                         }
                         item {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }

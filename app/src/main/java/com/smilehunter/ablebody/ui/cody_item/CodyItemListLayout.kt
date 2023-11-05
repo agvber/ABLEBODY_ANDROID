@@ -41,7 +41,7 @@ import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.CodyItemFilterBottomSheetTabFilterType
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.flow.flowOf
@@ -180,7 +180,7 @@ fun CodyItemListLayout(
                     }
                 }
                 item(span = { GridItemSpan(2) }) {
-                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                 }
             }
         }

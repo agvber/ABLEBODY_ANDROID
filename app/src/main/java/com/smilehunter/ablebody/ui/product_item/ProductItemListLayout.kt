@@ -44,7 +44,7 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.ProductItemData
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.utils.DefaultFilterTabItem
@@ -200,7 +200,7 @@ fun ProductItemListLayout(
                     )
                 }
                 item(span = { GridItemSpan(2) }) {
-                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                 }
             }
             GenderSwitch(
@@ -209,7 +209,7 @@ fun ProductItemListLayout(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(horizontal = 10.dp, vertical = 25.dp)
-                    .padding(scaffoldPaddingValueCompositionLocal.current)
+                    .padding(LocalMainScaffoldPaddingValue.current)
             )
         }
     }

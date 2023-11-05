@@ -17,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.smilehunter.ablebody.presentation.main.MainNavHost
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 
-internal val scaffoldPaddingValueCompositionLocal = staticCompositionLocalOf {
+internal val LocalMainScaffoldPaddingValue = staticCompositionLocalOf {
     PaddingValues()
 }
 
@@ -54,7 +54,7 @@ fun MainScreen() {
             }
         },
         content = { paddingValue ->
-            CompositionLocalProvider(scaffoldPaddingValueCompositionLocal.provides(paddingValue)) {
+            CompositionLocalProvider(LocalMainScaffoldPaddingValue.provides(paddingValue)) {
                 MainNavHost(
                     isBottomBarShow = { isBottomBarShow = it },
                     navController = navController
