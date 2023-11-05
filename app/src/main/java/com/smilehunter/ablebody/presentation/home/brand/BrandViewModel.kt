@@ -7,11 +7,8 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.GetBrandListUseCase
-import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
-import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
@@ -31,7 +27,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrandViewModel @Inject constructor(
-    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     getBrandListUseCase: GetBrandListUseCase
 ): ViewModel() {
 
@@ -66,7 +61,6 @@ class BrandViewModel @Inject constructor(
             brandListSortingMethod.flatMapLatest { sortingMethod ->
                 flowOf(getBrandListUseCase(sortingMethod))
             }
-                .flowOn(ioDispatcher)
                 .combine(brandListGenderFilterType) { data, gender ->
                     data.filter {
                         when (gender) {
