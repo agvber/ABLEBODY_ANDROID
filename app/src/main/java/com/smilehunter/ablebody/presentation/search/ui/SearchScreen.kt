@@ -22,16 +22,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
-import androidx.compose.material.TextField
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -255,7 +251,7 @@ private fun SearchKeywordLayout(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun SearchScreenTopBar(
     backRequest: () -> Unit,
@@ -384,18 +380,4 @@ private fun SearchKeywordLayoutPreview() {
         searchHistoryQueries = listOf(SearchHistoryQuery("가위", 0L)),
         recommendedKeywords = Result.Success(listOf("나이키", "애블바디", "가나다"))
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Testw() {
-
-    var status by remember { mutableStateOf("") }
-
-    TextField(
-        value = status,
-        onValueChange = { status = it },
-        placeholder = { Text(text = "AAAAAAAAAAAAAAAAAAAA") }
-    )
-
 }
