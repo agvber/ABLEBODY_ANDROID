@@ -55,6 +55,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -104,7 +105,6 @@ fun CreatorDetailRoute(
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
-    snsShortcutButtonOnClick: (String) -> Unit,
     productItemOnClick: (Long) -> Unit,
     id: Long?,
     creatorDetailViewModel: CreatorDetailViewModel = hiltViewModel()
@@ -120,7 +120,6 @@ fun CreatorDetailRoute(
         bookmarkButtonOnClick = { creatorDetailViewModel.toggleBookmark(it) },
         commentButtonOnClick = commentButtonOnClick,
         likeCountButtonOnClick = likeCountButtonOnClick,
-        snsShortcutButtonOnClick = snsShortcutButtonOnClick,
         productItemOnClick = productItemOnClick,
         creatorDetailUiState = creatorDetailUiState
     )
@@ -138,7 +137,6 @@ fun CreatorDetailScreen(
     bookmarkButtonOnClick: (Long) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
-    snsShortcutButtonOnClick: (String) -> Unit,
     productItemOnClick: (Long) -> Unit,
     creatorDetailUiState: CreatorDetailUiState,
 ) {
@@ -274,9 +272,10 @@ fun CreatorDetailScreen(
                             experienceExercise = creatorDetailData.userInfo.experienceExerciseElapsedTime?.let { convertSportElapsedTimeToString(it) } ?: "",
                             favoriteExercise = creatorDetailData.userInfo.favoriteExercise ?: ""
                         )
+                        val uriHandler = LocalUriHandler.current
                         if (!creatorDetailData.userInfo.instagramWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
-                                onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.instagramWebLink) },
+                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.instagramWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 인스타그램 바로 가기",
                                 textColor = Color(0xFF661FF5),
                                 backgroundColor = Color(0xFFF0E9FE),
@@ -291,7 +290,7 @@ fun CreatorDetailScreen(
                         }
                         if (!creatorDetailData.userInfo.youtubeWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
-                                onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.youtubeWebLink) },
+                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.youtubeWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
                                 textColor = Color(0xFFEA3323),
                                 backgroundColor = Color(0xFFF0E9FE),
@@ -1018,7 +1017,6 @@ fun CreatorDetailScreenPreview() {
             bookmarkButtonOnClick = {},
             commentButtonOnClick = {},
             likeCountButtonOnClick = {},
-            snsShortcutButtonOnClick = {},
             productItemOnClick = {},
             creatorDetailUiState = CreatorDetailUiState.Success(fakeCreatorDetailData)
         )

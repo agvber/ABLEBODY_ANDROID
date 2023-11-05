@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.navigation.compose.rememberNavController
 import com.smilehunter.ablebody.presentation.main.MainNavHost
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
@@ -27,7 +26,6 @@ fun MainScreen() {
     var isBottomBarShow by rememberSaveable { mutableStateOf(true) }
     var currentNavigationItem by rememberSaveable { mutableStateOf(NavigationItems.Brand) }
     val navController = rememberNavController()
-    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         bottomBar = {
@@ -59,7 +57,6 @@ fun MainScreen() {
             CompositionLocalProvider(scaffoldPaddingValueCompositionLocal.provides(paddingValue)) {
                 MainNavHost(
                     isBottomBarShow = { isBottomBarShow = it },
-                    uriRequest = { uriHandler.openUri(it) },
                     navController = navController
                 )
             }

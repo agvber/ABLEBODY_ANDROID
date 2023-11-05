@@ -36,7 +36,6 @@ import com.smilehunter.ablebody.presentation.search.addSearchScreen
 @Composable
 fun MainNavHost(
     isBottomBarShow: (Boolean) -> Unit,
-    uriRequest: (String) -> Unit,
     navController: NavHostController
 ) {
     NavHost(
@@ -78,7 +77,6 @@ fun MainNavHost(
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
-            snsShortcutButtonOnClick = { uriRequest(it) },
             productItemOnClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
         )
 

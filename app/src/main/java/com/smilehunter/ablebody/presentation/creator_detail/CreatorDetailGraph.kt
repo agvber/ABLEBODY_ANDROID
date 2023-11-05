@@ -26,7 +26,6 @@ fun NavGraphBuilder.addCreatorDetailScreen(
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
-    snsShortcutButtonOnClick: (String) -> Unit,
     productItemOnClick: (Long) -> Unit,
 ) {
     composable(
@@ -44,7 +43,6 @@ fun NavGraphBuilder.addCreatorDetailScreen(
             profileRequest = profileRequest,
             commentButtonOnClick = commentButtonOnClick,
             likeCountButtonOnClick = likeCountButtonOnClick,
-            snsShortcutButtonOnClick = snsShortcutButtonOnClick,
             productItemOnClick = productItemOnClick,
             id = backStackEntry.arguments?.getLong("content_id")
         )
