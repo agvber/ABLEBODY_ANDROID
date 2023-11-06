@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.creator_detail.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
@@ -68,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -79,6 +83,8 @@ import com.smilehunter.ablebody.model.fake.fakeCreatorDetailData
 import com.smilehunter.ablebody.presentation.creator_detail.CreatorDetailViewModel
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -119,8 +125,20 @@ fun CreatorDetailRoute(
         productItemOnClick = productItemOnClick,
         creatorDetailUiState = creatorDetailUiState
     )
-    if (creatorDetailUiState is CreatorDetailUiState.LoadFail) {
-        // TODO: Error handling
+
+    val isNetworkDisconnected =
+        creatorDetailUiState is CreatorDetailUiState.LoadFail ||
+            !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { creatorDetailViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
     }
 }
 
@@ -480,7 +498,6 @@ private fun convertElapsedTimeToString(elapsedTime: CalculateUserElapsedTime): S
         is CalculateUserElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
         is CalculateUserElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
         is CalculateUserElapsedTime.Recent -> "방금 전"
-        else -> ""
     }
 
 private fun makeUserDescription(vararg values: String?): String =
