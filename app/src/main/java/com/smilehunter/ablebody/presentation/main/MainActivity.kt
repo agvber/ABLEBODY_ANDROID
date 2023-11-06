@@ -51,13 +51,9 @@ class MainActivity : ComponentActivity() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Alert" /* TODO 알림센터 이름 지정 */
-            val descriptionText = "FCM" /* TODO 알림센터 설명 지정 */
+            val name = "애블바디 알림"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("ChanelId", name, importance).apply { /* TODO: 채널 ID 지정 */
-                description = descriptionText
-            }
-            // Register the channel with the system
+            val channel = NotificationChannel("AblebodyNotificationChannelId", name, importance)
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)

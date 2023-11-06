@@ -46,7 +46,7 @@ class AbleBodyFirebaseMessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        val builder = NotificationCompat.Builder(this, "ChanelId") /* TODO: 채널 ID 지정 */
+        val builder = NotificationCompat.Builder(this, "AblebodyNotificationChannelId")
             .setSmallIcon(R.drawable.ablebody_notification_logo)
             .setColor(AbleBlue.toArgb())
             .setContentTitle(message.notification?.title)
