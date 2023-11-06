@@ -18,12 +18,15 @@ import com.smilehunter.ablebody.data.repository.BrandRepository
 import com.smilehunter.ablebody.data.repository.FindItemRepository
 import com.smilehunter.ablebody.data.repository.SearchRepository
 import com.smilehunter.ablebody.model.ProductItemData
-import kotlinx.coroutines.Dispatchers
+import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
+import com.smilehunter.ablebody.network.di.Dispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ProductItemPagerUseCase @Inject constructor(
+    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val brandRepository: BrandRepository,
     private val findItemRepository: FindItemRepository,
     private val bookmarkRepository: BookmarkRepository,
@@ -51,7 +54,7 @@ class ProductItemPagerUseCase @Inject constructor(
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ProductItemData.Item> =
             try {
                 val currentPageIndex = params.key ?: 0
-                val productItemData: ProductItemData = withContext(Dispatchers.IO) {
+                val productItemData: ProductItemData = withContext(ioDispatcher) {
                     when(productItemPagingSourceData) {
                         is ProductItemPagingSourceData.Brand -> {
                             brandRepository.brandDetailItem(
