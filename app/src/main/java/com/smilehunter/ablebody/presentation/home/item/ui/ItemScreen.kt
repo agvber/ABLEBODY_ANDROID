@@ -23,6 +23,7 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.item.ItemViewModel
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -56,7 +57,8 @@ fun ItemRoute(
         productPagingItems = productPagingItems
     )
 
-    if (productPagingItems.loadState.refresh is LoadState.Error) {
+    val isNetworkDisconnected = productPagingItems.loadState.refresh is LoadState.Error || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
