@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.search.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -35,6 +37,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -44,12 +47,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.model.SearchHistoryQuery
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.search.SearchViewModel
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
@@ -90,6 +97,9 @@ fun SearchScreen(
     val keyword by searchViewModel.keyword.collectAsStateWithLifecycle()
     val searchHistoryQueries by searchViewModel.searchHistoryQueries.collectAsStateWithLifecycle()
     val recommendedKeywords by searchViewModel.recommendedKeywords.collectAsStateWithLifecycle()
+
+    val productPagingItemList = searchViewModel.productPagingItemList.collectAsLazyPagingItems()
+    val codyPagingItemList = searchViewModel.codyPagingItemList.collectAsLazyPagingItems()
     Column {
         SearchScreenTopBar(
             backRequest = backRequest,
@@ -133,7 +143,7 @@ fun SearchScreen(
                             itemParentCategory = searchViewModel.productItemParentCategory.collectAsStateWithLifecycle().value,
                             itemChildCategory = searchViewModel.productItemChildCategory.collectAsStateWithLifecycle().value,
                             gender = searchViewModel.productItemGender.collectAsStateWithLifecycle().value,
-                            productPagingItems = searchViewModel.productPagingItemList.collectAsLazyPagingItems()
+                            productPagingItems = productPagingItemList
                         )
                         1 -> CodyItemListLayout(
                             itemClick = codyItemClick,
@@ -144,12 +154,26 @@ fun SearchScreen(
                             codyItemListGenderFilterList = searchViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
                             codyItemListSportFilter = searchViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
                             codyItemListPersonHeightFilter = searchViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-                            codyItemData = searchViewModel.codyPagingItemList.collectAsLazyPagingItems()
+                            codyItemData = codyPagingItemList
                         )
                     }
                 }
             }
         }
+    }
+    if (productPagingItemList.loadState.refresh is LoadState.Error ||
+        codyPagingItemList.loadState.refresh is LoadState.Error ||
+        !LocalNetworkConnectState.current
+        ) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { searchViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
     }
 }
 

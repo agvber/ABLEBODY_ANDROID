@@ -27,10 +27,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +52,14 @@ class SearchViewModel @Inject constructor(
     codyItemPagerUseCase: CodyItemPagerUseCase
 ): ViewModel() {
 
-    private val _keyword = MutableStateFlow<String>("")
+    private val _networkRefreshFlow = MutableSharedFlow<Unit>()
+    private val networkRefreshFlow = _networkRefreshFlow.asSharedFlow()
+
+    fun refreshNetwork() {
+        viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
+    }
+
+    private val _keyword = MutableStateFlow("")
     val keyword = _keyword.asStateFlow()
 
     fun updateKeyword(keyword: String) {
@@ -124,22 +133,30 @@ class SearchViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val productPagingItemList: Flow<PagingData<ProductItemData.Item>> = combine(
-        productItemSortingMethod,
-        keyword.debounce(1000L),
-        productItemGender,
-        productItemParentCategory,
-        productItemChildCategory
-    ) { sort, keyword, gender, parent, child, ->
-        if (keyword.isNotEmpty()) {
-            productItemPagerUseCase(ProductItemPagingSourceData.Search(sort, keyword, gender, parent, child))
-        } else {
-            flowOf(PagingData.empty())
+    val productPagingItemList: StateFlow<PagingData<ProductItemData.Item>> =
+        networkRefreshFlow.onSubscription { emit(Unit) }
+            .flatMapLatest {
+                combine(
+                    productItemSortingMethod,
+                    keyword.debounce(1000L),
+                    productItemGender,
+                    productItemParentCategory,
+                    productItemChildCategory
+                ) { sort, keyword, gender, parent, child, ->
+                    if (keyword.isNotEmpty()) {
+                        productItemPagerUseCase(ProductItemPagingSourceData.Search(sort, keyword, gender, parent, child))
+                    } else {
+                        flowOf(PagingData.empty())
+                    }
+                }
+                    .flatMapLatest { it }
+                    .cachedIn(viewModelScope)
         }
-    }
-        .flatMapLatest {
-            it.cachedIn(viewModelScope)
-        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = PagingData.empty()
+            )
 
     fun resetCodyItemFilter() {
         viewModelScope.launch {
@@ -171,20 +188,35 @@ class SearchViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val codyPagingItemList: Flow<PagingData<CodyItemData.Item>> =
-        combine(
-            keyword.debounce(1000L),
-            codyItemListGenderFilter,
-            codyItemListSportFilter,
-            codyItemListPersonHeightFilter
-        ) { keyword, gender, sport, height ->
-            if (keyword.isNotEmpty()) {
-                codyItemPagerUseCase(CodyPagingSourceData.Search(keyword, gender, sport, height.rangeStart, height.rangeEnd))
-            } else {
-                flowOf(PagingData.empty())
-            }
-        }
+    val codyPagingItemList: StateFlow<PagingData<CodyItemData.Item>> =
+        networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
-                it.cachedIn(viewModelScope)
+                combine(
+                    keyword.debounce(1000L),
+                    codyItemListGenderFilter,
+                    codyItemListSportFilter,
+                    codyItemListPersonHeightFilter
+                ) { keyword, gender, sport, height ->
+                    if (keyword.isNotEmpty()) {
+                        codyItemPagerUseCase(
+                            CodyPagingSourceData.Search(
+                                keyword,
+                                gender,
+                                sport,
+                                height.rangeStart,
+                                height.rangeEnd
+                            )
+                        )
+                    } else {
+                        flowOf(PagingData.empty())
+                    }
+                }
+                    .flatMapLatest { it }
+                    .cachedIn(viewModelScope)
             }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = PagingData.empty()
+            )
 }
