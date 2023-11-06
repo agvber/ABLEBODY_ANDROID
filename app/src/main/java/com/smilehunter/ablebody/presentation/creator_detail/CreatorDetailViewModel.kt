@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.creator_detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.repository.BookmarkRepository
@@ -13,7 +14,6 @@ import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
@@ -26,17 +26,14 @@ import javax.inject.Inject
 @HiltViewModel
 class CreatorDetailViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
+    savedStateHandle: SavedStateHandle,
     getCreatorDetailDataListUseCase: GetCreatorDetailDataListUseCase,
     userRepository: UserRepository,
     private val creatorDetailRepository: CreatorDetailRepository,
     private val bookmarkRepository: BookmarkRepository
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow(0L)
-
-    fun updateContentID(id: Long) {
-        viewModelScope.launch { contentID.emit(id) }
-    }
+    private val contentID = savedStateHandle.getStateFlow("content_id", -1L)
 
     val creatorDetailData: StateFlow<CreatorDetailUiState> =
         contentID.zip(userRepository.localUserInfoData)  { id, userInfo ->

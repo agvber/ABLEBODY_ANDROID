@@ -44,7 +44,6 @@ fun NavGraphBuilder.addCreatorDetailScreen(
             commentButtonOnClick = commentButtonOnClick,
             likeCountButtonOnClick = likeCountButtonOnClick,
             productItemOnClick = productItemOnClick,
-            id = backStackEntry.arguments?.getLong("content_id")
         )
         isBottomBarShow(false)
     }
