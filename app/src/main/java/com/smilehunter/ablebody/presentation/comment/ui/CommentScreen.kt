@@ -37,14 +37,11 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,7 +54,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
@@ -71,8 +67,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
@@ -191,8 +185,6 @@ fun CommentScreen(
     ) { paddingValue ->
         if (commentListData is CommentUiState.CommentList) {
             val context = LocalContext.current
-            val toggleCommentLikeList = remember { mutableStateListOf<Long>() }
-            val toggleReplyLikeList = remember { mutableStateListOf<Long>() }
 
             LazyColumn(
                 state = lazyListState,
@@ -272,7 +264,7 @@ fun CommentScreen(
                                     },
                                     onLikeRequest = {
                                         isLiked = !isLiked
-                                        toggleCommentLikeList.addOrRemove(items.id)
+                                        toggleLikeComment(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
                                     likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id, LikedLocations.COMMENT) },
@@ -289,7 +281,7 @@ fun CommentScreen(
                                 ReplyLayout(
                                     onLikeRequest = {
                                         isLiked = !isLiked
-                                        toggleReplyLikeList.addOrRemove(items.id)
+                                        toggleLikeReply(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
                                     likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id, LikedLocations.REPLAY) },
@@ -304,19 +296,6 @@ fun CommentScreen(
                             }
                         }
                     }
-                }
-            }
-            val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
-            DisposableEffect(key1 = lifecycleOwner) {
-                val observer = LifecycleEventObserver { owner, event ->
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        toggleCommentLikeList.forEach(toggleLikeComment)
-                        toggleReplyLikeList.forEach(toggleLikeReply)
-                    }
-                }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose {
-                    lifecycleOwner.lifecycle.removeObserver(observer)
                 }
             }
         }
@@ -335,13 +314,6 @@ fun CommentScreen(
         }
     }
 }
-
-private fun<E> MutableList<E>.addOrRemove(element: E): MutableList<E> =
-    if (this.contains(element)) {
-        this.apply { remove(element) }
-    } else {
-        this.apply { add(element) }
-    }
 
 private fun elapsedTimeToString(elapsedTime: CalculateUserElapsedTime) = when (elapsedTime) {
     is CalculateUserElapsedTime.Date -> "${elapsedTime.month}월 ${elapsedTime.day}일"
