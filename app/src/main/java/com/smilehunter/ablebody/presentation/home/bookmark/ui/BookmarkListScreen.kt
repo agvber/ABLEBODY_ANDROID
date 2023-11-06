@@ -45,6 +45,7 @@ import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.bookmark.BookmarkViewModel
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
@@ -75,10 +76,10 @@ fun BookmarkListRoute(
         codyPagingItemList = codyPagingItemList,
     )
 
-    if (
-        productPagingItemList.loadState.refresh is LoadState.Error ||
-        codyPagingItemList.loadState.refresh is LoadState.Error
-    ) {
+    val isNetworkDisconnected = productPagingItemList.loadState.refresh is LoadState.Error ||
+            codyPagingItemList.loadState.refresh is LoadState.Error ||
+            !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
