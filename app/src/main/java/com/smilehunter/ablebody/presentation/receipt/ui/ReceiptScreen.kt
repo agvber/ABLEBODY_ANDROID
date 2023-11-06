@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.receipt.ui
 
+import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -36,11 +38,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.ReceiptData
 import com.smilehunter.ablebody.model.fake.fakeReceiptData
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.ui.OrderItemLayout
 import com.smilehunter.ablebody.presentation.receipt.ReceiptViewModel
 import com.smilehunter.ablebody.presentation.receipt.data.ReceiptUiState
@@ -64,8 +69,17 @@ fun ReceiptRoute(
         receiptData = (receipt as? ReceiptUiState.Receipt)?.data
     )
 
-    if (receipt is ReceiptUiState.LoadFail) {
-        // TODO: ErrorHandling
+    val isNetworkDisconnected = receipt is ReceiptUiState.LoadFail || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { receiptViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
     }
 }
 
