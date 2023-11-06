@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.like_list.ui.LikeListRoute
 
 
@@ -13,9 +14,10 @@ const val LikeUserListRoute = "like_user_list_route"
 
 fun NavController.navigateToLikeUserListScreen(
     contentID: Long,
+    likedLocations: LikedLocations,
     navOptions: NavOptions? = null,
 ) {
-    navigate(route = "$LikeUserListRoute/$contentID", navOptions = navOptions)
+    navigate(route = "$LikeUserListRoute/$contentID/${likedLocations.name}", navOptions = navOptions)
 }
 
 
@@ -26,15 +28,15 @@ fun NavGraphBuilder.addLikeUserListScreen(
 ) {
     
     composable(
-        route = "$LikeUserListRoute/{content_id}",
+        route = "$LikeUserListRoute/{content_id}/{like_location}",
         arguments = listOf(
-            navArgument("content_id") { type = NavType.LongType }
+            navArgument("content_id") { type = NavType.LongType },
+            navArgument("like_location") { type = NavType.StringType }
         )
     ) {  backStackEntry ->
         LikeListRoute(
             onBackRequest = onBackRequest,
-            profileRequest = profileRequest,
-            contentID = backStackEntry.arguments?.getLong("content_id", 0)!!
+            profileRequest = profileRequest
         )
         isBottomBarShow(false)
     }

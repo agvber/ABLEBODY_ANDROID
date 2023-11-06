@@ -1,37 +1,37 @@
 package com.smilehunter.ablebody.presentation.like_list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.domain.GetLikeListUseCase
 import com.smilehunter.ablebody.model.LikeListData
 import com.smilehunter.ablebody.model.LikedLocations
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.zip
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LikeListViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getLikeListUseCase: GetLikeListUseCase
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow(0L)
+    private val contentID = savedStateHandle.getStateFlow("content_id", -1L)
 
-    fun updateContentID(id: Long) {
-        viewModelScope.launch { contentID.emit(id) }
-    }
-
-
-    private val _likedLocations = MutableStateFlow(LikedLocations.BOARD)
-    val likeLocations = _likedLocations.asStateFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val likedLocations = savedStateHandle.getStateFlow("like_location", "")
+        .flatMapLatest { string ->
+            flowOf(LikedLocations.values().first { it.name == string })
+        }
 
     val likeList: StateFlow<List<LikeListData>> =
-        contentID.zip(likeLocations) { id, location ->
+        contentID.zip(likedLocations) { id, location ->
             getLikeListUseCase(location, id)
         }
             .stateIn(

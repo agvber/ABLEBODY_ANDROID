@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,10 +43,8 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 fun LikeListRoute(
     onBackRequest: () -> Unit,
     profileRequest: (String) -> Unit,
-    contentID: Long,
     likeListViewModel: LikeListViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { likeListViewModel.updateContentID(contentID) }
 
     val likeList by likeListViewModel.likeList.collectAsStateWithLifecycle()
     LikeListScreen(

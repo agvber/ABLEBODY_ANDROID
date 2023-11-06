@@ -89,7 +89,7 @@ fun MainNavHost(
         addCommentScreen(
             onBackRequest = navController::popBackStack,
             onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
-            likeUsersViewOnRequest = { /* TODO 해당 공감하기 페이지 가기 */ },
+            likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
             isBottomBarShow = isBottomBarShow
         )
 

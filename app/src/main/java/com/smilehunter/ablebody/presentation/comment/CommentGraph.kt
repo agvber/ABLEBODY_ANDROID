@@ -7,6 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.comment.ui.CommentRoute
 
 const val COMMENT_ROUTE = "comment_route"
@@ -21,7 +22,7 @@ fun NavController.navigateToCommentScreen(
 fun NavGraphBuilder.addCommentScreen(
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
-    likeUsersViewOnRequest: (Long) -> Unit,
+    likeUsersViewOnRequest: (Long, LikedLocations) -> Unit,
     isBottomBarShow: (Boolean) -> Unit
 ) {
 

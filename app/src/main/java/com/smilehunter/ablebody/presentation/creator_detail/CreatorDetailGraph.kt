@@ -9,6 +9,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.creator_detail.ui.CreatorDetailRoute
 
 internal const val CreatorDetailRoute = "creator_detail_route"
@@ -25,7 +26,7 @@ fun NavGraphBuilder.addCreatorDetailScreen(
     onBackRequest: () -> Unit,
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
-    likeCountButtonOnClick: (Long) -> Unit,
+    likeCountButtonOnClick: (Long, LikedLocations) -> Unit,
     productItemOnClick: (Long) -> Unit,
 ) {
     composable(
@@ -42,7 +43,7 @@ fun NavGraphBuilder.addCreatorDetailScreen(
             onBackRequest = onBackRequest,
             profileRequest = profileRequest,
             commentButtonOnClick = commentButtonOnClick,
-            likeCountButtonOnClick = likeCountButtonOnClick,
+            likeCountButtonOnClick = { likeCountButtonOnClick(it, LikedLocations.BOARD) },
             productItemOnClick = productItemOnClick,
         )
         isBottomBarShow(false)

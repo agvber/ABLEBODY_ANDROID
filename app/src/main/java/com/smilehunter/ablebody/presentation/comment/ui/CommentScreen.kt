@@ -74,6 +74,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CommentListData
+import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.presentation.comment.CommentViewModel
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
@@ -95,7 +96,7 @@ import kotlinx.coroutines.android.awaitFrame
 fun CommentRoute(
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
-    likeUsersViewOnRequest: (Long) -> Unit,
+    likeUsersViewOnRequest: (Long, LikedLocations) -> Unit,
     commentViewModel: CommentViewModel = hiltViewModel()
 ) {
     val commentListData by commentViewModel.commentListData.collectAsStateWithLifecycle()
@@ -120,7 +121,7 @@ fun CommentRoute(
 fun CommentScreen(
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
-    likeUsersViewOnRequest: (Long) -> Unit,
+    likeUsersViewOnRequest: (Long, LikedLocations) -> Unit,
     onComment: (String) -> Unit,
     onReply: (Long, String) -> Unit,
     deleteComment: (Long) -> Unit,
@@ -254,7 +255,7 @@ fun CommentScreen(
                                         toggleCommentLikeList.addOrRemove(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
-                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id) },
+                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id, LikedLocations.COMMENT) },
                                     isLiked = isLiked,
                                     nickname = items.writer.nickname,
                                     contentText = items.contents,
@@ -271,7 +272,7 @@ fun CommentScreen(
                                         toggleReplyLikeList.addOrRemove(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
-                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id) },
+                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id, LikedLocations.REPLAY) },
                                     isLiked = isLiked,
                                     nickname = items.writer.nickname,
                                     contentText = items.contents,
@@ -770,7 +771,7 @@ fun CommentScreenPreview() {
     CommentScreen(
         onBackRequest = {  },
         onUserProfileVisitRequest = { },
-        likeUsersViewOnRequest = { },
+        likeUsersViewOnRequest = { _, _ -> },
         onComment = { },
         onReply = { _, _ -> },
         deleteComment = {},
