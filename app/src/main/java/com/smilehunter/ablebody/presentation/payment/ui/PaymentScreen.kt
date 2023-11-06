@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.payment.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -51,6 +53,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -65,6 +68,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,6 +78,8 @@ import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentUiState
@@ -100,7 +106,7 @@ fun PaymentRoute(
     receiptRequest: (String) -> Unit,
     paymentViewModel: PaymentViewModel = hiltViewModel(),
 ) {
-
+    val paymentPassthroughData by paymentViewModel.paymentPassthroughData.collectAsStateWithLifecycle()
     val bankTextValue by paymentViewModel.bankTextValue.collectAsStateWithLifecycle()
     val accountNumberTextValue by paymentViewModel.accountNumberTextValue.collectAsStateWithLifecycle()
     val accountHolderTextValue by paymentViewModel.accountHolderTextValue.collectAsStateWithLifecycle()
@@ -110,8 +116,6 @@ fun PaymentRoute(
     val coupons by paymentViewModel.coupons.collectAsStateWithLifecycle()
     val couponDiscountPrice by paymentViewModel.couponDiscountPrice.collectAsStateWithLifecycle()
     val deliveryAddress by paymentViewModel.deliveryAddress.collectAsStateWithLifecycle()
-
-    val paymentPassthroughData by paymentViewModel.paymentPassthroughData.collectAsStateWithLifecycle()
 
     val orderItemID by paymentViewModel.orderItemID.collectAsStateWithLifecycle()
 
@@ -140,6 +144,22 @@ fun PaymentRoute(
         deliveryAddress = deliveryAddress as? PaymentUiState.DeliveryAddress,
         coupons = coupons
     )
+
+    val isNetworkDisconnected = userData is PaymentUiState.LoadFail ||
+            deliveryAddress is PaymentUiState.LoadFail ||
+                coupons is PaymentUiState.LoadFail ||
+                    !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { paymentViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
