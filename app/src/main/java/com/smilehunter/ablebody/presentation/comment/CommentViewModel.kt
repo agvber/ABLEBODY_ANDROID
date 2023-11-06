@@ -13,12 +13,16 @@ import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,9 +37,16 @@ class CommentViewModel @Inject constructor(
     private val commentRepository: CommentRepository,
 ): ViewModel() {
 
+    private val _networkRefreshFlow = MutableSharedFlow<Unit>()
+    private val networkRefreshFlow = _networkRefreshFlow.asSharedFlow()
+
+    fun refreshNetwork() {
+        viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
+    }
+
     private val contentID = savedStateHandle.getStateFlow("content_id", -1L)
 
-    private val renewData = MutableStateFlow(0)
+    private val renewData = MutableSharedFlow<Unit>()
 
     val myUserInfoData = userRepository.localUserInfoData
         .flowOn(ioDispatcher)
@@ -46,18 +57,22 @@ class CommentViewModel @Inject constructor(
         )
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val commentListData: StateFlow<CommentUiState> =
-        combine(contentID, myUserInfoData, renewData) { id, myData, _ ->
-            getCommentListUseCase(id, myData.uid)
-        }
-            .flowOn(ioDispatcher)
-            .asResult()
-            .map {
-                when (it) {
-                    is Result.Error -> CommentUiState.LoadFail
-                    is Result.Loading -> CommentUiState.Loading
-                    is Result.Success -> CommentUiState.CommentList(it.data)
+        networkRefreshFlow.onSubscription { emit(Unit) }
+            .flatMapLatest {
+                combine(contentID, myUserInfoData, renewData.onSubscription { emit(Unit) }) { id, myData, _ ->
+                    getCommentListUseCase(id, myData.uid)
                 }
+                    .flowOn(ioDispatcher)
+                    .asResult()
+                    .map {
+                        when (it) {
+                            is Result.Error -> CommentUiState.LoadFail
+                            is Result.Loading -> CommentUiState.Loading
+                            is Result.Success -> CommentUiState.CommentList(it.data)
+                        }
+                    }
             }
             .stateIn(
                 scope = viewModelScope,
@@ -72,7 +87,7 @@ class CommentViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            renewData.emit(renewData.value + 1)
+            renewData.emit(Unit)
         }
     }
 
@@ -83,7 +98,7 @@ class CommentViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            renewData.emit(renewData.value + 1)
+            renewData.emit(Unit)
         }
     }
 
@@ -94,7 +109,7 @@ class CommentViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            renewData.emit(renewData.value + 1)
+            renewData.emit(Unit)
         }
     }
 
@@ -105,7 +120,7 @@ class CommentViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            renewData.emit(renewData.value + 1)
+            renewData.emit(Unit)
         }
     }
 
