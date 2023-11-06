@@ -22,6 +22,7 @@ import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.presentation.home.cody.CodyRecommendViewModel
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -53,7 +54,8 @@ fun CodyRecommendedRoute(
         codyItemData = codyItemData,
     )
 
-    if (codyItemData.loadState.refresh is LoadState.Error) {
+    val isNetworkDisconnected = codyItemData.loadState.refresh is LoadState.Error || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
