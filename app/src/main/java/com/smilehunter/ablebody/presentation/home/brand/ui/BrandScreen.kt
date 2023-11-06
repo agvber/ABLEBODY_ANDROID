@@ -55,6 +55,7 @@ import com.smilehunter.ablebody.model.fake.fakeBrandListData
 import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
 import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -89,7 +90,9 @@ fun BrandRoute(
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
-    if (brandItemList is BrandListResultUiState.Error) {
+
+    val isNetworkDisconnected = brandItemList is BrandListResultUiState.Error || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
