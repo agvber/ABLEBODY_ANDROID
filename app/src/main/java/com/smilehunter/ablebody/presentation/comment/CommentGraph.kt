@@ -20,6 +20,8 @@ fun NavController.navigateToCommentScreen(
 
 fun NavGraphBuilder.addCommentScreen(
     onBackRequest: () -> Unit,
+    onUserProfileVisitRequest: (String) -> Unit,
+    likeUsersViewOnRequest: (Long) -> Unit,
     isBottomBarShow: (Boolean) -> Unit
 ) {
 
@@ -31,7 +33,11 @@ fun NavGraphBuilder.addCommentScreen(
         ),
     ) {  backStackEntry ->
 
-        CommentRoute(onBackRequest = onBackRequest)
+        CommentRoute(
+            onBackRequest = onBackRequest,
+            onUserProfileVisitRequest = onUserProfileVisitRequest,
+            likeUsersViewOnRequest = likeUsersViewOnRequest
+        )
         isBottomBarShow(false)
     }
 }

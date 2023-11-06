@@ -94,18 +94,17 @@ import kotlinx.coroutines.android.awaitFrame
 @Composable
 fun CommentRoute(
     onBackRequest: () -> Unit,
+    onUserProfileVisitRequest: (String) -> Unit,
+    likeUsersViewOnRequest: (Long) -> Unit,
     commentViewModel: CommentViewModel = hiltViewModel()
 ) {
-    val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     val commentListData by commentViewModel.commentListData.collectAsStateWithLifecycle()
-    val myUserInfoData by commentViewModel.myUserInfoData.collectAsStateWithLifecycle(
-        initialValue = null,
-        lifecycle = lifecycleOwner.lifecycle
-    )
+    val myUserInfoData by commentViewModel.myUserInfoData.collectAsStateWithLifecycle(initialValue = null)
 
     CommentScreen(
         onBackRequest = onBackRequest,
-        onUserProfileVisitRequest = {  },
+        onUserProfileVisitRequest = onUserProfileVisitRequest,
+        likeUsersViewOnRequest = likeUsersViewOnRequest,
         onComment = { commentViewModel.updateCommentText(it) },
         onReply = { id, text -> commentViewModel.updateReplyText(id, text) },
         deleteComment = { commentViewModel.deleteComment(it) },
@@ -121,6 +120,7 @@ fun CommentRoute(
 fun CommentScreen(
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
+    likeUsersViewOnRequest: (Long) -> Unit,
     onComment: (String) -> Unit,
     onReply: (Long, String) -> Unit,
     deleteComment: (Long) -> Unit,
@@ -254,6 +254,7 @@ fun CommentScreen(
                                         toggleCommentLikeList.addOrRemove(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
+                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id) },
                                     isLiked = isLiked,
                                     nickname = items.writer.nickname,
                                     contentText = items.contents,
@@ -270,6 +271,7 @@ fun CommentScreen(
                                         toggleReplyLikeList.addOrRemove(items.id)
                                                     },
                                     onUserProfileVisitRequest = { onUserProfileVisitRequest(items.writer.uid) },
+                                    likeUsersViewOnRequest = { likeUsersViewOnRequest(items.id) },
                                     isLiked = isLiked,
                                     nickname = items.writer.nickname,
                                     contentText = items.contents,
@@ -386,6 +388,7 @@ private fun CommentLayout(
     onReplyButtonClick: () -> Unit,
     onLikeRequest: () -> Unit,
     onUserProfileVisitRequest: () -> Unit,
+    likeUsersViewOnRequest: () -> Unit,
     isLiked: Boolean,
     nickname: String,
     contentText: String,
@@ -452,7 +455,8 @@ private fun CommentLayout(
                         fontWeight = FontWeight(400),
                         color = SmallTextGrey,
                         textAlign = TextAlign.Right,
-                    )
+                    ),
+                    modifier = Modifier.nonReplyClickable { likeUsersViewOnRequest() }
                 )
                 Text(
                     text = "답글 달기",
@@ -485,6 +489,7 @@ private fun ReplyLayout(
     modifier: Modifier = Modifier,
     onLikeRequest: () -> Unit,
     onUserProfileVisitRequest: () -> Unit,
+    likeUsersViewOnRequest: () -> Unit,
     isLiked: Boolean,
     nickname: String,
     contentText: String,
@@ -550,7 +555,8 @@ private fun ReplyLayout(
                         fontWeight = FontWeight(400),
                         color = SmallTextGrey,
                         textAlign = TextAlign.Right,
-                    )
+                    ),
+                    modifier = Modifier.nonReplyClickable { likeUsersViewOnRequest() }
                 )
             }
         }
@@ -732,6 +738,7 @@ fun CommentLayoutPreview() {
         onReplyButtonClick = {  },
         onLikeRequest = {  },
         onUserProfileVisitRequest = {},
+        likeUsersViewOnRequest = {},
         isLiked = true,
         nickname = "nickname",
         contentText = "가나다라마바사아자차카타파하ABCDEFGHIJKLMNOPQRSTUVXYZㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊ",
@@ -747,6 +754,7 @@ fun ReplyLayoutPreview() {
     ReplyLayout(
         onLikeRequest = {  },
         onUserProfileVisitRequest = {},
+        likeUsersViewOnRequest = {},
         isLiked = false,
         nickname = "nick",
         contentText = "안녕!",
@@ -759,5 +767,17 @@ fun ReplyLayoutPreview() {
 @Preview
 @Composable
 fun CommentScreenPreview() {
-//    CommentScreen()
+    CommentScreen(
+        onBackRequest = {  },
+        onUserProfileVisitRequest = { },
+        likeUsersViewOnRequest = { },
+        onComment = { },
+        onReply = { _, _ -> },
+        deleteComment = {},
+        deleteReply = {},
+        toggleLikeComment = {},
+        toggleLikeReply = {},
+        myUserInfoData = null,
+        commentListData = CommentUiState.Loading
+    )
 }
