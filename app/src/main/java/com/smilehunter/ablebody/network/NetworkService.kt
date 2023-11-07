@@ -33,6 +33,7 @@ import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
+import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
@@ -69,10 +70,6 @@ interface NetworkService {
     ): Response<NewUserCreateResponse>
 
     suspend fun getRefreshToken(refreshToken: String): Response<RefreshTokenResponse>
-
-    suspend fun getMyUserData(): UserDataResponse
-
-    suspend fun getUserData(uid: String): UserDataResponse
 
     suspend fun getDummyToken(): Response<StringResponse>
 
@@ -302,4 +299,15 @@ interface NetworkService {
     suspend fun getOrderListDetail(
         id: String
     ): GetOrderListDetailResponse
+
+    /** User **/
+    suspend fun getMyUserData(): UserDataResponse
+
+    suspend fun getUserData(uid: String): UserDataResponse
+
+    suspend fun getMyBoard(
+        uid: String? = null,
+        page: Int = 0,
+        size: Int = 10
+    ): GetMyBoardResponse
 }

@@ -35,6 +35,7 @@ import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
+import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
@@ -116,9 +117,6 @@ class NetworkServiceImpl @Inject constructor(
             com.smilehunter.ablebody.data.dto.request.RefreshTokenRequest(refreshToken)
         return networkAPI.getRefreshToken(tokenRefreshResponseData).execute()
     }
-
-    override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
-    override suspend fun getUserData(uid: String): UserDataResponse = networkAPI.getUserData(uid)
 
     override suspend fun getDummyToken(): Response<StringResponse> = networkAPI.getDummyToken().execute()
 
@@ -405,4 +403,11 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getOrderListDetail(id: String): GetOrderListDetailResponse =
         networkAPI.getOrderListDetail(id)
+
+    override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
+
+    override suspend fun getUserData(uid: String): UserDataResponse = networkAPI.getUserData(uid)
+
+    override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse =
+        networkAPI.getMyBoard(uid = uid, page = page, size = size)
 }
