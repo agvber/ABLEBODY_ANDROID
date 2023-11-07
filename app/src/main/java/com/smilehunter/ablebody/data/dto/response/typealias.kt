@@ -13,6 +13,7 @@ import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetAddressResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetCouponBagsResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetDeliveryInfoResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetMyBoardResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetOrderListDetailResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetOrderListResponseData
@@ -35,7 +36,6 @@ typealias SendSMSResponse = AbleBodyResponse<SMSSendResponseData>
 typealias CheckSMSResponse = AbleBodyResponse<SMSCheckResponseData>
 typealias NewUserCreateResponse = AbleBodyResponse<NewUserCreateResponseData>
 typealias RefreshTokenResponse = AbleBodyResponse<RefreshTokenResponseData>
-typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
 typealias FCMTokenAndAppVersionUpdateResponse = AbleBodyResponse<FCMTokenAndAppVersionUpdateResponseData>
 
 /** Brand **/
@@ -100,3 +100,7 @@ typealias GetOrderListResponse = AbleBodyResponse<List<GetOrderListResponseData>
 typealias CancelOrderListResponse = AbleBodyResponse<String>
 typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
 typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailResponseData>
+
+/** User **/
+typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
+typealias GetMyBoardResponse = AbleBodyResponse<GetMyBoardResponseData>
