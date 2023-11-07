@@ -18,4 +18,10 @@ class UserApiUnitTest {
         val response = runBlocking { networkService.getUserData(uid = "5920702") }
         println(response)
     }
+
+    @Test
+    fun getMyBoard() {
+        val response = runBlocking { networkService.getMyBoard() }
+        println(response)
+    }
 }
