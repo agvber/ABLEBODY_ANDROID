@@ -11,6 +11,7 @@ class GetCreatorDetailDataListUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(id: Long, userID: String): CreatorDetailData {
+        creatorDetailRepository.getCreatorDetailData(id).creator.uid
         return creatorDetailRepository.getCreatorDetailData(id).toDomain(userID)
     }
 }
