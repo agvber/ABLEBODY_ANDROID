@@ -40,7 +40,7 @@ fun GenderSwitch(
 ) {
     val textMeasure = rememberTextMeasurer()
     val animatePosition by animateDpAsState(targetValue = if (checked) 19.dp else 0.dp)
-    val text = if (checked) "M" else "W"
+    val text = if (checked) "남" else "여"
 
     Box(
         modifier = modifier
