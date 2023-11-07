@@ -65,7 +65,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(TEST_SERVER_URL)
+        baseUrl(MAIN_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()

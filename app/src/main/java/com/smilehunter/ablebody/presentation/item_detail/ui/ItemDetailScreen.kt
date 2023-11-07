@@ -35,10 +35,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.rememberModalBottomSheetState
@@ -75,7 +75,7 @@ import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.PurchaseItemData
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
@@ -591,7 +591,7 @@ fun ItemDetailScreen(
         }
 
         Box(
-            modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current)
+            modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current)
         )
 
     }

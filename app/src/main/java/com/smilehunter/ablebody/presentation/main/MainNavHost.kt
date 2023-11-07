@@ -1,8 +1,8 @@
 package com.smilehunter.ablebody.presentation.main
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -23,10 +23,9 @@ import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScree
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetailScreen
@@ -59,7 +58,7 @@ fun MainNavHost(
         addSearchScreen(
             isBottomBarShow = isBottomBarShow,
             backRequest = navController::popBackStack,
-            productItemClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
+            productItemClick = { navController.navigate("ItemDetailScreen/$it") },
             codyItemClick = navController::navigateToCreatorDetail,
         )
 
@@ -72,7 +71,7 @@ fun MainNavHost(
         addBrandDetailScreen(
             onBackRequest = navController::popBackStack,
             isBottomBarShow = isBottomBarShow,
-            productItemClick = { /* TODO productItemDetail 페이지로 가기 */ },
+            productItemClick = { navController.navigate("ItemDetailScreen/$it") },
             codyItemClick = navController::navigateToCreatorDetail,
         )
 
@@ -82,7 +81,7 @@ fun MainNavHost(
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
-            productItemOnClick = { /* TODO ProductItemDetail 페이지로 가기 */ },
+            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
         )
 
         addLikeUserListScreen(
