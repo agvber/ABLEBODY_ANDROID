@@ -37,6 +37,7 @@ import com.smilehunter.ablebody.data.dto.response.FindItemResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
+import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
@@ -88,14 +89,6 @@ interface NetworkAPI {
     fun getRefreshToken(
         @Body refreshTokenRequest: RefreshTokenRequest
     ): Call<RefreshTokenResponse>
-
-    @GET("/api/onboarding/splash")
-    suspend fun getMyUserData(): UserDataResponse
-
-    @GET("/api/my/user")
-    suspend fun getUserData(
-        @Query("uid") uid: String
-    ): UserDataResponse
 
     @GET("/api/onboarding/dummy")
     fun getDummyToken(): Call<StringResponse>
@@ -327,4 +320,21 @@ interface NetworkAPI {
     suspend fun getOrderListDetail(
         @Query("orderListId") orderListId: String
     ): GetOrderListDetailResponse
+
+    /** User **/
+
+    @GET("/api/onboarding/splash")
+    suspend fun getMyUserData(): UserDataResponse
+
+    @GET("/api/my/user")
+    suspend fun getUserData(
+        @Query("uid") uid: String
+    ): UserDataResponse
+
+    @GET("/api/my/home")
+    suspend fun getMyBoard(
+        @Query("uid") uid: String? = null,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): GetMyBoardResponse
 }
