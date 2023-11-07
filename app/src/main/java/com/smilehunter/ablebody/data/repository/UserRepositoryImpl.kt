@@ -4,6 +4,7 @@ import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
+import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.datastore.DataStoreService
 import com.smilehunter.ablebody.model.LocalUserInfoData
@@ -102,6 +103,10 @@ class UserRepositoryImpl @Inject constructor(
             zipCode = zipCode,
             deliveryRequest = deliveryRequestMessage
         )
+    }
+
+    override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse {
+        return networkService.getMyBoard(uid = uid, page = page, size = size)
     }
 }
 
