@@ -30,13 +30,13 @@ class BrandRepositoryImpl @Inject constructor(
         size: Int?
     ): Response<BrandDetailItemResponse> =
         networkService.brandDetailItem(
-            sort,
-            brandId,
-            itemGender,
-            parentCategory,
-            childCategory,
-            page,
-            size
+            sort = sort,
+            brandId = brandId,
+            itemGender = itemGender,
+            parentCategory = childCategory?.parentCategory ?: parentCategory,
+            childCategory = childCategory,
+            page = page,
+            size = size
         )
 
 
@@ -50,12 +50,12 @@ class BrandRepositoryImpl @Inject constructor(
         size: Int?
     ): Response<BrandDetailCodyResponse> =
         networkService.brandDetailCody(
-            brandId,
-            gender,
-            category,
-            personHeightRangeStart,
-            personHeightRangeEnd,
-            page,
-            size
+            brandId = brandId,
+            gender = gender,
+            category = category,
+            personHeightRangeStart = personHeightRangeStart,
+            personHeightRangeEnd = personHeightRangeEnd,
+            page = page,
+            size = size
         )
 }

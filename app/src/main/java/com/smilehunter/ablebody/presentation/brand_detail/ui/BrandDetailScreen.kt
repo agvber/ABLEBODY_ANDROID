@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.brand_detail.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -12,10 +14,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -25,8 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -43,6 +48,8 @@ import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.brand_detail.BrandDetailViewModel
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -58,12 +65,19 @@ fun BrandDetailRoute(
     onBackClick: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
-    contentID: Long?,
-    contentName: String,
     modifier: Modifier = Modifier,
     brandDetailViewModel: BrandDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { contentID?.let { brandDetailViewModel.updateContentID(it) } }
+    val contentName by brandDetailViewModel.brandName.collectAsStateWithLifecycle()
+    val productItemSortingMethod by brandDetailViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle()
+    val productItemParentFilter by brandDetailViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle()
+    val productItemChildFilter by brandDetailViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle()
+    val productItemGender by brandDetailViewModel.brandProductItemGender.collectAsStateWithLifecycle()
+    val productPagingItems = brandDetailViewModel.productItemContentList.collectAsLazyPagingItems()
+    val codyItemListGenderFilterList by brandDetailViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle()
+    val codyItemListSportFilter by brandDetailViewModel.codyItemListSportFilter.collectAsStateWithLifecycle()
+    val codyItemListPersonHeightFilter by brandDetailViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle()
+    val codyPagingItem = brandDetailViewModel.codyPagingItem.collectAsLazyPagingItems()
 
     BrandDetailScreen(
         modifier = modifier,
@@ -79,16 +93,32 @@ fun BrandDetailRoute(
         onCodyItemListSportFilterChange = { brandDetailViewModel.updateCodyItemListSportFilter(it) },
         onCodyItemListPersonHeightFilterChange = { brandDetailViewModel.updateCodyItemListPersonHeightFilter(it) },
         contentName = contentName,
-        productItemSortingMethod = brandDetailViewModel.brandProductItemSortingMethod.collectAsStateWithLifecycle().value,
-        productItemParentFilter = brandDetailViewModel.brandProductItemParentFilter.collectAsStateWithLifecycle().value,
-        productItemChildFilter = brandDetailViewModel.brandProductItemChildFilter.collectAsStateWithLifecycle().value,
-        productItemGender = brandDetailViewModel.brandProductItemGender.collectAsStateWithLifecycle().value,
-        productPagingItems = brandDetailViewModel.productItemContentList.collectAsLazyPagingItems(),
-        codyItemListGenderFilterList = brandDetailViewModel.codyItemListGenderFilter.collectAsStateWithLifecycle().value,
-        codyItemListSportFilter = brandDetailViewModel.codyItemListSportFilter.collectAsStateWithLifecycle().value,
-        codyItemListPersonHeightFilter = brandDetailViewModel.codyItemListPersonHeightFilter.collectAsStateWithLifecycle().value,
-        codyPagingItem = brandDetailViewModel.codyPagingItem.collectAsLazyPagingItems()
+        productItemSortingMethod = productItemSortingMethod,
+        productItemParentFilter = productItemParentFilter,
+        productItemChildFilter = productItemChildFilter,
+        productItemGender = productItemGender,
+        productPagingItems = productPagingItems,
+        codyItemListGenderFilterList = codyItemListGenderFilterList,
+        codyItemListSportFilter = codyItemListSportFilter,
+        codyItemListPersonHeightFilter = codyItemListPersonHeightFilter,
+        codyPagingItem = codyPagingItem
     )
+
+    val isNetworkDisconnected =
+        productPagingItems.loadState.refresh is LoadState.Error ||
+                codyPagingItem.loadState.refresh is LoadState.Error ||
+                    !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { brandDetailViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -8,7 +8,7 @@ internal const val NotificationRoute = "NotificationRoute"
 fun NavGraphBuilder.addNotificationScreen(
     isBottomBarShow: (Boolean) -> Unit,
     onBackRequest: () -> Unit,
-    itemClick: (Long) -> Unit,
+    itemClick: (String) -> Unit,
 ) {
     composable(route = "NotificationRoute") {
         NotificationRoute(onBackRequest = onBackRequest, itemClick = itemClick)

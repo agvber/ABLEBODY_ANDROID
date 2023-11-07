@@ -2,7 +2,8 @@ package com.smilehunter.ablebody.model
 
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.HomeCategory
-import com.smilehunter.ablebody.utils.calculateElapsedTime
+import com.smilehunter.ablebody.utils.calculateSportElapsedTime
+import com.smilehunter.ablebody.utils.calculateUserElapsedTime
 import kotlin.math.roundToInt
 
 data class CreatorDetailData(
@@ -16,11 +17,10 @@ data class CreatorDetailData(
     val comments: Int,
     val views: Int,
     val exerciseExperience: Int,
-    val commentAndReplies: List<CommentOrReply>,
     val isLiked: Boolean,
     val bookmarked: Boolean
 ) {
-    val elapsedTime = calculateElapsedTime(createDate)
+    val elapsedTime = calculateUserElapsedTime(createDate)
     data class UserInfo(
         val uid: String,
         val nickname: String,
@@ -37,7 +37,7 @@ data class CreatorDetailData(
         val favoriteExercise: String?,
         val experienceExercise: String?,
     ) {
-        val experienceExerciseElapsedTime = experienceExercise?.let { calculateElapsedTime("${it}T00:00:00") }
+        val experienceExerciseElapsedTime = experienceExercise?.let { calculateSportElapsedTime("${it}T00:00:00") }
     }
     data class PositionItem(
         val id: Long,
@@ -85,28 +85,5 @@ data class CreatorDetailData(
                 val isLaunched: Boolean
             )
         }
-    }
-
-
-    data class CommentOrReply(
-        val type: CommentReplyType,
-        val createDate: String,
-        val modifiedDate: String,
-        val id: Long,
-        val writer: User,
-        val contents: String,
-        val likeCount: Int,
-        val parentID: Long?,
-        val isLiked: Boolean
-    ) {
-        val elapsedTime = calculateElapsedTime(createDate)
-        enum class CommentReplyType { COMMENT, REPLY }
-
-        data class User(
-            val uid: String,
-            val nickname: String,
-            val name: String,
-            val profileUrl: String?,
-        )
     }
 }

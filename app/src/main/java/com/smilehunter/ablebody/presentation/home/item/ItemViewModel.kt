@@ -8,23 +8,38 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
+import com.smilehunter.ablebody.model.LocalUserInfoData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class ItemViewModel @Inject constructor(
-    productItemPagerUseCase: ProductItemPagerUseCase
+    productItemPagerUseCase: ProductItemPagerUseCase,
+    userRepository: UserRepository
 ): ViewModel() {
+
+    private val _networkRefreshFlow = MutableSharedFlow<Unit>()
+    private val networkRefreshFlow = _networkRefreshFlow.asSharedFlow()
+
+    fun refreshNetwork() {
+        viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
+    }
 
     private val _sortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val sortingMethod = _sortingMethod.asStateFlow()
@@ -50,7 +65,13 @@ class ItemViewModel @Inject constructor(
         viewModelScope.launch { _itemChildCategory.emit(itemChildCategory) }
     }
 
-    private val _itemGender = MutableStateFlow(ItemGender.MALE)
+    private val _itemGender = MutableStateFlow(
+        when (runBlocking { userRepository.localUserInfoData.firstOrNull()?.gender }) {
+            LocalUserInfoData.Gender.MALE -> ItemGender.MALE
+            LocalUserInfoData.Gender.FEMALE -> ItemGender.FEMALE
+            else -> ItemGender.MALE
+        }
+    )
     val itemGender = _itemGender.asStateFlow()
 
     fun updateItemGender(itemGender: ItemGender) {
@@ -58,12 +79,13 @@ class ItemViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val productItemListTest = combine(sortingMethod, itemParentCategory, itemChildCategory, itemGender) { sort, parent, child, gender ->
-        productItemPagerUseCase(ProductItemPagingSourceData.Item(sort, gender, parent, child))
-    }
-        .flatMapLatest {
-            it.cachedIn(viewModelScope)
+    val productPagingItems = networkRefreshFlow.onSubscription { emit(Unit) }.flatMapLatest {
+        combine(sortingMethod, itemParentCategory, itemChildCategory, itemGender) { sort, parent, child, gender ->
+            productItemPagerUseCase(ProductItemPagingSourceData.Item(sort, gender, parent, child))
         }
+    }
+        .flatMapLatest { it }
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.home.brand.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -50,7 +54,9 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.fake.fakeBrandListData
 import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
 import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
@@ -84,8 +90,18 @@ fun BrandRoute(
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
-    if (brandItemList is BrandListResultUiState.Error) {
-        // TODO: Error Handling
+
+    val isNetworkDisconnected = brandItemList is BrandListResultUiState.Error || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { viewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
     }
 }
 
@@ -169,7 +185,7 @@ fun BrandScreen(
                             )
                         }
                         item {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }

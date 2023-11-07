@@ -1,13 +1,18 @@
 package com.smilehunter.ablebody.presentation.home.item.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -18,6 +23,8 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.item.ItemViewModel
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
@@ -34,7 +41,7 @@ fun ItemRoute(
     val itemParentCategory by itemViewModel.itemParentCategory.collectAsStateWithLifecycle()
     val itemChildCategory by itemViewModel.itemChildCategory.collectAsStateWithLifecycle()
     val gender by itemViewModel.itemGender.collectAsStateWithLifecycle()
-    val productPagingItems = itemViewModel.productItemListTest.collectAsLazyPagingItems()
+    val productPagingItems = itemViewModel.productPagingItems.collectAsLazyPagingItems()
     ItemScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
@@ -49,6 +56,19 @@ fun ItemRoute(
         gender = gender,
         productPagingItems = productPagingItems
     )
+
+    val isNetworkDisconnected = productPagingItems.loadState.refresh is LoadState.Error || !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { itemViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 
 @Composable

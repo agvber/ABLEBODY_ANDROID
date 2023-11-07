@@ -1,6 +1,7 @@
 package com.smilehunter.ablebody.ui.cody_item
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -22,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
@@ -38,7 +41,7 @@ import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.CodyItemFilterBottomSheetTabFilterType
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.flow.flowOf
@@ -148,11 +151,7 @@ fun CodyItemListLayout(
                     count = codyItemData.itemCount,
                     key = codyItemData.itemKey { it.id }
                 ) { index ->
-                    AsyncImage(
-                        model = codyItemData[index]?.imageURL,
-                        contentDescription = "cody recommended image",
-                        contentScale = ContentScale.Crop,
-                        placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
+                    Box(
                         modifier = Modifier
                             .aspectRatio(4f / 5f)
                             .clickable(
@@ -161,10 +160,27 @@ fun CodyItemListLayout(
                                 onClick = { codyItemData[index]?.id?.let { itemClick(it) } }
                             )
                             .animateItemPlacement(),
-                    )
+                    ) {
+                        AsyncImage(
+                            model = codyItemData[index]?.imageURL,
+                            contentDescription = "cody recommended image",
+                            contentScale = ContentScale.Crop,
+                            placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        if (codyItemData[index]?.isSingleImage == false) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_product_item_squaremultiple),
+                                contentDescription = "square multiple",
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(10.dp)
+                            )
+                        }
+                    }
                 }
                 item(span = { GridItemSpan(2) }) {
-                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                 }
             }
         }

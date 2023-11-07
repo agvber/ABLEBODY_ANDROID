@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.notification.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -25,13 +27,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -41,6 +46,8 @@ import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.NotificationPassedTime
 import com.smilehunter.ablebody.model.fake.fakeNotificationItemData
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.notification.NotificationViewModel
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -57,7 +64,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NotificationRoute(
     onBackRequest: () -> Unit,
-    itemClick: (Long) -> Unit,
+    itemClick: (String) -> Unit,
     notificationViewModel: NotificationViewModel = hiltViewModel()
 ) {
     val notificationItemData = notificationViewModel.pagingItemList.collectAsLazyPagingItems()
@@ -68,13 +75,27 @@ fun NotificationRoute(
             notificationViewModel.allCheck()
                             },
         onCheckedRequest = {
-            itemClick(it.id)
+            itemClick(it.uri)
             if (!it.checked) {
                 notificationViewModel.itemCheck(it.id)
             }
                            },
         notificationItemData = notificationItemData
     )
+
+    val isNetworkDisconnected = notificationItemData.loadState.refresh is LoadState.Error ||
+            !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { notificationViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 
 @Composable

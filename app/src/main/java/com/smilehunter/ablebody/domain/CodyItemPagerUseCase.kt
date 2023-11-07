@@ -59,7 +59,7 @@ class CodyItemPagerUseCase @Inject constructor(
                                 codyPagingSourceData.personHeightRangeEnd,
                                 currentPageIndex
                             )
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
                         is CodyPagingSourceData.CodyRecommended -> {
                             findCodyRepository.findCody(
@@ -69,7 +69,7 @@ class CodyItemPagerUseCase @Inject constructor(
                                 codyPagingSourceData.personHeightRangeEnd,
                                 currentPageIndex
                             )
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
 
                         is CodyPagingSourceData.Search -> {
@@ -81,16 +81,15 @@ class CodyItemPagerUseCase @Inject constructor(
                                 codyPagingSourceData.personHeightRangeEnd,
                                 currentPageIndex
                             )
-                                .data?.toDomain()
+                                .data!!.toDomain()
                         }
 
                         CodyPagingSourceData.Bookmark -> {
                             bookmarkRepository.readBookmarkCody(currentPageIndex)
-                                .body()?.data?.toDomain()
+                                .body()!!.data!!.toDomain()
                         }
                     }
                 }
-                    ?: CodyItemData(emptyList(), 0, true, 0, true)
 
                 LoadResult.Page(
                     data = codyItemData.content,
@@ -138,7 +137,7 @@ private fun BrandDetailCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -156,7 +155,7 @@ private fun FindCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -174,7 +173,7 @@ private fun ReadBookmarkCodyData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,
@@ -192,7 +191,7 @@ private fun SearchCodyResponseData.toDomain() =
                 comments = it.comments,
                 likes = it.likes,
                 views = it.views,
-                isSingleImage = it.plural
+                isSingleImage = !it.plural
             )
         },
         totalPages = totalPages,

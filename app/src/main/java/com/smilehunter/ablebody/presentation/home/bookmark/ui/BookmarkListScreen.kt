@@ -1,10 +1,15 @@
 package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -19,24 +24,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.bookmark.BookmarkViewModel
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
@@ -56,11 +71,25 @@ fun BookmarkListRoute(
         onAlertButtonClick = onAlertButtonClick,
         productItemClick = productItemClick,
         codyItemClick = codyItemClick,
-        webPageRequest = { /* TODO 웹페이지로 바로가기 or 구매페이지로 바로가기 */ },
         requestProductItemDelete = { bookmarkViewModel.deleteProductItem(it) },
         productPagingItemList = productPagingItemList,
         codyPagingItemList = codyPagingItemList,
     )
+
+    val isNetworkDisconnected = productPagingItemList.loadState.refresh is LoadState.Error ||
+            codyPagingItemList.loadState.refresh is LoadState.Error ||
+            !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { bookmarkViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -70,7 +99,6 @@ fun BookmarkListScreen(
     onAlertButtonClick: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
-    webPageRequest: (String) -> Unit,
     requestProductItemDelete: (List<Long>) -> Unit,
     productPagingItemList: LazyPagingItems<ProductItemData.Item>,
     codyPagingItemList: LazyPagingItems<CodyItemData.Item>,
@@ -111,14 +139,14 @@ fun BookmarkListScreen(
             when(page) {
                 0 -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(2)
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(
                             count = productPagingItemList.itemCount,
                             key = productPagingItemList.itemKey { it.id }
                         ) { position ->
                             BookmarkProductItemLayout(
-                                requestWebPage = { productPagingItemList[position]?.url?.let(webPageRequest) },
                                 bookmarkClick = {
                                     productPagingItemList[position]?.id?.let { id ->
                                         if (productItemRemoveList.contains(id)) {
@@ -143,28 +171,42 @@ fun BookmarkListScreen(
                             )
                         }
                         item(span = { GridItemSpan(2) }) {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }
                 1 -> {
-                    LazyVerticalGrid(columns = GridCells.Fixed(3),) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(1.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
                         items(
                             count = codyPagingItemList.itemCount,
                             key = codyPagingItemList.itemKey { it.id }
                         ) { position ->
-                            AsyncImage(
-                                model = codyPagingItemList[position]?.imageURL,
-                                contentDescription = "cody item",
-                                modifier = Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = { codyPagingItemList[position]?.id?.let(codyItemClick) }
+                            Box(
+                                modifier = Modifier
+                                    .nonReplyClickable { codyPagingItemList[position]?.id?.let(codyItemClick) }
+                            ) {
+                                AsyncImage(
+                                    model = codyPagingItemList[position]?.imageURL,
+                                    contentDescription = "cody item",
                                 )
-                            )
+                                if (codyPagingItemList[position]?.isSingleImage == false) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_product_item_squaremultiple),
+                                        contentDescription = "square multiple",
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(10.dp)
+                                    )
+                                }
+                            }
                         }
                         item(span = { GridItemSpan(3) }) {
-                            Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                            Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                         }
                     }
                 }
@@ -182,7 +224,6 @@ fun BookmarkListScreenPreview() {
             onAlertButtonClick = {},
             productItemClick = {},
             codyItemClick = {},
-            webPageRequest = { },
             requestProductItemDelete = {},
             productPagingItemList = flowOf(PagingData.from(fakeProductItemData.content)).collectAsLazyPagingItems(),
             codyPagingItemList = flowOf(PagingData.from(fakeCodyItemData.content)).collectAsLazyPagingItems()

@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.brand_detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -11,33 +12,49 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.CodyItemPagerUseCase
 import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.LocalUserInfoData
+import com.smilehunter.ablebody.model.ProductItemData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class BrandDetailViewModel @Inject constructor(
     productItemPagerUseCase: ProductItemPagerUseCase,
-    codyItemPagerUseCase: CodyItemPagerUseCase
+    codyItemPagerUseCase: CodyItemPagerUseCase,
+    userRepository: UserRepository,
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val contentID = MutableStateFlow<Long>(-1)
+    private val _networkRefreshFlow = MutableSharedFlow<Unit>()
+    private val networkRefreshFlow = _networkRefreshFlow.asSharedFlow()
 
-    fun updateContentID(id: Long) {
-        viewModelScope.launch { contentID.emit(id) }
+    fun refreshNetwork() {
+        viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
     }
+
+    val brandName = savedStateHandle.getStateFlow("content_name", "")
+    private val contentID = savedStateHandle.getStateFlow("content_id", 0L)
 
     private val _brandProductItemSortingMethod = MutableStateFlow(SortingMethod.POPULAR)
     val brandProductItemSortingMethod = _brandProductItemSortingMethod.asStateFlow()
@@ -48,7 +65,13 @@ class BrandDetailViewModel @Inject constructor(
         }
     }
 
-    private val _brandProductItemGender = MutableStateFlow(ItemGender.MALE)
+    private val _brandProductItemGender = MutableStateFlow(
+        when (runBlocking { userRepository.localUserInfoData.firstOrNull()?.gender }) {
+            LocalUserInfoData.Gender.MALE -> ItemGender.MALE
+            LocalUserInfoData.Gender.FEMALE -> ItemGender.FEMALE
+            else -> ItemGender.MALE
+        }
+    )
     val brandProductItemGender = _brandProductItemGender.asStateFlow()
 
     fun updateBrandProductItemGender(gender: ItemGender) {
@@ -77,18 +100,34 @@ class BrandDetailViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val productItemContentList = combine(
-        brandProductItemSortingMethod,
-        contentID,
-        brandProductItemGender,
-        brandProductItemParentFilter,
-        brandProductItemChildFilter
-    ) { sort, id, gender, parent, child, ->
-        productItemPagerUseCase(ProductItemPagingSourceData.Brand(sort, id, gender, parent, child))
-    }
-        .flatMapLatest {
-            it.cachedIn(viewModelScope)
-        }
+    val productItemContentList: StateFlow<PagingData<ProductItemData.Item>> =
+        networkRefreshFlow.onSubscription { emit(Unit) }
+            .flatMapLatest {
+                combine(
+                    brandProductItemSortingMethod,
+                    contentID,
+                    brandProductItemGender,
+                    brandProductItemParentFilter,
+                    brandProductItemChildFilter
+                ) { sort, id, gender, parent, child ->
+                    productItemPagerUseCase(
+                        ProductItemPagingSourceData.Brand(
+                            sort,
+                            id,
+                            gender,
+                            parent,
+                            child
+                        )
+                    )
+                }
+                    .flatMapLatest { it }
+                    .cachedIn(viewModelScope)
+            }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = PagingData.empty()
+                )
 
     fun resetCodyItemFilter() {
         viewModelScope.launch {
@@ -119,16 +158,31 @@ class BrandDetailViewModel @Inject constructor(
         viewModelScope.launch { _codyItemListPersonHeightFilter.emit(sports) }
     }
 
-    val codyPagingItem: Flow<PagingData<CodyItemData.Item>> =
-        combine(
-            contentID,
-            codyItemListGenderFilter,
-            codyItemListSportFilter,
-            codyItemListPersonHeightFilter
-        ) { id, gender, sport, height ->
-            codyItemPagerUseCase(CodyPagingSourceData.Brand(id, gender, sport, height.rangeStart, height.rangeEnd))
-        }
+    val codyPagingItem: StateFlow<PagingData<CodyItemData.Item>> =
+        networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
-                it.cachedIn(viewModelScope)
+                combine(
+                    contentID,
+                    codyItemListGenderFilter,
+                    codyItemListSportFilter,
+                    codyItemListPersonHeightFilter
+                ) { id, gender, sport, height ->
+                    codyItemPagerUseCase(
+                        CodyPagingSourceData.Brand(
+                            id,
+                            gender,
+                            sport,
+                            height.rangeStart,
+                            height.rangeEnd
+                        )
+                    )
+                }
+                    .flatMapLatest { it }
+                    .cachedIn(viewModelScope)
             }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = PagingData.empty()
+                )
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">ABLEBODY_Android</string>
+    <string name="app_name" translatable="false">애블바디</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="title_activity_login_input_phone_number_screen" translatable="false">LoginInputPhoneNumberScreen
     </string>

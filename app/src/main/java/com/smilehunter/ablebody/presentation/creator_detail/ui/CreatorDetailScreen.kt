@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.creator_detail.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -34,11 +36,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,8 +54,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -68,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -78,7 +82,9 @@ import com.smilehunter.ablebody.model.CreatorDetailData
 import com.smilehunter.ablebody.model.fake.fakeCreatorDetailData
 import com.smilehunter.ablebody.presentation.creator_detail.CreatorDetailViewModel
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
-import com.smilehunter.ablebody.presentation.main.ui.scaffoldPaddingValueCompositionLocal
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
+import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -90,7 +96,8 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.theme.White
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
-import com.smilehunter.ablebody.utils.CalculateElapsedTime
+import com.smilehunter.ablebody.utils.CalculateSportElapsedTime
+import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.NonReplyIconButton
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import java.text.NumberFormat
@@ -103,28 +110,35 @@ fun CreatorDetailRoute(
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
-    snsShortcutButtonOnClick: (String) -> Unit,
     productItemOnClick: (Long) -> Unit,
-    id: Long?,
     creatorDetailViewModel: CreatorDetailViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = Unit) { id?.let { creatorDetailViewModel.updateContentID(it) } }
-
     val creatorDetailUiState by creatorDetailViewModel.creatorDetailData.collectAsStateWithLifecycle()
 
     CreatorDetailScreen(
         onBackRequest = onBackRequest,
         profileIconOnClick = profileRequest,
         likeButtonOnClick = { creatorDetailViewModel.toggleLike(it) },
-        bookmarkButtonOnClick = { creatorDetailViewModel.toggleBookmark(it) },
+        bookmarkButtonOnClick = creatorDetailViewModel::toggleBookmark,
         commentButtonOnClick = commentButtonOnClick,
         likeCountButtonOnClick = likeCountButtonOnClick,
-        snsShortcutButtonOnClick = snsShortcutButtonOnClick,
         productItemOnClick = productItemOnClick,
         creatorDetailUiState = creatorDetailUiState
     )
-    if (creatorDetailUiState is CreatorDetailUiState.LoadFail) {
-        // TODO: Error handling
+
+    val isNetworkDisconnected =
+        creatorDetailUiState is CreatorDetailUiState.LoadFail ||
+            !LocalNetworkConnectState.current
+    if (isNetworkDisconnected) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { creatorDetailViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
     }
 }
 
@@ -134,10 +148,9 @@ fun CreatorDetailScreen(
     onBackRequest: () -> Unit,
     profileIconOnClick: (String) -> Unit,
     likeButtonOnClick: (Long)  -> Unit,
-    bookmarkButtonOnClick: (Long) -> Unit,
+    bookmarkButtonOnClick: (Long, Boolean) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
-    snsShortcutButtonOnClick: (String) -> Unit,
     productItemOnClick: (Long) -> Unit,
     creatorDetailUiState: CreatorDetailUiState,
 ) {
@@ -146,8 +159,8 @@ fun CreatorDetailScreen(
     ) { paddingValue ->
         if (creatorDetailUiState is CreatorDetailUiState.Success) {
             val creatorDetailData = creatorDetailUiState.data
-            var isLiked by remember { mutableStateOf(creatorDetailData.isLiked) }
-            var isBookmarked by remember { mutableStateOf(creatorDetailData.bookmarked) }
+            var isLiked by rememberSaveable { mutableStateOf(creatorDetailData.isLiked) }
+            var isBookmarked by rememberSaveable { mutableStateOf(creatorDetailData.bookmarked) }
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -165,7 +178,7 @@ fun CreatorDetailScreen(
                         elapsedTime = creatorDetailData.elapsedTime
                     )
                     Box(modifier = Modifier.aspectRatio(3f / 4f)) {
-                        var visibleTag by remember { mutableStateOf(false) }
+                        var visibleTag by rememberSaveable { mutableStateOf(false) }
                         val pagerState = rememberPagerState(pageCount = { creatorDetailData.imageURLList.size })
                         HorizontalPager(
                             state = pagerState,
@@ -273,9 +286,10 @@ fun CreatorDetailScreen(
                             experienceExercise = creatorDetailData.userInfo.experienceExerciseElapsedTime?.let { convertSportElapsedTimeToString(it) } ?: "",
                             favoriteExercise = creatorDetailData.userInfo.favoriteExercise ?: ""
                         )
-                        if (creatorDetailData.userInfo.instagramWebLink != null) {
+                        val uriHandler = LocalUriHandler.current
+                        if (!creatorDetailData.userInfo.instagramWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
-                                onClick = { snsShortcutButtonOnClick(creatorDetailData.userInfo.instagramWebLink) },
+                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.instagramWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 인스타그램 바로 가기",
                                 textColor = Color(0xFF661FF5),
                                 backgroundColor = Color(0xFFF0E9FE),
@@ -288,9 +302,9 @@ fun CreatorDetailScreen(
                                 )
                             }
                         }
-                        if (creatorDetailData.userInfo.youtubeWebLink != null) {
+                        if (!creatorDetailData.userInfo.youtubeWebLink.isNullOrBlank()) {
                             SNSShortcutButton(
-                                onClick = { creatorDetailData.userInfo.youtubeWebLink },
+                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.youtubeWebLink) },
                                 text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
                                 textColor = Color(0xFFEA3323),
                                 backgroundColor = Color(0xFFF0E9FE),
@@ -350,7 +364,7 @@ fun CreatorDetailScreen(
                     }
                 }
                 item {
-                    Box(modifier = Modifier.padding(scaffoldPaddingValueCompositionLocal.current))
+                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
                 }
             }
             val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
@@ -361,7 +375,7 @@ fun CreatorDetailScreen(
                             likeButtonOnClick(creatorDetailData.id)
                         }
                         if (creatorDetailData.bookmarked != isBookmarked) {
-                            bookmarkButtonOnClick(creatorDetailData.id)
+                            bookmarkButtonOnClick(creatorDetailData.id, creatorDetailData.bookmarked)
                         }
                     }
                 }
@@ -374,15 +388,15 @@ fun CreatorDetailScreen(
     }
 }
 
-private fun convertSportElapsedTimeToString(elapsedTime: CalculateElapsedTime): String =
+private fun convertSportElapsedTimeToString(elapsedTime: CalculateSportElapsedTime): String =
     when (elapsedTime) {
-        is CalculateElapsedTime.Year -> "${elapsedTime.year}년 운동 중"
-        is CalculateElapsedTime.Month -> "${elapsedTime.month}개월 운동 중"
-        is CalculateElapsedTime.Week -> "${elapsedTime.week}주 운동 중"
-        is CalculateElapsedTime.Day ->"${elapsedTime.day}일 운동 중"
-        is CalculateElapsedTime.Hour -> "${elapsedTime.hour}시간 운동 중"
-        is CalculateElapsedTime.Minutes -> "${elapsedTime.minutes}분 운동 중"
-        is CalculateElapsedTime.Second -> "${elapsedTime.second}초 운동 중"
+        is CalculateSportElapsedTime.Year -> "${elapsedTime.year}년 운동 중"
+        is CalculateSportElapsedTime.Month -> "${elapsedTime.month}개월 운동 중"
+        is CalculateSportElapsedTime.Week -> "${elapsedTime.week}주 운동 중"
+        is CalculateSportElapsedTime.Day ->"${elapsedTime.day}일 운동 중"
+        is CalculateSportElapsedTime.Hour -> "${elapsedTime.hour}시간 운동 중"
+        is CalculateSportElapsedTime.Minutes -> "${elapsedTime.minutes}분 운동 중"
+        is CalculateSportElapsedTime.Second -> "${elapsedTime.second}초 운동 중"
     }
 
 private fun convertItemCategoryToString(category: CreatorDetailData.PositionItem.Category): String =
@@ -414,7 +428,7 @@ fun CreatorInfo(
     height: Int?,
     weight: Int?,
     job: String?,
-    elapsedTime: CalculateElapsedTime
+    elapsedTime: CalculateUserElapsedTime
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -478,15 +492,12 @@ fun CreatorInfo(
     }
 }
 
-private fun convertElapsedTimeToString(elapsedTime: CalculateElapsedTime): String =
+private fun convertElapsedTimeToString(elapsedTime: CalculateUserElapsedTime): String =
     when (elapsedTime) {
-        is CalculateElapsedTime.Year -> "${elapsedTime.year}년 전"
-        is CalculateElapsedTime.Month -> "${elapsedTime.month}개월 전"
-        is CalculateElapsedTime.Week -> "${elapsedTime.week}주 전"
-        is CalculateElapsedTime.Day ->"${elapsedTime.day}일 전"
-        is CalculateElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
-        is CalculateElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
-        is CalculateElapsedTime.Second -> "${elapsedTime.second}초 전"
+        is CalculateUserElapsedTime.Date -> "${elapsedTime.month}월 ${elapsedTime.day}일"
+        is CalculateUserElapsedTime.Hour -> "${elapsedTime.hour}시간 전"
+        is CalculateUserElapsedTime.Minutes -> "${elapsedTime.minutes}분 전"
+        is CalculateUserElapsedTime.Recent -> "방금 전"
     }
 
 private fun makeUserDescription(vararg values: String?): String =
@@ -934,7 +945,7 @@ fun CreatorInfoPreview() {
         height = 181,
         weight = 76,
         job = null,
-        elapsedTime = CalculateElapsedTime.Minutes(46)
+        elapsedTime = CalculateUserElapsedTime.Minutes(46)
     )
 }
 
@@ -1016,10 +1027,9 @@ fun CreatorDetailScreenPreview() {
             onBackRequest = {},
             profileIconOnClick = {},
             likeButtonOnClick = {},
-            bookmarkButtonOnClick = {},
+            bookmarkButtonOnClick = { _, _ ->},
             commentButtonOnClick = {},
             likeCountButtonOnClick = {},
-            snsShortcutButtonOnClick = {},
             productItemOnClick = {},
             creatorDetailUiState = CreatorDetailUiState.Success(fakeCreatorDetailData)
         )

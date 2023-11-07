@@ -20,7 +20,14 @@ class FindItemRepositoryImpl @Inject constructor(
         page: Int,
         size: Int
     ): Response<FindItemResponse> {
-        return networkService.findItem(sortingMethod, itemGender, parentCategory, childCategory, page, size)
+        return networkService.findItem(
+            sort = sortingMethod,
+            itemGender = itemGender,
+            parentCategory = childCategory?.parentCategory ?: parentCategory,
+            childCategory = childCategory,
+            page = page,
+            size = size
+        )
     }
 
 }

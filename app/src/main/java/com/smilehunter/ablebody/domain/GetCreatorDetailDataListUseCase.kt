@@ -16,7 +16,7 @@ class GetCreatorDetailDataListUseCase @Inject constructor(
     }
 }
 
-private fun CreatorDetailResponseData.toDomain(userID: String) = CreatorDetailData(
+private fun CreatorDetailResponseData.toDomain(uid: String) = CreatorDetailData(
     id = id,
     createDate = createDate,
     category = category,
@@ -85,29 +85,6 @@ private fun CreatorDetailResponseData.toDomain(userID: String) = CreatorDetailDa
     comments = comments,
     views = views,
     exerciseExperience = career,
-    commentAndReplies = commentAndReplies.map { comment ->
-        CreatorDetailData.CommentOrReply(
-            type = when (comment.type) {
-                CreatorDetailResponseData.CommentOrReply.CommentReplyType.COMMENT ->
-                    CreatorDetailData.CommentOrReply.CommentReplyType.COMMENT
-                CreatorDetailResponseData.CommentOrReply.CommentReplyType.REPLY ->
-                    CreatorDetailData.CommentOrReply.CommentReplyType.REPLY
-            },
-            createDate = comment.createDate,
-            modifiedDate = comment.modifiedDate,
-            id = comment.id,
-            writer = CreatorDetailData.CommentOrReply.User(
-                uid = comment.writer.uid,
-                nickname = comment.writer.nickname,
-                name = comment.writer.name,
-                profileUrl = comment.writer.profileUrl
-            ),
-            contents = comment.contents,
-            likeCount = comment.likes,
-            parentID = comment.parentId,
-            isLiked = comment.likeUsers.find { it.uid == userID } != null
-        )
-    },
-    isLiked = likeUsers.find { it.uid == userID } != null,
+    isLiked = likeUsers.find { it.uid == uid } != null,
     bookmarked = bookmarked
 )

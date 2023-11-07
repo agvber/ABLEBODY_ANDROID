@@ -1,7 +1,7 @@
 package com.smilehunter.ablebody.data.dto.response
 
-import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailCodyResponseData
+import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailCommentResponseData
 import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailLikeUsersResponseData
@@ -10,7 +10,12 @@ import com.smilehunter.ablebody.data.dto.response.data.CreatorDetailResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FCMTokenAndAppVersionUpdateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.FindItemResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetAddressResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetCouponBagsResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetDeliveryInfoResponseData
 import com.smilehunter.ablebody.data.dto.response.data.GetMyNotiResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetOrderListDetailResponseData
+import com.smilehunter.ablebody.data.dto.response.data.GetOrderListResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.NewUserCreateResponseData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -77,3 +82,21 @@ typealias CreatorDetailDeleteResponse = AbleBodyResponse<Long>
 /** Item **/
 
 typealias ItemDetailResponse = AbleBodyResponse<ItemResponseData>
+
+/** Address **/
+
+typealias AddAddressResponse = AbleBodyResponse<String>
+typealias GetAddressResponse = AbleBodyResponse<GetAddressResponseData>
+typealias EditAddressResponse = AbleBodyResponse<String>
+
+/** Coupon **/
+
+typealias GetCouponBagsResponse = AbleBodyResponse<List<GetCouponBagsResponseData>>
+
+/** OrderList **/
+
+typealias AddOrderListResponse = AbleBodyResponse<String>
+typealias GetOrderListResponse = AbleBodyResponse<List<GetOrderListResponseData>>
+typealias CancelOrderListResponse = AbleBodyResponse<String>
+typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
+typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailResponseData>

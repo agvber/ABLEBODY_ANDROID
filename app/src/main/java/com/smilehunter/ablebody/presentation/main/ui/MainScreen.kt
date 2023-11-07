@@ -10,25 +10,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.smilehunter.ablebody.presentation.main.MainNavHost
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
+import kotlinx.coroutines.flow.StateFlow
 
-val scaffoldPaddingValueCompositionLocal = staticCompositionLocalOf {
+internal val LocalMainScaffoldPaddingValue = staticCompositionLocalOf {
     PaddingValues()
 }
 
+internal val LocalNetworkConnectState = staticCompositionLocalOf {
+    true
+}
+
 @Composable
-fun MainScreen() {
-    var isBottomBarShow by remember { mutableStateOf(true) }
-    var currentNavigationItem by remember { mutableStateOf(NavigationItems.Brand) }
+fun MainScreen(
+    isNetworkConnectionFlow: StateFlow<Boolean>
+) {
+    var isBottomBarShow by rememberSaveable { mutableStateOf(true) }
+    var currentNavigationItem by rememberSaveable { mutableStateOf(NavigationItems.Brand) }
     val navController = rememberNavController()
-    val uriHandler = LocalUriHandler.current
+    val isNetworkConnection by isNetworkConnectionFlow.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -57,19 +63,15 @@ fun MainScreen() {
             }
         },
         content = { paddingValue ->
-            CompositionLocalProvider(scaffoldPaddingValueCompositionLocal.provides(paddingValue)) {
+            CompositionLocalProvider(
+                LocalMainScaffoldPaddingValue.provides(paddingValue),
+                LocalNetworkConnectState.provides(isNetworkConnection)
+            ) {
                 MainNavHost(
                     isBottomBarShow = { isBottomBarShow = it },
-                    uriRequest = { uriHandler.openUri(it) },
                     navController = navController
                 )
             }
         }
     )
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun MainScreenPreview() {
-    MainScreen()
 }

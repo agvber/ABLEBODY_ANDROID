@@ -37,8 +37,6 @@ fun NavGraphBuilder.addBrandDetailScreen(
             onBackClick = onBackRequest,
             productItemClick = productItemClick,
             codyItemClick = codyItemClick,
-            contentID = backStackEntry.arguments?.getLong("content_id"),
-            contentName = backStackEntry.arguments?.getString("content_name", "")!!
         )
         isBottomBarShow(true)
     }

@@ -5,7 +5,6 @@ import com.smilehunter.ablebody.data.dto.response.CheckSMSResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
-import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.network.NetworkService
 import com.smilehunter.ablebody.sharedPreferences.TokenSharedPreferences
 import retrofit2.Response
@@ -54,6 +53,4 @@ class OnboardingRepositoryImpl @Inject constructor(
             }
         }
     }
-
-    override suspend fun getUserData(): Response<UserDataResponse> = networkService.getUserData()
 }

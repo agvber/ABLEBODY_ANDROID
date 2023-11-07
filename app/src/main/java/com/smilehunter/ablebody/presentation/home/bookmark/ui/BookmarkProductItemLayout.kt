@@ -1,8 +1,6 @@
 package com.smilehunter.ablebody.presentation.home.bookmark.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,9 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,22 +33,22 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleLight
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
 fun BookmarkProductItemLayout(
-    requestWebPage: () -> Unit,
     bookmarkClick: () -> Unit,
     selected: Boolean,
+    modifier: Modifier = Modifier,
     productName: String,
     productPrice: Int,
     productSalePrice: Int?,
     brandName: String,
     imageURL: String,
-    isSingleImage: Boolean,
-    modifier: Modifier = Modifier
+    isSingleImage: Boolean
 ) {
     Column(modifier = modifier) {
         Box {
@@ -98,7 +94,7 @@ fun BookmarkProductItemLayout(
                         painter = painterResource(id = if (selected) R.drawable.ic_bookmark_fill else R.drawable.ic_bookmark_empty),
                         contentDescription = "bookmark",
                         tint = Color.Black,
-                        modifier = Modifier.clickable { bookmarkClick() }
+                        modifier = Modifier.nonReplyClickable(onClick = bookmarkClick)
                     )
                 }
                 Text(
@@ -147,26 +143,6 @@ fun BookmarkProductItemLayout(
                     }
                 }
             }
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { requestWebPage() }
-                ,
-                shape = RoundedCornerShape(size = 5.dp),
-                border = BorderStroke(width = 1.dp, color = AbleLight)
-            ) {
-                Text(
-                    text = "구매링크 이동",
-                    style = TextStyle(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight(500),
-                        color = AbleDark,
-                    ),
-                    modifier = Modifier
-                        .padding(vertical = 8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
         }
     }
 }
@@ -176,15 +152,14 @@ fun BookmarkProductItemLayout(
 fun BookmarkProductItemLayoutPreview() {
     ABLEBODY_AndroidTheme {
         BookmarkProductItemLayout(
-            requestWebPage = {  },
             bookmarkClick = {  },
+            selected = false,
             productName = "ONYOURON SWEATS(BLACk",
             productPrice = 39000,
             productSalePrice = 34000,
             brandName = "온유어오운",
             imageURL = "",
-            isSingleImage = false,
-            selected = false
+            isSingleImage = false
         )
     }
 }

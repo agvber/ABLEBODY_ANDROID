@@ -25,7 +25,6 @@ private val LightColorScheme = lightColorScheme(
     secondary = LightShaded,
     tertiary = AbleRed,
     background = White,
-    surface = White
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
