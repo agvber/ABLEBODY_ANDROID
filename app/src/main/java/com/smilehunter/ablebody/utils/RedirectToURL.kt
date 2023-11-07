@@ -16,6 +16,8 @@ fun redirectToURL(context: Context, Destination: String) {
         websiteUrl = "https://spiffy-vegetarian-7f4.notion.site/3-aad37406127b4309aea46ce65e36c4da?pvs=4" // Replace with the URL you want to open
     }else if(Destination == "marketing information consent") {
         websiteUrl = "https://spiffy-vegetarian-7f4.notion.site/3ef674070cf945f79c35b80b3ee33909?pvs=4" // Replace with the URL you want to open
+    }else if(Destination == "Personal Information Processing Policy") {
+        websiteUrl = "https://spiffy-vegetarian-7f4.notion.site/38b4ac1baa874fbf8195784f7b4d1169"
     }
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(websiteUrl))
     context.startActivity(intent)
