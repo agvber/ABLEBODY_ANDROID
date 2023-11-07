@@ -74,7 +74,13 @@ class CreatorDetailViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) { creatorDetailRepository.toggleLike(id) }
     }
 
-    fun toggleBookmark(id: Long) {
-        viewModelScope.launch(ioDispatcher) { bookmarkRepository.addBookmarkCody(id) }
+    fun toggleBookmark(id: Long, isBookmarked: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            if (!isBookmarked) {
+                bookmarkRepository.addBookmarkCody(id)
+            } else {
+                bookmarkRepository.deleteBookmarkCody(id)
+            }
+        }
     }
 }

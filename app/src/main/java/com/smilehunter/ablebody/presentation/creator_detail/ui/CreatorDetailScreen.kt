@@ -119,7 +119,7 @@ fun CreatorDetailRoute(
         onBackRequest = onBackRequest,
         profileIconOnClick = profileRequest,
         likeButtonOnClick = { creatorDetailViewModel.toggleLike(it) },
-        bookmarkButtonOnClick = { creatorDetailViewModel.toggleBookmark(it) },
+        bookmarkButtonOnClick = creatorDetailViewModel::toggleBookmark,
         commentButtonOnClick = commentButtonOnClick,
         likeCountButtonOnClick = likeCountButtonOnClick,
         productItemOnClick = productItemOnClick,
@@ -148,7 +148,7 @@ fun CreatorDetailScreen(
     onBackRequest: () -> Unit,
     profileIconOnClick: (String) -> Unit,
     likeButtonOnClick: (Long)  -> Unit,
-    bookmarkButtonOnClick: (Long) -> Unit,
+    bookmarkButtonOnClick: (Long, Boolean) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
     productItemOnClick: (Long) -> Unit,
@@ -375,7 +375,7 @@ fun CreatorDetailScreen(
                             likeButtonOnClick(creatorDetailData.id)
                         }
                         if (creatorDetailData.bookmarked != isBookmarked) {
-                            bookmarkButtonOnClick(creatorDetailData.id)
+                            bookmarkButtonOnClick(creatorDetailData.id, creatorDetailData.bookmarked)
                         }
                     }
                 }
@@ -1027,7 +1027,7 @@ fun CreatorDetailScreenPreview() {
             onBackRequest = {},
             profileIconOnClick = {},
             likeButtonOnClick = {},
-            bookmarkButtonOnClick = {},
+            bookmarkButtonOnClick = { _, _ ->},
             commentButtonOnClick = {},
             likeCountButtonOnClick = {},
             productItemOnClick = {},
