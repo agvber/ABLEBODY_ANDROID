@@ -18,6 +18,7 @@ data class ItemResponseData(
     val likeUsers: List<User>,
     val itemReviews: List<ItemReview>,
     val homePosts: List<HomePost>,
+    val itemOptionList: List<ItemOptionResponseDto>,
     val bookmarked: Boolean,
     val deleted: Boolean
 ) {
@@ -35,6 +36,7 @@ data class ItemResponseData(
         val brand: Brand,
         val images: List<String>,
         val avgStarRating: String?,
+        val deliveryFee: Long?,
         val deleted: Boolean
     ) {
         data class Brand(
@@ -113,5 +115,18 @@ data class ItemResponseData(
         val views: Int,
         val plural: Boolean
     )
+    data class ItemOptionResponseDto(
+        val id: Int,
+        val content: String,
+        val itemId: Int,
+        val itemOptionDetailList: List<ItemOptionDetailResponseDto>
+    ){
+        data class ItemOptionDetailResponseDto(
+            val id: Int,
+            val content: String,
+            val stock: Int,
+            val price: Int
+        )
+    }
 
 }
