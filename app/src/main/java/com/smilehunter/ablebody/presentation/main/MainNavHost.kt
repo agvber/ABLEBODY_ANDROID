@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.main
 
+import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,10 +17,12 @@ import com.smilehunter.ablebody.presentation.home.addHomeGraph
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
     isBottomBarShow: (Boolean) -> Unit,
@@ -79,12 +83,42 @@ fun MainNavHost(
 //            isBottomBarShow = isBottomBarShow
 //        )
 
+
+
         composable(route = "ItemDetailScreen/{id}",
             arguments = listOf(
                 navArgument("id") { type = NavType.LongType}
             )
         ){ navBackStackEntry ->
-            navBackStackEntry.arguments?.getLong("id")?.let { ItemDetailScreen(id = it) }
+            navBackStackEntry.arguments?.getLong("id")?.let {
+                ItemDetailScreen(
+                    id = it,
+                    itemClick = { item_id,review_id ->
+                        Log.d("itemClick", "$item_id $review_id")
+                        navController.navigate("ItemReviewScreen/$item_id/$review_id")
+                    },
+                    onBackRequest = navController::popBackStack,
+                    purchaseOnClick = { },
+                    brandOnClick = { item_id, item_name ->
+                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name) }
+                )
+            }
+            isBottomBarShow(false)
+        }
+
+        composable(route = "ItemReviewScreen/{item_id}/{review_id}",
+            arguments = listOf(
+                navArgument("item_id") { type = NavType.LongType},
+                navArgument("review_id") { type = NavType.LongType}
+            )
+        ){ navBackStackEntry ->
+            val itemId = navBackStackEntry.arguments?.getLong("item_id")
+            val reviewId = navBackStackEntry.arguments?.getLong("review_id")
+            ItemReviewScreen(
+                id = itemId!!,
+                reviewId = reviewId!!,
+                onBackRequest = navController::popBackStack
+            )
         }
     }
 }
