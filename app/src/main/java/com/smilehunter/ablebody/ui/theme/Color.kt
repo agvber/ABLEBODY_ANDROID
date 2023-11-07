@@ -9,7 +9,7 @@ val AbleDeep = Color(0xFF505863)
 val AbleLight = Color(0xFFB0B9C2)
 
 // Secondary Color
-val LightShaded = Color(0xFFCCE1EF)
+val LightShaded = Color(0xFFCCE1FF)
 val White = Color(0xFFFFFFFF)
 
 // Special - Emphasis
