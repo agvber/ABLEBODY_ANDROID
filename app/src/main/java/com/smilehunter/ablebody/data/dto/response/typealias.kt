@@ -104,3 +104,8 @@ typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailRespon
 /** User **/
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
 typealias GetMyBoardResponse = AbleBodyResponse<GetMyBoardResponseData>
+
+/** Agreement **/
+
+typealias GetUserAdConsentResponse = AbleBodyResponse<Boolean>
+typealias AcceptUserAdConsentResponse = AbleBodyResponse<String>

@@ -11,6 +11,7 @@ import com.smilehunter.ablebody.data.dto.request.NewUserCreateRequest
 import com.smilehunter.ablebody.data.dto.request.RefreshTokenRequest
 import com.smilehunter.ablebody.data.dto.request.SMSCheckRequest
 import com.smilehunter.ablebody.data.dto.request.SMSSendRequest
+import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
@@ -41,6 +42,7 @@ import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkCodyResponse
@@ -337,4 +339,12 @@ interface NetworkAPI {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): GetMyBoardResponse
+
+    /** Agreement **/
+
+    @GET("/api/my/consent-pushad")
+    suspend fun getUserAdConsent(): GetUserAdConsentResponse
+
+    @POST("/api/my/consent-pushad")
+    suspend fun acceptUserAdConsent(): AcceptUserAdConsentResponse
 }
