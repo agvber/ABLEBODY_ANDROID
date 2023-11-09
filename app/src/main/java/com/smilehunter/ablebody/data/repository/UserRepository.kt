@@ -44,4 +44,8 @@ interface UserRepository {
         page: Int = 0,
         size: Int = 10
     ): GetMyBoardResponse
+
+    suspend fun suggestApp(
+        text: String
+    )
 }
