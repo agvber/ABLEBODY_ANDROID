@@ -46,6 +46,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
+import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -314,6 +315,10 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 10
     ): GetMyBoardResponse
+
+    suspend fun suggestion(
+        content: String
+    ): SuggestionResponse
 
     /** Agreement **/
 

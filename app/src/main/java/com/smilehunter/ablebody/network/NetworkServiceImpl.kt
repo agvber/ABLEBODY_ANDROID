@@ -48,6 +48,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
+import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -412,6 +413,9 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse =
         networkAPI.getMyBoard(uid = uid, page = page, size = size)
+
+    override suspend fun suggestion(content: String): SuggestionResponse =
+        networkAPI.suggestion(content)
 
     override suspend fun getUserAdConsent(): GetUserAdConsentResponse =
         networkAPI.getUserAdConsent()
