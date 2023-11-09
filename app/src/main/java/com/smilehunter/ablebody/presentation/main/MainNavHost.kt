@@ -112,7 +112,12 @@ fun MainNavHost(
                     onBackRequest = navController::popBackStack,
                     purchaseOnClick = { },
                     brandOnClick = { item_id, item_name ->
-                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name) }
+                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name)
+                    },
+                    codyOnClick = {
+                        Log.d("코디 클릭됨",it.toString())
+                        navController::navigateToCreatorDetail
+                    }
                 )
             }
             isBottomBarShow(false)
