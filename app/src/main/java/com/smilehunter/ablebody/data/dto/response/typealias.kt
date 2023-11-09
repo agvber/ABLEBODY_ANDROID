@@ -104,6 +104,7 @@ typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailRespon
 /** User **/
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
 typealias GetMyBoardResponse = AbleBodyResponse<GetMyBoardResponseData>
+typealias SuggestionResponse = AbleBodyResponse<String>
 
 /** Agreement **/
 

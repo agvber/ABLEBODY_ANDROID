@@ -52,6 +52,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
+import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import retrofit2.Call
@@ -339,6 +340,11 @@ interface NetworkAPI {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): GetMyBoardResponse
+
+    @POST("/api/my/suggestion")
+    suspend fun suggestion(
+        @Body content: String
+    ): SuggestionResponse
 
     /** Agreement **/
 
