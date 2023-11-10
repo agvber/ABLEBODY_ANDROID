@@ -9,6 +9,7 @@ import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
+import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
@@ -39,6 +40,7 @@ import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
@@ -46,6 +48,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
+import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -410,4 +413,13 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse =
         networkAPI.getMyBoard(uid = uid, page = page, size = size)
+
+    override suspend fun suggestion(content: String): SuggestionResponse =
+        networkAPI.suggestion(content)
+
+    override suspend fun getUserAdConsent(): GetUserAdConsentResponse =
+        networkAPI.getUserAdConsent()
+
+    override suspend fun acceptUserAdConsent(): AcceptUserAdConsentResponse =
+        networkAPI.acceptUserAdConsent()
 }

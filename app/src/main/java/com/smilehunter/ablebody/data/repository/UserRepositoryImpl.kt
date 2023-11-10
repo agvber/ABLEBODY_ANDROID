@@ -108,6 +108,18 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse {
         return networkService.getMyBoard(uid = uid, page = page, size = size)
     }
+
+    override suspend fun getUserAdConsent(): Boolean {
+        return networkService.getUserAdConsent().data!!
+    }
+
+    override suspend fun acceptUserAdConsent(): String {
+        return networkService.acceptUserAdConsent().data!!
+    }
+
+    override suspend fun suggestApp(text: String) {
+        networkService.suggestion(content = text)
+    }
 }
 
 private fun UserInfoPreferences.asExternalModel() =
