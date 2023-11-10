@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -375,7 +376,7 @@ fun ItemDetailScreen(
                                         )
                                         //                                .clickable { Log.d("크리에이터 리뷰 항목 클릭", id.toString()) },
 
-                                        .clickable {
+                                        .nonReplyClickable {
                                             itemClick(
                                                 id,
                                                 reviewId!!
@@ -583,20 +584,52 @@ fun ItemDetailScreen(
                     var color by remember { mutableStateOf("") }
                     Log.d("sizecolor", "$size $color")
 
+                    val selectedColor = color
+                    val selectedSize = size
+
+                    val itemOptionList = itemDetailData?.itemOptionList ?: listOf()
+
+                    val selectedColorId = itemOptionList
+                        .find { it.content == "색상" }
+                        ?.itemOptionDetailList
+                        ?.find { it.content == selectedColor }
+                        ?.id?.toLong()
+
+                    val selectedSizeId = itemOptionList
+                        .find { it.content == "사이즈" }
+                        ?.itemOptionDetailList
+                        ?.find { it.content == selectedSize }
+                        ?.id?.toLong()
+
+                    val itemIdOptions = mutableListOf<Long>()
+                    selectedColorId?.let { itemIdOptions.add(it) }
+                    selectedSizeId?.let { itemIdOptions.add(it) }
+
                     // 여기에 바텀 시트 내용을 작성합니다.
                     purchaseItemData = PurchaseItemData(
+                        itemId = id,
                         brandName = itemDetailData?.item?.brand?.name.toString(),
                         itemName = itemDetailData?.item?.name.toString(),
                         itemColor = color,
                         itemSize = size,
-                        price = itemDetailData?.item?.salePrice  ?: itemDetailData?.item?.price ?: 0,
+                        price = itemDetailData?.item?.price,
+                        itemDiscount = itemDetailData?.item?.salePrice,
                         salePercent = percent,
                         itemImage = mainImageList?.get(0) ?: "",
-                        deliveryFee = itemDetailData?.item?.deliveryFee ?: 3000
+                        deliveryPrice = itemDetailData?.item?.deliveryFee ?: 3000,
+                        itemIdOptions = itemIdOptions
                     )
+                    Spacer(modifier = Modifier.size(10.dp))
                     ExposedDropdownMenuSample(colorList, sizeList, colorOnChange = {color = it}, sizeOnChange = {size = it},
                         purchaseButtonOnClick = {purchaseOnClick(it)}, purchaseItemData = purchaseItemData
                     )
+
+
+
+                    Log.d("item", "$selectedColorId $selectedSizeId")
+
+
+
                     Log.d("1purchaseItemData", purchaseItemData.toString())
 //                    purchaseOnClick(purchaseItemData)
                 }
@@ -689,6 +722,7 @@ fun ExposedDropdownMenuSample(
     val sizeListSize = sizeList?.size
     val activeListSize = activeList.value?.size
     val optionListSize = activeListSize?.let { it.dp * 70 }
+//    Spacer(modifier = Modifier.size(10.dp))
     ModalBottomSheetLayout(
         sheetState = optionDetailBottomSheetState,
         sheetContent = {
@@ -696,25 +730,27 @@ fun ExposedDropdownMenuSample(
                 Log.d("activeList 클릭", optionListSize.toString())
                 Column(
                     modifier = Modifier
-                        .padding(top = 20.dp, start = 20.dp)
+                        .padding(start = 20.dp)
                         //                    .height(350.dp)
 //                        .height(optionListSize)
-//                        .heightIn(min = optionListSize, max = 282.dp)
-//                        .heightIn(min = 582.dp)
+                        .heightIn(min = optionListSize, max = 382.dp)
+//                        .heightIn(max = 582.dp)
                         .fillMaxWidth()  // 가로로 꽉 차게 설정
+                        .verticalScroll(rememberScrollState())
                     //                    .wrapContentHeight() // 내부 항목들의 합에 따라 높이 조정
                     //                    .heightIn(min = 100.dp, max = 600.dp) // 최소 및 최대 높이 제한 설정
                 ) {
                     // 현재 활성화된 리스트의 항목들 출력
+                    Spacer(modifier = Modifier.size(20.dp))
                     activeList.value?.forEach { item ->
                         Text(
                             text = item,
                             fontSize = 15.sp,
                             modifier = Modifier
-                                .padding(bottom = 25.dp)
+                                .padding(bottom = 15.dp)
                                 .fillMaxWidth()
                                 .height(40.dp)
-                                .clickable(onClick = {
+                                .clickable {
                                     Log.d("item", "항목 선택됨")
                                     if (activeList.value == colorList) {
                                         selectedColor.value = item
@@ -733,7 +769,7 @@ fun ExposedDropdownMenuSample(
                                     optionCoroutineScope.launch {
                                         optionDetailBottomSheetState.hide() // 이부분이 변경됨
                                     }
-                                })
+                                }
                         )
                     }
                 }
@@ -745,7 +781,7 @@ fun ExposedDropdownMenuSample(
         Box() {
             Column() {
                 if (colorList != null) {
-                    Spacer(modifier = Modifier.height(5.dp))
+//                    Spacer(modifier = Modifier.height(5.dp))
                     ColorSizeTextField(
                         option = selectedColor.value ?: "색상",
                         colorList = colorList,
@@ -761,7 +797,7 @@ fun ExposedDropdownMenuSample(
                     )
                 }
                 if (sizeList != null) {
-                    Spacer(modifier = Modifier.padding(5.dp))
+//                    Spacer(modifier = Modifier.padding(5.dp))
                     ColorSizeTextField(
                         option = selectedSize.value ?: "사이즈",
                         colorList = colorList, // 파라미터 추가
@@ -785,7 +821,7 @@ fun ExposedDropdownMenuSample(
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(start = 25.dp, end = 25.dp, top = 20.dp)
                         .height(55.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AbleBlue),
                     enabled = isButtonEnabled
@@ -815,7 +851,8 @@ fun ColorSizeTextField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 15.dp)
+//            .padding(start = 20.dp, end = 20.dp, top = 8.dp)
+            .padding(vertical = 10.dp, horizontal = 20.dp)
             .border(BorderStroke(1.dp, SmallTextGrey)),
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -826,7 +863,7 @@ fun ColorSizeTextField(
             color = if(selected) Color.Black else SmallTextGrey,
             modifier = Modifier
                 .padding(vertical = 15.dp, horizontal = 24.dp)
-                .clickable {
+                .nonReplyClickable {
                     when {
                         option == "색상" || colorList?.contains(option) == true -> colorOnClick(option)
                         option == "사이즈" || sizeList?.contains(option) == true -> sizeOnClick(option)
