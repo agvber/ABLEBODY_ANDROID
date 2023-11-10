@@ -7,6 +7,7 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
+import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
@@ -37,6 +38,7 @@ import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyNotiResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
@@ -44,11 +46,14 @@ import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
+import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkItemData
 import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.POST
 
 interface NetworkService {
 
@@ -310,4 +315,16 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 10
     ): GetMyBoardResponse
+
+    suspend fun suggestion(
+        content: String
+    ): SuggestionResponse
+
+    /** Agreement **/
+
+    @GET("/api/my/consent-pushad")
+    suspend fun getUserAdConsent(): GetUserAdConsentResponse
+
+    @POST("/api/my/consent-pushad")
+    suspend fun acceptUserAdConsent(): AcceptUserAdConsentResponse
 }

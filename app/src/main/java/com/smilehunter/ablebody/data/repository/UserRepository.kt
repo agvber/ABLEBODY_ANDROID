@@ -44,4 +44,12 @@ interface UserRepository {
         page: Int = 0,
         size: Int = 10
     ): GetMyBoardResponse
+
+    suspend fun getUserAdConsent(): Boolean
+
+    suspend fun acceptUserAdConsent(): String
+
+    suspend fun suggestApp(
+        text: String
+    )
 }
