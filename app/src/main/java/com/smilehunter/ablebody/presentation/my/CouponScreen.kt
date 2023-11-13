@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -202,7 +203,7 @@ fun UsageStatusButton(isUsable: Boolean) {
         Text(
             text = if (isUsable) "사용가능" else "사용완료",
             fontSize = 11.sp,  // 글자 크기를 조절합니다.
-            color = if (isUsable) AbleBlue else SmallTextGrey  ,
+            color = if (isUsable) AbleBlue else SmallTextGrey,
             modifier = Modifier
                 .padding(horizontal = 8.dp)  // 좌우 여백을 조절합니다.
         )
@@ -242,9 +243,22 @@ fun CouponRegisterScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Column() {
-                Row(){
-                    Text(text = "쿠폰 등록")
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "쿠폰 등록",
+                        style = TextStyle(
+                            fontSize = 17.sp,
+                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                            fontWeight = FontWeight(500),
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
                     Icon(
                         painter = painterResource(id = R.drawable.information_icon), // 변환된 벡터 드로어블 리소스 ID
                         contentDescription = "Information Icon",
@@ -254,42 +268,8 @@ fun CouponRegisterScreen(
                             .nonReplyClickable { }
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .height(50.dp)
-                ){
-                    var inputText by remember {
-                        mutableStateOf("")
-                    }
-
-                    androidx.compose.material3.TextField(
-                        value = inputText,
-                        onValueChange = {
-                            inputText = it
-                        },
-                        placeholder = { Text(text = "쿠폰 번호를 입력하세요") },
-    //                    colors = TextFieldDefaults.textFieldColors(
-    //                        containerColor = PlaneGrey,
-    //                        focusedIndicatorColor = Color.Transparent,
-    //                        unfocusedIndicatorColor = Color.Transparent
-    //                    )
-                    )
-
-                    Button(
-                        onClick = { },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color.Black,
-                            contentColor = Color.White,
-                        ),
-                        modifier = Modifier
-                            .padding(end = 10.dp)  // 가로 크기를 최대로 확장합니다.
-                            .fillMaxHeight()
-                    ) {
-                        Text(text = "쿠폰 등록")
-                    }
-
-
-                }
+                Spacer(modifier = Modifier.size(10.dp))
+                CouponNumberTextField()
             }
         }
     }
@@ -304,11 +284,10 @@ fun CouponNumberTextField() {
 
     Box(
         modifier = Modifier
-            .padding(20.dp)
-            .border(1.dp, color = LightShaded)
+            .border(1.dp, color = SmallTextGrey)
     ){
         Row(
-            modifier = Modifier.height(60.dp)
+            modifier = Modifier.height(55.dp)
         ){
             androidx.compose.material3.TextField(
                 value = inputText,
@@ -318,6 +297,10 @@ fun CouponNumberTextField() {
                 modifier = Modifier.weight(10.5f),
                 placeholder = { Text(text = "쿠폰 번호를 입력하세요") },
               colors = TextFieldDefaults.textFieldColors(
+//                  focusedTextColor = Color.Black,
+                  focusedIndicatorColor = Color.Transparent,
+                  unfocusedIndicatorColor = Color.Transparent,
+                  containerColor = Color.White
 //                    textColor = Color.Black,  // 텍스트 색상 설정
 //                    backgroundColor = Color.White,  // 배경 색상 설정
 //                    cursorColor = Color.Black,
@@ -334,8 +317,9 @@ fun CouponNumberTextField() {
 //                    contentColor = Color.White,
                 ),
                 modifier = Modifier
-                    .height(58.dp)
+                    .fillMaxHeight()
                     .weight(4.5f),
+                shape = RoundedCornerShape(0.dp)
             ) {
                 Text(
                     text = "쿠폰 등록",
@@ -350,14 +334,134 @@ fun CouponNumberTextField() {
     }
 }
 
-
-@Preview(showSystemUi = true)
 @Composable
-fun CouponNumberTextFieldPreview() {
-    CouponNumberTextField()
+fun CouponRegisterPopup(onDismiss: () -> Unit) {
+    var showDialog by remember { mutableStateOf(true) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                androidx.compose.material.Text(
+                    text = "\uD83D\uDCCC 쿠폰 등록은 무엇인가요?",
+                    style = TextStyle(
+                        fontSize = 17.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                        fontWeight = FontWeight(500),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier.padding(top = 0.dp)
+                )
+            },
+            text = {
+                androidx.compose.material.Text(
+                    text = "각종 이벤트를 통해 쿠폰번호가 제공되며, 쿠폰번호를 입력하여 쿠폰을 등록할 수 있습니다.",
+                    style = TextStyle(
+                        fontSize = 17.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular))
+                    ),
+                    modifier = Modifier.padding(0.dp)
+                )
+            },
+            buttons = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(55.dp)
+                        .padding(bottom = 13.dp, start = 15.dp, end = 15.dp),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    androidx.compose.material.Text(text = "확인", color = Color.White)
+                }
+            },
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier
+                .width(329.dp)
+                .height(180.dp)
+                .padding(0.dp)
+        )
+    }
 }
+
+@Composable
+fun CouponPopup(
+    onDismiss: () -> Unit,
+    title: String
+) {
+    var showDialog by remember { mutableStateOf(true) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                ){
+                    androidx.compose.material.Text(
+                        text = title,
+                        style = TextStyle(
+                            fontSize = 17.sp,
+                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                            fontWeight = FontWeight(500),
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                }
+            },
+            buttons = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                ){
+                    Button(
+                        onClick = { showDialog = false },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
+                        modifier = Modifier
+                            .width(170.dp)
+                            .height(45.dp)
+                            .padding(start = 15.dp, end = 15.dp),
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        androidx.compose.material.Text(text = "확인", color = Color.White)
+                    }
+                }
+            },
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier
+                .width(329.dp)
+                .height(120.dp)
+                .padding(0.dp)
+        )
+    }
+}
+
 @Preview
 @Composable
 fun CouponRegisterScreenPreview() {
     CouponRegisterScreen({})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CouponRegisterPopupPreview() {
+    CouponRegisterPopup({})
+}
+@Preview(showBackground = true)
+@Composable
+fun CouponPopupPreview() {
+    Column() {
+        CouponPopup({}, "쿠폰 번호를 입력해주세요.")
+        CouponPopup({}, "쿠폰 번호를 확인해주세요.")
+        CouponPopup({}, "쿠폰 등록이 완료되었어요.")
+    }
 }
