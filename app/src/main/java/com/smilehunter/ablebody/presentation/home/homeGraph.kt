@@ -8,6 +8,8 @@ import com.smilehunter.ablebody.presentation.home.brand.ui.BrandRoute
 import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
 import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
+import com.smilehunter.ablebody.presentation.my.MyProfileRoute
+import com.smilehunter.ablebody.presentation.my.NormalUserScreen
 
 const val HomeRoute = "Home"
 
@@ -58,13 +60,9 @@ fun NavGraphBuilder.addHomeGraph(
             )
             isBottomBarShow(true)
         }
-//        composable(route = NavigationItems.My.name) {
-//            MyRoute(
-//                onSearchBarClick = onSearchBarClick,
-//                onAlertButtonClick = onAlertButtonClick,
-//                productItemClick = onProductItemDetailRouteRequest,
-//                codyItemClick = onCodyItemDetailRouteRequest,
-//            )
-//        }
+        composable(route = NavigationItems.My.name) {
+            MyProfileRoute()
+            isBottomBarShow(true)
+        }
     }
 }
