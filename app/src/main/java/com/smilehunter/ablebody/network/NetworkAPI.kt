@@ -55,12 +55,15 @@ import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -332,6 +335,13 @@ interface NetworkAPI {
     @GET("/api/my/user")
     suspend fun getUserData(
         @Query("uid") uid: String
+    ): UserDataResponse
+
+    @Multipart
+    @PUT("/api/my/profile")
+    suspend fun editProfile(
+        @Part profile: MultipartBody.Part,
+        @Part profileImage: MultipartBody.Part?
     ): UserDataResponse
 
     @GET("/api/my/home")
