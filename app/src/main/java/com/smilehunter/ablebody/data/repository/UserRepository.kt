@@ -1,11 +1,13 @@
 package com.smilehunter.ablebody.data.repository
 
+import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import kotlinx.coroutines.flow.Flow
+import java.io.InputStream
 
 interface UserRepository {
 
@@ -16,6 +18,17 @@ interface UserRepository {
     val localUserInfoData: Flow<LocalUserInfoData>
 
     suspend fun updateLocalUserInfo(localUserInfoData: (LocalUserInfoData) -> LocalUserInfoData)
+
+    suspend fun editProfile(
+        editProfile: EditProfile,
+        profileImageInputStream: InputStream?
+    ): UserDataResponse
+
+    suspend fun getMyBoard(
+        uid: String? = null,
+        page: Int = 0,
+        size: Int = 10
+    ): GetMyBoardResponse
 
     suspend fun getCouponBags(): GetCouponBagsResponse
 
@@ -38,12 +51,6 @@ interface UserRepository {
         zipCode: String,
         deliveryRequestMessage: String
     )
-
-    suspend fun getMyBoard(
-        uid: String? = null,
-        page: Int = 0,
-        size: Int = 10
-    ): GetMyBoardResponse
 
     suspend fun getUserAdConsent(): Boolean
 

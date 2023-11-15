@@ -1,7 +1,10 @@
 package com.smilehunter.ablebody.data.repository
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
@@ -9,12 +12,20 @@ import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.datastore.DataStoreService
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.network.NetworkService
+import com.smilehunter.ablebody.network.di.AbleBodyDispatcher.IO
+import com.smilehunter.ablebody.network.di.Dispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
+    @Dispatcher(IO) private val ioDispatcher: CoroutineDispatcher,
     private val networkService: NetworkService,
     private val dataStoreService: DataStoreService
 ): UserRepository {
@@ -64,6 +75,28 @@ class UserRepositoryImpl @Inject constructor(
                 .setProfileImageUrl(data.profileImageUrl)
                 .build()
         }
+    }
+
+    override suspend fun editProfile(
+        editProfile: EditProfile,
+        profileImageInputStream: InputStream?
+    ): UserDataResponse = withContext(ioDispatcher) {
+        if (profileImageInputStream == null) {
+            return@withContext networkService.editProfile(profile = editProfile, profileImage = null)
+        }
+
+        val temp = File.createTempFile("image_compress_file", ".jpg")
+        val fileOutputStream = FileOutputStream(temp).buffered()
+
+        val bitmap = BitmapFactory.decodeStream(profileImageInputStream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, fileOutputStream)
+
+        val response = networkService.editProfile(profile = editProfile, profileImage = temp)
+
+        fileOutputStream.close()
+        temp.deleteOnExit()
+
+        return@withContext response
     }
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
