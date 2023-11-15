@@ -16,9 +16,9 @@ data class UserInfoData(
     val profileUrl: String,
     val introduction: String?,
     val creatorPoint: Int,
-    val authorities: List<Authorities>,
+    val userType: UserType
 ) {
-    data class Authorities(
-        val authorityName: String
-    )
+    enum class UserType{
+        CREATOR, USER
+    }
 }

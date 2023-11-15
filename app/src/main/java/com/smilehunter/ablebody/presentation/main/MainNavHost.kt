@@ -53,6 +53,9 @@ fun MainNavHost(
             onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen,
             onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
             onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+            settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
+            onBackRequest = navController::popBackStack,
+            suggestonClick = {navController.navigate("SuggestPage")},
         )
 
         addSearchScreen(
@@ -112,7 +115,12 @@ fun MainNavHost(
                     onBackRequest = navController::popBackStack,
                     purchaseOnClick = { },
                     brandOnClick = { item_id, item_name ->
-                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name) }
+                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name)
+                    },
+                    codyOnClick = {
+                        Log.d("코디 클릭됨",it.toString())
+                        navController::navigateToCreatorDetail
+                    }
                 )
             }
             isBottomBarShow(false)

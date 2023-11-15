@@ -20,12 +20,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -96,7 +99,8 @@ fun ItemDetailScreen(
     itemClick: (Long, Long) -> Unit,
     onBackRequest: () -> Unit,
     purchaseOnClick: (PurchaseItemData) -> Unit,
-    brandOnClick: (Long, String) -> Unit
+    brandOnClick: (Long, String) -> Unit,
+    codyOnClick: (Long) -> Unit
 ) {
     val itemDetailData by viewModel.itemDetailLiveData.observeAsState()
     val mainImageList = itemDetailData?.item?.images
@@ -122,404 +126,451 @@ fun ItemDetailScreen(
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
     ) { paddingValues ->
-        Column(
+
+        val numOfHomePost = itemDetailData?.homePosts?.size ?: 0
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
         ) {
-            ViewPagerPage(mainImageList)
-
-            Spacer(modifier = Modifier.height(7.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-//                    .padding(15.dp),
-                    .padding(horizontal = 15.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
+            item(
+                span = { GridItemSpan(this.maxLineSpan) }
             ) {
-                Row(
+                Column(
                     modifier = Modifier
-                        .nonReplyClickable {
-                            itemDetailData?.item?.brand?.id?.let { brandOnClick(it,itemDetailData?.item?.brand?.name.toString()) }
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ViewPagerPage(mainImageList)
 
-                    ){
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(data = itemDetailData?.item?.brand?.thumbnail)
-                            .placeholder(R.drawable.nike_store_test) // 로딩 중에 표시될 이미지
-                            .build(),
-                        contentDescription = "Detailed image description",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(44.dp)  // use the calculated height
-                    )
-                    Spacer(modifier = Modifier.padding(3.dp))
-                    Text(
-                        text = itemDetailData?.item?.brand?.name ?: "",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(700),
-                            color = Color(0xFF191E29),
-                        ),
-                        modifier = Modifier
-                            .padding(start = 5.dp)
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.chevronforward),
-                        contentDescription = "image description",
-                        contentScale = ContentScale.None,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(start = 5.dp)
-                    )
-                }
+                    Spacer(modifier = Modifier.height(7.dp))
 
-                if (bookMark != null) {
-                    Log.d("bookMark", bookMark.toString())
-                    Image(
-                        painter = painterResource(
-                            id = if (bookMark) R.drawable.ic_bookmark_fill else R.drawable.ic_bookmark_empty
-                        ),
-                        contentDescription = "image description",
-                        contentScale = ContentScale.None,
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .nonReplyClickable {
-                                viewModel.toggleBookMark(id)
-//                                if (bookMark) R.drawable.ic_bookmark_fill else R.drawable.ic_bookmark_empty
-                            },
-                        alignment = Alignment.CenterEnd
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
-            ) {
-                Text(
-                    text = itemDetailData?.item?.name ?: "",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight(700),
-                        color = AbleDark,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                ) {
-                    val salePrice = itemDetailData?.item?.salePrice
-                    val price = itemDetailData?.item?.price
-
-                    val displayText = salePrice?.let {
-                        "${
-                            NumberFormat.getNumberInstance(Locale.KOREA).format(it)
-                        }원"
-                    } ?: price?.let {
-                        "${
-                            NumberFormat.getNumberInstance(Locale.KOREA).format(it)
-                        }원"
-                    } ?: "Unknown"
-
-                    Text(
-                        text = displayText,
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight(700),
-                            color = AbleDark,
-                            textAlign = TextAlign.Center,
-                        ),
-                        modifier = Modifier
-                            .padding(end = 5.dp)
-                    )
-
-                    if (salePrice != null && price != null) {
-                        val salePercentage = ((price - salePrice) / price.toDouble()) * 100
-                        val roundedPercentage = round(salePercentage).toInt()
-                        percent = roundedPercentage
-                        Log.d(
-                            "LOGPRICE",
-                            "price: ${price}, ${salePrice}, ${salePercentage}, ${roundedPercentage} "
-                        )
-
-                        Text(
-                            text = "${NumberFormat.getInstance(Locale.KOREA).format(price)}원",
-                            style = TextStyle(
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight(400),
-                                color = SmallTextGrey,
-                                textDecoration = TextDecoration.LineThrough,
-                                textAlign = TextAlign.Center,
-                            ),
+                            .height(70.dp)
+                            //                    .padding(15.dp),
+                            .padding(horizontal = 15.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
                             modifier = Modifier
-                                .padding(end = 5.dp)
-                        )
+                                .nonReplyClickable {
+                                    itemDetailData?.item?.brand?.id?.let {
+                                        brandOnClick(
+                                            it,
+                                            itemDetailData?.item?.brand?.name.toString()
+                                        )
+                                    }
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
 
-                        Text(
-                            text = "$roundedPercentage%",
-                            style = TextStyle(
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight(500),
-                                color = AbleBlue,
-                                textAlign = TextAlign.Center,
+                            ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(data = itemDetailData?.item?.brand?.thumbnail)
+                                    .placeholder(R.drawable.nike_store_test) // 로딩 중에 표시될 이미지
+                                    .build(),
+                                contentDescription = "Detailed image description",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(44.dp)  // use the calculated height
                             )
-                        )
-                    }
-                }
-            }
-            val avgStarRating = itemDetailData?.item?.avgStarRating.toString()
-            val regex = """\((\d+)\)""".toRegex()
-            val matchResult = regex.find(avgStarRating)
-            val numberInsideParentheses = matchResult?.groups?.get(1)?.value
-            val defaultSize = 0
-            val size = numberInsideParentheses?.toInt() ?: defaultSize
+                            Spacer(modifier = Modifier.padding(3.dp))
+                            Text(
+                                text = itemDetailData?.item?.brand?.name ?: "",
+                                style = TextStyle(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight(700),
+                                    color = Color(0xFF191E29),
+                                ),
+                                modifier = Modifier
+                                    .padding(start = 5.dp)
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.chevronforward),
+                                contentDescription = "image description",
+                                contentScale = ContentScale.None,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(start = 5.dp)
+                            )
+                        }
 
-            Log.d("size", size.toString())
-            if (size != 0) {
-                //            val creatorReviewImage = itemDetailData?.data?.itemReviews?.get(0)?.images?.get(0)
-                val createStarRating = itemDetailData?.itemReviews?.get(0)?.starRating
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
-                    horizontalAlignment = Alignment.Start,
-                    modifier = Modifier
-                        .width(390.dp)
-                        .height(189.dp)
-                        .background(color = Color(0xFFFFFFFF))
-                        .padding(top = 12.dp, bottom = 12.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(0.dp, Alignment.Start),
-                        verticalAlignment = Alignment.CenterVertically,
+                        if (bookMark != null) {
+                            //                    val isBookmarked by viewModel.itemDetailLiveData.observeAsState().value?.bookmarked ?: false
+                            val itemDetail by viewModel.itemDetailLiveData.observeAsState()
+                            val isBookmarked = itemDetail?.bookmarked
+                                ?: false // Assuming 'bookmarked' is a boolean in your ItemData class.
+
+                            Log.d("북마크", isBookmarked.toString())
+                            Image(
+                                painter = painterResource(
+                                    id = if (isBookmarked) R.drawable.ic_bookmark_fill else R.drawable.ic_bookmark_empty
+                                ),
+                                contentDescription = null,
+                                contentScale = ContentScale.None,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .nonReplyClickable {
+                                        viewModel.toggleBookMark(id)
+                                        Log.d("북마크눌려짐", isBookmarked.toString())
+                                    },
+                                alignment = Alignment.CenterEnd
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp)
                     ) {
                         Text(
-                            text = "크리에이터 리뷰",
+                            text = itemDetailData?.item?.name ?: "",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(700),
+                                color = AbleDark,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(top = 5.dp)
+                        ) {
+                            val salePrice = itemDetailData?.item?.salePrice
+                            val price = itemDetailData?.item?.price
+
+                            val displayText = salePrice?.let {
+                                "${
+                                    NumberFormat.getNumberInstance(Locale.KOREA).format(it)
+                                }원"
+                            } ?: price?.let {
+                                "${
+                                    NumberFormat.getNumberInstance(Locale.KOREA).format(it)
+                                }원"
+                            } ?: "Unknown"
+
+                            Text(
+                                text = displayText,
+                                style = TextStyle(
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight(700),
+                                    color = AbleDark,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                modifier = Modifier
+                                    .padding(end = 5.dp)
+                            )
+
+                            if (salePrice != null && price != null) {
+                                val salePercentage = ((price - salePrice) / price.toDouble()) * 100
+                                val roundedPercentage = round(salePercentage).toInt()
+                                percent = roundedPercentage
+                                Log.d(
+                                    "LOGPRICE",
+                                    "price: ${price}, ${salePrice}, ${salePercentage}, ${roundedPercentage} "
+                                )
+
+                                Text(
+                                    text = "${NumberFormat.getInstance(Locale.KOREA).format(price)}원",
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = SmallTextGrey,
+                                        textDecoration = TextDecoration.LineThrough,
+                                        textAlign = TextAlign.Center,
+                                    ),
+                                    modifier = Modifier
+                                        .padding(end = 5.dp)
+                                )
+
+                                Text(
+                                    text = "$roundedPercentage%",
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight(500),
+                                        color = AbleBlue,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    val avgStarRating = itemDetailData?.item?.avgStarRating.toString()
+                    val regex = """\((\d+)\)""".toRegex()
+                    val matchResult = regex.find(avgStarRating)
+                    val numberInsideParentheses = matchResult?.groups?.get(1)?.value
+                    val defaultSize = 0
+                    val size = numberInsideParentheses?.toInt() ?: defaultSize
+
+                    Log.d("size", size.toString())
+                    if (size != 0) {
+                        //            val creatorReviewImage = itemDetailData?.data?.itemReviews?.get(0)?.images?.get(0)
+                        val createStarRating = itemDetailData?.itemReviews?.get(0)?.starRating
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                            horizontalAlignment = Alignment.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(189.dp)
+                                .background(color = Color(0xFFFFFFFF))
+                                .padding(top = 12.dp, bottom = 12.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(0.dp, Alignment.Start),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = "크리에이터 리뷰",
+                                    style = TextStyle(
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight(550),
+                                        color = Color(0xFF505863),
+                                        textAlign = TextAlign.Right,
+                                    ),
+                                    modifier = Modifier
+                                        .padding(start = 20.dp)
+                                )
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_product_item_star),
+                                    contentDescription = "image description",
+                                    contentScale = ContentScale.None,
+                                    modifier = Modifier
+                                        .padding(start = 5.dp)
+                                )
+                                Text(
+                                    text = itemDetailData?.item?.avgStarRating.toString(),
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFF8C959E),
+                                    ),
+                                    modifier = Modifier
+                                        .padding(start = 2.dp)
+                                )
+                            }
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    10.dp,
+                                    Alignment.Start
+                                ),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                itemsIndexed(items = List(size) { Unit }) { index, _ ->
+                                    Log.d("Logindex", index.toString())
+                                    val reviewId = itemDetailData?.itemReviews?.getOrNull(index)?.id
+                                    Log.d("reviewId", reviewId.toString())
+                                    Box(
+                                        modifier = Modifier
+                                            .width(350.dp)
+                                            .height(155.dp)
+                                            .padding(start = 16.dp, end = 10.dp)
+                                            .background(
+                                                color = Color(0xFFF3F4F6),
+                                                shape = RoundedCornerShape(size = 15.dp)
+                                            )
+                                            //                                .clickable { Log.d("크리에이터 리뷰 항목 클릭", id.toString()) },
+
+                                            .nonReplyClickable {
+                                                itemClick(
+                                                    id,
+                                                    reviewId!!
+                                                )
+                                            } // 여기에 클릭 시 화면 이동 로직 추가
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .padding(13.dp)
+                                        ) {
+                                            val creatorReviewImage =
+                                                itemDetailData?.itemReviews?.getOrNull(index)?.images?.getOrNull(
+                                                    0
+                                                )
+                                            //                                Log.d("creatorReviewImage", creatorReviewImage.toString())
+                                            AsyncImage(
+                                                model = ImageRequest.Builder(LocalContext.current)
+                                                    .data(data = creatorReviewImage)
+                                                    .build(),
+                                                contentDescription = "Detailed image description",
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                    .width(68.dp)
+                                                    .height(120.dp)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                            )
+                                            Column(
+                                                modifier = Modifier.padding(
+                                                    top = 2.dp,
+                                                    start = 10.dp
+                                                )
+                                            ) {
+                                                Row() {
+                                                    val review =
+                                                        itemDetailData?.itemReviews?.getOrNull(index)
+
+                                                    // height
+                                                    review?.creator?.height?.let { height ->
+                                                        Text(
+                                                            text = "$height cm / ",
+                                                            fontSize = 13.sp,
+                                                            color = SmallTextGrey
+                                                        )
+                                                    }
+
+                                                    // weight
+                                                    review?.creator?.weight?.let { weight ->
+                                                        Text(
+                                                            text = "$weight kg / ",
+                                                            fontSize = 13.sp,
+                                                            color = SmallTextGrey
+                                                        )
+                                                    }
+
+                                                    // size
+                                                    review?.size?.let { size ->
+                                                        if (size != "사이즈 정보 없음") {
+                                                            Text(
+                                                                text = "$size 착용",
+                                                                fontSize = 13.sp,
+                                                                color = SmallTextGrey
+                                                            )
+                                                        } else {
+                                                            Text(
+                                                                text = size,
+                                                                fontSize = 13.sp,
+                                                                color = SmallTextGrey
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                Text(
+                                                    text = itemDetailData?.itemReviews?.getOrNull(
+                                                        index
+                                                    )?.review.toString(),
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight(500),
+                                                    maxLines = 3,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    modifier = Modifier.height(63.dp)
+
+                                                )
+                                                Row() {
+                                                    Image(
+                                                        painter = painterResource(id = R.drawable.ic_product_item_star),
+                                                        contentDescription = "image description",
+                                                        contentScale = ContentScale.None
+                                                    )
+                                                    Text(
+                                                        text = createStarRating.toString(),
+                                                        color = SmallTextGrey
+                                                    )
+
+                                                    Text(
+                                                        text = itemDetailData?.itemReviews?.getOrNull(
+                                                            index
+                                                        )?.creator?.nickname.toString(),
+                                                        color = SmallTextGrey,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(),
+                                                        textAlign = TextAlign.End
+                                                    )
+                                                }
+
+                                            }
+
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+//            val homePosts = itemDetailData?.homePosts ?: listOf()
+                    Log.d("LOGhomePosts", numOfHomePost.toString())
+
+                    val codeImageUrls = mutableListOf<String>()
+                    if (numOfHomePost != null && numOfHomePost != 0) {
+                        for (i in 0 until numOfHomePost) {
+                            itemDetailData?.homePosts?.get(i)?.imageURL?.let { imageUrl ->
+                                codeImageUrls.add(imageUrl) // imageUrl이 null이 아닌 경우에만 리스트에 추가합니다.
+                                Log.d("codeImageUrls.size", codeImageUrls.toString())
+                            }
+                        }
+                        Text(
+                            text = "이 제품을 활용한 코디",
                             style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(550),
                                 color = Color(0xFF505863),
                                 textAlign = TextAlign.Right,
                             ),
-                            modifier = Modifier
-                                .padding(start = 20.dp)
+                            modifier = Modifier.padding(start = 20.dp, bottom = 5.dp)
                         )
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_product_item_star),
-                            contentDescription = "image description",
-                            contentScale = ContentScale.None,
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                        )
-                        Text(
-                            text = itemDetailData?.item?.avgStarRating.toString(),
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFF8C959E),
-                            ),
-                            modifier = Modifier
-                                .padding(start = 2.dp)
-                        )
+
+
                     }
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
-                        verticalAlignment = Alignment.Top
+
+                    Box(
+                        modifier = Modifier.size(90.dp)
                     ) {
-                        itemsIndexed(items = List(size) { Unit }) { index, _ ->
-                            Log.d("Logindex", index.toString())
-                            val reviewId = itemDetailData?.itemReviews?.getOrNull(index)?.id
-                            Log.d("reviewId", reviewId.toString())
-                            Box(
-                                modifier = Modifier
-                                    .width(350.dp)
-                                    .height(155.dp)
-                                    .padding(start = 16.dp, end = 10.dp)
-                                    .background(
-                                        color = Color(0xFFF3F4F6),
-                                        shape = RoundedCornerShape(size = 15.dp)
-                                    )
-                                    //                                .clickable { Log.d("크리에이터 리뷰 항목 클릭", id.toString()) },
 
-                                    .clickable { itemClick(id, reviewId!!) } // 여기에 클릭 시 화면 이동 로직 추가
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(13.dp)
-                                ) {
-                                    val creatorReviewImage =
-                                        itemDetailData?.itemReviews?.getOrNull(index)?.images?.getOrNull(
-                                            0
-                                        )
-                                    //                                Log.d("creatorReviewImage", creatorReviewImage.toString())
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(data = creatorReviewImage)
-                                            .build(),
-                                        contentDescription = "Detailed image description",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .width(68.dp)
-                                            .height(120.dp)
-                                            .clip(RoundedCornerShape(10.dp))
-                                    )
-                                    Column(
-                                        modifier = Modifier.padding(top = 2.dp, start = 10.dp)
-                                    ) {
-                                        Row() {
-                                            val review = itemDetailData?.itemReviews?.getOrNull(index)
-
-                                            // height
-                                            review?.creator?.height?.let { height ->
-                                                Text(
-                                                    text = "$height cm / ",
-                                                    fontSize = 13.sp,
-                                                    color = SmallTextGrey
-                                                )
-                                            }
-
-                                            // weight
-                                            review?.creator?.weight?.let { weight ->
-                                                Text(
-                                                    text = "$weight kg / ",
-                                                    fontSize = 13.sp,
-                                                    color = SmallTextGrey
-                                                )
-                                            }
-
-                                            // size
-                                            review?.size?.let { size ->
-                                                if (size != "사이즈 정보 없음") {
-                                                    Text(
-                                                        text = "$size 착용",
-                                                        fontSize = 13.sp,
-                                                        color = SmallTextGrey
-                                                    )
-                                                } else {
-                                                    Text(
-                                                        text = size,
-                                                        fontSize = 13.sp,
-                                                        color = SmallTextGrey
-                                                    )
-                                                }
-                                            }
-                                        }
-
-                                        Text(
-                                            text = itemDetailData?.itemReviews?.getOrNull(
-                                                index
-                                            )?.review.toString(),
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight(500),
-                                            maxLines = 3,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.height(63.dp)
-
-                                        )
-                                        Row() {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_product_item_star),
-                                                contentDescription = "image description",
-                                                contentScale = ContentScale.None
-                                            )
-                                            Text(
-                                                text = createStarRating.toString(),
-                                                color = SmallTextGrey
-                                            )
-
-                                            Text(
-                                                text = itemDetailData?.itemReviews?.getOrNull(
-                                                    index
-                                                )?.creator?.nickname.toString(),
-                                                color = SmallTextGrey,
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                textAlign = TextAlign.End
-                                            )
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-                        }
                     }
+
                 }
             }
-            val numOfHomePost = itemDetailData?.homePosts?.size
-            Log.d("LOGhomPosts", numOfHomePost.toString())
-
-            val codeImageUrls = mutableListOf<String>()
-            if (numOfHomePost != null && numOfHomePost != 0) {
-                for (i in 0 until numOfHomePost) {
-                    itemDetailData?.homePosts?.get(i)?.imageURL?.let { imageUrl ->
-                        codeImageUrls.add(imageUrl) // imageUrl이 null이 아닌 경우에만 리스트에 추가합니다.
-                        Log.d("codeImageUrls.size", codeImageUrls.toString())
-                    }
-                }
-                Text(
-                    text = "이 제품을 활용한 코디",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight(550),
-                        color = Color(0xFF505863),
-                        textAlign = TextAlign.Right,
-                    ),
-                    modifier = Modifier.padding(start = 20.dp, bottom = 5.dp)
-                )
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+            items(numOfHomePost) { index ->
+                val post = itemDetailData?.homePosts?.get(index)
+                val postId = post!!.id
+                val imageUrl = post?.imageURL
+//                        val postId = itemDetailData?.homePosts?.get(index)?.id
+                // 각 아이템의 UI 정의
+                Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .padding(start = 20.dp, top = 5.dp, end = 20.dp)
-                        .height(165.dp)
-                ) {
-                    items(codeImageUrls) { imageUrl ->
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(165.dp)
-                                .clickable {
-                                    //TODO : 크리에이터 상세페이지_코디 화면으로 이동
-                                }
-                                .padding(1.dp)
-                        ) {
-                            Image(
-                                painter = rememberImagePainter(
-                                    data = imageUrl,
-                                    builder = {
-                                        crossfade(true)
-                                        placeholder(R.drawable.ic_launcher_background) // 로딩 중 또는 오류 발생 시 표시할 placeholder 이미지.
-                                    }
-                                ),
-                                contentDescription = "My content description", // 접근성을 위한 설명을 제공합니다.
-                                modifier = Modifier
-                                    .fillMaxSize(), // 이미지가 상자 전체를 채우도록 지정합니다.
-                                //                                .padding(start = 2.dp),
-                                contentScale = ContentScale.Crop, // 이미지의 비율을 유지하면서 전체 영역에 맞게 크기를 조정합니다.
-                            )
+                        .fillMaxWidth()
+                        .height(165.dp) // 각 그리드 아이템의 높이
+                        .padding(1.dp)
+                        .nonReplyClickable {
+                            codyOnClick(postId)
+                            Log.d("ClickedPost", "Post ID: $postId")
                         }
-                    }
+                ) {
+                    // 각 그리드 아이템 내의 이미지 정의
+                    Image(
+                        painter = rememberImagePainter(
+                            data = imageUrl,
+                            builder = {
+                                crossfade(true)
+//                                            placeholder(R.drawable.ic_launcher_background) // 로딩 중 또는 오류 시 표시될 이미지
+                            }
+                        ),
+                        contentDescription = "My content description", // 접근성을 위한 설명
+                        modifier = Modifier
+                            .fillMaxSize(), // 이미지가 Box를 꽉 채우도록 설정
+                        contentScale = ContentScale.Crop // 이미지가 Box 안에서 비율을 유지하며 꽉 차게 조정되도록 설정
+                    )
                 }
             }
-            Box(
-                modifier = Modifier.size(90.dp)
-            ){
-
+            
+            item(
+                span = { GridItemSpan(this.maxLineSpan) }
+            ) {
+                Box(modifier = Modifier.height(100.dp))
             }
         }
+    }
 
         ModalBottomSheetLayout(
             sheetState = optionBottomSheetState,
@@ -536,20 +587,52 @@ fun ItemDetailScreen(
                     var color by remember { mutableStateOf("") }
                     Log.d("sizecolor", "$size $color")
 
+                    val selectedColor = color
+                    val selectedSize = size
+
+                    val itemOptionList = itemDetailData?.itemOptionList ?: listOf()
+
+                    val selectedColorId = itemOptionList
+                        .find { it.content == "색상" }
+                        ?.itemOptionDetailList
+                        ?.find { it.content == selectedColor }
+                        ?.id?.toLong()
+
+                    val selectedSizeId = itemOptionList
+                        .find { it.content == "사이즈" }
+                        ?.itemOptionDetailList
+                        ?.find { it.content == selectedSize }
+                        ?.id?.toLong()
+
+                    val itemIdOptions = mutableListOf<Long>()
+                    selectedColorId?.let { itemIdOptions.add(it) }
+                    selectedSizeId?.let { itemIdOptions.add(it) }
+
                     // 여기에 바텀 시트 내용을 작성합니다.
                     purchaseItemData = PurchaseItemData(
+                        itemId = id,
                         brandName = itemDetailData?.item?.brand?.name.toString(),
                         itemName = itemDetailData?.item?.name.toString(),
                         itemColor = color,
                         itemSize = size,
-                        price = itemDetailData?.item?.salePrice  ?: itemDetailData?.item?.price ?: 0,
+                        price = itemDetailData?.item?.price,
+                        itemDiscount = itemDetailData?.item?.salePrice,
                         salePercent = percent,
                         itemImage = mainImageList?.get(0) ?: "",
-                        deliveryFee = itemDetailData?.item?.deliveryFee ?: 3000
+                        deliveryPrice = itemDetailData?.item?.deliveryFee ?: 3000,
+                        itemIdOptions = itemIdOptions
                     )
+                    Spacer(modifier = Modifier.size(10.dp))
                     ExposedDropdownMenuSample(colorList, sizeList, colorOnChange = {color = it}, sizeOnChange = {size = it},
                         purchaseButtonOnClick = {purchaseOnClick(it)}, purchaseItemData = purchaseItemData
                     )
+
+
+
+                    Log.d("item", "$selectedColorId $selectedSizeId")
+
+
+
                     Log.d("1purchaseItemData", purchaseItemData.toString())
 //                    purchaseOnClick(purchaseItemData)
                 }
@@ -593,9 +676,6 @@ fun ItemDetailScreen(
         Box(
             modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current)
         )
-
-    }
-
 }
 //    Box(
 //        modifier = Modifier
@@ -642,6 +722,7 @@ fun ExposedDropdownMenuSample(
     val sizeListSize = sizeList?.size
     val activeListSize = activeList.value?.size
     val optionListSize = activeListSize?.let { it.dp * 70 }
+//    Spacer(modifier = Modifier.size(10.dp))
     ModalBottomSheetLayout(
         sheetState = optionDetailBottomSheetState,
         sheetContent = {
@@ -649,26 +730,28 @@ fun ExposedDropdownMenuSample(
                 Log.d("activeList 클릭", optionListSize.toString())
                 Column(
                     modifier = Modifier
-                        .padding(top = 20.dp, start = 20.dp)
+                        .padding(start = 20.dp)
                         //                    .height(350.dp)
 //                        .height(optionListSize)
-//                        .heightIn(min = optionListSize, max = 282.dp)
-//                        .heightIn(min = 582.dp)
+                        .heightIn(min = optionListSize, max = 382.dp)
+//                        .heightIn(max = 582.dp)
                         .fillMaxWidth()  // 가로로 꽉 차게 설정
+                        .verticalScroll(rememberScrollState())
                     //                    .wrapContentHeight() // 내부 항목들의 합에 따라 높이 조정
                     //                    .heightIn(min = 100.dp, max = 600.dp) // 최소 및 최대 높이 제한 설정
                 ) {
                     // 현재 활성화된 리스트의 항목들 출력
+                    Spacer(modifier = Modifier.size(20.dp))
                     activeList.value?.forEach { item ->
                         Text(
                             text = item,
                             fontSize = 15.sp,
                             modifier = Modifier
-                                .padding(bottom = 25.dp)
+                                .padding(bottom = 15.dp)
                                 .fillMaxWidth()
                                 .height(40.dp)
-                                .clickable(onClick = {
-                                    Log.d("item","항목 선택됨")
+                                .clickable {
+                                    Log.d("item", "항목 선택됨")
                                     if (activeList.value == colorList) {
                                         selectedColor.value = item
                                         isColorSelected.value = true // 색상 선택됨
@@ -686,7 +769,7 @@ fun ExposedDropdownMenuSample(
                                     optionCoroutineScope.launch {
                                         optionDetailBottomSheetState.hide() // 이부분이 변경됨
                                     }
-                                })
+                                }
                         )
                     }
                 }
@@ -698,7 +781,7 @@ fun ExposedDropdownMenuSample(
         Box() {
             Column() {
                 if (colorList != null) {
-                    Spacer(modifier = Modifier.height(5.dp))
+//                    Spacer(modifier = Modifier.height(5.dp))
                     ColorSizeTextField(
                         option = selectedColor.value ?: "색상",
                         colorList = colorList,
@@ -714,7 +797,7 @@ fun ExposedDropdownMenuSample(
                     )
                 }
                 if (sizeList != null) {
-                    Spacer(modifier = Modifier.padding(5.dp))
+//                    Spacer(modifier = Modifier.padding(5.dp))
                     ColorSizeTextField(
                         option = selectedSize.value ?: "사이즈",
                         colorList = colorList, // 파라미터 추가
@@ -738,7 +821,7 @@ fun ExposedDropdownMenuSample(
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(start = 25.dp, end = 25.dp, top = 20.dp)
                         .height(55.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AbleBlue),
                     enabled = isButtonEnabled
@@ -768,7 +851,8 @@ fun ColorSizeTextField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 15.dp)
+//            .padding(start = 20.dp, end = 20.dp, top = 8.dp)
+            .padding(vertical = 10.dp, horizontal = 20.dp)
             .border(BorderStroke(1.dp, SmallTextGrey)),
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -779,7 +863,7 @@ fun ColorSizeTextField(
             color = if(selected) Color.Black else SmallTextGrey,
             modifier = Modifier
                 .padding(vertical = 15.dp, horizontal = 24.dp)
-                .clickable {
+                .nonReplyClickable {
                     when {
                         option == "색상" || colorList?.contains(option) == true -> colorOnClick(option)
                         option == "사이즈" || sizeList?.contains(option) == true -> sizeOnClick(option)

@@ -51,15 +51,20 @@ class ItemDetailViewModel @Inject constructor(
     val itemDetailLiveData: LiveData<ItemData> = _itemDetailLiveData
 
     fun toggleBookMark(id: Long){
-
         viewModelScope.launch(ioDispatcher) {
-            if (itemDetailLiveData.value?.bookmarked == true) {
-                Log.d("bookMarkViewModel지워짐", bookMark.value.toString())
-                bookmarkRepository.deleteBookmarkItem(id)
-            } else {
-                Log.d("bookMarkViewModel생김", bookMark.value.toString())
+            val currentItem = itemDetailLiveData.value
+            val newBookmarkedStatus = !(currentItem?.bookmarked ?: false)
+
+            if (newBookmarkedStatus) {
                 bookmarkRepository.addBookmarkItem(id)
+                Log.d("북마크 추가될 때", newBookmarkedStatus.toString())
+            } else {
+                bookmarkRepository.deleteBookmarkItem(id)
+                Log.d("북마크 삭제될 때", newBookmarkedStatus.toString())
             }
+
+            // 현재 아이템의 상태를 갱신하여 LiveData를 업데이트합니다.
+            _itemDetailLiveData.postValue(currentItem?.copy(bookmarked = newBookmarkedStatus))
         }
     }
 
