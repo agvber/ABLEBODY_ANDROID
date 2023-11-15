@@ -1,8 +1,10 @@
 package com.smilehunter.ablebody.network
 
+import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.network.utils.TestRetrofit
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.io.File
 
 class UserApiUnitTest {
     private val networkService: NetworkService = TestRetrofit.getInstance()
@@ -16,6 +18,31 @@ class UserApiUnitTest {
     @Test
     fun getUserData() {
         val response = runBlocking { networkService.getUserData(uid = "5920702") }
+        println(response)
+    }
+
+    @Test
+    fun editUserData() {
+        val path = System.getProperty("user.dir")
+        val imageFile = File("$path\\src\\test\\java\\com\\smilehunter\\ablebody\\resources\\orange.png")
+
+        val profile = EditProfile(
+            nickname = "able_android",
+            name = "ablebody",
+            height = 180,
+            weight = 90,
+            job = "애블바디 입니다",
+            introduction = "애블바디 입니다",
+            defaultProfileImage = 4
+        )
+
+        val response = runBlocking {
+            networkService.editProfile(
+                profile = profile,
+                profileImage = imageFile
+            )
+        }
+
         println(response)
     }
 
