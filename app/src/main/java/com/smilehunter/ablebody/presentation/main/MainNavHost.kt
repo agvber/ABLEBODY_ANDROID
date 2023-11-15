@@ -53,6 +53,9 @@ fun MainNavHost(
             onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen,
             onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
             onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+            settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
+            onBackRequest = navController::popBackStack,
+            suggestonClick = {navController.navigate("SuggestPage")},
         )
 
         addSearchScreen(

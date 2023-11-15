@@ -2,6 +2,8 @@ package com.smilehunter.ablebody.presentation.my
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.widget.Button
 import android.widget.ToggleButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,22 +18,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +64,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -68,11 +77,13 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import com.smilehunter.ablebody.utils.redirectToURL
 
 @Composable
 fun SettingScreen(
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    suggestonClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -91,7 +102,7 @@ fun SettingScreen(
                 .padding(paddingValues)
                 .background(PlaneGrey)
         ){
-            SuggestList()
+            SuggestList(suggestonClick = suggestonClick)
             Spacer(modifier = Modifier.size(7.dp))
             SettingList("내 정보","")
             Spacer(modifier = Modifier.size(7.dp))
@@ -111,12 +122,17 @@ fun SettingScreen(
 }
 
 @Composable
-fun SuggestList() {
+fun SuggestList(
+    suggestonClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(55.dp)
-            .background(Color.White),
+            .background(Color.White)
+            .nonReplyClickable {
+                suggestonClick()
+            },
         verticalAlignment = Alignment.CenterVertically
     ){
         Image(
@@ -144,10 +160,11 @@ fun SuggestList() {
             )
         )
         Spacer(modifier = Modifier.weight(1f))
-//        Image(
-//            painter = painterResource(id = R.drawable.airplane),
-//            contentDescription = "sueggestIcon"
-//        )
+        Image(
+            painter = painterResource(id = R.drawable.airplane),
+            contentDescription = "sueggestIcon",
+            modifier = Modifier.padding(end = 10.dp)
+        )
     }
 }
 
@@ -155,14 +172,22 @@ fun SuggestList() {
 fun SettingList(
     listText: String,
     linkUrl: String,
-    textColor: Color = Color.Black
+    textColor: Color = Color.Black,
+    editText: String = ""
 ) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(55.dp)
-            .background(Color.White),
+            .background(Color.White)
+            .nonReplyClickable(onClick = {
+                if (listText == "로그아웃") {
+//                    LogoutAlertDialog()
+                } else {
+                    redirectToURL(context, linkUrl)
+                }
+            }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -175,21 +200,34 @@ fun SettingList(
                 textAlign = TextAlign.Right,
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             ),
-            modifier = Modifier.padding(horizontal = 25.dp)
+            modifier = Modifier
+                .padding(horizontal = 25.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            Icons.Filled.KeyboardArrowRight,
-            contentDescription = linkUrl,
-            Modifier
-                .clickable(onClick = {
-//                    OpenLink(linkUrl)
-                    redirectToURL(context, linkUrl)
-                })
-                .padding(10.dp)
-                .size(24.dp),
-            tint = Color.Gray
-        )
+        if(editText.isNotEmpty()){
+            Text(
+                text = editText,
+                color = textColor,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                    fontWeight = FontWeight(500),
+                    textAlign = TextAlign.Right,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 25.dp)
+            )
+        }else {
+            Icon(
+                Icons.Filled.KeyboardArrowRight,
+                contentDescription = linkUrl,
+                Modifier
+                    .padding(10.dp)
+                    .size(24.dp),
+                tint = Color.Gray
+            )
+        }
     }
 }
 
@@ -207,6 +245,8 @@ fun SettingList(
 fun SuggestPage(
     onBackRequest: () -> Unit
 ) {
+    val version = BuildConfig.VERSION_NAME
+    Log.d("version", version)
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -223,6 +263,9 @@ fun SuggestPage(
                 .fillMaxSize()
                 .padding(paddingValues)
         ){
+            var inputText by remember {
+                mutableStateOf("")
+            }
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
                     append("애블바디")
@@ -248,10 +291,6 @@ fun SuggestPage(
                     .padding(20.dp)
                     .background(PlaneGrey, shape = RoundedCornerShape(16.dp))
             ){
-                var inputText by remember {
-                    mutableStateOf("")
-                }
-
                 TextField(
                     value = inputText,
                     onValueChange = {
@@ -265,16 +304,9 @@ fun SuggestPage(
                         unfocusedIndicatorColor = Color.Transparent
                     )
                 )
-//                TextField(
-//                    value = textValue,
-//                    onValueChange = { textValue = it },
-//                    placeholder = {
-//                        Text("여기에 힌트 텍스트를 입력하세요.")
-//                    }
-//                )
             }
             Text(
-                text = "글자수 제한 (0/300)",
+                text = "글자수 제한 (${inputText.length}/300)", // 글자 수 표시 부분
                 color = AbleDeep,
                 style = TextStyle(
                     fontSize = 12.sp,
@@ -315,10 +347,13 @@ fun SuggestPage(
 }
 
 @Composable
-fun AlarmPage(
-    onBackRequest: () -> Unit
+fun acceptUserAdConsentPage(
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    onBackRequest: () -> Unit,
+    alarmAgree: Boolean
 ) {
-    var checked by remember { mutableStateOf(false) }
+    var alarmAgreeStatus by remember { mutableStateOf(alarmAgree) }
+    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString())
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -328,110 +363,236 @@ fun AlarmPage(
                 style = TextStyle(
                     fontSize = 18.sp,
                 )
-            )},
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-        ){
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(15.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Text(
-                    text = "혜택·마케팅 알림",
+                    text = "혜택 · 마케팅 알림",
                     style = TextStyle(
-                        fontSize = 19.sp,
+                        fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
                         fontWeight = FontWeight(500),
+                        color = if (alarmAgreeStatus) Color.Black else SmallTextGrey,
                         platformStyle = PlatformTextStyle(includeFontPadding = false)
                     ),
                     modifier = Modifier.weight(1f)
                 )
-                Switch(
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        uncheckedThumbColor = Color.White,
-                        checkedTrackColor = AbleBlue,
-                        uncheckedTrackColor = AbleLight
-                    ),
-//                    modifier = Modifier.scale(1.1f)  // 여기서 크기를 조절합니다.
-                )
+                MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
+                    Log.d("toggledState", toggledState.toString())
+                    alarmAgreeStatus = toggledState
+                    if(toggledState){
+
+                    }
+                }
             }
-            Box(
+            BenefitDescription(alarmAgree = alarmAgreeStatus)
+        }
+    }
+}
+
+@Composable
+fun AlarmPage(
+    onBackRequest: () -> Unit,
+    alarmAgree: Boolean
+) {
+    var alarmAgreeStatus by remember { mutableStateOf(alarmAgree) }
+    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString())
+    Scaffold(
+        topBar = {
+            BackButtonTopBarLayout(onBackRequest = onBackRequest)
+            Text(
+                text = "알림",
+                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
+                style = TextStyle(
+                    fontSize = 18.sp,
+                )
+            )
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
-                    .padding(horizontal = 10.dp)
-                    .background(PlaneGrey, shape = RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
-            ){
-                val text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
-                        append("혜택 알림 수신에 동의")
+                    .padding(15.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "혜택 · 마케팅 알림",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                        fontWeight = FontWeight(500),
+                        color = if (alarmAgreeStatus) Color.Black else SmallTextGrey,
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
+                    Log.d("toggledState", toggledState.toString())
+                    alarmAgreeStatus = toggledState
+                    if(toggledState){
+
                     }
-                    append("하셨어요!\n" +
-                            "애블바디에서 진행하는 여러가지 이벤트에 대해\n가장 먼저 알려드릴게요\uD83D\uDE00")
                 }
-                Text(text = text)
+            }
+            BenefitDescription(alarmAgree = alarmAgreeStatus)
+        }
+    }
+}
+
+@Composable
+fun LogoutAlertDialog() {
+    AbleBodyAlertDialog(
+        onDismissRequest = {},
+        positiveText = "아니오",
+        positiveButtonOnClick = {},
+        negativeText = "예",
+        negativeButtonOnClick = {},
+    ) {
+        androidx.compose.material.Text(
+            text = "로그아웃",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "로그아웃 할까요?",
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
+        )
+    }
+}
+
+@Composable
+fun MarketingAlarmToggleButton(
+    buttonState: Boolean,
+    alaramButtononToggle: (Boolean) -> Unit
+) {
+    var isToggle by remember { mutableStateOf(buttonState) }
+
+    Card(
+        shape = RoundedCornerShape(20.dp), // 여기서 테두리를 둥글게 설정
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .background(Color.White)
+                .clickable {
+                    isToggle = !isToggle
+                    alaramButtononToggle(isToggle)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            if (isToggle) {
+                Row() {
+                    Icon(
+                        painter = painterResource(id = R.drawable.alarm_able_toggle_btn),
+                        contentDescription = null,
+                        tint = AbleBlue
+                    )
+                }
+            } else {
+                Row {
+                    Icon(
+                        painter = painterResource(id = R.drawable.alarm_enable_toggle_btn),
+                        contentDescription = null,
+                        tint = AbleLight
+                    )
+                }
             }
         }
     }
 }
 
+@Composable
+fun BenefitDescription(
+    alarmAgree: Boolean
+) {
+    val descriptionText = buildAnnotatedString {
+        withStyle(style = SpanStyle(fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
+            append("혜택 알림 수신에 동의")
+        }
+        append("하셨어요!\n애블바디에서 진행하는 여러가지 이벤트에 대해\n가장 먼저 알려드릴게요 \uD83D\uDE00")
+    }
+
+    val additionalText = buildAnnotatedString {
+        append("알림 수신에 동의하시면, 앞으로 ")
+        withStyle(style = SpanStyle(fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
+            append("새롭게 추가될\n기능들을 먼저 이용")
+        }
+        append("해 보실 수 있어요!")
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = if (alarmAgree) 8.dp else 16.dp,
+                bottom = if (alarmAgree) 8.dp else 16.dp
+            )
+            .background(PlaneGrey, shape = RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Column(
+            modifier = if (alarmAgree) {
+                Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp)
+            } else {
+                Modifier.padding(start = 20.dp)
+            }
+        ) {
+            Text(text = if (alarmAgree) descriptionText else additionalText)
+        }
+    }
+}
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun SettingScreenPreview() {
-    SettingScreen({})
+    SettingScreen({},{})
 }
-
 @Preview(showBackground = true)
 @Composable
 fun SuggestPagePreview() {
     SuggestPage({})
 }
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun LogoutAlertDialogPreview() {
-    ABLEBODY_AndroidTheme {
-        AbleBodyAlertDialog(
-            onDismissRequest = {},
-            positiveText = "아니오",
-            positiveButtonOnClick = {},
-            negativeText = "예",
-            negativeButtonOnClick = {},
-        ) {
-            androidx.compose.material.Text(
-                text = "로그아웃",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    lineHeight = 26.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                    fontWeight = FontWeight(700),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
-            )
-            androidx.compose.material.Text(
-                text = "로그아웃 할까요?",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                    fontWeight = FontWeight(400),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                ),
-                modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
-            )
-        }
-    }
+    LogoutAlertDialog()
 }
 
 @Preview(showBackground = true)
@@ -507,8 +668,11 @@ fun SuggestAlertDialogPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
 fun AlarmPagePreview() {
-    AlarmPage({})
+    Column(){
+//        AlarmPage({}, true)
+        AlarmPage({}, true)
+    }
 }

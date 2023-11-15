@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.home
 
+import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -10,6 +11,8 @@ import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.NormalUserScreen
+import com.smilehunter.ablebody.presentation.my.SettingScreen
+import com.smilehunter.ablebody.presentation.my.SuggestPage
 
 const val HomeRoute = "Home"
 
@@ -20,6 +23,9 @@ fun NavGraphBuilder.addHomeGraph(
     onBrandDetailRouteRequest: (Long, String) -> Unit,
     onProductItemDetailRouteRequest: (Long) -> Unit,
     onCodyItemDetailRouteRequest: (Long) -> Unit,
+    settingOnClickRouteRequest: () -> Unit,
+    onBackRequest: () -> Unit,
+    suggestonClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -61,8 +67,24 @@ fun NavGraphBuilder.addHomeGraph(
             isBottomBarShow(true)
         }
         composable(route = NavigationItems.My.name) {
-            MyProfileRoute()
+            MyProfileRoute(
+                settingOnClick = settingOnClickRouteRequest
+            )
             isBottomBarShow(true)
+        }
+        composable(route = "SettingScreen") {
+            SettingScreen(
+                onBackRequest = onBackRequest,
+                suggestonClick = suggestonClick
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "SuggestPage") {
+            SuggestPage(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
         }
     }
 }
