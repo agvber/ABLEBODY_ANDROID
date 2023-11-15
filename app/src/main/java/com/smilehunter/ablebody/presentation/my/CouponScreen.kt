@@ -297,17 +297,10 @@ fun CouponNumberTextField() {
                 modifier = Modifier.weight(10.5f),
                 placeholder = { Text(text = "쿠폰 번호를 입력하세요") },
               colors = TextFieldDefaults.textFieldColors(
-//                  focusedTextColor = Color.Black,
                   focusedIndicatorColor = Color.Transparent,
                   unfocusedIndicatorColor = Color.Transparent,
                   containerColor = Color.White
-//                    textColor = Color.Black,  // 텍스트 색상 설정
-//                    backgroundColor = Color.White,  // 배경 색상 설정
-//                    cursorColor = Color.Black,
-//                    focusedIndicatorColor = Color.Transparent,
-//                    unfocusedIndicatorColor = Color.Transparent
                 )
-
             )
 
             Button(
