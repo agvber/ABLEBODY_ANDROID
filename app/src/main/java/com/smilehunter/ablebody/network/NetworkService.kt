@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
@@ -54,6 +55,7 @@ import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkItemData
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
+import java.io.File
 
 interface NetworkService {
 
@@ -309,6 +311,11 @@ interface NetworkService {
     suspend fun getMyUserData(): UserDataResponse
 
     suspend fun getUserData(uid: String): UserDataResponse
+
+    suspend fun editProfile(
+        profile: EditProfile,
+        profileImage: File?,
+    ): UserDataResponse
 
     suspend fun getMyBoard(
         uid: String? = null,

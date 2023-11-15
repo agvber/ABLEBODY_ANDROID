@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.network
 
+import com.google.gson.Gson
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.ItemChildCategory
@@ -8,6 +9,7 @@ import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
+import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
@@ -53,10 +55,15 @@ import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkItemData
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -410,6 +417,23 @@ class NetworkServiceImpl @Inject constructor(
     override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
 
     override suspend fun getUserData(uid: String): UserDataResponse = networkAPI.getUserData(uid)
+
+    override suspend fun editProfile(
+        profile: EditProfile,
+        profileImage: File?,
+    ): UserDataResponse {
+        val profileRequestBody = Gson().toJson(profile).toRequestBody("application/json".toMediaTypeOrNull())
+        val profilePart = MultipartBody.Part.createFormData("profile", null, profileRequestBody)
+
+        if (profileImage == null) {
+            return networkAPI.editProfile(profile = profilePart, profileImage = null)
+        }
+
+        val fileBody = profileImage.asRequestBody("image/${profileImage.extension}".toMediaTypeOrNull())
+        val filePart = MultipartBody.Part.createFormData("profileimage", profileImage.name, fileBody)
+
+        return networkAPI.editProfile(profile = profilePart, profileImage = filePart)
+    }
 
     override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse =
         networkAPI.getMyBoard(uid = uid, page = page, size = size)
