@@ -19,6 +19,7 @@ import com.smilehunter.ablebody.presentation.my.NormalUserScreen
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.SuggestPage
 import com.smilehunter.ablebody.presentation.my.WithdrawBeforeScreen
+import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
 
 const val HomeRoute = "Home"
 
@@ -35,7 +36,8 @@ fun NavGraphBuilder.addHomeGraph(
     myInfoOnClick: () -> Unit,
     alarmOnClick: () -> Unit,
     withDrawOnClick: () -> Unit,
-    editButtonOnClick: () -> Unit
+    editButtonOnClick: () -> Unit,
+    withDrawReasonOnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -118,13 +120,21 @@ fun NavGraphBuilder.addHomeGraph(
 
         composable(route = "WithdrawBeforeScreen") {
             WithdrawBeforeScreen(
-                onBackRequest = onBackRequest
+                onBackRequest = onBackRequest,
+                withDrawReasonOnClick = withDrawReasonOnClick
             )
             isBottomBarShow(false)
         }
 
         composable(route = "MyInfomationEditScreen") {
             MyInfoEditScreenRoute(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "WithdrawScreenRoute") {
+            WithdrawScreenRoute(
                 onBackRequest = onBackRequest
             )
             isBottomBarShow(false)

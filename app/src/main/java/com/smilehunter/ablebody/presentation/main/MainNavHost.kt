@@ -60,6 +60,7 @@ fun MainNavHost(
             alarmOnClick = {navController.navigate("AlarmScreen")},
             withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
             editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},
+            withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute")},
         )
 
         addSearchScreen(
