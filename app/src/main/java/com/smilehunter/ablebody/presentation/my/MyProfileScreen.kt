@@ -89,8 +89,7 @@ fun MyProfileRoute(
 
     if(userInfoData?.userType.toString() == "CREATOR"){
         Log.d("NormalUser or Creator?", "CreatorScreen")
-//        CreatorScreen()
-        NormalUserScreen(settingOnClick = settingOnClick)
+        CreatorScreen(settingOnClick = settingOnClick)
     }else{
         Log.d("NormalUser or Creator?", "NormalUserScreen")
         NormalUserScreen(settingOnClick = settingOnClick)
@@ -100,7 +99,8 @@ fun MyProfileRoute(
 
 @Composable
 fun CreatorScreen(
-    viewModel: MyProfileViewModel = hiltViewModel()
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    settingOnClick: () -> Unit
 ){
     val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
     val userInfoData by viewModel.userLiveData.observeAsState()
@@ -137,7 +137,8 @@ fun CreatorScreen(
                     orderManagement = orderItemData?.size ?: 0,
                     coupon = couponData?.size ?: 0,
                     creatorPoint = userInfoData?.creatorPoint ?: 0,
-                    codyImageUrls = listOf("1")
+                    codyImageUrls = listOf("1"),
+                    settingOnClick = settingOnClick
                 )
             }
         }
@@ -217,12 +218,13 @@ fun CreatorUserInfo(
     orderManagement: Int,
     coupon: Int,
     creatorPoint: Int,
-    codyImageUrls: List<String>
+    codyImageUrls: List<String>,
+    settingOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
     ){
-        UserName(isCreator, userName, {})
+        UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
         OrderDetailBox(orderManagement,coupon,creatorPoint)
         profileEditButton()

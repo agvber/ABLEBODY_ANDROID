@@ -83,7 +83,9 @@ import com.smilehunter.ablebody.utils.redirectToURL
 @Composable
 fun SettingScreen(
     onBackRequest: () -> Unit,
-    suggestonClick: () -> Unit
+    suggestonClick: () -> Unit,
+    myInfoOnClick: () -> Unit,
+    alarmOnClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -104,19 +106,19 @@ fun SettingScreen(
         ){
             SuggestList(suggestonClick = suggestonClick)
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("내 정보","")
+            SettingList(listText = "내 정보", myInfoOnClick = myInfoOnClick)
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("알림","")
+            SettingList(listText = "알림", alarmOnClick = alarmOnClick)
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("1:1 문의하기","")
+            SettingList("1:1 문의하기")
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("서비스 이용 약관","service agreement")
-            SettingList("개인정보 수집 및 이용","privacy policy")
-            SettingList("개인정보 제3자 제공","thirdparty sharing consent")
-            SettingList("개인정보처리방침","Personal Information Processing Policy")
-            SettingList("앱 버전","")
+            SettingList(listText = "서비스 이용 약관", linkUrl = "service agreement")
+            SettingList(listText = "개인정보 수집 및 이용", linkUrl = "privacy policy")
+            SettingList(listText = "개인정보 제3자 제공", linkUrl = "thirdparty sharing consent")
+            SettingList(listText = "개인정보처리방침", linkUrl = "Personal Information Processing Policy")
+            SettingList(listText = "앱 버전")
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("로그아웃","", Color.Red)
+            SettingList("로그아웃", textColor = Color.Red)
         }
     }
 }
@@ -171,9 +173,13 @@ fun SuggestList(
 @Composable
 fun SettingList(
     listText: String,
-    linkUrl: String,
+    linkUrl: String = "",
     textColor: Color = Color.Black,
-    editText: String = ""
+    editText: String = "",
+    myInfoOnClick: () -> Unit = {},
+    alarmOnClick: () -> Unit = {},
+    withDrawOnClick: () -> Unit = {},
+    withDrawReasonOnClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     Row(
@@ -184,7 +190,23 @@ fun SettingList(
             .nonReplyClickable(onClick = {
                 if (listText == "로그아웃") {
 //                    LogoutAlertDialog()
-                } else {
+                } else if(listText == "내 정보"){
+                    myInfoOnClick()
+                } else if(listText == "알림"){
+                    alarmOnClick()
+                } else if(listText == "쓰지 않는 앱이에요."){
+                    withDrawReasonOnClick()
+                } else if(listText == "볼만한 컨텐츠가 없어요."){
+                    withDrawReasonOnClick()
+                } else if(listText == "앱에 오류가 있어요."){
+                    withDrawReasonOnClick()
+                } else if(listText == "앱을 어떻게 쓰는지 모르겠어요."){
+                    withDrawReasonOnClick()
+                } else if(listText == "기타"){
+                    withDrawReasonOnClick()
+                } else if(listText == "탈퇴하기"){
+                    withDrawOnClick()
+                } else{
                     redirectToURL(context, linkUrl)
                 }
             }),
@@ -256,16 +278,20 @@ fun SuggestPage(
                 style = TextStyle(
                     fontSize = 18.sp,
                 )
-            )},
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ){
+        ) {
             var inputText by remember {
                 mutableStateOf("")
             }
+
+            val isButtonEnabled = inputText.isNotBlank() && inputText.length <= 300
+
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
                     append("애블바디")
@@ -284,20 +310,21 @@ fun SuggestPage(
                 ),
                 modifier = Modifier.padding(20.dp)
             )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
                     .padding(20.dp)
                     .background(PlaneGrey, shape = RoundedCornerShape(16.dp))
-            ){
+            ) {
                 TextField(
                     value = inputText,
                     onValueChange = {
                         inputText = it
                     },
                     modifier = Modifier.fillMaxSize(),
-                    placeholder = { Text( text = "애블바디에 이런 기능이 있었으면 좋겠어요.")},
+                    placeholder = { Text(text = "애블바디에 이런 기능이 있었으면 좋겠어요.") },
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = PlaneGrey,
                         focusedIndicatorColor = Color.Transparent,
@@ -305,6 +332,7 @@ fun SuggestPage(
                     )
                 )
             }
+
             Text(
                 text = "글자수 제한 (${inputText.length}/300)", // 글자 수 표시 부분
                 color = AbleDeep,
@@ -319,9 +347,10 @@ fun SuggestPage(
                     .fillMaxWidth()
                     .padding(end = 20.dp)
             )
+
             Box(
                 modifier = Modifier.fillMaxSize()
-            ){
+            ) {
                 androidx.compose.material3.Button(
                     onClick = {
 
@@ -333,18 +362,19 @@ fun SuggestPage(
                         .padding(16.dp)
                         .height(55.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AbleBlue),
+                    enabled = isButtonEnabled // 버튼 활성화 여부를 설정
 
-                    ) {
+                ) {
                     Text(
                         text = "애블바디팀에게 보내기",
                         color = Color.White
                     )
                 }
-
             }
         }
     }
 }
+
 
 @Composable
 fun acceptUserAdConsentPage(
@@ -426,7 +456,7 @@ fun AlarmPage(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(15.dp),
+                    .padding(17.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -552,7 +582,6 @@ fun BenefitDescription(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
             .padding(
                 start = 16.dp,
                 end = 16.dp,
@@ -579,15 +608,13 @@ fun BenefitDescription(
 @Preview(showBackground = true)
 @Composable
 fun SettingScreenPreview() {
-    SettingScreen({},{})
+    SettingScreen({},{},{},{})
 }
 @Preview(showBackground = true)
 @Composable
 fun SuggestPagePreview() {
     SuggestPage({})
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
