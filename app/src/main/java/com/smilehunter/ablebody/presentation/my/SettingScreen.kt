@@ -1,14 +1,10 @@
 package com.smilehunter.ablebody.presentation.my
 
-import android.content.Intent
-import android.net.Uri
+import android.content.pm.PackageManager
 import android.util.Log
-import android.widget.Button
-import android.widget.ToggleButton
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,36 +14,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -76,9 +62,9 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
-import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import com.smilehunter.ablebody.utils.redirectToURL
+
 
 @Composable
 fun SettingScreen(
@@ -122,6 +108,19 @@ fun SettingScreen(
         }
     }
 }
+
+//@Composable
+//fun AlarmRoute(
+//    viewModel: MyProfileViewModel = hiltViewModel()
+//) {
+//    val userInfoData by viewModel.userLiveData.observeAsState()
+//    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
+//
+//    LaunchedEffect(key1 = true) {
+//        viewModel.getData()
+//    }
+//    AlarmPage(onBackRequest = {}, alarmAgree = orderItemData.)
+//}
 
 @Composable
 fun SuggestList(
@@ -182,6 +181,23 @@ fun SettingList(
     withDrawReasonOnClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+//    try {
+//        val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+//        val version = pInfo.versionName
+//        val verCode: Int = pInfo.versionCode
+//        Log.d("version/code", "$version $verCode")
+//    } catch (e: PackageManager.NameNotFoundException) {
+//        e.printStackTrace()
+//    }
+
+    val manager = context.packageManager
+    val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
+    Log.d("PackageName = ", "PackageName = ${info.packageName} VersionCode = ${info.versionCode} VersionName = ${info.versionName}")
+//    Log.d("PackageName = " + info.packageName + "\nVersionCode = "
+//            + info.versionCode + "\nVersionName = "
+//            + info.versionName + "\nPermissions = " + info.permissions)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,23 +206,24 @@ fun SettingList(
             .nonReplyClickable(onClick = {
                 if (listText == "로그아웃") {
 //                    LogoutAlertDialog()
-                } else if(listText == "내 정보"){
+                    showDialog = true
+                } else if (listText == "내 정보") {
                     myInfoOnClick()
-                } else if(listText == "알림"){
+                } else if (listText == "알림") {
                     alarmOnClick()
-                } else if(listText == "쓰지 않는 앱이에요."){
+                } else if (listText == "쓰지 않는 앱이에요.") {
                     withDrawReasonOnClick()
-                } else if(listText == "볼만한 컨텐츠가 없어요."){
+                } else if (listText == "볼만한 컨텐츠가 없어요.") {
                     withDrawReasonOnClick()
-                } else if(listText == "앱에 오류가 있어요."){
+                } else if (listText == "앱에 오류가 있어요.") {
                     withDrawReasonOnClick()
-                } else if(listText == "앱을 어떻게 쓰는지 모르겠어요."){
+                } else if (listText == "앱을 어떻게 쓰는지 모르겠어요.") {
                     withDrawReasonOnClick()
-                } else if(listText == "기타"){
+                } else if (listText == "기타") {
                     withDrawReasonOnClick()
-                } else if(listText == "탈퇴하기"){
+                } else if (listText == "탈퇴하기") {
                     withDrawOnClick()
-                } else{
+                } else {
                     redirectToURL(context, linkUrl)
                 }
             }),
@@ -250,6 +267,9 @@ fun SettingList(
                 tint = Color.Gray
             )
         }
+    }
+    if (showDialog) {
+        LogoutAlertDialog( {showDialog = false}  )
     }
 }
 
@@ -382,6 +402,7 @@ fun acceptUserAdConsentPage(
     onBackRequest: () -> Unit,
     alarmAgree: Boolean
 ) {
+//    val userInfoData by viewModel.
     var alarmAgreeStatus by remember { mutableStateOf(alarmAgree) }
     Log.d("alarmAgreeStatus", alarmAgreeStatus.toString())
     Scaffold(
@@ -484,13 +505,15 @@ fun AlarmPage(
 }
 
 @Composable
-fun LogoutAlertDialog() {
+fun LogoutAlertDialog(
+    onDismiss: () -> Unit
+) {
     AbleBodyAlertDialog(
-        onDismissRequest = {},
+        onDismissRequest = { onDismiss() },
         positiveText = "아니오",
-        positiveButtonOnClick = {},
+        positiveButtonOnClick = { onDismiss() },
         negativeText = "예",
-        negativeButtonOnClick = {},
+        negativeButtonOnClick = { /*TODO : 로그아웃*/ },
     ) {
         androidx.compose.material.Text(
             text = "로그아웃",
@@ -619,7 +642,7 @@ fun SuggestPagePreview() {
 @Preview(showBackground = true)
 @Composable
 fun LogoutAlertDialogPreview() {
-    LogoutAlertDialog()
+    LogoutAlertDialog({})
 }
 
 @Preview(showBackground = true)
