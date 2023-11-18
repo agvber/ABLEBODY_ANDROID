@@ -1,5 +1,7 @@
 package com.smilehunter.ablebody.presentation.my
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,6 +64,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -484,11 +487,16 @@ fun MySportswearCody(
 
 @Composable
 fun CreatorSupplyButton() {
+    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         androidx.compose.material3.Button(
-            onClick = {},
+            onClick = {
+                val url = "https://ubqotl23.paperform.co" // 여기에 원하는 링크 주소를 넣어주세요.
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+            },
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier
                 .fillMaxWidth()
