@@ -32,7 +32,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,14 +51,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.LightShaded
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
+import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+
+@Composable
+fun CouponRoute(
+    viewModel: MyProfileViewModel = hiltViewModel()
+) {
+
+    val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
+    val userInfoData by viewModel.userLiveData.observeAsState()
+    val couponData by viewModel.couponListLiveData.observeAsState()
+    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getData()
+    }
+    CouponScreen({})
+}
 
 @Composable
 fun CouponScreen(
@@ -216,16 +237,12 @@ fun CouponPreview() {
     CouponScreen({})
 }
 
-//@Preview()
-//@Composable
-//fun CardTestPreview() {
-//    CouponContent(true, "제이엘브 15% 할인", 55, 19, "15%할인")
-//}
-
 @Composable
 fun CouponRegisterScreen(
     onBackRequest: () -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -265,13 +282,17 @@ fun CouponRegisterScreen(
                         tint = SmallTextGrey,
                         modifier = Modifier
                             .padding(top = 2.dp)
-                            .nonReplyClickable { }
+                            .nonReplyClickable { showDialog = true }
+
                     )
                 }
                 Spacer(modifier = Modifier.size(10.dp))
                 CouponNumberTextField()
             }
         }
+    }
+    if (showDialog) {
+        CouponRegisterDialog( {showDialog = false}  )
     }
 }
 
@@ -328,52 +349,27 @@ fun CouponNumberTextField() {
 }
 
 @Composable
-fun CouponRegisterPopup(onDismiss: () -> Unit) {
-    var showDialog by remember { mutableStateOf(true) }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
-                androidx.compose.material.Text(
-                    text = "\uD83D\uDCCC 쿠폰 등록은 무엇인가요?",
-                    style = TextStyle(
-                        fontSize = 17.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                        fontWeight = FontWeight(500),
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-                    ),
-                    modifier = Modifier.padding(top = 0.dp)
-                )
-            },
-            text = {
-                androidx.compose.material.Text(
-                    text = "각종 이벤트를 통해 쿠폰번호가 제공되며, 쿠폰번호를 입력하여 쿠폰을 등록할 수 있습니다.",
-                    style = TextStyle(
-                        fontSize = 17.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular))
-                    ),
-                    modifier = Modifier.padding(0.dp)
-                )
-            },
-            buttons = {
-                Button(
-                    onClick = { showDialog = false },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(55.dp)
-                        .padding(bottom = 13.dp, start = 15.dp, end = 15.dp),
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    androidx.compose.material.Text(text = "확인", color = Color.White)
-                }
-            },
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier
-                .width(329.dp)
-                .height(180.dp)
-                .padding(0.dp)
+fun CouponRegisterDialog(
+    onDismiss: () -> Unit
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveButtonOnClick = { onDismiss() },
+        negativeButtonOnClick = { },
+        positiveText = "확인"
+    ) {
+        androidx.compose.material.Text(
+            text = "\uD83D\uDCCC 쿠폰 등록은 무엇인가요?",
+            style = TextStyle(
+                fontSize = 17.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(500),
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "각종 이벤트를 통해 쿠폰번호가 제공되며, 쿠폰번호를 입력하여 쿠폰을 등록할 수 있습니다.",
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
         )
     }
 }
@@ -443,12 +439,12 @@ fun CouponPopup(
 fun CouponRegisterScreenPreview() {
     CouponRegisterScreen({})
 }
-
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun CouponRegisterPopupPreview() {
-    CouponRegisterPopup({})
+fun CouponRegisterDialogPreview() {
+    CouponRegisterDialog({})
 }
+
 @Preview(showBackground = true)
 @Composable
 fun CouponPopupPreview() {
