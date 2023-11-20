@@ -148,8 +148,8 @@ class UserRepositoryImpl @Inject constructor(
         return networkService.getUserAdConsent().data!!
     }
 
-    override suspend fun acceptUserAdConsent(): String {
-        return networkService.acceptUserAdConsent().data!!
+    override suspend fun acceptUserAdConsent(accept: Boolean): String {
+        return networkService.acceptUserAdConsent(accept).data!!
     }
 
     override suspend fun changePhoneNumber(changePhoneNumberRequest: ChangePhoneNumberRequest): UserDataResponse {

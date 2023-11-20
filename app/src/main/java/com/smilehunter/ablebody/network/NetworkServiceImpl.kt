@@ -78,7 +78,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(TEST_SERVER_URL)
+        baseUrl(MAIN_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -454,6 +454,6 @@ class NetworkServiceImpl @Inject constructor(
     override suspend fun getUserAdConsent(): GetUserAdConsentResponse =
         networkAPI.getUserAdConsent()
 
-    override suspend fun acceptUserAdConsent(): AcceptUserAdConsentResponse =
-        networkAPI.acceptUserAdConsent()
+    override suspend fun acceptUserAdConsent(accept: Boolean): AcceptUserAdConsentResponse =
+        networkAPI.acceptUserAdConsent(accept)
 }

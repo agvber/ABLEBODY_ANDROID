@@ -61,7 +61,7 @@ class UserApiUnitTest {
 
     @Test
     fun acceptUserAdConsent() {
-        val response = runBlocking { networkService.acceptUserAdConsent() }
+        val response = runBlocking { networkService.acceptUserAdConsent(true) }
         println(response)
     }
 

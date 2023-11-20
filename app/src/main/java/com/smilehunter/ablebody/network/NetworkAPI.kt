@@ -374,5 +374,7 @@ interface NetworkAPI {
     suspend fun getUserAdConsent(): GetUserAdConsentResponse
 
     @POST("/api/my/consent-pushad")
-    suspend fun acceptUserAdConsent(): AcceptUserAdConsentResponse
+    suspend fun acceptUserAdConsent(
+        @Query("accept") accept: Boolean
+    ): AcceptUserAdConsentResponse
 }

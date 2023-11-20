@@ -55,7 +55,7 @@ interface UserRepository {
 
     suspend fun getUserAdConsent(): Boolean
 
-    suspend fun acceptUserAdConsent(): String
+    suspend fun acceptUserAdConsent(accept: Boolean): String
 
     suspend fun changePhoneNumber(changePhoneNumberRequest: ChangePhoneNumberRequest): UserDataResponse
 
