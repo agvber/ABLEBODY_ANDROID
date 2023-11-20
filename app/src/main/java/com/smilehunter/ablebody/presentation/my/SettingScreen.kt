@@ -109,18 +109,36 @@ fun SettingScreen(
     }
 }
 
-//@Composable
-//fun AlarmRoute(
-//    viewModel: MyProfileViewModel = hiltViewModel()
-//) {
-//    val userInfoData by viewModel.userLiveData.observeAsState()
-//    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
-//
-//    LaunchedEffect(key1 = true) {
-//        viewModel.getData()
-//    }
-//    AlarmPage(onBackRequest = {}, alarmAgree = orderItemData.)
-//}
+@Composable
+fun AlarmRoute(
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    onBackRequest: () -> Unit
+) {
+    val getAlarmAgreeData by viewModel.getUserAdConsentLiveData.observeAsState(true)
+    val passAlarmAgreeData by viewModel.passUserAdConsentLiveData.observeAsState(true)
+    Log.d("isAgreealarmAgreeData", getAlarmAgreeData.toString())
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getData()
+    }
+
+    AlarmPage(
+        onBackRequest = onBackRequest,
+        getAlarmAgree = getAlarmAgreeData,
+        passAlarmAgree =  {viewModel.changeUserAdConsent(it)}
+    )
+
+//    AlarmPage(onBackRequest = onBackRequest, alarmAgree = getAlarmAgreeData, passAlarmAgree = {Log.d("받은거???",it.toString())})
+}
+
+@Composable
+fun SuggestRoute(
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    onBackRequest: () -> Unit
+) {
+
+    SuggestPage(onBackRequest = onBackRequest, suggestText = {Log.d("제안하기에서 SuggestRoute",it)})
+}
 
 @Composable
 fun SuggestList(
@@ -273,19 +291,12 @@ fun SettingList(
     }
 }
 
-//@Composable
-//fun OpenLink(linkUrl: String) {
-//    val context = LocalContext.current
-//    val intent = Intent(Intent.ACTION_VIEW).apply {
-//        data = Uri.parse(linkUrl)
-//    }
-//    context.startActivity(intent)
-//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuggestPage(
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    suggestText: (String) -> Unit
 ) {
     val version = BuildConfig.VERSION_NAME
     Log.d("version", version)
@@ -310,7 +321,9 @@ fun SuggestPage(
                 mutableStateOf("")
             }
 
-            val isButtonEnabled = inputText.isNotBlank() && inputText.length <= 300
+            // 글자 수 제한
+            val maxCharCount = 300
+            val isButtonEnabled = inputText.isNotBlank() && inputText.length <= maxCharCount
 
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
@@ -341,7 +354,11 @@ fun SuggestPage(
                 TextField(
                     value = inputText,
                     onValueChange = {
-                        inputText = it
+                        // 글자 수 제한
+                        if (it.length <= maxCharCount) {
+                            inputText = it
+                            suggestText(inputText)
+                        }
                     },
                     modifier = Modifier.fillMaxSize(),
                     placeholder = { Text(text = "애블바디에 이런 기능이 있었으면 좋겠어요.") },
@@ -354,7 +371,7 @@ fun SuggestPage(
             }
 
             Text(
-                text = "글자수 제한 (${inputText.length}/300)", // 글자 수 표시 부분
+                text = "글자수 제한 (${inputText.length}/$maxCharCount)", // 글자 수 표시 부분
                 color = AbleDeep,
                 style = TextStyle(
                     fontSize = 12.sp,
@@ -394,7 +411,6 @@ fun SuggestPage(
         }
     }
 }
-
 
 @Composable
 fun acceptUserAdConsentPage(
@@ -442,7 +458,7 @@ fun acceptUserAdConsentPage(
                     Log.d("toggledState", toggledState.toString())
                     alarmAgreeStatus = toggledState
                     if(toggledState){
-
+//                        Log.d("보낼 거", "동의 여부: $toggledState")
                     }
                 }
             }
@@ -454,10 +470,12 @@ fun acceptUserAdConsentPage(
 @Composable
 fun AlarmPage(
     onBackRequest: () -> Unit,
-    alarmAgree: Boolean
+    getAlarmAgree: Boolean,
+    passAlarmAgree: (Boolean) -> Unit,
 ) {
-    var alarmAgreeStatus by remember { mutableStateOf(alarmAgree) }
-    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString())
+    var alarmAgreeStatus by remember { mutableStateOf(getAlarmAgree) }
+    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString()) //true <-> false
+
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -494,9 +512,8 @@ fun AlarmPage(
                 MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
                     Log.d("toggledState", toggledState.toString())
                     alarmAgreeStatus = toggledState
-                    if(toggledState){
-
-                    }
+//                    Log.d("보낼 거", "동의 여부: $toggledState")
+                    passAlarmAgree(toggledState)
                 }
             }
             BenefitDescription(alarmAgree = alarmAgreeStatus)
@@ -636,7 +653,7 @@ fun SettingScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun SuggestPagePreview() {
-    SuggestPage({})
+    SuggestPage({}, {})
 }
 
 @Preview(showBackground = true)
@@ -723,6 +740,6 @@ fun SuggestAlertDialogPreview() {
 fun AlarmPagePreview() {
     Column(){
 //        AlarmPage({}, true)
-        AlarmPage({}, true)
+        AlarmPage({}, true, {})
     }
 }
