@@ -73,6 +73,12 @@ class UserApiUnitTest {
     }
 
     @Test
+    fun resignUser() {
+        val response = runBlocking { networkService.resignUser("테스트를 위해 탈퇴합니다") }
+        println(response)
+    }
+
+    @Test
     fun suggestion() {
         val response = runBlocking { networkService.suggestion("애블바디가 성장하는 그날까지!") }
         println(response)
