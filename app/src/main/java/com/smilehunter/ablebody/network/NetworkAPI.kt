@@ -49,6 +49,7 @@ import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
@@ -356,6 +357,11 @@ interface NetworkAPI {
     suspend fun changePhoneNumber(
         @Body changePhoneNumberRequest: ChangePhoneNumberRequest
     ): UserDataResponse
+
+    @DELETE("/api/my/user")
+    suspend fun resignUser(
+        @Query("reason") reason: String
+    ): ResignUserResponse
 
     @POST("/api/my/suggestion")
     suspend fun suggestion(
