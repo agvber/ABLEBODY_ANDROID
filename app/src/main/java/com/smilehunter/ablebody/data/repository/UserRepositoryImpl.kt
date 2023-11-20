@@ -156,6 +156,11 @@ class UserRepositoryImpl @Inject constructor(
         return networkService.changePhoneNumber(changePhoneNumberRequest)
     }
 
+    override suspend fun resignUser(reason: String): String {
+        return networkService.resignUser(reason).data!!
+    }
+
+
     override suspend fun suggestApp(text: String) {
         networkService.suggestion(content = text)
     }

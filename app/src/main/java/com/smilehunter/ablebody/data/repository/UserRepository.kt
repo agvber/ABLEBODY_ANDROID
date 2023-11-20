@@ -59,5 +59,7 @@ interface UserRepository {
 
     suspend fun changePhoneNumber(changePhoneNumberRequest: ChangePhoneNumberRequest): UserDataResponse
 
+    suspend fun resignUser(reason: String): String
+
     suspend fun suggestApp(text: String)
 }
