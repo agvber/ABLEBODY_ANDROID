@@ -104,7 +104,7 @@ class MyProfileViewModel @Inject constructor(
 
     fun changeUserAdConsent(value: Boolean){
         viewModelScope.launch(ioDispatcher) {
-//            userRepository.acceptUserAdConsent(value)
+            userRepository.acceptUserAdConsent(value)
         }
     }
 
