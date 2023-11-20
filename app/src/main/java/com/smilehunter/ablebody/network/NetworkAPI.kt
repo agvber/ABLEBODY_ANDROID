@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
+import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.smilehunter.ablebody.data.dto.request.NewUserCreateRequest
 import com.smilehunter.ablebody.data.dto.request.RefreshTokenRequest
@@ -350,6 +351,11 @@ interface NetworkAPI {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): GetMyBoardResponse
+
+    @PUT("/api/my/change-phone")
+    suspend fun changePhoneNumber(
+        @Body changePhoneNumberRequest: ChangePhoneNumberRequest
+    ): UserDataResponse
 
     @POST("/api/my/suggestion")
     suspend fun suggestion(
