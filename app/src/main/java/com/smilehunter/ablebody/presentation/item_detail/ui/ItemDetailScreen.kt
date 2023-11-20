@@ -677,13 +677,6 @@ fun ItemDetailScreen(
             modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current)
         )
 }
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize(),
-////            .padding(bottom = 20.dp),
-//        contentAlignment = Alignment.BottomCenter
-//    ){
-
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
