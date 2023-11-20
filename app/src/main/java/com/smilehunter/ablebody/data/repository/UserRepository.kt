@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.data.repository
 
+import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
@@ -56,7 +57,7 @@ interface UserRepository {
 
     suspend fun acceptUserAdConsent(): String
 
-    suspend fun suggestApp(
-        text: String
-    )
+    suspend fun changePhoneNumber(changePhoneNumberRequest: ChangePhoneNumberRequest): UserDataResponse
+
+    suspend fun suggestApp(text: String)
 }
