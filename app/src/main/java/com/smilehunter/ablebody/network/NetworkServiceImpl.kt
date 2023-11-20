@@ -9,6 +9,7 @@ import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
+import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
@@ -76,7 +77,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(MAIN_SERVER_URL)
+        baseUrl(TEST_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -437,6 +438,11 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getMyBoard(uid: String?, page: Int, size: Int): GetMyBoardResponse =
         networkAPI.getMyBoard(uid = uid, page = page, size = size)
+
+    override suspend fun changePhoneNumber(
+        changePhoneNumberRequest: ChangePhoneNumberRequest
+    ): UserDataResponse =
+        networkAPI.changePhoneNumber(changePhoneNumberRequest = changePhoneNumberRequest)
 
     override suspend fun suggestion(content: String): SuggestionResponse =
         networkAPI.suggestion(content)

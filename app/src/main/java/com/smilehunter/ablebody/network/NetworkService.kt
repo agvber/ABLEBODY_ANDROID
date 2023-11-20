@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
@@ -322,6 +323,10 @@ interface NetworkService {
         page: Int = 0,
         size: Int = 10
     ): GetMyBoardResponse
+
+    suspend fun changePhoneNumber(
+        changePhoneNumberRequest: ChangePhoneNumberRequest
+    ): UserDataResponse
 
     suspend fun suggestion(
         content: String
