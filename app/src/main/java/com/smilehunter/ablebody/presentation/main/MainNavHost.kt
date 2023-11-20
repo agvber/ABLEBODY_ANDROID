@@ -55,7 +55,12 @@ fun MainNavHost(
             onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
             settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
             onBackRequest = navController::popBackStack,
-            suggestonClick = {navController.navigate("SuggestPage")},
+            suggestonClick = {navController.navigate("SuggestScreen")},
+            myInfoOnClick = {navController.navigate("MyInfoScreen")},
+            alarmOnClick = {navController.navigate("AlarmScreen")},
+            withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
+            editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},
+            withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute")},
         )
 
         addSearchScreen(

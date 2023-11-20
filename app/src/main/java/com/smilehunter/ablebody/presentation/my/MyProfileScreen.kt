@@ -1,9 +1,12 @@
 package com.smilehunter.ablebody.presentation.my
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
@@ -62,13 +67,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.ui.theme.AbleBlue
+import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleLight
 import com.smilehunter.ablebody.ui.theme.LightShaded
@@ -89,8 +97,7 @@ fun MyProfileRoute(
 
     if(userInfoData?.userType.toString() == "CREATOR"){
         Log.d("NormalUser or Creator?", "CreatorScreen")
-//        CreatorScreen()
-        NormalUserScreen(settingOnClick = settingOnClick)
+        CreatorScreen(settingOnClick = settingOnClick)
     }else{
         Log.d("NormalUser or Creator?", "NormalUserScreen")
         NormalUserScreen(settingOnClick = settingOnClick)
@@ -100,7 +107,8 @@ fun MyProfileRoute(
 
 @Composable
 fun CreatorScreen(
-    viewModel: MyProfileViewModel = hiltViewModel()
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    settingOnClick: () -> Unit
 ){
     val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
     val userInfoData by viewModel.userLiveData.observeAsState()
@@ -111,36 +119,60 @@ fun CreatorScreen(
         viewModel.getData()
     }
 
-    LazyVerticalGrid(
-    columns = GridCells.Fixed(3),
-    modifier = Modifier
-        .fillMaxWidth()
-    ){
-        items(count = userBoard.itemCount){
-            userBoard[it]?.isSingleImage
-            Log.d("LOG", userBoard[it]?.isSingleImage.toString())
-        }
-    }
-    LazyColumn(){
-        item{
-            if (userInfoData != null) {
-                Log.d("CreatorUserInfo", "CreatorUserInfo에 들어옴")
-                CreatorUserInfo(
-                    isCreator = true,
-                    userName = userInfoData?.name ?: "",
-                    profileImage = userInfoData?.profileUrl ?: "",
-                    nickName = userInfoData?.name ?: "",
-                    weight = userInfoData?.weight ?: 0,
-                    height = userInfoData?.height ?: 0,
-                    job = userInfoData?.job ?: "직업",
-                    introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
-                    orderManagement = orderItemData?.size ?: 0,
-                    coupon = couponData?.size ?: 0,
-                    creatorPoint = userInfoData?.creatorPoint ?: 0,
-                    codyImageUrls = listOf("1")
+    Box {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            item(
+                span = { GridItemSpan(this.maxLineSpan) }
+            ) {
+                Column() {
+                    if (userInfoData != null) {
+                        Log.d("CreatorUserInfo", "CreatorUserInfo에 들어옴")
+                        CreatorUserInfo(
+                            isCreator = true,
+                            userName = userInfoData?.name ?: "",
+                            profileImage = userInfoData?.profileUrl ?: "",
+                            nickName = userInfoData?.name ?: "",
+                            weight = userInfoData?.weight ?: 0,
+                            height = userInfoData?.height ?: 0,
+                            job = userInfoData?.job ?: "직업",
+                            introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
+                            orderManagement = orderItemData?.size ?: 0,
+                            coupon = couponData?.size ?: 0,
+                            creatorPoint = userInfoData?.creatorPoint ?: 0,
+                            codyImageUrls = listOf("1"),
+                            settingOnClick = settingOnClick
+                        )
+                    }
+                }
+            }
+            items(
+                count = userBoard.itemCount
+            ) {
+                //            userBoard[it]?.isSingleImage
+                Log.d("LOG", userBoard[it]?.isSingleImage.toString())
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(data = userBoard[it]?.imageURL)
+                        .build(),
+                    contentDescription = "Detailed image description",
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
             }
+            item(
+                span = { GridItemSpan(this.maxLineSpan) }
+            ) {
+                Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
+            }
         }
+
+        HomePostUploadButton(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
+
     }
 }
 @Composable
@@ -217,17 +249,17 @@ fun CreatorUserInfo(
     orderManagement: Int,
     coupon: Int,
     creatorPoint: Int,
-    codyImageUrls: List<String>
+    codyImageUrls: List<String>,
+    settingOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
     ){
-        UserName(isCreator, userName, {})
+        UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
         OrderDetailBox(orderManagement,coupon,creatorPoint)
         profileEditButton()
-        MySportswearCody(codyImageUrls)
-        HomePostUploadButton()
+        MySportswearCodyButton()
     }
 }
 
@@ -430,63 +462,38 @@ fun profileEditButton() {
 }
 
 @Composable
-fun MySportswearCody(
-    codeImageUrls: List<String>
-) {
-    Button(
-        onClick = { /*TODO*/ },
+fun MySportswearCodyButton() {
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-        shape = RoundedCornerShape(20.dp)
+            .padding(top = 16.dp, bottom = 12.dp)
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = 3.dp
     ){
-        Text(text = "내 운동복 코디")
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+        ){
+        Text(
+            text = "내 운동복 코디")
+        }
     }
-
-//    LazyVerticalGrid(
-//        columns = GridCells.Fixed(3),
-//        modifier = Modifier
-//            .padding(start = 20.dp, top = 5.dp, end = 20.dp)
-//            .fillMaxHeight()
-//    ) {
-//        items(codeImageUrls) { imageUrl ->
-//            Box(
-//                contentAlignment = Alignment.Center,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(165.dp)
-//                    .clickable {
-//                        //TODO : 크리에이터 상세페이지_코디 화면으로 이동
-//                    }
-//                    .padding(1.dp)
-//            ) {
-//                Image(
-//                    painter = rememberImagePainter(
-//                        data = imageUrl,
-//                        builder = {
-//                            crossfade(true)
-//                            placeholder(R.drawable.ic_launcher_background) // 로딩 중 또는 오류 발생 시 표시할 placeholder 이미지.
-//                        }
-//                    ),
-//                    contentDescription = "My content description", // 접근성을 위한 설명을 제공합니다.
-//                    modifier = Modifier
-//                        .fillMaxSize(), // 이미지가 상자 전체를 채우도록 지정합니다.
-//                    //                                .padding(start = 2.dp),
-//                    contentScale = ContentScale.Crop, // 이미지의 비율을 유지하면서 전체 영역에 맞게 크기를 조정합니다.
-//                )
-//            }
-//        }
-//    }
 }
 
 @Composable
 fun CreatorSupplyButton() {
+    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         androidx.compose.material3.Button(
-            onClick = {},
+            onClick = {
+                val url = "https://ubqotl23.paperform.co" // 여기에 원하는 링크 주소를 넣어주세요.
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+            },
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -505,9 +512,11 @@ fun CreatorSupplyButton() {
 }
 
 @Composable
-fun HomePostUploadButton() {
+fun HomePostUploadButton(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ){
         androidx.compose.material3.Button(
             onClick = {
@@ -694,7 +703,7 @@ fun CreatorScreenPreview() {
             UserInformation("", "크리에이터", 70, 173, "개발자", "안녕하세요")
             OrderDetailBox(2,1,100)
             profileEditButton()
-            MySportswearCody(codeImageUrls)
+            MySportswearCodyButton()
         }
         HomePostUploadButton()
     }

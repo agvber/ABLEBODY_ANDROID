@@ -9,10 +9,19 @@ import com.smilehunter.ablebody.presentation.home.brand.ui.BrandRoute
 import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
 import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
+import com.smilehunter.ablebody.presentation.my.AlarmPage
+import com.smilehunter.ablebody.presentation.my.AlarmRoute
+import com.smilehunter.ablebody.presentation.my.MyInfoEditScreenRoute
+import com.smilehunter.ablebody.presentation.my.MyInfoScreen
+import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
+import com.smilehunter.ablebody.presentation.my.MyInfomationEditScreen
 import com.smilehunter.ablebody.presentation.my.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.NormalUserScreen
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.SuggestPage
+import com.smilehunter.ablebody.presentation.my.SuggestRoute
+import com.smilehunter.ablebody.presentation.my.WithdrawBeforeScreen
+import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
 
 const val HomeRoute = "Home"
 
@@ -25,7 +34,12 @@ fun NavGraphBuilder.addHomeGraph(
     onCodyItemDetailRouteRequest: (Long) -> Unit,
     settingOnClickRouteRequest: () -> Unit,
     onBackRequest: () -> Unit,
-    suggestonClick: () -> Unit
+    suggestonClick: () -> Unit,
+    myInfoOnClick: () -> Unit,
+    alarmOnClick: () -> Unit,
+    withDrawOnClick: () -> Unit,
+    editButtonOnClick: () -> Unit,
+    withDrawReasonOnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -75,13 +89,53 @@ fun NavGraphBuilder.addHomeGraph(
         composable(route = "SettingScreen") {
             SettingScreen(
                 onBackRequest = onBackRequest,
-                suggestonClick = suggestonClick
+                suggestonClick = suggestonClick,
+                myInfoOnClick = myInfoOnClick,
+                alarmOnClick = alarmOnClick
             )
             isBottomBarShow(false)
         }
 
-        composable(route = "SuggestPage") {
-            SuggestPage(
+        composable(route = "SuggestScreen") {
+            SuggestRoute(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "MyInfoScreen") {
+            MyInfoScreenRoute(
+                onBackRequest = onBackRequest,
+                withDrawOnClick = withDrawOnClick,
+                editButtonOnClick = editButtonOnClick
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "AlarmScreen") {
+            AlarmRoute(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "WithdrawBeforeScreen") {
+            WithdrawBeforeScreen(
+                onBackRequest = onBackRequest,
+                withDrawReasonOnClick = withDrawReasonOnClick
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "MyInfomationEditScreen") {
+            MyInfoEditScreenRoute(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "WithdrawScreenRoute") {
+            WithdrawScreenRoute(
                 onBackRequest = onBackRequest
             )
             isBottomBarShow(false)
