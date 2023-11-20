@@ -44,6 +44,7 @@ import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
@@ -327,6 +328,10 @@ interface NetworkService {
     suspend fun changePhoneNumber(
         changePhoneNumberRequest: ChangePhoneNumberRequest
     ): UserDataResponse
+
+    suspend fun resignUser(
+        reason: String
+    ): ResignUserResponse
 
     suspend fun suggestion(
         content: String

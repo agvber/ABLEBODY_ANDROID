@@ -47,6 +47,7 @@ import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
@@ -443,6 +444,9 @@ class NetworkServiceImpl @Inject constructor(
         changePhoneNumberRequest: ChangePhoneNumberRequest
     ): UserDataResponse =
         networkAPI.changePhoneNumber(changePhoneNumberRequest = changePhoneNumberRequest)
+
+    override suspend fun resignUser(reason: String): ResignUserResponse =
+        networkAPI.resignUser(reason)
 
     override suspend fun suggestion(content: String): SuggestionResponse =
         networkAPI.suggestion(content)
