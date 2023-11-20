@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.network
 
+import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.network.utils.TestRetrofit
 import kotlinx.coroutines.runBlocking
@@ -61,6 +62,13 @@ class UserApiUnitTest {
     @Test
     fun acceptUserAdConsent() {
         val response = runBlocking { networkService.acceptUserAdConsent() }
+        println(response)
+    }
+
+    @Test
+    fun changePhoneNumber() {
+        val requestBody = ChangePhoneNumberRequest(phoneConfirmId = 1, verifyingCode = "6843")
+        val response = runBlocking { networkService.changePhoneNumber(requestBody) }
         println(response)
     }
 
