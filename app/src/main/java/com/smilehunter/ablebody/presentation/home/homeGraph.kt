@@ -10,6 +10,7 @@ import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
 import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.AlarmPage
+import com.smilehunter.ablebody.presentation.my.AlarmRoute
 import com.smilehunter.ablebody.presentation.my.MyInfoEditScreenRoute
 import com.smilehunter.ablebody.presentation.my.MyInfoScreen
 import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
@@ -18,6 +19,7 @@ import com.smilehunter.ablebody.presentation.my.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.NormalUserScreen
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.SuggestPage
+import com.smilehunter.ablebody.presentation.my.SuggestRoute
 import com.smilehunter.ablebody.presentation.my.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
 
@@ -95,7 +97,7 @@ fun NavGraphBuilder.addHomeGraph(
         }
 
         composable(route = "SuggestScreen") {
-            SuggestPage(
+            SuggestRoute(
                 onBackRequest = onBackRequest
             )
             isBottomBarShow(false)
@@ -111,9 +113,8 @@ fun NavGraphBuilder.addHomeGraph(
         }
 
         composable(route = "AlarmScreen") {
-            AlarmPage(
-                onBackRequest = onBackRequest,
-                alarmAgree = true
+            AlarmRoute(
+                onBackRequest = onBackRequest
             )
             isBottomBarShow(false)
         }
