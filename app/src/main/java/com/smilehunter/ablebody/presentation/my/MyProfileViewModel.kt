@@ -47,9 +47,19 @@ class MyProfileViewModel @Inject constructor(
     private val _couponListLiveData = MutableLiveData<List<CouponData>>()
     val couponListLiveData: LiveData<List<CouponData>> = _couponListLiveData
 
-
     private val _orderItemListLiveData = MutableLiveData<List<OrderItemData>>()
     val orderItemListLiveData: LiveData<List<OrderItemData>> = _orderItemListLiveData
+
+    //마케팅 알림 동의 여부 받아오기
+    private val _getUserAdConsentLiveData = MutableLiveData<Boolean>()
+    val getUserAdConsentLiveData: LiveData<Boolean> = _getUserAdConsentLiveData
+
+    //마케팅 알림 동의 여부 보내기
+    private val _passUserAdConsentLiveData = MutableLiveData<String>()
+    val passUserAdConsentLiveData: LiveData<String> = _passUserAdConsentLiveData
+
+    private val _suggestAppLiveData = MutableLiveData<String>()
+    val suggestAppLiveData: LiveData<String> = _suggestAppLiveData
 
     val userBoard: StateFlow<PagingData<UserBoardData.Content>>
             = getUserBoardPagerUseCase()
@@ -75,9 +85,26 @@ class MyProfileViewModel @Inject constructor(
                 val orderItemList = getOrderItemListUseCase.invoke()
                 _orderItemListLiveData.postValue(orderItemList)
 
+                val getUserAdConsent = userRepository.getUserAdConsent()
+                _getUserAdConsentLiveData.postValue(getUserAdConsent)
+                Log.d("getUserAdConsent", getUserAdConsent.toString())
+
+//                val passUserAdConsent = userRepository.acceptUserAdConsent()
+//                _passUserAdConsentLiveData.postValue(passUserAdConsent)
+
+//                val suggestApp = userRepository.suggestApp()
+//                _suggestAppLiveData.postValue(suggestApp)
+
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun changeUserAdConsent(value: Boolean){
+        viewModelScope.launch(ioDispatcher) {
+//            userRepository.acceptUserAdConsent(value)
         }
     }
 
