@@ -54,10 +54,6 @@ class MyProfileViewModel @Inject constructor(
     private val _getUserAdConsentLiveData = MutableLiveData<Boolean>()
     val getUserAdConsentLiveData: LiveData<Boolean> = _getUserAdConsentLiveData
 
-    //마케팅 알림 동의 여부 보내기
-    private val _passUserAdConsentLiveData = MutableLiveData<String>()
-    val passUserAdConsentLiveData: LiveData<String> = _passUserAdConsentLiveData
-
     private val _suggestAppLiveData = MutableLiveData<String>()
     val suggestAppLiveData: LiveData<String> = _suggestAppLiveData
 
@@ -89,9 +85,6 @@ class MyProfileViewModel @Inject constructor(
                 _getUserAdConsentLiveData.postValue(getUserAdConsent)
                 Log.d("getUserAdConsent", getUserAdConsent.toString())
 
-//                val passUserAdConsent = userRepository.acceptUserAdConsent()
-//                _passUserAdConsentLiveData.postValue(passUserAdConsent)
-
 //                val suggestApp = userRepository.suggestApp()
 //                _suggestAppLiveData.postValue(suggestApp)
 
@@ -105,6 +98,15 @@ class MyProfileViewModel @Inject constructor(
     fun changeUserAdConsent(value: Boolean){
         viewModelScope.launch(ioDispatcher) {
             userRepository.acceptUserAdConsent(value)
+            _getUserAdConsentLiveData.postValue(value)
+            Log.d("UserAdConsent", value.toString())
+        }
+    }
+
+    fun sendSuggest(value: String){
+        viewModelScope.launch(ioDispatcher){
+            userRepository.suggestApp(value)
+            Log.d("sendSuggest", value)
         }
     }
 
