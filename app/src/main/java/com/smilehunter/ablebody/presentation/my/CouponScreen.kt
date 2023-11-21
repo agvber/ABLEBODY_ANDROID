@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -54,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.LightShaded
@@ -65,24 +68,28 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 
 @Composable
 fun CouponRoute(
-    viewModel: MyProfileViewModel = hiltViewModel()
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    couponRegisterOnClick: () -> Unit,
+    onBackRequest: () -> Unit
 ) {
 
-    val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
-    val userInfoData by viewModel.userLiveData.observeAsState()
     val couponData by viewModel.couponListLiveData.observeAsState()
     val orderItemData by viewModel.orderItemListLiveData.observeAsState()
 
     LaunchedEffect(key1 = true) {
         viewModel.getData()
     }
-    CouponScreen({})
+    CouponScreen(onBackRequest = onBackRequest, couponData?.size ?: 0, couponData ?: emptyList(), couponRegisterOnClick = couponRegisterOnClick)
 }
 
 @Composable
 fun CouponScreen(
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    size: Int,
+    couponData: List<CouponData>,
+    couponRegisterOnClick: () -> Unit
 ) {
+    Log.d("couponData", couponData.toString() ?: "0")
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -98,32 +105,44 @@ fun CouponScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
         ) {
             Button(
-                onClick = { },
+                onClick = {
+                    couponRegisterOnClick()
+                },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.White,
-                    contentColor = Color.Black,  // 글자 색을 검정색으로 설정합니다.
+                    contentColor = Color.Black,
                 ),
-                shape = RoundedCornerShape(10.dp),  // 둥근 모서리를 25.dp로 설정합니다.
-                border = BorderStroke(1.dp, Color.Black),  // 테두리를 검정색으로 설정합니다.
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, Color.Black),
                 modifier = Modifier
-                    .padding(end = 10.dp)  // 가로 크기를 최대로 확장합니다.
-                    .align(Alignment.End)  // 오른쪽으로 정렬합니다.
+                    .padding(end = 14.dp)
+                    .align(Alignment.End)
             ) {
-                Text(text = "쿠폰 등록")
+                Text(
+                    text = "쿠폰 등록",
+                    fontSize = 14.sp
+                )
             }
-
-            CouponContent(false, "선착순 100명 3,000원 할인 쿠폰", 55, 19, "3,000원 할인")
-            CouponContent(true, "제이엘브 15% 할인", 0, 19, "15% 할인")
+            for (i in 0 until size) {
+                CouponContent(couponData[i].invalid,
+                    couponData[i].couponTitle,
+                    couponData[i].couponCount,
+                    couponData[i].expirationDate,
+                    couponData[i].content
+                )
+            }
+        Spacer(modifier = Modifier.size(50.dp))
         }
     }
 }
 
 @Composable
 fun CouponContent(
-    isUsable: Boolean,
+    isValid: Boolean,
     couponTitle: String,
     couponCount: Int,
     expirationDateStr: Int,
@@ -162,7 +181,7 @@ fun CouponContent(
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
                         )
                     )
-                    UsageStatusButton(isUsable)
+                    UsageStatusButton(isValid)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth()
@@ -211,20 +230,20 @@ fun CouponContent(
 
 
 @Composable
-fun UsageStatusButton(isUsable: Boolean) {
+fun UsageStatusButton(isValid: Boolean) {
     Button(
         onClick = { },
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = if (isUsable) LightShaded else PlaneGrey
+            backgroundColor = if (isValid) PlaneGrey else LightShaded
         ),
         modifier = Modifier
             .width(100.dp)
             .height(30.dp)
     ) {
         Text(
-            text = if (isUsable) "사용가능" else "사용완료",
+            text = if (isValid) "사용완료" else "사용가능",
             fontSize = 11.sp,  // 글자 크기를 조절합니다.
-            color = if (isUsable) AbleBlue else SmallTextGrey,
+            color = if (isValid) SmallTextGrey else AbleBlue,
             modifier = Modifier
                 .padding(horizontal = 8.dp)  // 좌우 여백을 조절합니다.
         )
@@ -234,9 +253,15 @@ fun UsageStatusButton(isUsable: Boolean) {
 @Preview(showSystemUi = true)
 @Composable
 fun CouponPreview() {
-    CouponScreen({})
+    CouponScreen({}, 3, couponData = listOf(CouponData(1,"brand","선착순 100명 3,000원 할인 쿠폰","3,000원 할인",false, CouponData.CouponType.USER, CouponData.DiscountType.PRICE,55, 19, 3000)), {})
 }
 
+@Composable
+fun CouponRegisterRoute(
+    onBackRequest: () -> Unit
+) {
+    CouponRegisterScreen(onBackRequest = onBackRequest)
+}
 @Composable
 fun CouponRegisterScreen(
     onBackRequest: () -> Unit
