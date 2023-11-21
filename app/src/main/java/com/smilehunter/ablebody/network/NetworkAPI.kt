@@ -304,6 +304,11 @@ interface NetworkAPI {
     @GET("/api/couponBags")
     suspend fun getCouponBags(): GetCouponBagsResponse
 
+    @POST("/api/couponBags/add")
+    suspend fun addCouponByCouponCode(
+        @Query("couponCode") couponCode: String
+    ): GetCouponBagsResponse
+
     /** order **/
 
     @POST("/api/order")
