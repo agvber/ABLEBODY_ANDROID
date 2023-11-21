@@ -114,9 +114,9 @@ fun AlarmRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
     onBackRequest: () -> Unit
 ) {
-    val getAlarmAgreeData by viewModel.getUserAdConsentLiveData.observeAsState(true)
-    val passAlarmAgreeData by viewModel.passUserAdConsentLiveData.observeAsState(true)
-    Log.d("isAgreealarmAgreeData", getAlarmAgreeData.toString())
+    val getAlarmAgreeData by viewModel.getUserAdConsentLiveData.observeAsState(false)
+    Log.d("받아온 알림 데이터", getAlarmAgreeData.toString())
+
 
     LaunchedEffect(key1 = true) {
         viewModel.getData()
@@ -127,8 +127,6 @@ fun AlarmRoute(
         getAlarmAgree = getAlarmAgreeData,
         passAlarmAgree =  {viewModel.changeUserAdConsent(it)}
     )
-
-//    AlarmPage(onBackRequest = onBackRequest, alarmAgree = getAlarmAgreeData, passAlarmAgree = {Log.d("받은거???",it.toString())})
 }
 
 @Composable
@@ -136,8 +134,7 @@ fun SuggestRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
     onBackRequest: () -> Unit
 ) {
-
-    SuggestPage(onBackRequest = onBackRequest, suggestText = {Log.d("제안하기에서 SuggestRoute",it)})
+    SuggestPage(onBackRequest = onBackRequest, suggestText = {viewModel.sendSuggest(it)})
 }
 
 @Composable
@@ -300,6 +297,9 @@ fun SuggestPage(
 ) {
     val version = BuildConfig.VERSION_NAME
     Log.d("version", version)
+
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -357,7 +357,6 @@ fun SuggestPage(
                         // 글자 수 제한
                         if (it.length <= maxCharCount) {
                             inputText = it
-                            suggestText(inputText)
                         }
                     },
                     modifier = Modifier.fillMaxSize(),
@@ -390,7 +389,8 @@ fun SuggestPage(
             ) {
                 androidx.compose.material3.Button(
                     onClick = {
-
+                        suggestText(inputText)
+                        showDialog = true
                     },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
@@ -400,7 +400,6 @@ fun SuggestPage(
                         .height(55.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AbleBlue),
                     enabled = isButtonEnabled // 버튼 활성화 여부를 설정
-
                 ) {
                     Text(
                         text = "애블바디팀에게 보내기",
@@ -408,6 +407,9 @@ fun SuggestPage(
                     )
                 }
             }
+        }
+        if (showDialog) {
+            SuggestCompletePopup( {showDialog = false}  )
         }
     }
 }
@@ -473,8 +475,8 @@ fun AlarmPage(
     getAlarmAgree: Boolean,
     passAlarmAgree: (Boolean) -> Unit,
 ) {
-    var alarmAgreeStatus by remember { mutableStateOf(getAlarmAgree) }
-    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString()) //true <-> false
+    var alarmAgreeStatus = getAlarmAgree
+    Log.d("보여주는 알림 데이터", alarmAgreeStatus.toString()) //true <-> false
 
     Scaffold(
         topBar = {
@@ -662,40 +664,44 @@ fun LogoutAlertDialogPreview() {
     LogoutAlertDialog({})
 }
 
+@Composable
+fun SuggestCompletePopup(
+    onDismiss: () -> Unit,
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveText = "확인",
+        positiveButtonOnClick = { onDismiss() },
+        negativeButtonOnClick = {},
+    ) {
+        androidx.compose.material.Text(
+            text = "정말 고마워요",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "애블바디팀이 적극적으로 고려해볼게요.",
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
+        )
+    }
+}
 @Preview(showBackground = true)
 @Composable
-fun ExitAlertDialogPreview() {
-    ABLEBODY_AndroidTheme {
-        AbleBodyAlertDialog(
-            onDismissRequest = {},
-            positiveText = "확인",
-            positiveButtonOnClick = {},
-            negativeButtonOnClick = {},
-        ) {
-            androidx.compose.material.Text(
-                text = "정말 고마워요",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    lineHeight = 26.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                    fontWeight = FontWeight(700),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
-            )
-            androidx.compose.material.Text(
-                text = "애블바디팀이 적극적으로 고려해볼게요.",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                    fontWeight = FontWeight(400),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                ),
-                modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
-            )
-        }
-    }
+fun SuggestCompletePopupPreview() {
+    SuggestCompletePopup({})
 }
 
 @Preview(showBackground = true)
