@@ -53,56 +53,58 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
 
-@Composable
-fun OtherNormalUserScreen(
-    viewModel: MyProfileViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit,
-    settingOnClick: () -> Unit
-) {
-    val userInfoData by viewModel.userLiveData.observeAsState()
-    val couponData by viewModel.couponListLiveData.observeAsState()
-    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
-
-    LaunchedEffect(key1 = true) {
-        viewModel.getData()
-    }
-
-    Scaffold(
-        topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
-            Text(
-                text = "알림",
-                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                )
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-        ) {
-                if (userInfoData != null) {
-                    NormalUserInfo(
-                        isCreator = false,
-                        userName = userInfoData?.name ?: "",
-                        profileImage = userInfoData?.profileUrl ?: "",
-                        nickName = userInfoData?.name ?: "",
-                        weight = userInfoData?.weight ?: 0,
-                        height = userInfoData?.height ?: 0,
-                        job = userInfoData?.job ?: "직업",
-                        introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
-                        orderManagement = orderItemData?.size ?: 0,
-                        coupon = couponData?.size ?: 0,
-                        creatorPoint = userInfoData?.creatorPoint ?: 0,
-                        settingOnClick = settingOnClick
-                    )
-                }
-            }
-
-    }
-}
+//@Composable
+//fun OtherNormalUserScreen(
+//    viewModel: MyProfileViewModel = hiltViewModel(),
+//    onBackRequest: () -> Unit,
+//    settingOnClick: () -> Unit,
+//    coupononClick: () -> Unit
+//) {
+//    val userInfoData by viewModel.userLiveData.observeAsState()
+//    val couponData by viewModel.couponListLiveData.observeAsState()
+//    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
+//
+//    LaunchedEffect(key1 = true) {
+//        viewModel.getData()
+//    }
+//
+//    Scaffold(
+//        topBar = {
+//            BackButtonTopBarLayout(onBackRequest = onBackRequest)
+//            Text(
+//                text = "알림",
+//                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
+//                style = TextStyle(
+//                    fontSize = 18.sp,
+//                )
+//            )
+//        },
+//    ) { paddingValues ->
+//        Column(
+//            modifier = Modifier
+//                .padding(paddingValues)
+//        ) {
+//                if (userInfoData != null) {
+//                    NormalUserInfo(
+//                        isCreator = false,
+//                        userName = userInfoData?.name ?: "",
+//                        profileImage = userInfoData?.profileUrl ?: "",
+//                        nickName = userInfoData?.name ?: "",
+//                        weight = userInfoData?.weight ?: 0,
+//                        height = userInfoData?.height ?: 0,
+//                        job = userInfoData?.job ?: "직업",
+//                        introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
+//                        orderManagement = orderItemData?.size ?: 0,
+//                        coupon = couponData?.size ?: 0,
+//                        creatorPoint = userInfoData?.creatorPoint ?: 0,
+//                        settingOnClick = settingOnClick,
+//                        coupononClick = coupononClick
+//                    )
+//                }
+//            }
+//
+//    }
+//}
 
 //    LazyColumn(){
 //

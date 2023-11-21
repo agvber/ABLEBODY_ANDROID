@@ -11,6 +11,8 @@ import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.AlarmPage
 import com.smilehunter.ablebody.presentation.my.AlarmRoute
+import com.smilehunter.ablebody.presentation.my.CouponRegisterRoute
+import com.smilehunter.ablebody.presentation.my.CouponRoute
 import com.smilehunter.ablebody.presentation.my.MyInfoEditScreenRoute
 import com.smilehunter.ablebody.presentation.my.MyInfoScreen
 import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
@@ -39,7 +41,9 @@ fun NavGraphBuilder.addHomeGraph(
     alarmOnClick: () -> Unit,
     withDrawOnClick: () -> Unit,
     editButtonOnClick: () -> Unit,
-    withDrawReasonOnClick: () -> Unit
+    withDrawReasonOnClick: () -> Unit,
+    coupononClick: () -> Unit,
+    couponRegisterOnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -82,7 +86,8 @@ fun NavGraphBuilder.addHomeGraph(
         }
         composable(route = NavigationItems.My.name) {
             MyProfileRoute(
-                settingOnClick = settingOnClickRouteRequest
+                settingOnClick = settingOnClickRouteRequest,
+                coupononClick = coupononClick
             )
             isBottomBarShow(true)
         }
@@ -140,5 +145,21 @@ fun NavGraphBuilder.addHomeGraph(
             )
             isBottomBarShow(false)
         }
+
+        composable(route = "CouponRoute") {
+            CouponRoute(
+                onBackRequest = onBackRequest,
+                couponRegisterOnClick = couponRegisterOnClick
+            )
+            isBottomBarShow(false)
+        }
+
+        composable(route = "CouponRegisterRoute") {
+            CouponRegisterRoute(
+                onBackRequest = onBackRequest
+            )
+            isBottomBarShow(false)
+        }
+
     }
 }

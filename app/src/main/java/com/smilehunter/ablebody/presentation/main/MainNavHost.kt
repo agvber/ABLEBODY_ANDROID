@@ -61,6 +61,8 @@ fun MainNavHost(
             withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
             editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},
             withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute")},
+            coupononClick = {navController.navigate("CouponRoute")},
+            couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
         )
 
         addSearchScreen(
