@@ -276,6 +276,8 @@ interface NetworkService {
 
     suspend fun getCouponBags(): GetCouponBagsResponse
 
+    suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse
+
     /** order **/
 
     suspend fun addOrderList(

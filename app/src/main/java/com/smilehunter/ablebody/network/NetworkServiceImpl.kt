@@ -369,6 +369,10 @@ class NetworkServiceImpl @Inject constructor(
         )
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkAPI.getCouponBags()
+
+    override suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse =
+        networkAPI.addCouponByCouponCode(couponCode)
+
     override suspend fun addOrderList(
         itemID: Int,
         addressID: Int,
