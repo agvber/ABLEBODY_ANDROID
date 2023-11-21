@@ -23,6 +23,8 @@ data class AbleBodyResponse<out T>(
         UNABLE_COUPON,
         EXIST_ADDRESS,
         NON_EXIST_ADDRESS,
-        INVALID_OPTION
+        INVALID_OPTION,
+        INVALID_COUPON_CODE,
+        ALREADY_EXIST_COUPON
     }
 }
