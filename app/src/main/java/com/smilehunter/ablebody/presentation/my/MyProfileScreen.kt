@@ -88,7 +88,8 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 @Composable
 fun MyProfileRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
-    settingOnClick: () -> Unit
+    settingOnClick: () -> Unit,
+    coupononClick: () -> Unit
 ) {
     val userInfoData by viewModel.userLiveData.observeAsState()
 
@@ -97,10 +98,10 @@ fun MyProfileRoute(
 
     if(userInfoData?.userType.toString() == "CREATOR"){
         Log.d("NormalUser or Creator?", "CreatorScreen")
-        CreatorScreen(settingOnClick = settingOnClick)
+        CreatorScreen(settingOnClick = settingOnClick, coupononClick = coupononClick)
     }else{
         Log.d("NormalUser or Creator?", "NormalUserScreen")
-        NormalUserScreen(settingOnClick = settingOnClick)
+        NormalUserScreen(settingOnClick = settingOnClick, coupononClick = coupononClick)
     }
 
 }
@@ -108,7 +109,8 @@ fun MyProfileRoute(
 @Composable
 fun CreatorScreen(
     viewModel: MyProfileViewModel = hiltViewModel(),
-    settingOnClick: () -> Unit
+    settingOnClick: () -> Unit,
+    coupononClick: () -> Unit
 ){
     val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
     val userInfoData by viewModel.userLiveData.observeAsState()
@@ -143,17 +145,16 @@ fun CreatorScreen(
                             orderManagement = orderItemData?.size ?: 0,
                             coupon = couponData?.size ?: 0,
                             creatorPoint = userInfoData?.creatorPoint ?: 0,
-                            codyImageUrls = listOf("1"),
-                            settingOnClick = settingOnClick
+                            settingOnClick = settingOnClick,
+                            coupononClick = coupononClick
                         )
                     }
                 }
             }
+
             items(
                 count = userBoard.itemCount
             ) {
-                //            userBoard[it]?.isSingleImage
-                Log.d("LOG", userBoard[it]?.isSingleImage.toString())
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(data = userBoard[it]?.imageURL)
@@ -164,6 +165,7 @@ fun CreatorScreen(
                     contentScale = ContentScale.Crop
                 )
             }
+
             item(
                 span = { GridItemSpan(this.maxLineSpan) }
             ) {
@@ -178,7 +180,8 @@ fun CreatorScreen(
 @Composable
 fun NormalUserScreen(
     viewModel: MyProfileViewModel = hiltViewModel(),
-    settingOnClick: () -> Unit
+    settingOnClick: () -> Unit,
+    coupononClick: () -> Unit
 ){
     val userInfoData by viewModel.userLiveData.observeAsState()
     val couponData by viewModel.couponListLiveData.observeAsState()
@@ -203,7 +206,8 @@ fun NormalUserScreen(
                     orderManagement = orderItemData?.size ?: 0,
                     coupon = couponData?.size ?: 0,
                     creatorPoint = userInfoData?.creatorPoint ?: 0,
-                    settingOnClick = settingOnClick
+                    settingOnClick = settingOnClick,
+                    coupononClick = coupononClick
                 )
             }
         }
@@ -223,14 +227,15 @@ fun NormalUserInfo(
     orderManagement: Int,
     coupon: Int,
     creatorPoint: Int,
-    settingOnClick: () -> Unit
+    settingOnClick: () -> Unit,
+    coupononClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
     ){
         UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
-        OrderDetailBox(orderManagement,coupon,creatorPoint)
+        OrderDetailBox(orderManagement, coupon, creatorPoint, coupononClick)
         profileEditButton()
         CreatorSupplyButton()
     }
@@ -249,15 +254,15 @@ fun CreatorUserInfo(
     orderManagement: Int,
     coupon: Int,
     creatorPoint: Int,
-    codyImageUrls: List<String>,
-    settingOnClick: () -> Unit
+    settingOnClick: () -> Unit,
+    coupononClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
     ){
         UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
-        OrderDetailBox(orderManagement,coupon,creatorPoint)
+        OrderDetailBox(orderManagement, coupon, creatorPoint, coupononClick)
         profileEditButton()
         MySportswearCodyButton()
     }
@@ -367,7 +372,8 @@ fun UserInformation(
 fun OrderDetailBox(
     orderManagement: Int,
     coupon: Int,
-    creatorPoint: Int
+    creatorPoint: Int,
+    coupononClick: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -398,7 +404,10 @@ fun OrderDetailBox(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f),
+                    .weight(1f)
+                    .nonReplyClickable {
+                        coupononClick()
+                    },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
@@ -685,7 +694,7 @@ fun NormalUserScreenPreview() {
     ) {
         UserName(false, "ablebody_1", {})
         UserInformation("", "일반유저", 70, 173, "개발자", "안녕하세요")
-        OrderDetailBox(2,3,200)
+        OrderDetailBox(2,3,200, {})
         profileEditButton()
         CreatorSupplyButton()
     }
@@ -693,7 +702,6 @@ fun NormalUserScreenPreview() {
 @Preview(showSystemUi = true)
 @Composable
 fun CreatorScreenPreview() {
-    val codeImageUrls = listOf<String>("https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg")
 
     Box(modifier = Modifier.fillMaxSize()) { // Box는 전체 화면 크기를 차지합니다.
         Column(
@@ -701,7 +709,7 @@ fun CreatorScreenPreview() {
         ) {
             UserName(true, "ablebody_2", {})
             UserInformation("", "크리에이터", 70, 173, "개발자", "안녕하세요")
-            OrderDetailBox(2,1,100)
+            OrderDetailBox(2,1,100, {})
             profileEditButton()
             MySportswearCodyButton()
         }
