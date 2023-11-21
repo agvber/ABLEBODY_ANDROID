@@ -101,6 +101,8 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
+    override suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse =
+        networkService.addCouponByCouponCode(couponCode)
 
     override suspend fun getMyAddress(): GetAddressResponse = networkService.getAddress()
 

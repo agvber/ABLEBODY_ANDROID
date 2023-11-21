@@ -33,6 +33,8 @@ interface UserRepository {
 
     suspend fun getCouponBags(): GetCouponBagsResponse
 
+    suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse
+
     suspend fun getMyAddress(): GetAddressResponse
 
     suspend fun addMyAddress(
