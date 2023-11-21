@@ -14,4 +14,10 @@ class CouponApiUnitTest {
         }
         println(response)
     }
+
+    @Test
+    fun addCouponByCouponCode() {
+        val response = runBlocking { networkService.addCouponByCouponCode("one") }
+        println(response)
+    }
 }
