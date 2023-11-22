@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.presentation.payment.ui
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -68,12 +69,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.core.content.ContextCompat
-import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
@@ -95,6 +97,12 @@ import com.smilehunter.ablebody.ui.utils.CustomButton
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.KoreaMoneyFormatVisualTransformation
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import com.tosspayments.paymentsdk.PaymentWidget
+import com.tosspayments.paymentsdk.model.AgreementStatus
+import com.tosspayments.paymentsdk.model.AgreementStatusListener
+import com.tosspayments.paymentsdk.model.PaymentCallback
+import com.tosspayments.paymentsdk.model.TossPaymentResult
+import com.tosspayments.paymentsdk.view.PaymentMethod
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -104,12 +112,10 @@ fun PaymentRoute(
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
+    paymentWidget: PaymentWidget,
     paymentViewModel: PaymentViewModel = hiltViewModel(),
 ) {
     val paymentPassthroughData by paymentViewModel.paymentPassthroughData.collectAsStateWithLifecycle()
-    val bankTextValue by paymentViewModel.bankTextValue.collectAsStateWithLifecycle()
-    val accountNumberTextValue by paymentViewModel.accountNumberTextValue.collectAsStateWithLifecycle()
-    val accountHolderTextValue by paymentViewModel.accountHolderTextValue.collectAsStateWithLifecycle()
     val couponID by paymentViewModel.couponID.collectAsStateWithLifecycle()
     val userPointTextValue by paymentViewModel.userPointTextValue.collectAsStateWithLifecycle()
     val userData by paymentViewModel.userData.collectAsStateWithLifecycle()
@@ -122,27 +128,62 @@ fun PaymentRoute(
     if (orderItemID.isNotBlank()) {
         receiptRequest(orderItemID)
     }
+    var agreedRequiredTerms by remember { mutableStateOf(true) }
 
     PaymentScreen(
         onBackRequest = onBackRequest,
-        payButtonOnClick = paymentViewModel::orderItem,
+        payButtonOnClick = { price ->
+            paymentWidget.updateAmount(price)
+            paymentWidget.requestPayment(
+                PaymentMethod.PaymentInfo(orderItemID, paymentPassthroughData?.itemName ?: ""),
+                object: PaymentCallback {
+                    override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                        TODO("결제 실패 내역 서버 전송")
+                    }
+
+                    override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                        TODO("결제 성공 내역 서버 전송")
+                    }
+                }
+            )
+                           },
+        paymentContent = {
+            AndroidViewBinding(
+                factory = { inflater, parent, attachToParent ->
+                    val view = TossPaymentLayoutBinding.inflate(inflater, parent, attachToParent)
+                    paymentWidget.apply {
+                        renderPaymentMethods(
+                            method = view.paymentWidget,
+                            amount = PaymentMethod.Rendering.Amount(
+                                value = paymentPassthroughData?.price ?: 0,
+                                currency = PaymentMethod.Rendering.Currency.KRW,
+                                country = "KR"
+                            )
+                        )
+                        renderAgreement(agreement = view.paymentAgreement)
+                        addAgreementStatusListener(object : AgreementStatusListener {
+                            override fun onAgreementStatusChanged(agreementStatus: AgreementStatus) {
+                                agreedRequiredTerms = agreementStatus.agreedRequiredTerms
+                            }
+                        })
+                    }
+                    view
+                },
+                update = {}
+            )
+        },
         addressRequest = addressRequest,
-        bankTextValueChange = paymentViewModel::updateBankTextValue,
-        accountNumberTextValueChange = paymentViewModel::updateAccountNumberTextValue,
-        accountHolderTextValueChange = paymentViewModel::updateAccountHolderTextValue,
         couponIDChange = paymentViewModel::updateCouponID,
         pointTextValueChange = paymentViewModel::updateUserPointTextValue,
         pointSelected = paymentViewModel::calculatorUserPoint,
         paymentPassthroughData = paymentPassthroughData,
-        bankTextValue = bankTextValue,
-        accountNumberTextValue = accountNumberTextValue,
-        accountHolderTextValue = accountHolderTextValue,
         couponID = couponID,
         pointTextValue = userPointTextValue,
         couponDisCountPrice = couponDiscountPrice,
         userData = userData as? PaymentUiState.User,
         deliveryAddress = deliveryAddress as? PaymentUiState.DeliveryAddress,
-        coupons = coupons
+        coupons = coupons,
+        agreedRequiredTerms = agreedRequiredTerms
     )
 
     val isNetworkDisconnected = userData is PaymentUiState.LoadFail ||
@@ -166,31 +207,27 @@ fun PaymentRoute(
 @Composable
 fun PaymentScreen(
     onBackRequest: () -> Unit,
-    payButtonOnClick: (String, Int) -> Unit,
+    payButtonOnClick: (Int) -> Unit,
+    paymentContent: @Composable () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
-    bankTextValueChange: (String) -> Unit,
-    accountNumberTextValueChange: (String) -> Unit,
-    accountHolderTextValueChange: (String) -> Unit,
     couponIDChange: (Int) -> Unit,
     pointTextValueChange: (String) -> Unit,
     pointSelected: (Int) -> Unit,
     paymentPassthroughData: PaymentPassthroughData?,
-    bankTextValue: String,
-    accountNumberTextValue: String,
-    accountHolderTextValue: String,
     couponID: Int,
     pointTextValue: String,
     couponDisCountPrice: Int,
     userData: PaymentUiState.User?,
     deliveryAddress: PaymentUiState.DeliveryAddress?,
     coupons: PaymentUiState,
+    agreedRequiredTerms: Boolean
 ) {
     val scope = rememberCoroutineScope()
     var showCouponBottomSheet by rememberSaveable { mutableStateOf(false) }
     var agreementPrivateData by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val isPayButtonEnable = bankTextValue.isNotBlank() && accountHolderTextValue.isNotBlank() && accountNumberTextValue.isNotEmpty() && agreementPrivateData
+    val isPayButtonEnable = agreementPrivateData && agreedRequiredTerms
     val receipt = remember { mutableStateMapOf<String, Int>() }
 
     Scaffold(
@@ -204,7 +241,7 @@ fun PaymentScreen(
             CustomButton(
                 text = "결제하기",
                 onClick = {
-                          payButtonOnClick("CASH", receipt.values.sum())
+                      payButtonOnClick(receipt.values.sum())
                 },
                 enable = isPayButtonEnable
             )
@@ -338,14 +375,7 @@ fun PaymentScreen(
             )
 
             Divider(thickness = 4.dp, color = InactiveGrey)
-            PaymentMethodLayout(
-                bankTextValueChange = bankTextValueChange,
-                accountNumberTextValueChange = accountNumberTextValueChange,
-                accountHolderTextValueChange = accountHolderTextValueChange,
-                bankTextValue = bankTextValue,
-                accountNumberTextValue = accountNumberTextValue,
-                accountHolderTextValue = accountHolderTextValue
-            )
+            paymentContent()
             Divider(thickness = 4.dp, color = InactiveGrey)
             Column(
                 modifier = Modifier.padding(16.dp)
@@ -805,120 +835,6 @@ private fun DiscountLayout(
 }
 
 @Composable
-private fun PaymentMethodLayout(
-    bankTextValueChange: (String) -> Unit,
-    accountNumberTextValueChange: (String) -> Unit,
-    accountHolderTextValueChange: (String) -> Unit,
-    bankTextValue: String,
-    accountNumberTextValue: String,
-    accountHolderTextValue: String
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 16.dp)
-    ) {
-        Text(
-            text = "결제방법",
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                fontWeight = FontWeight(700),
-                color = Color.Black,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .widthIn(min = 150.dp)
-                .background(color = AbleBlue, shape = RoundedCornerShape(5.dp))
-                .padding(10.dp),
-        ) {
-            Text(
-                text = "무통장 입금",
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                    fontWeight = FontWeight(400),
-                    color = Color.White,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
-            )
-        }
-        Text(
-            text = "환불 계좌 정보",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                fontWeight = FontWeight(500),
-                color = SmallTextGrey,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            val paymentPlaceHolderTextStyle = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                fontWeight = FontWeight(500),
-                color = SmallTextGrey,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-            val paymentTextStyle = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                fontWeight = FontWeight(500),
-                color = Color.Black,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-            PaymentTextFieldLayout(
-                value = bankTextValue,
-                onValueChange = bankTextValueChange,
-                textStyle = paymentTextStyle,
-                placeHolder = {
-                    Text(
-                        text = "은행명 입력",
-                        style = paymentPlaceHolderTextStyle
-                    )
-                },
-            )
-            PaymentTextFieldLayout(
-                value = accountNumberTextValue,
-                onValueChange = {
-                    if (it.isDigitsOnly()) {
-                        accountNumberTextValueChange(it)
-                    }
-                },
-                textStyle = paymentTextStyle,
-                placeHolder = {
-                    Text(
-                        text = "계좌번호 입력",
-                        style = paymentPlaceHolderTextStyle
-                    )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-            PaymentTextFieldLayout(
-                value = accountHolderTextValue,
-                onValueChange = accountHolderTextValueChange,
-                textStyle = paymentTextStyle,
-                placeHolder = {
-                    Text(
-                        text = "예금주 입력",
-                        style = paymentPlaceHolderTextStyle
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
 private fun DiscountTextFieldLayout(
     onClick: () -> Unit,
     enabled: Boolean,
@@ -1239,6 +1155,7 @@ fun DiscountLayoutPreview() {
         point = 3500,
         isPointUsed = false
     )
+    LocalActivityResultRegistryOwner
 }
 
 @Preview(showBackground = true)
@@ -1254,29 +1171,16 @@ fun CouponLayoutPreview() {
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PaymentPreview() {
-    PaymentMethodLayout(
-        bankTextValueChange = {},
-        accountNumberTextValueChange = {},
-        accountHolderTextValueChange = {},
-        bankTextValue = "",
-        accountNumberTextValue = "",
-        accountHolderTextValue = ""
-    )
-}
-
 @Preview(heightDp = 1450)
 @Composable
 fun PaymentScreenPreview() {
     PaymentScreen(
         onBackRequest = { },
-        payButtonOnClick = { payment, amountOfPayment -> },
+        payButtonOnClick = {  },
+        paymentContent = {
+            TossPaymentsPreviewLayout()
+        },
         addressRequest = {  },
-        bankTextValueChange = {},
-        accountNumberTextValueChange = {},
-        accountHolderTextValueChange = {},
         couponIDChange = {},
         pointTextValueChange = {},
         pointSelected = {},
@@ -1292,14 +1196,26 @@ fun PaymentScreenPreview() {
             itemContentOptions = listOf(),
             itemImageURL = ""
         ),
-        bankTextValue = "",
-        accountNumberTextValue = "",
-        accountHolderTextValue = "",
         couponID = -1,
         pointTextValue = "",
         couponDisCountPrice = 0,
         userData = null,
         deliveryAddress = null,
-        coupons = PaymentUiState.Coupons(listOf())
+        coupons = PaymentUiState.Coupons(listOf()),
+        agreedRequiredTerms = true
     )
+}
+
+@Composable
+private fun TossPaymentsPreviewLayout() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .padding(10.dp)
+            .border(5.dp, Color.LightGray)
+    ) {
+        Text(text = "토스 페이먼트")
+    }
 }

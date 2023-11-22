@@ -35,12 +35,14 @@ import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
+import com.tosspayments.paymentsdk.PaymentWidget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
     isBottomBarShow: (Boolean) -> Unit,
-    navController: NavHostController
+    navController: NavHostController,
+    paymentWidget: PaymentWidget
 ) {
     NavHost(
         navController = navController,
@@ -164,7 +166,8 @@ fun MainNavHost(
                 )
                 addReceiptScreen(orderComplete = { /* TODO 브랜드 홈으로 가기 */ })
             },
-            isBottomBarShow = isBottomBarShow
+            isBottomBarShow = isBottomBarShow,
+            paymentWidget = paymentWidget
         )
 
         addOrderManagementGraph(
