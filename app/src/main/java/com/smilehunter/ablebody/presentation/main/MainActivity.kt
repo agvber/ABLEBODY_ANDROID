@@ -8,10 +8,12 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -19,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import com.smilehunter.ablebody.presentation.main.ui.MainScreen
 import com.smilehunter.ablebody.presentation.onboarding.OnboardingActivity
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
+import com.tosspayments.paymentsdk.PaymentWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -30,11 +33,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         firebaseAnalytics = Firebase.analytics
 
         val isNetworkConnectionFlow = callbackFlow { networkState() }
@@ -44,9 +48,19 @@ class MainActivity : ComponentActivity() {
                 initialValue = true
             )
 
+        val paymentWidget = PaymentWidget(
+            activity = this,
+            clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
+            customerKey = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6"
+        )
+
         setContent {
             ABLEBODY_AndroidTheme {
-                MainScreen(isNetworkConnectionFlow = isNetworkConnectionFlow)
+                MainScreen(
+                    isNetworkConnectionFlow = isNetworkConnectionFlow,
+                    paymentWidget = paymentWidget
+                )
+                LocalActivityResultRegistryOwner
             }
         }
 

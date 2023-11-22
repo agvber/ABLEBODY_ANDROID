@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.presentation.payment.ui.PaymentRoute
+import com.tosspayments.paymentsdk.PaymentWidget
 
 const val PaymentRoute = "payment_route"
 
@@ -34,6 +35,7 @@ fun NavGraphBuilder.addPaymentGraph(
     receiptRequest: (String) -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
+    paymentWidget: PaymentWidget
 ) {
     navigation(
         startDestination = PaymentDestination.PAYMENT.route,
@@ -46,7 +48,8 @@ fun NavGraphBuilder.addPaymentGraph(
             PaymentRoute(
                 onBackRequest = onBackRequest,
                 addressRequest = addressRequest,
-                receiptRequest = receiptRequest
+                receiptRequest = receiptRequest,
+                paymentWidget = paymentWidget
             )
             isBottomBarShow(false)
         }
