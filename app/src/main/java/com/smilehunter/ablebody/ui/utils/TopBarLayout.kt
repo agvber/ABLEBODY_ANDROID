@@ -53,7 +53,10 @@ fun TopBarLayout(
         modifier
     ) {
         Row(
-            Modifier.fillMaxHeight().weight(1f).padding(horizontal = 35.dp),
+            Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .padding(horizontal = 35.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProvideTextStyle(value = MaterialTheme.typography.h6) {
@@ -92,6 +95,31 @@ fun BackButtonTopBarLayout(
     modifier: Modifier = Modifier,
     actions: @Composable() (RowScope.() -> Unit) = {}
 ) {
+    BackButtonTopBarLayout(
+        onBackRequest = onBackRequest,
+        titleContent = {
+            Text(
+                text = titleText,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                    fontWeight = FontWeight(400),
+                    color = AbleDark,
+                )
+            )
+        },
+        modifier = modifier,
+        actions = actions
+    )
+}
+
+@Composable
+fun BackButtonTopBarLayout(
+    onBackRequest: () -> Unit,
+    titleContent: @Composable() () -> Unit,
+    modifier: Modifier = Modifier,
+    actions: @Composable() (RowScope.() -> Unit) = {}
+) {
     AppBar(
         backgroundColor = White,
         contentColor = White,
@@ -121,22 +149,17 @@ fun BackButtonTopBarLayout(
         }
 
         Row(
-            Modifier.fillMaxHeight().weight(1f).padding(horizontal = 35.dp),
+            Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .padding(horizontal = 35.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProvideTextStyle(value = MaterialTheme.typography.h6) {
                 CompositionLocalProvider(
                     LocalContentAlpha provides ContentAlpha.high
                 ) {
-                    Text(
-                        text = titleText,
-                        style = TextStyle(
-                            fontSize = 18.sp,
-                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                            fontWeight = FontWeight(400),
-                            color = AbleDark,
-                        )
-                    )
+                    titleContent()
                 }
             }
         }
@@ -189,7 +212,8 @@ private fun AppBar(
     ) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Row(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
                     .padding(contentPadding)
                     .height(56.dp),
                 horizontalArrangement = Arrangement.Start,
