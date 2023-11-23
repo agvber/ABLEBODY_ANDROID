@@ -58,7 +58,7 @@ fun MainNavHost(
             settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
             onBackRequest = navController::popBackStack,
             suggestonClick = {navController.navigate("SuggestScreen")},
-            myInfoOnClick = {navController.navigate("MyInfoScreen")},
+            myInfoOnClick = {navController.navigate("MyInfoScreenRoute")},
             alarmOnClick = {navController.navigate("AlarmScreen")},
             withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
             editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},

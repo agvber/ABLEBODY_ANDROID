@@ -124,24 +124,16 @@ fun MyInfoScreen(
 ) {
     Scaffold(
         topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
-            Text(
-                text = "전체",
-                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                )
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 16.dp, top = 15.dp)
-                    .nonReplyClickable {
+            BackButtonTopBarLayout(
+                onBackRequest = onBackRequest,
+                titleText = "내 정보"
+            ){
+                Text(
+                    text = "수정",
+                    modifier = Modifier.nonReplyClickable {
                         editButtonOnClick()
-                    },
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Text(text = "수정")
+                    }
+                )
             }
         },
     ) { paddingValues ->
@@ -229,7 +221,7 @@ fun MyInfoEditTextField(
                 unfocusedIndicatorColor = Color.Transparent,
                 containerColor = PlaneGrey
             ),
-            enabled = !(editCategory == "성별" || editCategory == "회원코드")
+//            enabled = !(editCategory == "성별" || editCategory == "회원코드")
         )
     }
 }
