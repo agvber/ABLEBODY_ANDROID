@@ -390,21 +390,28 @@ class NetworkServiceImpl @Inject constructor(
         itemOptionIdList: List<Long>?
     ): AddOrderListResponse =
         networkAPI.addOrderList(
-            AddOrderListRequest(
-                itemId = itemID,
+            AddOrderListRequest( //수정중
                 addressId = addressID,
-                couponBagsId = couponBagsID,
-                refundBankName = refundBankName,
-                refundAccount = refundAccount,
-                refundAccountHolder = refundAccountHolder,
+                orderName = "",
+                paymentType = "",
                 paymentMethod= paymentMethod,
-                price = price,
-                itemDiscount = itemDiscount,
-                couponDiscount = couponDiscount,
+                easyPayType = null,
                 pointDiscount = pointDiscount,
                 deliveryPrice = deliveryPrice,
-                amountOfPayment = amountOfPayment,
-                itemOptionIdList = itemOptionIdList
+                amount = amountOfPayment,
+                orderListItemReqDtoList = itemOptionIdList?.map {
+                    AddOrderListRequest.OrderListItemReqDto(
+                        itemId = itemID,
+                        couponBagsId = couponBagsID,
+                        colorOption = null,
+                        sizeOption = null,
+                        itemPrice = price,
+                        itemCount = 1,
+                        itemDiscount = itemDiscount,
+                        couponDiscount = couponDiscount,
+                        amount = amountOfPayment
+                    )
+                } ?: emptyList()
             )
         )
 
