@@ -475,10 +475,11 @@ fun MySportswearCodyButton() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .height(70.dp)
             .padding(top = 16.dp, bottom = 12.dp)
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
-        elevation = 3.dp
+        elevation = 8.dp
     ){
         Box(
             contentAlignment = Alignment.Center,
