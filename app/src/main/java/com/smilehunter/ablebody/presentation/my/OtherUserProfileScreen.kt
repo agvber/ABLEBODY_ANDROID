@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.ui.theme.AbleRed
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -122,49 +125,38 @@ fun TopLayout(
     weight: Int?,
     height: Int?,
     job: String?,
-    introduction: String?
+    introduction: String?,
+    onReport: () -> Unit
 ) {
     var isReportBottomSheetVisible by remember { mutableStateOf(false) }
 
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                modifier = Modifier.height(56.dp),
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = nickname,
-                            style = TextStyle(
-                                fontSize = 18.sp,
-                            )
+            BackButtonTopBarLayout(
+                onBackRequest = onBackRequest,
+                titleContent = {
+                    Text(
+                        text = nickname,
+                        style = TextStyle(
+                            fontSize = 18.sp,
                         )
+                    )
 
-                        if (isCreator) {
-                            Spacer(modifier = Modifier.size(5.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_creator_badge),
-                                contentDescription = "profile"
-                            )
-                        }
+                    if (isCreator) {
+                        Spacer(modifier = Modifier.size(5.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_creator_badge),
+                            contentDescription = "profile"
+                        )
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackRequest) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        isReportBottomSheetVisible = true
-                    }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Info")
-                    }
-                },
-            )
+                }
+            ){
+                IconButton(onClick = {
+                    isReportBottomSheetVisible = true
+                }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Info")
+                }
+            }
         }
     ) { paddingValues ->
         Box(
@@ -224,7 +216,7 @@ fun TopLayout(
             if (isReportBottomSheetVisible) {
                 ReportBottomSheet(
                     onDismiss = { isReportBottomSheetVisible = false },
-                    onReport = { /* Handle report action here */ }
+                    onReport = onReport
                 )
             }
         }
@@ -238,48 +230,41 @@ fun ReportBottomSheet(
     onDismiss: () -> Unit,
     onReport: () -> Unit
 ) {
-    BottomSheetScaffold(
-        sheetContent = {
-            // 바텀시트의 내용 및 동작 정의
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "신고",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                // 추가적인 내용 및 동작 정의
-            }
-        }
+    ModalBottomSheet(
+        onDismissRequest ={ onDismiss() },
+        dragHandle = null
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .nonReplyClickable { onDismiss() }
-        )
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "신고",
+                fontSize = 16.sp,
+                color = AbleRed,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 15.dp, bottom = 15.dp)
+                    .nonReplyClickable {
+                        onReport()
+                    }
+            )
+            Spacer(modifier = Modifier.size(60.dp))
+        }
     }
 }
-
-//@Preview(showSystemUi = true)
-//@Composable
-//fun TopLayoutPreview() {
-//    TopLayout({},"nickname")
-//}
 
 @Preview(showSystemUi = true)
 @Composable
 fun OtherNormalUserScreenPreview() {
-    TopLayout({},"nickname",false,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요")
+    TopLayout({},"nickname",false,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
 }
 
 @Preview(showSystemUi = true)
 @Composable
 fun OtherCreatorScreenPreview() {
-    TopLayout({},"nickname",true,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요")
+    TopLayout({},"nickname",true,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
 }
 
 @Preview
