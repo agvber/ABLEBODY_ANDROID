@@ -85,7 +85,13 @@ class PaymentViewModel @Inject constructor(
 
         return@flatMapLatest when (selectedCoupon.discountType) {
             CouponData.DiscountType.PRICE -> flowOf(selectedCoupon.discountAmount.unaryMinus())
-            CouponData.DiscountType.RATE -> flowOf((paymentPassthroughData.value!!.price * (selectedCoupon.discountAmount.toDouble() / 100)).roundToInt().unaryMinus())
+            CouponData.DiscountType.RATE -> {
+                val totalPrice = paymentPassthroughData.value?.totalPrice ?: 0
+                val discountRate = (totalPrice * (selectedCoupon.discountAmount.toDouble() / 100))
+                    .roundToInt()
+                    .unaryMinus()
+                flowOf(discountRate)
+            }
         }
     }
         .stateIn(
@@ -108,8 +114,10 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
-    fun calculatorUserPoint(itemPrice: Int) {
+    fun calculatorUserPoint() {
         viewModelScope.launch {
+            val item = paymentPassthroughData.value?.items?.firstOrNull()
+            val itemPrice = item?.salePrice ?: item?.price ?: 0
             val itemMaximumDiscount = itemPrice * (5.0 / 100)
             if ((userPointTextValue.value.toIntOrNull() ?: 0) > itemMaximumDiscount) {
                 _userPointTextValue.emit(itemMaximumDiscount.roundToInt().toString())
@@ -163,10 +171,14 @@ class PaymentViewModel @Inject constructor(
     val coupons: StateFlow<PaymentUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
-                paymentPassthroughData.flatMapLatest { data ->
+                paymentPassthroughData.flatMapLatest { PassthroughData ->
                     flowOf(
                         getCouponListUseCase().filter {
-                            if (it.brand == null) true else it.brand == data!!.brandName
+                            if (it.brand == null) {
+                                return@filter true
+                            }
+
+                            it.brand == PassthroughData?.items?.firstOrNull()?.brandName
                         }
                     )
                 }
@@ -216,22 +228,6 @@ class PaymentViewModel @Inject constructor(
             try {
                 val address = (deliveryAddress.value as PaymentUiState.DeliveryAddress).data
 
-                orderItemUseCase(
-                    itemID = paymentPassthroughData.value!!.itemID,
-                    addressID = address.id,
-                    couponBagsID = couponID.value.let { if (it == -1) null else it },
-                    refundBankName = bankTextValue.value,
-                    refundAccount = accountNumberTextValue.value,
-                    refundAccountHolder = accountHolderTextValue.value,
-                    paymentMethod = paymentMethod,
-                    price = paymentPassthroughData.value!!.price,
-                    itemDiscount = paymentPassthroughData.value!!.differencePrice,
-                    couponDiscount = couponDiscountPrice.value,
-                    pointDiscount = userPointTextValue.value.toIntOrNull() ?: 0,
-                    deliveryPrice = 3000,
-                    amountOfPayment = amountOfPayment,
-                    itemOptionIdList = paymentPassthroughData.value!!.itemIDOptions
-                ).let { _orderItemID.emit(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

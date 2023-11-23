@@ -67,6 +67,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
@@ -84,6 +85,7 @@ import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
 import com.smilehunter.ablebody.presentation.payment.data.PaymentUiState
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -135,7 +137,10 @@ fun PaymentRoute(
         payButtonOnClick = { price ->
             paymentWidget.updateAmount(price)
             paymentWidget.requestPayment(
-                PaymentMethod.PaymentInfo(orderItemID, paymentPassthroughData?.itemName ?: ""),
+                PaymentMethod.PaymentInfo(
+                    orderItemID,
+                    paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
+                ),
                 object: PaymentCallback {
                     override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
                         TODO("결제 실패 내역 서버 전송")
@@ -155,7 +160,7 @@ fun PaymentRoute(
                         renderPaymentMethods(
                             method = view.paymentWidget,
                             amount = PaymentMethod.Rendering.Amount(
-                                value = paymentPassthroughData?.price ?: 0,
+                                value = paymentPassthroughData?.totalPrice ?: 0,
                                 currency = PaymentMethod.Rendering.Currency.KRW,
                                 country = "KR"
                             )
@@ -175,7 +180,7 @@ fun PaymentRoute(
         addressRequest = addressRequest,
         couponIDChange = paymentViewModel::updateCouponID,
         pointTextValueChange = paymentViewModel::updateUserPointTextValue,
-        pointSelected = paymentViewModel::calculatorUserPoint,
+        pointUsed = paymentViewModel::calculatorUserPoint,
         paymentPassthroughData = paymentPassthroughData,
         couponID = couponID,
         pointTextValue = userPointTextValue,
@@ -212,7 +217,7 @@ fun PaymentScreen(
     addressRequest: (DeliveryPassthroughData) -> Unit,
     couponIDChange: (Int) -> Unit,
     pointTextValueChange: (String) -> Unit,
-    pointSelected: (Int) -> Unit,
+    pointUsed: () -> Unit,
     paymentPassthroughData: PaymentPassthroughData?,
     couponID: Int,
     pointTextValue: String,
@@ -316,12 +321,12 @@ fun PaymentScreen(
                 .verticalScroll(state = rememberScrollState())
         ) {
             OrderItemLayout(
-                brandName = paymentPassthroughData.brandName,
-                productName = paymentPassthroughData.itemName,
-                profileImageURL = paymentPassthroughData.itemImageURL,
-                salePercentage = paymentPassthroughData.salePercentage,
-                productPrice = paymentPassthroughData.price,
-                options = paymentPassthroughData.itemContentOptions
+                brandName = paymentPassthroughData.items.first().brandName,
+                productName = paymentPassthroughData.items.first().itemName,
+                profileImageURL = paymentPassthroughData.items.first().itemImageURL,
+                salePercentage = paymentPassthroughData.items.first().salePercentage ?: 0,
+                productPrice = paymentPassthroughData.items.first().price,
+                options = paymentPassthroughData.items.first().options.map { it.content }
             )
             Divider(thickness = 4.dp, color = InactiveGrey)
             DeliveryAddressLayout(
@@ -361,7 +366,7 @@ fun PaymentScreen(
                         if (isPointUsed) {
                             pointTextValueChange("")
                         } else {
-                            pointSelected(paymentPassthroughData.salePrice)
+                            pointUsed()
                         }
                         isPointUsed = !isPointUsed
                     }
@@ -393,11 +398,11 @@ fun PaymentScreen(
                 )
                 receipt.putAll(
                     mapOf(
-                        "총 상품금액" to paymentPassthroughData.price,
-                        "상품 할인" to paymentPassthroughData.differencePrice,
+                        "총 상품금액" to paymentPassthroughData.items.sumOf { it.price },
+                        "상품 할인" to paymentPassthroughData.items.sumOf { it.differencePrice },
                         "쿠폰 할인" to couponDisCountPrice,
                         "포인트 할인" to if (isPointUsed) - (pointTextValue.toIntOrNull() ?:0) else 0,
-                        "배송비" to 3000,
+                        "배송비" to paymentPassthroughData.deliveryPrice,
                     )
                 )
                 receipt.forEach { (key, value) ->
@@ -1171,9 +1176,12 @@ fun CouponLayoutPreview() {
     )
 }
 
-@Preview(heightDp = 1450)
+@Preview(heightDp = 1200)
 @Composable
-fun PaymentScreenPreview() {
+fun PaymentScreenPreview(
+    @PreviewParameter(PaymentPassthroughDataPreviewParameterProvider::class)
+    paymentPassthroughData: PaymentPassthroughData
+) {
     PaymentScreen(
         onBackRequest = { },
         payButtonOnClick = {  },
@@ -1183,19 +1191,8 @@ fun PaymentScreenPreview() {
         addressRequest = {  },
         couponIDChange = {},
         pointTextValueChange = {},
-        pointSelected = {},
-        paymentPassthroughData = PaymentPassthroughData(
-            itemID = 0,
-            brandName = "brand",
-            salePercentage = 30,
-            price = 1000,
-            salePrice = 5000,
-            deliveryPrice = 3000,
-            itemName = "아이템",
-            itemIDOptions = listOf(),
-            itemContentOptions = listOf(),
-            itemImageURL = ""
-        ),
+        pointUsed = {},
+        paymentPassthroughData = paymentPassthroughData,
         couponID = -1,
         pointTextValue = "",
         couponDisCountPrice = 0,
