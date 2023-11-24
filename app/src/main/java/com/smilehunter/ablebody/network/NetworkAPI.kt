@@ -55,6 +55,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
 import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
@@ -341,6 +342,13 @@ interface NetworkAPI {
         @Query("orderListId") orderListId: String,
         @Query("amount") amount: String
     ): TossPaymentSuccessResponse
+
+    @GET("/api/toss/fail")
+    suspend fun tossPaymentFail(
+        @Query("code") code: String,
+        @Query("message") message: String,
+        @Query("orderListId") orderListId: String,
+    ): TossPaymentFailResponse
 
     /** User **/
 

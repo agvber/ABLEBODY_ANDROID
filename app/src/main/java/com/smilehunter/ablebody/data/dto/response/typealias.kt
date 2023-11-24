@@ -102,6 +102,7 @@ typealias CancelOrderListResponse = AbleBodyResponse<String>
 typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
 typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailResponseData>
 typealias TossPaymentSuccessResponse = AbleBodyResponse<String>
+typealias TossPaymentFailResponse = AbleBodyResponse<String>
 
 /** User **/
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
