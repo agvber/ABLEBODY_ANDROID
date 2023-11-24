@@ -72,4 +72,17 @@ class OrderApiUnitTest {
         }
         println(response)
     }
+
+    @Test
+    fun tossPaymentSuccess() {
+        val response = runBlocking {
+            networkService.tossPaymentSuccess(
+                paymentKey = "xLpgeoOn4d26DlbXAaV0KL2vplKYoK3qY50Q9RBKEzMjPJyG",
+                orderListId = "2023112177727",
+                amount = "65000"
+            )
+        }
+        println(response)
+        Assert.assertTrue(response.success)
+    }
 }
