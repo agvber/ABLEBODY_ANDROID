@@ -339,7 +339,7 @@ interface NetworkAPI {
     @GET("/api/toss/success")
     suspend fun tossPaymentSuccess(
         @Query("paymentKey") paymentKey: String,
-        @Query("orderListId") orderListId: String,
+        @Query("orderId") orderListId: String,
         @Query("amount") amount: String
     ): TossPaymentSuccessResponse
 
@@ -347,7 +347,7 @@ interface NetworkAPI {
     suspend fun tossPaymentFail(
         @Query("code") code: String,
         @Query("message") message: String,
-        @Query("orderListId") orderListId: String,
+        @Query("orderId") orderListId: String,
     ): TossPaymentFailResponse
 
     /** User **/
