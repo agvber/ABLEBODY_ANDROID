@@ -51,6 +51,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -298,6 +299,12 @@ interface NetworkService {
     suspend fun getOrderListDetail(
         id: String
     ): GetOrderListDetailResponse
+
+    suspend fun tossPaymentSuccess(
+        paymentKey: String,
+        orderListId: String,
+        amount: String
+    ): TossPaymentSuccessResponse
 
     /** User **/
     suspend fun getMyUserData(): UserDataResponse
