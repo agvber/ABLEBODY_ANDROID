@@ -53,6 +53,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
 import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
@@ -397,6 +398,14 @@ class NetworkServiceImpl @Inject constructor(
         amount: String,
     ): TossPaymentSuccessResponse {
         return networkAPI.tossPaymentSuccess(paymentKey, orderListId, amount)
+    }
+
+    override suspend fun tossPaymentFail(
+        code: String,
+        message: String,
+        orderListId: String,
+    ): TossPaymentFailResponse {
+        return networkAPI.tossPaymentFail(code, message, orderListId)
     }
 
     override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
