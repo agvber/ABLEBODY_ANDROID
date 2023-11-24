@@ -55,6 +55,7 @@ import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import okhttp3.MultipartBody
@@ -333,6 +334,13 @@ interface NetworkAPI {
     suspend fun getOrderListDetail(
         @Query("orderListId") orderListId: String
     ): GetOrderListDetailResponse
+
+    @GET("/api/toss/success")
+    suspend fun tossPaymentSuccess(
+        @Query("paymentKey") paymentKey: String,
+        @Query("orderListId") orderListId: String,
+        @Query("amount") amount: String
+    ): TossPaymentSuccessResponse
 
     /** User **/
 
