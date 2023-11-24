@@ -5,6 +5,7 @@ import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
 import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.network.NetworkService
 import javax.inject.Inject
@@ -39,6 +40,18 @@ class OrderManagementRepositoryImpl @Inject constructor(
             paymentKey = paymentKey,
             orderListId = orderListId,
             amount = amount
+        )
+    }
+
+    override suspend fun handlePaymentFailure(
+        code: String,
+        message: String,
+        orderListId: String,
+    ): TossPaymentFailResponse {
+        return networkService.tossPaymentFail(
+            code = code,
+            message = message,
+            orderListId = orderListId
         )
     }
 

@@ -5,6 +5,7 @@ import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
 import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 
 interface OrderManagementRepository {
@@ -28,4 +29,10 @@ interface OrderManagementRepository {
         orderListId: String,
         amount: String
     ): TossPaymentSuccessResponse
+
+    suspend fun handlePaymentFailure(
+        code: String,
+        message: String,
+        orderListId: String
+    ): TossPaymentFailResponse
 }
