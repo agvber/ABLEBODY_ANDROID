@@ -85,4 +85,17 @@ class OrderApiUnitTest {
         println(response)
         Assert.assertTrue(response.success)
     }
+
+    @Test
+    fun tossPaymentFail() {
+        val response = runBlocking {
+            networkService.tossPaymentFail(
+                code = "PAY_PROCESS_CANCELED",
+                message = "사용자가 결제를 취소하였습니다",
+                orderListId = "2023112177727",
+            )
+        }
+        println(response)
+        Assert.assertTrue(response.success)
+    }
 }
