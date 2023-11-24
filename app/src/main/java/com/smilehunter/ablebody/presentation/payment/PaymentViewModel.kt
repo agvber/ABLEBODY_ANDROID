@@ -7,9 +7,11 @@ import com.google.gson.Gson
 import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
+import com.smilehunter.ablebody.domain.ConfirmPaymentUseCase
 import com.smilehunter.ablebody.domain.GetCouponListUseCase
 import com.smilehunter.ablebody.domain.GetMyDeliveryAddressUseCase
 import com.smilehunter.ablebody.domain.GetUserInfoUseCase
+import com.smilehunter.ablebody.domain.HandlePaymentFailureUseCase
 import com.smilehunter.ablebody.domain.OrderItemUseCase
 import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @HiltViewModel
@@ -38,7 +41,9 @@ class PaymentViewModel @Inject constructor(
     getCouponListUseCase: GetCouponListUseCase,
     getUserInfoUseCase: GetUserInfoUseCase,
     getMyDeliveryAddressUseCase: GetMyDeliveryAddressUseCase,
-    private val orderItemUseCase: OrderItemUseCase
+    private val orderItemUseCase: OrderItemUseCase,
+    private val confirmPaymentUseCase: ConfirmPaymentUseCase,
+    private val handlePaymentFailureUseCase: HandlePaymentFailureUseCase
 ): ViewModel() {
 
     private val _networkRefreshFlow = MutableSharedFlow<Unit>()
@@ -226,7 +231,7 @@ class PaymentViewModel @Inject constructor(
                             sizeOption = it.getContentOption(PaymentPassthroughData.ItemOptions.Option.SIZE),
                             itemPrice = it.price,
                             itemCount = it.count,
-                            itemDiscount = it.differencePrice,
+                            itemDiscount = abs(it.differencePrice),
                             couponDiscount = couponDiscountPrice.value,
                             amount = amountOfPayment
                         )
@@ -247,4 +252,40 @@ class PaymentViewModel @Inject constructor(
         return this.options.firstOrNull { it.options ==  option }?.content
     }
 
+
+    fun confirmPayment(
+        paymentKey: String,
+        orderListId: String,
+        amount: String
+    ) {
+        viewModelScope.launch {
+            try {
+                confirmPaymentUseCase(
+                    paymentKey = paymentKey,
+                    orderListId = orderListId,
+                    amount = amount
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun handlePaymentFailure(
+        code: String,
+        message: String,
+        orderListId: String
+    ) {
+        viewModelScope.launch {
+            try {
+                handlePaymentFailureUseCase(
+                    code = code,
+                    message = message,
+                    orderListId = orderListId
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

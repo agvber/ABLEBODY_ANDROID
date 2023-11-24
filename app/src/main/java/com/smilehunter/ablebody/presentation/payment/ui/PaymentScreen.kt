@@ -137,9 +137,19 @@ fun PaymentRoute(
             ),
             paymentCallback = object: PaymentCallback {
                 override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                    paymentViewModel.handlePaymentFailure(
+                        code = fail.errorCode,
+                        message = fail.errorMessage,
+                        orderListId = fail.orderId ?: orderItemID
+                    )
                 }
 
                 override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                    paymentViewModel.confirmPayment(
+                        paymentKey = success.paymentKey,
+                        orderListId = success.orderId,
+                        amount = success.amount.toLong().toString()
+                    )
                     receiptRequest(orderItemID)
                 }
             }
@@ -149,8 +159,8 @@ fun PaymentRoute(
 
     PaymentScreen(
         onBackRequest = onBackRequest,
-        payButtonOnClick = { price ->
-            paymentWidget.updateAmount(price)
+        payButtonOnClick = { receipt ->
+            paymentWidget.updateAmount(receipt.values.sum())
 
             val selectedPaymentMethod = paymentWidget.getSelectedPaymentMethod()
             paymentViewModel.orderItem(
@@ -158,7 +168,7 @@ fun PaymentRoute(
                 paymentType = selectedPaymentMethod.type,
                 paymentMethod = selectedPaymentMethod.method ?: "",
                 easyPayType = selectedPaymentMethod.easyPay?.provider,
-                amountOfPayment = price
+                amountOfPayment = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
             )
                            },
         paymentContent = {
@@ -223,7 +233,7 @@ fun PaymentRoute(
 @Composable
 fun PaymentScreen(
     onBackRequest: () -> Unit,
-    payButtonOnClick: (Int) -> Unit,
+    payButtonOnClick: (Map<String, Int>) -> Unit,
     paymentContent: @Composable () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     couponIDChange: (Int?) -> Unit,
@@ -256,9 +266,7 @@ fun PaymentScreen(
         bottomBar = {
             CustomButton(
                 text = "결제하기",
-                onClick = {
-                      payButtonOnClick(receipt.values.sum())
-                },
+                onClick = { payButtonOnClick(receipt) },
                 enable = isPayButtonEnable
             )
         }
