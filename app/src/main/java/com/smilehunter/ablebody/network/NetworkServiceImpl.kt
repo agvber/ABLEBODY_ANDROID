@@ -78,7 +78,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(MAIN_SERVER_URL)
+        baseUrl(TEST_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -374,46 +374,9 @@ class NetworkServiceImpl @Inject constructor(
         networkAPI.addCouponByCouponCode(couponCode)
 
     override suspend fun addOrderList(
-        itemID: Int,
-        addressID: Int,
-        couponBagsID: Int?,
-        refundBankName: String,
-        refundAccount: String,
-        refundAccountHolder: String,
-        paymentMethod: String,
-        price: Int,
-        itemDiscount: Int,
-        couponDiscount: Int,
-        pointDiscount: Int,
-        deliveryPrice: Int,
-        amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        addOrderListRequest: AddOrderListRequest
     ): AddOrderListResponse =
-        networkAPI.addOrderList(
-            AddOrderListRequest( //수정중
-                addressId = addressID,
-                orderName = "",
-                paymentType = "",
-                paymentMethod= paymentMethod,
-                easyPayType = null,
-                pointDiscount = pointDiscount,
-                deliveryPrice = deliveryPrice,
-                amount = amountOfPayment,
-                orderListItemReqDtoList = itemOptionIdList?.map {
-                    AddOrderListRequest.OrderListItemReqDto(
-                        itemId = itemID,
-                        couponBagsId = couponBagsID,
-                        colorOption = null,
-                        sizeOption = null,
-                        itemPrice = price,
-                        itemCount = 1,
-                        itemDiscount = itemDiscount,
-                        couponDiscount = couponDiscount,
-                        amount = amountOfPayment
-                    )
-                } ?: emptyList()
-            )
-        )
+        networkAPI.addOrderList(addOrderListRequest)
 
     override suspend fun getOrderList(): GetOrderListResponse =
         networkAPI.getOrderList()

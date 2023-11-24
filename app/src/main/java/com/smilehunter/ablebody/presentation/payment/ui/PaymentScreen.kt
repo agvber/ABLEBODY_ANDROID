@@ -127,8 +127,23 @@ fun PaymentRoute(
 
     val orderItemID by paymentViewModel.orderItemID.collectAsStateWithLifecycle()
 
+    val orderName = paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
+
     if (orderItemID.isNotBlank()) {
-        receiptRequest(orderItemID)
+        paymentWidget.requestPayment(
+            paymentInfo = PaymentMethod.PaymentInfo(
+                orderId = orderItemID,
+                orderName = orderName
+            ),
+            paymentCallback = object: PaymentCallback {
+                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                }
+
+                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                    receiptRequest(orderItemID)
+                }
+            }
+        )
     }
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
@@ -136,20 +151,14 @@ fun PaymentRoute(
         onBackRequest = onBackRequest,
         payButtonOnClick = { price ->
             paymentWidget.updateAmount(price)
-            paymentWidget.requestPayment(
-                PaymentMethod.PaymentInfo(
-                    orderItemID,
-                    paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
-                ),
-                object: PaymentCallback {
-                    override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
-                        TODO("결제 실패 내역 서버 전송")
-                    }
 
-                    override fun onPaymentSuccess(success: TossPaymentResult.Success) {
-                        TODO("결제 성공 내역 서버 전송")
-                    }
-                }
+            val selectedPaymentMethod = paymentWidget.getSelectedPaymentMethod()
+            paymentViewModel.orderItem(
+                orderName = orderName,
+                paymentType = selectedPaymentMethod.type,
+                paymentMethod = selectedPaymentMethod.method ?: "",
+                easyPayType = selectedPaymentMethod.easyPay?.provider,
+                amountOfPayment = price
             )
                            },
         paymentContent = {
@@ -166,11 +175,13 @@ fun PaymentRoute(
                             )
                         )
                         renderAgreement(agreement = view.paymentAgreement)
-                        addAgreementStatusListener(object : AgreementStatusListener {
-                            override fun onAgreementStatusChanged(agreementStatus: AgreementStatus) {
-                                agreedRequiredTerms = agreementStatus.agreedRequiredTerms
+                        addAgreementStatusListener(
+                            object : AgreementStatusListener {
+                                override fun onAgreementStatusChanged(agreementStatus: AgreementStatus) {
+                                    agreedRequiredTerms = agreementStatus.agreedRequiredTerms
+                                }
                             }
-                        })
+                        )
                     }
                     view
                 },
@@ -215,11 +226,11 @@ fun PaymentScreen(
     payButtonOnClick: (Int) -> Unit,
     paymentContent: @Composable () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
-    couponIDChange: (Int) -> Unit,
+    couponIDChange: (Int?) -> Unit,
     pointTextValueChange: (String) -> Unit,
     pointUsed: () -> Unit,
     paymentPassthroughData: PaymentPassthroughData?,
-    couponID: Int,
+    couponID: Int?,
     pointTextValue: String,
     couponDisCountPrice: Int,
     userData: PaymentUiState.User?,
@@ -350,13 +361,15 @@ fun PaymentScreen(
             )
             Divider(thickness = 4.dp, color = InactiveGrey)
 
-            val couponTextValue by remember(couponID) { derivedStateOf { coupons.data.firstOrNull { it.id == couponID }?.couponTitle ?: "" } }
+            val couponTextValue by remember(couponID) {
+                derivedStateOf { coupons.data.firstOrNull { it.id == couponID }?.couponTitle ?: "" }
+            }
             var isPointUsed by rememberSaveable { mutableStateOf(false) }
 
             DiscountLayout(
                 couponButtonOnClick = {
                     if (couponTextValue.isNotEmpty()) {
-                        couponIDChange(-1)
+                        couponIDChange(null)
                     } else {
                         showCouponBottomSheet = true
                     }

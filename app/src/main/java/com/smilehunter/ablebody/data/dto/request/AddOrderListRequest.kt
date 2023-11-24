@@ -8,7 +8,6 @@ data class AddOrderListRequest(
     val easyPayType: String?,
     val pointDiscount: Int?,
     val deliveryPrice: Int?,
-    val amount: Int,
     val orderListItemReqDtoList: List<OrderListItemReqDto>
 ) {
     data class OrderListItemReqDto(

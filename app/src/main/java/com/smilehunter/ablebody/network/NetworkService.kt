@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
@@ -281,20 +282,7 @@ interface NetworkService {
     /** order **/
 
     suspend fun addOrderList(
-        itemID: Int,
-        addressID: Int,
-        couponBagsID: Int?,
-        refundBankName: String,
-        refundAccount: String,
-        refundAccountHolder: String,
-        paymentMethod: String,
-        price: Int,
-        itemDiscount: Int,
-        couponDiscount: Int,
-        pointDiscount: Int,
-        deliveryPrice: Int,
-        amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        addOrderListRequest: AddOrderListRequest
     ): AddOrderListResponse
 
     suspend fun getOrderList(): GetOrderListResponse
