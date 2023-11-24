@@ -5,6 +5,7 @@ import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.GetDeliveryInfoResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListDetailResponse
 import com.smilehunter.ablebody.data.dto.response.GetOrderListResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 
 interface OrderManagementRepository {
 
@@ -21,4 +22,10 @@ interface OrderManagementRepository {
     suspend fun getOrderDetailItem(
         id: String
     ): GetOrderListDetailResponse
+
+    suspend fun confirmPayment(
+        paymentKey: String,
+        orderListId: String,
+        amount: String
+    ): TossPaymentSuccessResponse
 }
