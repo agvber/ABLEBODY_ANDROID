@@ -114,3 +114,7 @@ typealias ResignUserResponse = AbleBodyResponse<String>
 
 typealias GetUserAdConsentResponse = AbleBodyResponse<Boolean>
 typealias AcceptUserAdConsentResponse = AbleBodyResponse<String>
+
+/** Manage **/
+
+typealias ReportResponse = AbleBodyResponse<String>
