@@ -18,6 +18,8 @@ import com.smilehunter.ablebody.data.repository.ItemRepository
 import com.smilehunter.ablebody.data.repository.ItemRepositoryImpl
 import com.smilehunter.ablebody.data.repository.LikeListRepository
 import com.smilehunter.ablebody.data.repository.LikeListRepositoryImpl
+import com.smilehunter.ablebody.data.repository.ManageRepository
+import com.smilehunter.ablebody.data.repository.ManageRepositoryImpl
 import com.smilehunter.ablebody.data.repository.NotificationRepository
 import com.smilehunter.ablebody.data.repository.NotificationRepositoryImpl
 import com.smilehunter.ablebody.data.repository.OnboardingRepository
@@ -113,4 +115,9 @@ interface DataModule {
     fun bindsOrderManagementRepository(
         orderManagementRepositoryImpl: OrderManagementRepositoryImpl
     ): OrderManagementRepository
+
+    @Binds
+    fun bindsManageRepository(
+        manageRepositoryImpl: ManageRepositoryImpl
+    ): ManageRepository
 }

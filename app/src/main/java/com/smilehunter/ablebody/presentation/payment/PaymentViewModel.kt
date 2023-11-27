@@ -4,11 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
+import com.smilehunter.ablebody.domain.ConfirmPaymentUseCase
 import com.smilehunter.ablebody.domain.GetCouponListUseCase
 import com.smilehunter.ablebody.domain.GetMyDeliveryAddressUseCase
 import com.smilehunter.ablebody.domain.GetUserInfoUseCase
+import com.smilehunter.ablebody.domain.HandlePaymentFailureUseCase
 import com.smilehunter.ablebody.domain.OrderItemUseCase
 import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
@@ -29,6 +32,7 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @HiltViewModel
@@ -37,7 +41,9 @@ class PaymentViewModel @Inject constructor(
     getCouponListUseCase: GetCouponListUseCase,
     getUserInfoUseCase: GetUserInfoUseCase,
     getMyDeliveryAddressUseCase: GetMyDeliveryAddressUseCase,
-    private val orderItemUseCase: OrderItemUseCase
+    private val orderItemUseCase: OrderItemUseCase,
+    private val confirmPaymentUseCase: ConfirmPaymentUseCase,
+    private val handlePaymentFailureUseCase: HandlePaymentFailureUseCase
 ): ViewModel() {
 
     private val _networkRefreshFlow = MutableSharedFlow<Unit>()
@@ -70,16 +76,16 @@ class PaymentViewModel @Inject constructor(
                 null
             )
 
-    private val _couponID = MutableStateFlow(-1)
+    private val _couponID = MutableStateFlow<Int?>(null)
     val couponID = _couponID.asStateFlow()
 
-    fun updateCouponID(value: Int) {
+    fun updateCouponID(value: Int?) {
         viewModelScope.launch { _couponID.emit(value) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val couponDiscountPrice: StateFlow<Int> = couponID.flatMapLatest { couponID ->
-        if (couponID == -1) { return@flatMapLatest flowOf(0) }
+        if (couponID == null) { return@flatMapLatest flowOf(0) }
 
         val selectedCoupon = (coupons.value as PaymentUiState.Coupons).data.first { it.id == couponID }
 
@@ -124,28 +130,6 @@ class PaymentViewModel @Inject constructor(
             }
         }
     }
-
-    private val _bankTextValue = MutableStateFlow("")
-    val bankTextValue = _bankTextValue.asStateFlow()
-
-    fun updateBankTextValue(value: String) {
-        viewModelScope.launch { _bankTextValue.emit(value) }
-    }
-
-    private val _accountNumberTextValue = MutableStateFlow("")
-    val accountNumberTextValue = _accountNumberTextValue.asStateFlow()
-
-    fun updateAccountNumberTextValue(value: String) {
-        viewModelScope.launch { _accountNumberTextValue.emit(value) }
-    }
-
-    private val _accountHolderTextValue = MutableStateFlow("")
-    val accountHolderTextValue = _accountHolderTextValue.asStateFlow()
-
-    fun updateAccountHolderTextValue(value: String) {
-        viewModelScope.launch { _accountHolderTextValue.emit(value) }
-    }
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val userData: StateFlow<PaymentUiState> =
@@ -221,17 +205,87 @@ class PaymentViewModel @Inject constructor(
     val orderItemID = _orderItemID.asStateFlow()
 
     fun orderItem(
+        orderName: String,
+        paymentType: String,
         paymentMethod: String,
+        easyPayType: String?,
         amountOfPayment: Int,
     ) {
         viewModelScope.launch {
             try {
                 val address = (deliveryAddress.value as PaymentUiState.DeliveryAddress).data
 
+                val addOrderListRequest = AddOrderListRequest(
+                    addressId = address.id,
+                    orderName = orderName,
+                    paymentType = paymentType,
+                    paymentMethod = paymentMethod,
+                    easyPayType = easyPayType,
+                    pointDiscount = userPointTextValue.value.toIntOrNull() ?: 0,
+                    deliveryPrice = paymentPassthroughData.value!!.deliveryPrice,
+                    orderListItemReqDtoList = paymentPassthroughData.value!!.items.map {
+                        AddOrderListRequest.OrderListItemReqDto(
+                            itemId = it.itemID,
+                            couponBagsId = couponID.value,
+                            colorOption = it.getContentOption(PaymentPassthroughData.ItemOptions.Option.COLOR),
+                            sizeOption = it.getContentOption(PaymentPassthroughData.ItemOptions.Option.SIZE),
+                            itemPrice = it.price,
+                            itemCount = it.count,
+                            itemDiscount = abs(it.differencePrice),
+                            couponDiscount = couponDiscountPrice.value,
+                            amount = amountOfPayment
+                        )
+                    }
+                )
+
+                val response = orderItemUseCase(addOrderListRequest)
+                _orderItemID.emit(response)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
+    private fun PaymentPassthroughData.Item
+            .getContentOption(option: PaymentPassthroughData.ItemOptions.Option): String? {
+
+        return this.options.firstOrNull { it.options ==  option }?.content
+    }
+
+
+    fun confirmPayment(
+        paymentKey: String,
+        orderListId: String,
+        amount: String
+    ) {
+        viewModelScope.launch {
+            try {
+                confirmPaymentUseCase(
+                    paymentKey = paymentKey,
+                    orderListId = orderListId,
+                    amount = amount
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun handlePaymentFailure(
+        code: String,
+        message: String,
+        orderListId: String
+    ) {
+        viewModelScope.launch {
+            try {
+                handlePaymentFailureUseCase(
+                    code = code,
+                    message = message,
+                    orderListId = orderListId
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

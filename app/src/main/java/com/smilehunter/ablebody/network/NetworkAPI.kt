@@ -10,6 +10,7 @@ import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.FCMTokenAndAppVersionUpdateRequest
 import com.smilehunter.ablebody.data.dto.request.NewUserCreateRequest
 import com.smilehunter.ablebody.data.dto.request.RefreshTokenRequest
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
 import com.smilehunter.ablebody.data.dto.request.SMSCheckRequest
 import com.smilehunter.ablebody.data.dto.request.SMSSendRequest
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
@@ -49,12 +50,15 @@ import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.ReadBookmarkItemResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ReportResponse
 import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import okhttp3.MultipartBody
@@ -334,6 +338,20 @@ interface NetworkAPI {
         @Query("orderListId") orderListId: String
     ): GetOrderListDetailResponse
 
+    @GET("/api/toss/success")
+    suspend fun tossPaymentSuccess(
+        @Query("paymentKey") paymentKey: String,
+        @Query("orderId") orderListId: String,
+        @Query("amount") amount: String
+    ): TossPaymentSuccessResponse
+
+    @GET("/api/toss/fail")
+    suspend fun tossPaymentFail(
+        @Query("code") code: String,
+        @Query("message") message: String,
+        @Query("orderId") orderListId: String,
+    ): TossPaymentFailResponse
+
     /** User **/
 
     @GET("/api/onboarding/splash")
@@ -382,4 +400,11 @@ interface NetworkAPI {
     suspend fun acceptUserAdConsent(
         @Query("accept") accept: Boolean
     ): AcceptUserAdConsentResponse
+
+    /** Manage **/
+
+    @POST("/api/report")
+    suspend fun report(
+        @Body reportRequest: ReportRequest
+    ): ReportResponse
 }

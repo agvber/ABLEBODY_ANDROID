@@ -6,8 +6,10 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
@@ -44,12 +46,15 @@ import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ReportResponse
 import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -281,20 +286,7 @@ interface NetworkService {
     /** order **/
 
     suspend fun addOrderList(
-        itemID: Int,
-        addressID: Int,
-        couponBagsID: Int?,
-        refundBankName: String,
-        refundAccount: String,
-        refundAccountHolder: String,
-        paymentMethod: String,
-        price: Int,
-        itemDiscount: Int,
-        couponDiscount: Int,
-        pointDiscount: Int,
-        deliveryPrice: Int,
-        amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        addOrderListRequest: AddOrderListRequest
     ): AddOrderListResponse
 
     suspend fun getOrderList(): GetOrderListResponse
@@ -310,6 +302,18 @@ interface NetworkService {
     suspend fun getOrderListDetail(
         id: String
     ): GetOrderListDetailResponse
+
+    suspend fun tossPaymentSuccess(
+        paymentKey: String,
+        orderListId: String,
+        amount: String
+    ): TossPaymentSuccessResponse
+
+    suspend fun tossPaymentFail(
+        code: String,
+        message: String,
+        orderListId: String,
+    ): TossPaymentFailResponse
 
     /** User **/
     suspend fun getMyUserData(): UserDataResponse
@@ -346,4 +350,10 @@ interface NetworkService {
 
     @POST("/api/my/consent-pushad")
     suspend fun acceptUserAdConsent(accept: Boolean): AcceptUserAdConsentResponse
+
+    /** Manage **/
+
+    suspend fun report(
+        reportRequest: ReportRequest
+    ): ReportResponse
 }

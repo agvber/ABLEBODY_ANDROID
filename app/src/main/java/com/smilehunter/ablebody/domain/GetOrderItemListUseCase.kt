@@ -31,33 +31,63 @@ class GetOrderItemListUseCase @Inject constructor(
     }
 }
 
-private fun GetOrderListResponseData.toDomain() = OrderItemData(
-    id = id,
-    itemName = itemName,
-    itemImageURL = itemImage,
-    amountOfPayment = amountOfPayment,
-    brandName = brand,
-    itemOptionDetailList = itemOptionDetailList.map {
-        OrderItemData.ItemOptionDetail(
-            id = it.id,
-            it.orderList,
-            it.itemOption,
-            it.itemOptionDetail
-        )
-    },
-    orderStatus = when(orderStatus) {
-        GetOrderListResponseData.OrderStatus.DEPOSIT_WAITING -> DEPOSIT_WAITING
-        GetOrderListResponseData.OrderStatus.DEPOSIT_COMPLETED -> DEPOSIT_COMPLETED
-        GetOrderListResponseData.OrderStatus.ON_DELIVERY -> ON_DELIVERY
-        GetOrderListResponseData.OrderStatus.DELIVERY_COMPLETED -> DELIVERY_COMPLETED
-        GetOrderListResponseData.OrderStatus.ORDER_CANCELED -> ORDER_CANCELED
-        GetOrderListResponseData.OrderStatus.REFUND_REQUEST -> REFUND_REQUEST
-        GetOrderListResponseData.OrderStatus.REFUND_COMPLETED -> REFUND_COMPLETED
-        GetOrderListResponseData.OrderStatus.EXCHANGE_REQUEST -> EXCHANGE_REQUEST
-        GetOrderListResponseData.OrderStatus.ON_EXCHANGE_DELIVERY -> ON_EXCHANGE_DELIVERY
-        GetOrderListResponseData.OrderStatus.EXCHANGE_COMPLETED -> EXCHANGE_COMPLETED
-    },
-    orderedDate = LocalDateTime.parse(orderedDate, DateTimeFormatter.ISO_ZONED_DATE_TIME).let {
-        "${it.year}.${it.monthValue}.${it.dayOfMonth}"
+private fun GetOrderListResponseData.toDomain(): OrderItemData {
+    val itemOptionDetailList = mutableListOf<OrderItemData.ItemOptionDetail>()
+    orderListItemList.forEach { orders ->
+        orders.colorOption?.let { colorOption ->
+            itemOptionDetailList.add(
+                OrderItemData.ItemOptionDetail(
+                    id = 0,
+                    orderNumber = id,
+                    itemOption = "색상",
+                    itemOptionDetail = colorOption
+                )
+            )
+        }
+        orders.sizeOption?.let { sizeOption ->
+            itemOptionDetailList.add(
+                OrderItemData.ItemOptionDetail(
+                    id = 0,
+                    orderNumber = id,
+                    itemOption = "사이즈",
+                    itemOptionDetail = sizeOption
+                )
+            )
+        }
     }
-)
+
+    return OrderItemData(
+        id = id,
+        itemName = orderListItemList.first().itemName,
+        itemImageURL = orderListItemList.first().itemImage,
+        amountOfPayment = amount,
+        brandName = orderListItemList.first().brand,
+        itemOptionDetailList = itemOptionDetailList,
+        orderStatus = when(orderStatus) {
+            GetOrderListResponseData.OrderStatus.WAIT_FOR_PAYMENT -> DEPOSIT_WAITING
+            GetOrderListResponseData.OrderStatus.CONFIRMATION_OF_DEPOSIT -> DEPOSIT_COMPLETED
+            GetOrderListResponseData.OrderStatus.DELIVERY_STARTS -> ON_DELIVERY
+            GetOrderListResponseData.OrderStatus.DELIVERY_COMPLETED -> DELIVERY_COMPLETED
+            GetOrderListResponseData.OrderStatus.ORDER_CANCELED -> ORDER_CANCELED
+            GetOrderListResponseData.OrderStatus.REQUEST_FOR_REFUND_RECOVERY -> REFUND_REQUEST
+            GetOrderListResponseData.OrderStatus.REFUND_COMPLETED -> REFUND_COMPLETED
+            GetOrderListResponseData.OrderStatus.EXCHANGE_ORDER_ACCEPTED -> EXCHANGE_REQUEST
+            GetOrderListResponseData.OrderStatus.EXCHANGE_PROCESSING -> ON_EXCHANGE_DELIVERY
+            GetOrderListResponseData.OrderStatus.EXCHANGE_COMPLETED -> EXCHANGE_COMPLETED
+            GetOrderListResponseData.OrderStatus.SHIPMENT_PROCESSING -> DEPOSIT_COMPLETED
+            GetOrderListResponseData.OrderStatus.SHIPMENT_COMPLETED -> DEPOSIT_COMPLETED
+            GetOrderListResponseData.OrderStatus.CONFIRMATION_OF_PURCHASE -> DELIVERY_COMPLETED
+            GetOrderListResponseData.OrderStatus.PAYMENT_ERROR -> DEPOSIT_WAITING
+            GetOrderListResponseData.OrderStatus.REQUEST_FOR_EXCHANGE_RECOVERY -> ON_EXCHANGE_DELIVERY
+            GetOrderListResponseData.OrderStatus.EXCHANGE_RECOVERY_COMPLETED -> ON_EXCHANGE_DELIVERY
+            GetOrderListResponseData.OrderStatus.EXCHANGE_DELIVERY_COMPLETED -> ON_EXCHANGE_DELIVERY
+            GetOrderListResponseData.OrderStatus.EXCHANGE_CANCELED -> ON_EXCHANGE_DELIVERY
+            GetOrderListResponseData.OrderStatus.REFUND_RECOVERY_COMPLETED -> REFUND_REQUEST
+            GetOrderListResponseData.OrderStatus.REFUND_DELIVERY_COMPLETED -> REFUND_REQUEST
+            GetOrderListResponseData.OrderStatus.REFUND_PROCESSING -> REFUND_REQUEST
+        },
+        orderedDate = LocalDateTime.parse(orderedDate, DateTimeFormatter.ISO_ZONED_DATE_TIME).let {
+            "${it.year}.${it.monthValue}.${it.dayOfMonth}"
+        }
+    )
+}

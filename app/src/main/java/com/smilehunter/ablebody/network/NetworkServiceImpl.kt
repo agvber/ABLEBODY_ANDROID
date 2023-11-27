@@ -11,6 +11,7 @@ import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
@@ -47,12 +48,15 @@ import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ReportResponse
 import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
 import com.smilehunter.ablebody.data.dto.response.StringResponse
 import com.smilehunter.ablebody.data.dto.response.SuggestionResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentFailResponse
+import com.smilehunter.ablebody.data.dto.response.TossPaymentSuccessResponse
 import com.smilehunter.ablebody.data.dto.response.UniSearchResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
 import com.smilehunter.ablebody.data.dto.response.data.ReadBookmarkCodyData
@@ -78,7 +82,7 @@ class NetworkServiceImpl @Inject constructor(
 ): NetworkService {
 
     private val retrofit = Retrofit.Builder().run {
-        baseUrl(MAIN_SERVER_URL)
+        baseUrl(TEST_SERVER_URL)
         addConverterFactory(GsonConverterFactory.create())
         client(okHttpClient)
         build()
@@ -374,46 +378,9 @@ class NetworkServiceImpl @Inject constructor(
         networkAPI.addCouponByCouponCode(couponCode)
 
     override suspend fun addOrderList(
-        itemID: Int,
-        addressID: Int,
-        couponBagsID: Int?,
-        refundBankName: String,
-        refundAccount: String,
-        refundAccountHolder: String,
-        paymentMethod: String,
-        price: Int,
-        itemDiscount: Int,
-        couponDiscount: Int,
-        pointDiscount: Int,
-        deliveryPrice: Int,
-        amountOfPayment: Int,
-        itemOptionIdList: List<Long>?
+        addOrderListRequest: AddOrderListRequest
     ): AddOrderListResponse =
-        networkAPI.addOrderList(
-            AddOrderListRequest( //수정중
-                addressId = addressID,
-                orderName = "",
-                paymentType = "",
-                paymentMethod= paymentMethod,
-                easyPayType = null,
-                pointDiscount = pointDiscount,
-                deliveryPrice = deliveryPrice,
-                amount = amountOfPayment,
-                orderListItemReqDtoList = itemOptionIdList?.map {
-                    AddOrderListRequest.OrderListItemReqDto(
-                        itemId = itemID,
-                        couponBagsId = couponBagsID,
-                        colorOption = null,
-                        sizeOption = null,
-                        itemPrice = price,
-                        itemCount = 1,
-                        itemDiscount = itemDiscount,
-                        couponDiscount = couponDiscount,
-                        amount = amountOfPayment
-                    )
-                } ?: emptyList()
-            )
-        )
+        networkAPI.addOrderList(addOrderListRequest)
 
     override suspend fun getOrderList(): GetOrderListResponse =
         networkAPI.getOrderList()
@@ -426,6 +393,22 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getOrderListDetail(id: String): GetOrderListDetailResponse =
         networkAPI.getOrderListDetail(id)
+
+    override suspend fun tossPaymentSuccess(
+        paymentKey: String,
+        orderListId: String,
+        amount: String,
+    ): TossPaymentSuccessResponse {
+        return networkAPI.tossPaymentSuccess(paymentKey, orderListId, amount)
+    }
+
+    override suspend fun tossPaymentFail(
+        code: String,
+        message: String,
+        orderListId: String,
+    ): TossPaymentFailResponse {
+        return networkAPI.tossPaymentFail(code, message, orderListId)
+    }
 
     override suspend fun getMyUserData(): UserDataResponse = networkAPI.getMyUserData()
 
@@ -467,4 +450,8 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun acceptUserAdConsent(accept: Boolean): AcceptUserAdConsentResponse =
         networkAPI.acceptUserAdConsent(accept)
+
+    override suspend fun report(reportRequest: ReportRequest): ReportResponse {
+        return networkAPI.report(reportRequest)
+    }
 }

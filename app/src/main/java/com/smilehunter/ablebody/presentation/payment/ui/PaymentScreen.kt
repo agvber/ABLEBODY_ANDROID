@@ -127,29 +127,48 @@ fun PaymentRoute(
 
     val orderItemID by paymentViewModel.orderItemID.collectAsStateWithLifecycle()
 
+    val orderName = paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
+
     if (orderItemID.isNotBlank()) {
-        receiptRequest(orderItemID)
+        paymentWidget.requestPayment(
+            paymentInfo = PaymentMethod.PaymentInfo(
+                orderId = orderItemID,
+                orderName = orderName
+            ),
+            paymentCallback = object: PaymentCallback {
+                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                    paymentViewModel.handlePaymentFailure(
+                        code = fail.errorCode,
+                        message = fail.errorMessage,
+                        orderListId = fail.orderId ?: orderItemID
+                    )
+                }
+
+                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                    paymentViewModel.confirmPayment(
+                        paymentKey = success.paymentKey,
+                        orderListId = success.orderId,
+                        amount = success.amount.toLong().toString()
+                    )
+                    receiptRequest(orderItemID)
+                }
+            }
+        )
     }
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
     PaymentScreen(
         onBackRequest = onBackRequest,
-        payButtonOnClick = { price ->
-            paymentWidget.updateAmount(price)
-            paymentWidget.requestPayment(
-                PaymentMethod.PaymentInfo(
-                    orderItemID,
-                    paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
-                ),
-                object: PaymentCallback {
-                    override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
-                        TODO("결제 실패 내역 서버 전송")
-                    }
+        payButtonOnClick = { receipt ->
+            paymentWidget.updateAmount(receipt.values.sum())
 
-                    override fun onPaymentSuccess(success: TossPaymentResult.Success) {
-                        TODO("결제 성공 내역 서버 전송")
-                    }
-                }
+            val selectedPaymentMethod = paymentWidget.getSelectedPaymentMethod()
+            paymentViewModel.orderItem(
+                orderName = orderName,
+                paymentType = selectedPaymentMethod.type,
+                paymentMethod = selectedPaymentMethod.method ?: "",
+                easyPayType = selectedPaymentMethod.easyPay?.provider,
+                amountOfPayment = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
             )
                            },
         paymentContent = {
@@ -166,11 +185,13 @@ fun PaymentRoute(
                             )
                         )
                         renderAgreement(agreement = view.paymentAgreement)
-                        addAgreementStatusListener(object : AgreementStatusListener {
-                            override fun onAgreementStatusChanged(agreementStatus: AgreementStatus) {
-                                agreedRequiredTerms = agreementStatus.agreedRequiredTerms
+                        addAgreementStatusListener(
+                            object : AgreementStatusListener {
+                                override fun onAgreementStatusChanged(agreementStatus: AgreementStatus) {
+                                    agreedRequiredTerms = agreementStatus.agreedRequiredTerms
+                                }
                             }
-                        })
+                        )
                     }
                     view
                 },
@@ -212,14 +233,14 @@ fun PaymentRoute(
 @Composable
 fun PaymentScreen(
     onBackRequest: () -> Unit,
-    payButtonOnClick: (Int) -> Unit,
+    payButtonOnClick: (Map<String, Int>) -> Unit,
     paymentContent: @Composable () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
-    couponIDChange: (Int) -> Unit,
+    couponIDChange: (Int?) -> Unit,
     pointTextValueChange: (String) -> Unit,
     pointUsed: () -> Unit,
     paymentPassthroughData: PaymentPassthroughData?,
-    couponID: Int,
+    couponID: Int?,
     pointTextValue: String,
     couponDisCountPrice: Int,
     userData: PaymentUiState.User?,
@@ -245,9 +266,7 @@ fun PaymentScreen(
         bottomBar = {
             CustomButton(
                 text = "결제하기",
-                onClick = {
-                      payButtonOnClick(receipt.values.sum())
-                },
+                onClick = { payButtonOnClick(receipt) },
                 enable = isPayButtonEnable
             )
         }
@@ -350,13 +369,15 @@ fun PaymentScreen(
             )
             Divider(thickness = 4.dp, color = InactiveGrey)
 
-            val couponTextValue by remember(couponID) { derivedStateOf { coupons.data.firstOrNull { it.id == couponID }?.couponTitle ?: "" } }
+            val couponTextValue by remember(couponID) {
+                derivedStateOf { coupons.data.firstOrNull { it.id == couponID }?.couponTitle ?: "" }
+            }
             var isPointUsed by rememberSaveable { mutableStateOf(false) }
 
             DiscountLayout(
                 couponButtonOnClick = {
                     if (couponTextValue.isNotEmpty()) {
-                        couponIDChange(-1)
+                        couponIDChange(null)
                     } else {
                         showCouponBottomSheet = true
                     }

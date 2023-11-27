@@ -9,13 +9,13 @@ class PaymentPassthroughDataPreviewParameterProvider : PreviewParameterProvider<
                 deliveryPrice = 3000,
                 items = listOf(
                     PaymentPassthroughData.Item(
-                        itemID = 0,
-                        brandName = "brand",
-                        itemName = "item",
-                        price = 38000,
-                        salePrice = 18000,
-                        salePercentage = 30,
-                        itemImageURL = "imageURL",
+                        itemID = 52,
+                        brandName = "나이키",
+                        itemName = "나이키 스포츠웨어 에센셜",
+                        price = 35000,
+                        salePrice = 29000,
+                        salePercentage = 17,
+                        itemImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/item/ABLE-0000052.png",
                         count = 1,
                         options = listOf(
                             PaymentPassthroughData.ItemOptions(

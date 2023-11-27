@@ -46,6 +46,7 @@ import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.NotificationPassedTime
 import com.smilehunter.ablebody.model.fake.fakeNotificationItemData
+import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.notification.NotificationViewModel
@@ -157,6 +158,9 @@ fun NotificationScreen(
                     passedTime = notificationItemData[index]?.passedTime ?: NotificationPassedTime.Minutes(0),
                     modifier = Modifier.animateContentSize()
                 )
+            }
+            item {
+                Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
             }
         }
     }

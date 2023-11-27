@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.data.dto.response
 
+import com.smilehunter.ablebody.data.dto.response.data.AddOrderListResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailCodyResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandDetailItemResponseData
 import com.smilehunter.ablebody.data.dto.response.data.BrandMainResponseData
@@ -95,11 +96,13 @@ typealias GetCouponBagsResponse = AbleBodyResponse<List<GetCouponBagsResponseDat
 
 /** OrderList **/
 
-typealias AddOrderListResponse = AbleBodyResponse<String>
+typealias AddOrderListResponse = AbleBodyResponse<AddOrderListResponseData>
 typealias GetOrderListResponse = AbleBodyResponse<List<GetOrderListResponseData>>
 typealias CancelOrderListResponse = AbleBodyResponse<String>
 typealias GetDeliveryInfoResponse = AbleBodyResponse<GetDeliveryInfoResponseData>
 typealias GetOrderListDetailResponse = AbleBodyResponse<GetOrderListDetailResponseData>
+typealias TossPaymentSuccessResponse = AbleBodyResponse<String>
+typealias TossPaymentFailResponse = AbleBodyResponse<String>
 
 /** User **/
 typealias UserDataResponse = AbleBodyResponse<UserDataResponseData>
@@ -111,3 +114,7 @@ typealias ResignUserResponse = AbleBodyResponse<String>
 
 typealias GetUserAdConsentResponse = AbleBodyResponse<Boolean>
 typealias AcceptUserAdConsentResponse = AbleBodyResponse<String>
+
+/** Manage **/
+
+typealias ReportResponse = AbleBodyResponse<String>
