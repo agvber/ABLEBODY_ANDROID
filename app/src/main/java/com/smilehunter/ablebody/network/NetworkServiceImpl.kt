@@ -11,6 +11,7 @@ import com.smilehunter.ablebody.data.dto.request.AddOrderListRequest
 import com.smilehunter.ablebody.data.dto.request.AddressRequest
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
 import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
@@ -47,6 +48,7 @@ import com.smilehunter.ablebody.data.dto.response.GetUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.dto.response.NewUserCreateResponse
 import com.smilehunter.ablebody.data.dto.response.RefreshTokenResponse
+import com.smilehunter.ablebody.data.dto.response.ReportResponse
 import com.smilehunter.ablebody.data.dto.response.ResignUserResponse
 import com.smilehunter.ablebody.data.dto.response.SearchCodyResponse
 import com.smilehunter.ablebody.data.dto.response.SearchItemResponse
@@ -448,4 +450,8 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun acceptUserAdConsent(accept: Boolean): AcceptUserAdConsentResponse =
         networkAPI.acceptUserAdConsent(accept)
+
+    override suspend fun report(reportRequest: ReportRequest): ReportResponse {
+        return networkAPI.report(reportRequest)
+    }
 }
