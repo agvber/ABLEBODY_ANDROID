@@ -32,6 +32,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +67,7 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import kotlinx.coroutines.launch
 
 @Composable
 fun CouponRoute(
@@ -186,18 +189,22 @@ fun CouponContent(
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "${couponCount}명 남음",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                            fontWeight = FontWeight(500),
-                            color = AbleBlue,
-                            textAlign = TextAlign.Center,
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        ),
-                    )
-                    Spacer(modifier = Modifier.size(10.dp))
+                    if(couponCount!=0){
+                        Text(
+                            text = "${couponCount}명 남음",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                                fontWeight = FontWeight(500),
+                                color = AbleBlue,
+                                textAlign = TextAlign.Center,
+                                platformStyle = PlatformTextStyle(includeFontPadding = false)
+                            ),
+                        )
+
+                        Spacer(modifier = Modifier.size(10.dp))
+                    }
+
                     Text(
                         text = "${expirationDateStr}일 남음",
                         style = TextStyle(
@@ -258,6 +265,7 @@ fun CouponPreview() {
 
 @Composable
 fun CouponRegisterRoute(
+    viewModel: MyProfileViewModel = hiltViewModel(),
     onBackRequest: () -> Unit
 ) {
     CouponRegisterScreen(onBackRequest = onBackRequest)
@@ -273,7 +281,7 @@ fun CouponRegisterScreen(
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
             Text(
                 text = "쿠폰 등록",
-                modifier = Modifier.padding(horizontal = 50.dp, vertical = 15.dp),
+                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
                 style = TextStyle(
                     fontSize = 18.sp,
                 )
@@ -294,7 +302,7 @@ fun CouponRegisterScreen(
                     Text(
                         text = "쿠폰 등록",
                         style = TextStyle(
-                            fontSize = 17.sp,
+                            fontSize = 15.sp,
                             fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
                             fontWeight = FontWeight(500),
                             platformStyle = PlatformTextStyle(includeFontPadding = false)
@@ -311,7 +319,7 @@ fun CouponRegisterScreen(
 
                     )
                 }
-                Spacer(modifier = Modifier.size(10.dp))
+                Spacer(modifier = Modifier.size(12.dp))
                 CouponNumberTextField()
             }
         }
@@ -323,17 +331,25 @@ fun CouponRegisterScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CouponNumberTextField() {
+fun CouponNumberTextField(
+    viewModel: MyProfileViewModel = hiltViewModel()
+) {
     var inputText by remember {
         mutableStateOf("")
     }
+
+    val viewModelScope = rememberCoroutineScope()
+
+    var couponNumberInputDialog by remember { mutableStateOf(false) }
+    var couponNumberCheckDialog by remember { mutableStateOf(false) }
+    var couponRegisterSuccessDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .border(1.dp, color = SmallTextGrey)
     ){
         Row(
-            modifier = Modifier.height(55.dp)
+            modifier = Modifier.height(52.dp)
         ){
             androidx.compose.material3.TextField(
                 value = inputText,
@@ -341,19 +357,37 @@ fun CouponNumberTextField() {
                     inputText = it
                 },
                 modifier = Modifier.weight(10.5f),
-                placeholder = { Text(text = "쿠폰 번호를 입력하세요") },
-              colors = TextFieldDefaults.textFieldColors(
-                  focusedIndicatorColor = Color.Transparent,
-                  unfocusedIndicatorColor = Color.Transparent,
-                  containerColor = Color.White
+                placeholder = { Text(
+                    text = "쿠폰 번호를 입력하세요",
+                    fontSize = 12.sp,
+                    color = SmallTextGrey
+                ) },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    containerColor = Color.White
                 )
             )
 
             Button(
-                onClick = { },
+                onClick = {
+                    if (inputText.isBlank()) {
+                        couponNumberInputDialog = true
+                    } else {
+                        // 쿠폰 등록 로직 추가
+                        viewModelScope.launch {
+                            // 쿠폰 등록 로직 추가
+                            Log.d("쿠폰 등록 UI", viewModel.couponRegister(inputText))
+                            val couponStatus = viewModel.couponRegister(inputText)
+                            when(couponStatus) {
+                                "SUCCESS" -> couponRegisterSuccessDialog = true
+                                else -> couponNumberCheckDialog = true
+                            }
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Black,
-//                    contentColor = Color.White,
                 ),
                 modifier = Modifier
                     .fillMaxHeight()
@@ -364,12 +398,20 @@ fun CouponNumberTextField() {
                     text = "쿠폰 등록",
                     style = TextStyle(color = Color.White)
                 )
-
             }
-
         }
+    }
 
+    if (couponNumberInputDialog) {
+        CouponPopup(onDismiss = { couponNumberInputDialog = false }, message = "쿠폰 번호를 입력해주세요.")
+    }
 
+    if (couponNumberCheckDialog) {
+        CouponPopup(onDismiss = { couponNumberCheckDialog = false }, message = "쿠폰 번호를 확인해주새요.")
+    }
+
+    if (couponRegisterSuccessDialog) {
+        CouponPopup(onDismiss = { couponRegisterSuccessDialog = false }, message = "쿠폰 등록이 완료되었어요.")
     }
 }
 
@@ -402,7 +444,7 @@ fun CouponRegisterDialog(
 @Composable
 fun CouponPopup(
     onDismiss: () -> Unit,
-    title: String
+    message: String
 ) {
     var showDialog by remember { mutableStateOf(true) }
 
@@ -418,7 +460,7 @@ fun CouponPopup(
                         .padding(bottom = 10.dp)
                 ){
                     androidx.compose.material.Text(
-                        text = title,
+                        text = message,
                         style = TextStyle(
                             fontSize = 17.sp,
                             fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),

@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.presentation.my
 
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -96,7 +97,7 @@ fun SettingScreen(
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "알림", alarmOnClick = alarmOnClick)
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("1:1 문의하기")
+            SettingList("1:1 문의하기", linkUrl = "kakaotalk channel")
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "서비스 이용 약관", linkUrl = "service agreement")
             SettingList(listText = "개인정보 수집 및 이용", linkUrl = "privacy policy")
@@ -197,21 +198,12 @@ fun SettingList(
 ) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
-//    try {
-//        val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-//        val version = pInfo.versionName
-//        val verCode: Int = pInfo.versionCode
-//        Log.d("version/code", "$version $verCode")
-//    } catch (e: PackageManager.NameNotFoundException) {
-//        e.printStackTrace()
-//    }
 
     val manager = context.packageManager
     val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
     Log.d("PackageName = ", "PackageName = ${info.packageName} VersionCode = ${info.versionCode} VersionName = ${info.versionName}")
-//    Log.d("PackageName = " + info.packageName + "\nVersionCode = "
-//            + info.versionCode + "\nVersionName = "
-//            + info.versionName + "\nPermissions = " + info.permissions)
+
+    Log.d("앱버전",BuildConfig.VERSION_NAME)
 
     Row(
         modifier = Modifier
@@ -219,8 +211,18 @@ fun SettingList(
             .height(55.dp)
             .background(Color.White)
             .nonReplyClickable(onClick = {
+//                else if (listText == "쓰지 않는 앱이에요.") {
+//                withDrawReasonOnClick("쓰지 않는 앱이에요.")
+//            } else if (listText == "볼만한 컨텐츠가 없어요.") {
+//                withDrawReasonOnClick("볼만한 컨텐츠가 없어요.")
+//            } else if (listText == "앱에 오류가 있어요.") {
+//                withDrawReasonOnClick("앱에 오류가 있어요.")
+//            } else if (listText == "앱을 어떻게 쓰는지 모르겠어요.") {
+//                withDrawReasonOnClick("앱을 어떻게 쓰는지 모르겠어요.")
+//            } else if (listText == "기타") {
+//                withDrawReasonOnClick("기타")
+//            }
                 if (listText == "로그아웃") {
-//                    LogoutAlertDialog()
                     showDialog = true
                 } else if (listText == "내 정보") {
                     myInfoOnClick()
@@ -299,10 +301,33 @@ fun SuggestPage(
     Log.d("version", version)
 
     var showDialog by remember { mutableStateOf(false) }
+    var showExitWarningDialog by remember { mutableStateOf(false) }
+
+    var inputText by remember {
+        mutableStateOf("")
+    }
+
+    BackHandler(
+        onBack = {
+            // 뒤로가기 버튼을 누를 때 ExitWarningPopup 표시
+            if (showExitWarningDialog || showDialog || inputText.isNotBlank()) {
+                showExitWarningDialog = true
+            } else {
+                onBackRequest()
+            }
+        }
+    )
 
     Scaffold(
         topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
+            BackButtonTopBarLayout(onBackRequest = {
+                // 뒤로가기 버튼을 누를 때 ExitWarningPopup 표시
+                if (showExitWarningDialog || showDialog || inputText.isNotBlank()) {
+                    showExitWarningDialog = true
+                } else {
+                    onBackRequest()
+                }
+            })
             Text(
                 text = "애블바디에게 제안하기",
                 modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
@@ -317,10 +342,6 @@ fun SuggestPage(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            var inputText by remember {
-                mutableStateOf("")
-            }
-
             // 글자 수 제한
             val maxCharCount = 300
             val isButtonEnabled = inputText.isNotBlank() && inputText.length <= maxCharCount
@@ -409,62 +430,17 @@ fun SuggestPage(
             }
         }
         if (showDialog) {
-            SuggestCompletePopup( {showDialog = false}  )
+            SuggestCompletePopup( onBackRequest = onBackRequest, onDismiss = { showDialog = false })
         }
-    }
-}
-
-@Composable
-fun acceptUserAdConsentPage(
-    viewModel: MyProfileViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit,
-    alarmAgree: Boolean
-) {
-//    val userInfoData by viewModel.
-    var alarmAgreeStatus by remember { mutableStateOf(alarmAgree) }
-    Log.d("alarmAgreeStatus", alarmAgreeStatus.toString())
-    Scaffold(
-        topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
-            Text(
-                text = "알림",
-                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                )
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(15.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "혜택 · 마케팅 알림",
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                        fontWeight = FontWeight(500),
-                        color = if (alarmAgreeStatus) Color.Black else SmallTextGrey,
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
-                    Log.d("toggledState", toggledState.toString())
-                    alarmAgreeStatus = toggledState
-                    if(toggledState){
-//                        Log.d("보낼 거", "동의 여부: $toggledState")
-                    }
+        if (showExitWarningDialog) {
+            ExitWarningPopup(
+                onBackRequest = onBackRequest,
+                onDismiss = { showExitWarningDialog = false },
+                onConfirm = {
+                    showExitWarningDialog = false
+                    onBackRequest()
                 }
-            }
-            BenefitDescription(alarmAgree = alarmAgreeStatus)
+            )
         }
     }
 }
@@ -564,7 +540,7 @@ fun MarketingAlarmToggleButton(
     buttonState: Boolean,
     alaramButtononToggle: (Boolean) -> Unit
 ) {
-    var isToggle by remember { mutableStateOf(buttonState) }
+    var isToggle = buttonState
 
     Card(
         shape = RoundedCornerShape(20.dp), // 여기서 테두리를 둥글게 설정
@@ -666,12 +642,13 @@ fun LogoutAlertDialogPreview() {
 
 @Composable
 fun SuggestCompletePopup(
-    onDismiss: () -> Unit,
+    onBackRequest: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     AbleBodyAlertDialog(
         onDismissRequest = { onDismiss() },
         positiveText = "확인",
-        positiveButtonOnClick = { onDismiss() },
+        positiveButtonOnClick = { onBackRequest() },
         negativeButtonOnClick = {},
     ) {
         androidx.compose.material.Text(
@@ -701,44 +678,51 @@ fun SuggestCompletePopup(
 @Preview(showBackground = true)
 @Composable
 fun SuggestCompletePopupPreview() {
-    SuggestCompletePopup({})
+    SuggestCompletePopup({},{})
 }
 
+
+@Composable
+fun ExitWarningPopup(
+    onBackRequest: () -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveText = "예",
+        positiveButtonOnClick = { onBackRequest() },
+        negativeText = "아니오",
+        negativeButtonOnClick = { onDismiss() },
+    ) {
+        androidx.compose.material.Text(
+            text = "정말 나가시겠어요?",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "지금 나가면 작성 중인 내용이 모두 사라져요.",
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
+        )
+    }
+}
 @Preview(showBackground = true)
 @Composable
-fun SuggestAlertDialogPreview() {
-    ABLEBODY_AndroidTheme {
-        AbleBodyAlertDialog(
-            onDismissRequest = {},
-            positiveText = "예",
-            positiveButtonOnClick = {},
-            negativeText = "아니오",
-            negativeButtonOnClick = {},
-        ) {
-            androidx.compose.material.Text(
-                text = "정말 나가시겠어요?",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    lineHeight = 26.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                    fontWeight = FontWeight(700),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
-            )
-            androidx.compose.material.Text(
-                text = "지금 나가면 작성 중인 내용이 모두 사라져요.",
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                    fontWeight = FontWeight(400),
-                    color = AbleDark,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                ),
-                modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
-            )
-        }
-    }
+fun ExitWarningPopupPreview() {
+    ExitWarningPopup({}, {}, {})
 }
 
 @Preview(showSystemUi = true)

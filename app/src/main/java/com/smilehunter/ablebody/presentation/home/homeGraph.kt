@@ -108,14 +108,6 @@ fun NavGraphBuilder.addHomeGraph(
             isBottomBarShow(false)
         }
 
-        composable(route = "MyInfoScreen") {
-            MyInfoScreenRoute(
-                onBackRequest = onBackRequest,
-                withDrawOnClick = withDrawOnClick,
-                editButtonOnClick = editButtonOnClick
-            )
-            isBottomBarShow(false)
-        }
 
         composable(route = "AlarmScreen") {
             AlarmRoute(
@@ -127,11 +119,19 @@ fun NavGraphBuilder.addHomeGraph(
         composable(route = "WithdrawBeforeScreen") {
             WithdrawBeforeScreen(
                 onBackRequest = onBackRequest,
-                withDrawReasonOnClick = withDrawReasonOnClick
+                withDrawReasonOnClick = {withDrawReasonOnClick}
             )
             isBottomBarShow(false)
         }
 
+        composable(route = "MyInfoScreenRoute") {
+            MyInfoScreenRoute(
+                onBackRequest = onBackRequest,
+                withDrawOnClick = withDrawOnClick,
+                editButtonOnClick = editButtonOnClick
+            )
+            isBottomBarShow(false)
+        }
         composable(route = "MyInfomationEditScreen") {
             MyInfoEditScreenRoute(
                 onBackRequest = onBackRequest

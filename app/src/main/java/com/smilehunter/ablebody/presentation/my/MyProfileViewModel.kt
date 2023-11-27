@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.smilehunter.ablebody.data.repository.UserRepository
+import com.smilehunter.ablebody.domain.AddCouponUseCase
 import com.smilehunter.ablebody.domain.GetCouponListUseCase
 import com.smilehunter.ablebody.domain.GetOrderItemListUseCase
 import com.smilehunter.ablebody.domain.GetUserBoardPagerUseCase
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
@@ -37,6 +39,7 @@ class MyProfileViewModel @Inject constructor(
     private val getCouponListUseCase: GetCouponListUseCase,
     private val getOrderItemListUseCase: GetOrderItemListUseCase,
     private val getUserBoardPagerUseCase: GetUserBoardPagerUseCase,
+    private val addCouponUseCase: AddCouponUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher
 
 ): ViewModel() {
@@ -57,8 +60,7 @@ class MyProfileViewModel @Inject constructor(
     private val _suggestAppLiveData = MutableLiveData<String>()
     val suggestAppLiveData: LiveData<String> = _suggestAppLiveData
 
-    val userBoard: StateFlow<PagingData<UserBoardData.Content>>
-            = getUserBoardPagerUseCase()
+    val userBoard: StateFlow<PagingData<UserBoardData.Content>> = getUserBoardPagerUseCase()
         .cachedIn(viewModelScope)
         .stateIn(
             viewModelScope,
@@ -78,12 +80,15 @@ class MyProfileViewModel @Inject constructor(
                 val couponList = getCouponListUseCase.invoke()
                 _couponListLiveData.postValue(couponList)
 
+//                val couponRegister = addCouponUseCase.invoke()
+
                 val orderItemList = getOrderItemListUseCase.invoke()
                 _orderItemListLiveData.postValue(orderItemList)
 
                 val getUserAdConsent = userRepository.getUserAdConsent()
                 _getUserAdConsentLiveData.postValue(getUserAdConsent)
                 Log.d("getUserAdConsent", getUserAdConsent.toString())
+
 
 //                val suggestApp = userRepository.suggestApp()
 //                _suggestAppLiveData.postValue(suggestApp)
@@ -95,7 +100,7 @@ class MyProfileViewModel @Inject constructor(
         }
     }
 
-    fun changeUserAdConsent(value: Boolean){
+    fun changeUserAdConsent(value: Boolean) {
         viewModelScope.launch(ioDispatcher) {
             userRepository.acceptUserAdConsent(value)
             _getUserAdConsentLiveData.postValue(value)
@@ -103,11 +108,46 @@ class MyProfileViewModel @Inject constructor(
         }
     }
 
-    fun sendSuggest(value: String){
-        viewModelScope.launch(ioDispatcher){
+    fun sendSuggest(value: String) {
+        viewModelScope.launch(ioDispatcher) {
             userRepository.suggestApp(value)
             Log.d("sendSuggest", value)
         }
     }
+
+    suspend fun couponRegister(value: String): String = suspendCoroutine { continuation ->
+        var couponStatus = ""
+
+        viewModelScope.launch(ioDispatcher) {
+            couponStatus = when (val result = addCouponUseCase.invoke(value).toString()) {
+                "INVALID_COUPON_CODE" -> {
+                    Log.d("쿠폰 등록 invoke", result)
+                    "INVALID_COUPON_CODE"
+                }
+
+                "SUCCESS" -> {
+                    Log.d("쿠폰 등록 invoke", result)
+                    "SUCCESS"
+                }
+
+                else -> {
+                    // Handle any other cases if needed
+                    Log.d("쿠폰 등록 invoke", result)
+                    // 기본값 또는 다른 처리를 정의하세요.
+                    "OTHER_CASE"
+                }
+            }
+
+            continuation.resumeWith(Result.success(couponStatus))
+        }
+    }
+
+    fun resignUser(reason: String) {
+        viewModelScope.launch(ioDispatcher) {
+            Log.d("탈퇴 이유", reason)
+            userRepository.resignUser(reason)
+        }
+    }
+
 
 }
