@@ -17,6 +17,7 @@ import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.AddCouponResponse
 import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
@@ -311,7 +312,7 @@ interface NetworkAPI {
     @POST("/api/couponBags/add")
     suspend fun addCouponByCouponCode(
         @Query("couponCode") couponCode: String
-    ): GetCouponBagsResponse
+    ): AddCouponResponse
 
     /** order **/
 

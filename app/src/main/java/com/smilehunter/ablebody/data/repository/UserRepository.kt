@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.data.repository
 
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.response.AddCouponResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
@@ -33,7 +34,7 @@ interface UserRepository {
 
     suspend fun getCouponBags(): GetCouponBagsResponse
 
-    suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse
+    suspend fun addCouponByCouponCode(couponCode: String): AddCouponResponse
 
     suspend fun getMyAddress(): GetAddressResponse
 

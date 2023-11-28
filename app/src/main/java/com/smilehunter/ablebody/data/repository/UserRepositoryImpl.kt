@@ -6,6 +6,7 @@ import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.response.AddCouponResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
@@ -114,7 +115,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
-    override suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse =
+    override suspend fun addCouponByCouponCode(couponCode: String): AddCouponResponse =
         networkService.addCouponByCouponCode(couponCode)
 
     override suspend fun getMyAddress(): GetAddressResponse = networkService.getAddress()

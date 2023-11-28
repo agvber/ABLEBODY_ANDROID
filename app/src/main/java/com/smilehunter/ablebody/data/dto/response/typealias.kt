@@ -93,6 +93,7 @@ typealias EditAddressResponse = AbleBodyResponse<String>
 /** Coupon **/
 
 typealias GetCouponBagsResponse = AbleBodyResponse<List<GetCouponBagsResponseData>>
+typealias AddCouponResponse = AbleBodyResponse<GetCouponBagsResponseData>
 
 /** OrderList **/
 
