@@ -22,6 +22,10 @@ import com.smilehunter.ablebody.presentation.delivery.popBackStackForResult
 import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScreen
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.home.bookmark.addBookmarkScreen
+import com.smilehunter.ablebody.presentation.home.brand.addBrandScreen
+import com.smilehunter.ablebody.presentation.home.cody.addCodyScreen
+import com.smilehunter.ablebody.presentation.home.item.addItemScreen
 import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
 import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
 import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
@@ -30,7 +34,6 @@ import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
-import com.smilehunter.ablebody.presentation.my.OtherNormalUserRoute
 import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
@@ -38,8 +41,6 @@ import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetail
 import com.smilehunter.ablebody.presentation.order_management.addOrderManagementGraph
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
 import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
-import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
-import com.smilehunter.ablebody.presentation.payment.navigateToPayment
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -58,11 +59,6 @@ fun MainNavHost(
     ) {
         addHomeGraph(
             isBottomBarShow = isBottomBarShow,
-            onSearchBarClick = { navController.navigate("SearchRoute") },
-            onAlertButtonClick = { navController.navigate(NotificationRoute) },
-            onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen,
-            onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
-            onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
             settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
             onBackRequest = navController::popBackStack,
             suggestonClick = {navController.navigate("SuggestScreen")},
@@ -77,6 +73,31 @@ fun MainNavHost(
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
             nestedGraph = {
+                addBrandScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen
+                )
+                addItemScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                )
+                addCodyScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+                )
+                addBookmarkScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                    onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+                )
                 addEditProfileGraph(
                     onBackRequest = navController::popBackStack,
                     defaultImageSelectableViewRequest = navController::navigateToSelectProfileImageScreen,
