@@ -1,6 +1,5 @@
 package com.smilehunter.ablebody.presentation.home
 
-import android.util.Log
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -9,18 +8,13 @@ import com.smilehunter.ablebody.presentation.home.brand.ui.BrandRoute
 import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
 import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
-import com.smilehunter.ablebody.presentation.my.AlarmPage
 import com.smilehunter.ablebody.presentation.my.AlarmRoute
 import com.smilehunter.ablebody.presentation.my.CouponRegisterRoute
 import com.smilehunter.ablebody.presentation.my.CouponRoute
 import com.smilehunter.ablebody.presentation.my.MyInfoEditScreenRoute
-import com.smilehunter.ablebody.presentation.my.MyInfoScreen
 import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
-import com.smilehunter.ablebody.presentation.my.MyInfomationEditScreen
 import com.smilehunter.ablebody.presentation.my.MyProfileRoute
-import com.smilehunter.ablebody.presentation.my.NormalUserScreen
 import com.smilehunter.ablebody.presentation.my.SettingScreen
-import com.smilehunter.ablebody.presentation.my.SuggestPage
 import com.smilehunter.ablebody.presentation.my.SuggestRoute
 import com.smilehunter.ablebody.presentation.my.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
@@ -29,6 +23,7 @@ const val HomeRoute = "Home"
 
 fun NavGraphBuilder.addHomeGraph(
     isBottomBarShow: (Boolean) -> Unit,
+    nestedGraph: NavGraphBuilder.() -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     onBrandDetailRouteRequest: (Long, String) -> Unit,
@@ -49,6 +44,7 @@ fun NavGraphBuilder.addHomeGraph(
         startDestination = NavigationItems.Brand.name,
         route = "Home",
     ) {
+        nestedGraph()
         composable(route = NavigationItems.Brand.name) {
             BrandRoute(
                 onSearchBarClick = onSearchBarClick,

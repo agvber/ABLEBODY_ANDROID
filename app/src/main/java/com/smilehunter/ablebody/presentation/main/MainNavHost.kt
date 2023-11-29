@@ -22,6 +22,10 @@ import com.smilehunter.ablebody.presentation.delivery.popBackStackForResult
 import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScreen
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
+import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.selectProfileImageForResult
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
@@ -32,6 +36,8 @@ import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetail
 import com.smilehunter.ablebody.presentation.order_management.addOrderManagementGraph
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
 import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
+import com.smilehunter.ablebody.presentation.payment.navigateToPayment
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -65,6 +71,18 @@ fun MainNavHost(
             withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute")},
             coupononClick = {navController.navigate("CouponRoute")},
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
+            nestedGraph = {
+                addEditProfileGraph(
+                    onBackRequest = navController::popBackStack,
+                    defaultImageSelectableViewRequest = navController::navigateToSelectProfileImageScreen,
+                    nestedGraph = {
+                        addSelectProfileImageScreen(
+                            onBackRequest = navController::popBackStack,
+                            confirmButtonClick = navController::selectProfileImageForResult
+                        )
+                    }
+                )
+            }
         )
 
         addSearchScreen(
@@ -122,7 +140,9 @@ fun MainNavHost(
                         navController.navigate("ItemReviewScreen/$item_id/$review_id")
                     },
                     onBackRequest = navController::popBackStack,
-                    purchaseOnClick = { },
+                    purchaseOnClick = {
+                                      navController.navigateToPayment(PaymentPassthroughDataPreviewParameterProvider().values.toList()[0])
+                    },
                     brandOnClick = { item_id, item_name ->
                         navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name)
                     },
