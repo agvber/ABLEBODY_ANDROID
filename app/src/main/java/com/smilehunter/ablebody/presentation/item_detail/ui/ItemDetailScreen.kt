@@ -79,6 +79,7 @@ import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.PurchaseItemData
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
@@ -98,7 +99,7 @@ fun ItemDetailScreen(
     id: Long,
     itemClick: (Long, Long) -> Unit,
     onBackRequest: () -> Unit,
-    purchaseOnClick: (PurchaseItemData) -> Unit,
+    purchaseOnClick: (PaymentPassthroughData) -> Unit,
     brandOnClick: (Long, String) -> Unit,
     codyOnClick: (Long) -> Unit
 ) {
@@ -114,12 +115,7 @@ fun ItemDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val context  = LocalContext.current
     var percent: Int = 0
-    var purchaseItemData: PurchaseItemData
-    // 브랜드 이름, 제품 이름, 제품 색상, 제품 사이즈, 가격, 세일 퍼센트
 
-    Log.d("DetailScreen", itemDetailData.toString())
-
-    Log.d("LOGdataid_DetailScreen", id.toString())
     LaunchedEffect(key1 = true) {
         viewModel.getData(id)
     }
@@ -169,13 +165,13 @@ fun ItemDetailScreen(
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(data = itemDetailData?.item?.brand?.thumbnail)
-                                    .placeholder(R.drawable.nike_store_test) // 로딩 중에 표시될 이미지
+                                    .placeholder(R.drawable.nike_store_test)
                                     .build(),
                                 contentDescription = "Detailed image description",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .clip(CircleShape)
-                                    .size(44.dp)  // use the calculated height
+                                    .size(44.dp)
                             )
                             Spacer(modifier = Modifier.padding(3.dp))
                             Text(
@@ -199,10 +195,9 @@ fun ItemDetailScreen(
                         }
 
                         if (bookMark != null) {
-                            //                    val isBookmarked by viewModel.itemDetailLiveData.observeAsState().value?.bookmarked ?: false
                             val itemDetail by viewModel.itemDetailLiveData.observeAsState()
                             val isBookmarked = itemDetail?.bookmarked
-                                ?: false // Assuming 'bookmarked' is a boolean in your ItemData class.
+                                ?: false
 
                             Log.d("북마크", isBookmarked.toString())
                             Image(
@@ -313,7 +308,6 @@ fun ItemDetailScreen(
 
                     Log.d("size", size.toString())
                     if (size != 0) {
-                        //            val creatorReviewImage = itemDetailData?.data?.itemReviews?.get(0)?.images?.get(0)
                         val createStarRating = itemDetailData?.itemReviews?.get(0)?.starRating
 
                         Column(
@@ -378,14 +372,12 @@ fun ItemDetailScreen(
                                                 color = Color(0xFFF3F4F6),
                                                 shape = RoundedCornerShape(size = 15.dp)
                                             )
-                                            //                                .clickable { Log.d("크리에이터 리뷰 항목 클릭", id.toString()) },
-
                                             .nonReplyClickable {
                                                 itemClick(
                                                     id,
                                                     reviewId!!
                                                 )
-                                            } // 여기에 클릭 시 화면 이동 로직 추가
+                                            }
                                     ) {
                                         Row(
                                             modifier = Modifier
@@ -395,7 +387,6 @@ fun ItemDetailScreen(
                                                 itemDetailData?.itemReviews?.getOrNull(index)?.images?.getOrNull(
                                                     0
                                                 )
-                                            //                                Log.d("creatorReviewImage", creatorReviewImage.toString())
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(data = creatorReviewImage)
@@ -417,7 +408,6 @@ fun ItemDetailScreen(
                                                     val review =
                                                         itemDetailData?.itemReviews?.getOrNull(index)
 
-                                                    // height
                                                     review?.creator?.height?.let { height ->
                                                         Text(
                                                             text = "$height cm / ",
@@ -426,7 +416,6 @@ fun ItemDetailScreen(
                                                         )
                                                     }
 
-                                                    // weight
                                                     review?.creator?.weight?.let { weight ->
                                                         Text(
                                                             text = "$weight kg / ",
@@ -435,7 +424,6 @@ fun ItemDetailScreen(
                                                         )
                                                     }
 
-                                                    // size
                                                     review?.size?.let { size ->
                                                         if (size != "사이즈 정보 없음") {
                                                             Text(
@@ -496,15 +484,11 @@ fun ItemDetailScreen(
                         }
                     }
 
-
-//            val homePosts = itemDetailData?.homePosts ?: listOf()
-                    Log.d("LOGhomePosts", numOfHomePost.toString())
-
                     val codeImageUrls = mutableListOf<String>()
                     if (numOfHomePost != null && numOfHomePost != 0) {
                         for (i in 0 until numOfHomePost) {
                             itemDetailData?.homePosts?.get(i)?.imageURL?.let { imageUrl ->
-                                codeImageUrls.add(imageUrl) // imageUrl이 null이 아닌 경우에만 리스트에 추가합니다.
+                                codeImageUrls.add(imageUrl)
                                 Log.d("codeImageUrls.size", codeImageUrls.toString())
                             }
                         }
@@ -518,8 +502,6 @@ fun ItemDetailScreen(
                             ),
                             modifier = Modifier.padding(start = 20.dp, bottom = 5.dp)
                         )
-
-
                     }
 
                     Box(
@@ -534,32 +516,28 @@ fun ItemDetailScreen(
                 val post = itemDetailData?.homePosts?.get(index)
                 val postId = post!!.id
                 val imageUrl = post?.imageURL
-//                        val postId = itemDetailData?.homePosts?.get(index)?.id
-                // 각 아이템의 UI 정의
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(165.dp) // 각 그리드 아이템의 높이
+                        .height(165.dp)
                         .padding(1.dp)
                         .nonReplyClickable {
                             codyOnClick(postId)
                             Log.d("ClickedPost", "Post ID: $postId")
                         }
                 ) {
-                    // 각 그리드 아이템 내의 이미지 정의
                     Image(
                         painter = rememberImagePainter(
                             data = imageUrl,
                             builder = {
                                 crossfade(true)
-//                                            placeholder(R.drawable.ic_launcher_background) // 로딩 중 또는 오류 시 표시될 이미지
                             }
                         ),
-                        contentDescription = "My content description", // 접근성을 위한 설명
+                        contentDescription = "My content description",
                         modifier = Modifier
-                            .fillMaxSize(), // 이미지가 Box를 꽉 채우도록 설정
-                        contentScale = ContentScale.Crop // 이미지가 Box 안에서 비율을 유지하며 꽉 차게 조정되도록 설정
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
@@ -605,36 +583,51 @@ fun ItemDetailScreen(
                         ?.id?.toLong()
 
                     val itemIdOptions = mutableListOf<Long>()
-                    selectedColorId?.let { itemIdOptions.add(it) }
-                    selectedSizeId?.let { itemIdOptions.add(it) }
+                    val itemColorIdOption = mutableListOf<Long>()
+                    val itemSizeIdOption = mutableListOf<Long>()
 
-                    // 여기에 바텀 시트 내용을 작성합니다.
-                    purchaseItemData = PurchaseItemData(
-                        itemId = id,
-                        brandName = itemDetailData?.item?.brand?.name.toString(),
-                        itemName = itemDetailData?.item?.name.toString(),
-                        itemColor = color,
-                        itemSize = size,
-                        price = itemDetailData?.item?.price,
-                        itemDiscount = itemDetailData?.item?.salePrice,
-                        salePercent = percent,
-                        itemImage = mainImageList?.get(0) ?: "",
-                        deliveryPrice = itemDetailData?.item?.deliveryFee ?: 3000,
-                        itemIdOptions = itemIdOptions
+                    selectedColorId?.let { itemColorIdOption.add(it) }
+                    selectedSizeId?.let { itemSizeIdOption.add(it) }
+
+                    Log.d("확인itemColorIdOption", itemColorIdOption.toString())
+                    Log.d("확인itemSizeIdOption", itemSizeIdOption.toString())
+
+
+                    val paymentPassthroughData = PaymentPassthroughData(
+                        deliveryPrice = itemDetailData?.item?.deliveryFee?.toInt() ?: 3000,
+                        items = listOf(
+                            PaymentPassthroughData.Item(
+                                itemID = id.toInt(),
+                                brandName = itemDetailData?.item?.brand?.name.toString(),
+                                itemName = itemDetailData?.item?.name.toString(),
+                                price = itemDetailData?.item?.price ?: 0, //TODO : 가격이 0이될 수 없지 않나?!?!
+                                salePrice = itemDetailData?.item?.salePrice,
+                                salePercentage = percent,
+                                itemImageURL = mainImageList?.get(0) ?: "",
+                                count = 1,
+                                options = listOf(
+                                    PaymentPassthroughData.ItemOptions(
+                                        id = if(itemColorIdOption.isNotEmpty()) itemColorIdOption[0] else 0,//itemColorIdOption[0] ?: 0,
+                                        content = color,
+                                        options = PaymentPassthroughData.ItemOptions.Option.COLOR
+                                    ),
+                                    PaymentPassthroughData.ItemOptions(
+                                        id = if(itemSizeIdOption.isNotEmpty()) itemSizeIdOption[0] else 0,//itemSizeIdOption[0] ?: 0,
+                                        content = size,
+                                        options = PaymentPassthroughData.ItemOptions.Option.SIZE
+                                    )
+                                )
+                            )
+                        )
                     )
                     Spacer(modifier = Modifier.size(10.dp))
                     ExposedDropdownMenuSample(colorList, sizeList, colorOnChange = {color = it}, sizeOnChange = {size = it},
-                        purchaseButtonOnClick = {purchaseOnClick(it)}, purchaseItemData = purchaseItemData
+                        purchaseButtonOnClick = {purchaseOnClick(it)}, paymentPassthroughData = paymentPassthroughData
                     )
-
-
 
                     Log.d("item", "$selectedColorId $selectedSizeId")
 
-
-
-                    Log.d("1purchaseItemData", purchaseItemData.toString())
-//                    purchaseOnClick(purchaseItemData)
+                    Log.d("1paymentPassthroughData", paymentPassthroughData.toString())
                 }
             },
             sheetBackgroundColor = Color.White,
@@ -650,7 +643,6 @@ fun ItemDetailScreen(
                                 val url: String = itemDetailData?.item?.redirectUrl.toString()
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 context.startActivity(intent)
-//                                Log.d("ItemDetailScreen", "itemOptionList 비어있음")
                             } else {
                                 optionBottomSheetState.show()
                             }
@@ -685,8 +677,8 @@ fun ExposedDropdownMenuSample(
     sizeList: List<String>?,
     colorOnChange: (String) -> Unit,
     sizeOnChange: (String) -> Unit,
-    purchaseButtonOnClick: (PurchaseItemData) -> Unit,
-    purchaseItemData: PurchaseItemData
+    purchaseButtonOnClick: (PaymentPassthroughData) -> Unit,
+    paymentPassthroughData: PaymentPassthroughData
 ) {
     val optionDetailBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -715,7 +707,6 @@ fun ExposedDropdownMenuSample(
     val sizeListSize = sizeList?.size
     val activeListSize = activeList.value?.size
     val optionListSize = activeListSize?.let { it.dp * 70 }
-//    Spacer(modifier = Modifier.size(10.dp))
     ModalBottomSheetLayout(
         sheetState = optionDetailBottomSheetState,
         sheetContent = {
@@ -724,14 +715,10 @@ fun ExposedDropdownMenuSample(
                 Column(
                     modifier = Modifier
                         .padding(start = 20.dp)
-                        //                    .height(350.dp)
-//                        .height(optionListSize)
                         .heightIn(min = optionListSize, max = 382.dp)
 //                        .heightIn(max = 582.dp)
                         .fillMaxWidth()  // 가로로 꽉 차게 설정
                         .verticalScroll(rememberScrollState())
-                    //                    .wrapContentHeight() // 내부 항목들의 합에 따라 높이 조정
-                    //                    .heightIn(min = 100.dp, max = 600.dp) // 최소 및 최대 높이 제한 설정
                 ) {
                     // 현재 활성화된 리스트의 항목들 출력
                     Spacer(modifier = Modifier.size(20.dp))
@@ -760,7 +747,7 @@ fun ExposedDropdownMenuSample(
                                         sizeSelected = true
                                     }
                                     optionCoroutineScope.launch {
-                                        optionDetailBottomSheetState.hide() // 이부분이 변경됨
+                                        optionDetailBottomSheetState.hide()
                                     }
                                 }
                         )
@@ -774,7 +761,6 @@ fun ExposedDropdownMenuSample(
         Box() {
             Column() {
                 if (colorList != null) {
-//                    Spacer(modifier = Modifier.height(5.dp))
                     ColorSizeTextField(
                         option = selectedColor.value ?: "색상",
                         colorList = colorList,
@@ -790,7 +776,6 @@ fun ExposedDropdownMenuSample(
                     )
                 }
                 if (sizeList != null) {
-//                    Spacer(modifier = Modifier.padding(5.dp))
                     ColorSizeTextField(
                         option = selectedSize.value ?: "사이즈",
                         colorList = colorList, // 파라미터 추가
@@ -808,8 +793,8 @@ fun ExposedDropdownMenuSample(
 
                 Button(
                     onClick = {
-                        purchaseButtonOnClick(purchaseItemData)
-                        Log.d("purchaseItemData", purchaseItemData.toString())
+                        purchaseButtonOnClick(paymentPassthroughData)
+                        Log.d("purchaseItemData", paymentPassthroughData.toString())
                     },
                     shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
@@ -844,7 +829,6 @@ fun ColorSizeTextField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-//            .padding(start = 20.dp, end = 20.dp, top = 8.dp)
             .padding(vertical = 10.dp, horizontal = 20.dp)
             .border(BorderStroke(1.dp, SmallTextGrey)),
         verticalAlignment = Alignment.CenterVertically

@@ -26,6 +26,8 @@ import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
+import com.smilehunter.ablebody.presentation.my.OtherNormalUserRoute
+import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetailScreen
@@ -62,9 +64,12 @@ fun MainNavHost(
             alarmOnClick = {navController.navigate("AlarmScreen")},
             withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
             editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},
-            withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute")},
+            withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute/$it")},
+//            withDrawReasonOnClick = {Log.d("MainNavHost 탈퇴 이유", it)},
             coupononClick = {navController.navigate("CouponRoute")},
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
+            onReport = {navController.navigate("ReportRoute")},
+            withDrawButtonOnClick = {navController.navigate("")},
         )
 
         addSearchScreen(
@@ -90,7 +95,7 @@ fun MainNavHost(
         addCreatorDetailScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
+            profileRequest = { navController.navigate("OtherNormalUserRoute") },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
             productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
@@ -99,12 +104,12 @@ fun MainNavHost(
         addLikeUserListScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
+            profileRequest = { navController.navigate("OtherNormalUserRoute")},
         )
 
         addCommentScreen(
             onBackRequest = navController::popBackStack,
-            onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
+            onUserProfileVisitRequest = { navController.navigate("OtherNormalUserRoute")},
             likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
             isBottomBarShow = isBottomBarShow
         )
@@ -148,6 +153,22 @@ fun MainNavHost(
                 reviewId = reviewId!!,
                 onBackRequest = navController::popBackStack
             )
+        }
+
+        //탈퇴 화면
+        composable(route = "WithdrawScreenRoute/{draw_reason}",
+            arguments = listOf(
+                navArgument("draw_reason") { type = NavType.StringType}
+            )
+        ){ navBackStackEntry ->
+            val draw_reason = navBackStackEntry.arguments?.getString("draw_reason")
+
+            WithdrawScreenRoute(
+                onBackRequest = navController::popBackStack,
+                drawReason = draw_reason!!,
+                withDrawButtonOnClick = {Log.d("탈퇴하기", "탈퇴하기 버튼 눌려짐")}//{navController.navigate("WithDrawCompleteScreen")}
+            )
+            isBottomBarShow(false)
         }
 
         addPaymentGraph(

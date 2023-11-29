@@ -1,9 +1,12 @@
 package com.smilehunter.ablebody.presentation.home
 
 import android.util.Log
+import androidx.compose.animation.fadeIn
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import com.smilehunter.ablebody.presentation.home.bookmark.ui.BookmarkListRoute
 import com.smilehunter.ablebody.presentation.home.brand.ui.BrandRoute
 import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
@@ -19,6 +22,9 @@ import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
 import com.smilehunter.ablebody.presentation.my.MyInfomationEditScreen
 import com.smilehunter.ablebody.presentation.my.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.NormalUserScreen
+import com.smilehunter.ablebody.presentation.my.OtherNormalUserRoute
+import com.smilehunter.ablebody.presentation.my.OtherNormalUserScreen
+import com.smilehunter.ablebody.presentation.my.ReportRoute
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.SuggestPage
 import com.smilehunter.ablebody.presentation.my.SuggestRoute
@@ -41,9 +47,11 @@ fun NavGraphBuilder.addHomeGraph(
     alarmOnClick: () -> Unit,
     withDrawOnClick: () -> Unit,
     editButtonOnClick: () -> Unit,
-    withDrawReasonOnClick: () -> Unit,
+    withDrawReasonOnClick: (String) -> Unit,
     coupononClick: () -> Unit,
-    couponRegisterOnClick: () -> Unit
+    couponRegisterOnClick: () -> Unit,
+    onReport: () -> Unit,
+    withDrawButtonOnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -84,82 +92,104 @@ fun NavGraphBuilder.addHomeGraph(
             )
             isBottomBarShow(true)
         }
-        composable(route = NavigationItems.My.name) {
-            MyProfileRoute(
-                settingOnClick = settingOnClickRouteRequest,
-                coupononClick = coupononClick
-            )
-            isBottomBarShow(true)
-        }
-        composable(route = "SettingScreen") {
-            SettingScreen(
+        navigation(startDestination = "start", route = NavigationItems.My.name){
+
+            composable(route = "start") {
+                MyProfileRoute(
+                    settingOnClick = settingOnClickRouteRequest,
+                    coupononClick = coupononClick
+                )
+                isBottomBarShow(true)
+            }
+
+            composable(route = "SettingScreen") {
+                SettingScreen(
+                    onBackRequest = onBackRequest,
+                    suggestonClick = suggestonClick,
+                    myInfoOnClick = myInfoOnClick,
+                    alarmOnClick = alarmOnClick
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "SuggestScreen") {
+                SuggestRoute(
+                    onBackRequest = onBackRequest
+                )
+                isBottomBarShow(false)
+            }
+
+
+            composable(route = "AlarmScreen") {
+                AlarmRoute(
+                    onBackRequest = onBackRequest
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "WithdrawBeforeScreen") {
+                WithdrawBeforeScreen(
+                    onBackRequest = onBackRequest,
+//                withDrawReasonOnClick = {Log.d("Home탈퇴 이유",it)}
+                    withDrawReasonOnClick = withDrawReasonOnClick
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "MyInfoScreenRoute") {
+                MyInfoScreenRoute(
+                    onBackRequest = onBackRequest,
+                    withDrawOnClick = withDrawOnClick,
+                    editButtonOnClick = editButtonOnClick
+                )
+                isBottomBarShow(false)
+            }
+            composable(route = "MyInfomationEditScreen") {
+                MyInfoEditScreenRoute(
+                    onBackRequest = onBackRequest
+                )
+                isBottomBarShow(false)
+            }
+
+//        composable(route = "WithdrawScreenRoute") {
+//            WithdrawScreenRoute(
+//                onBackRequest = onBackRequest,
+//            )
+//            isBottomBarShow(false)
+//        }
+
+            composable(route = "CouponRoute") {
+                CouponRoute(
+                    onBackRequest = onBackRequest,
+                    couponRegisterOnClick = couponRegisterOnClick
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "CouponRegisterRoute") {
+                CouponRegisterRoute(
+                    onBackRequest = onBackRequest
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "OtherNormalUserRoute") {
+            OtherNormalUserRoute(
                 onBackRequest = onBackRequest,
-                suggestonClick = suggestonClick,
-                myInfoOnClick = myInfoOnClick,
-                alarmOnClick = alarmOnClick
+                onReport = onReport,
+                id = 5920702
             )
-            isBottomBarShow(false)
-        }
+                isBottomBarShow(true)
+            }
 
-        composable(route = "SuggestScreen") {
-            SuggestRoute(
-                onBackRequest = onBackRequest
-            )
-            isBottomBarShow(false)
-        }
+            composable(route = "ReportRoute") {
+                ReportRoute(
+                    onBackRequest = onBackRequest
+                )
+                isBottomBarShow(false)
+            }
 
-
-        composable(route = "AlarmScreen") {
-            AlarmRoute(
-                onBackRequest = onBackRequest
-            )
-            isBottomBarShow(false)
         }
-
-        composable(route = "WithdrawBeforeScreen") {
-            WithdrawBeforeScreen(
-                onBackRequest = onBackRequest,
-                withDrawReasonOnClick = {withDrawReasonOnClick}
-            )
-            isBottomBarShow(false)
-        }
-
-        composable(route = "MyInfoScreenRoute") {
-            MyInfoScreenRoute(
-                onBackRequest = onBackRequest,
-                withDrawOnClick = withDrawOnClick,
-                editButtonOnClick = editButtonOnClick
-            )
-            isBottomBarShow(false)
-        }
-        composable(route = "MyInfomationEditScreen") {
-            MyInfoEditScreenRoute(
-                onBackRequest = onBackRequest
-            )
-            isBottomBarShow(false)
-        }
-
-        composable(route = "WithdrawScreenRoute") {
-            WithdrawScreenRoute(
-                onBackRequest = onBackRequest
-            )
-            isBottomBarShow(false)
-        }
-
-        composable(route = "CouponRoute") {
-            CouponRoute(
-                onBackRequest = onBackRequest,
-                couponRegisterOnClick = couponRegisterOnClick
-            )
-            isBottomBarShow(false)
-        }
-
-        composable(route = "CouponRegisterRoute") {
-            CouponRegisterRoute(
-                onBackRequest = onBackRequest
-            )
-            isBottomBarShow(false)
-        }
-
     }
+
 }

@@ -525,12 +525,15 @@ fun CreatorSupplyButton() {
 fun HomePostUploadButton(
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Box(
         modifier = modifier.fillMaxSize()
     ){
         androidx.compose.material3.Button(
             onClick = {
-
+                val url = "https://8vnzwllf.paperform.co"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
             },
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier

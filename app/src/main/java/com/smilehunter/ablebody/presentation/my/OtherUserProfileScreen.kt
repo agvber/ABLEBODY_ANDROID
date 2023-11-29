@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.my
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -114,9 +115,51 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 //    }
 //}
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopLayout(
+fun OtherNormalUserRoute(
+    viewModel: MyProfileViewModel = hiltViewModel(),
+    id: Long,
+    onBackRequest: () -> Unit,
+    onReport: () -> Unit
+) {
+    LaunchedEffect(key1 = true) {
+        viewModel.getData()
+    }
+
+    //크리에이터인지 일반 유저인지 검사해야 함!!!!
+
+    //viewModel의 어떤 데이터를 가져와야 하지?
+//    OtherNormalUserScreen(
+//        onBackRequest = onBackRequest,
+//        nickname = viewModel.)
+//    OtherNormalUserScreen(
+//        onBackRequest = onBackRequest,
+//        "nickname",
+//        false,
+//        "피아노위의스팸",
+//        "",
+//        70,
+//        173,
+//        "개발자",
+//        "안녕하세요",
+//        onReport = onReport
+//    )
+
+    OtherNormalUserScreen(
+        onBackRequest = onBackRequest,
+        "nickname",
+        false,
+        "피아노위의스팸",
+        "",
+        70,
+        173,
+        "개발자",
+        "안녕하세요",
+        onReport = onReport
+    )
+}
+@Composable
+fun OtherNormalUserScreen(
     onBackRequest: () -> Unit,
     nickname: String,
     isCreator: Boolean,
@@ -216,7 +259,10 @@ fun TopLayout(
             if (isReportBottomSheetVisible) {
                 ReportBottomSheet(
                     onDismiss = { isReportBottomSheetVisible = false },
-                    onReport = onReport
+                    onReport = {
+                        onReport()
+                        Log.d("onReport2", "onReport")
+                    }
                 )
             }
         }
@@ -243,11 +289,11 @@ fun ReportBottomSheet(
                 text = "신고",
                 fontSize = 16.sp,
                 color = AbleRed,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 15.dp, bottom = 15.dp)
+                    .padding(start = 8.dp, end = 16.dp, top = 20.dp, bottom = 12.dp)
                     .nonReplyClickable {
                         onReport()
+                        Log.d("onReport1", "onReport")
                     }
             )
             Spacer(modifier = Modifier.size(60.dp))
@@ -258,13 +304,13 @@ fun ReportBottomSheet(
 @Preview(showSystemUi = true)
 @Composable
 fun OtherNormalUserScreenPreview() {
-    TopLayout({},"nickname",false,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
+    OtherNormalUserScreen({},"nickname",false,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
 }
 
 @Preview(showSystemUi = true)
 @Composable
 fun OtherCreatorScreenPreview() {
-    TopLayout({},"nickname",true,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
+    OtherNormalUserScreen({},"nickname",true,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
 }
 
 @Preview

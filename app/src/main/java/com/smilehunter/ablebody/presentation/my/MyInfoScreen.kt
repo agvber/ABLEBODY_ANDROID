@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.my
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,9 +42,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.ui.theme.AbleBlue
+import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleRed
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
+import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
 
@@ -100,7 +103,9 @@ fun MyInfoEditScreenRoute(
 @Composable
 fun WithdrawScreenRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    drawReason: String,
+    withDrawButtonOnClick: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.getData()
@@ -109,7 +114,11 @@ fun WithdrawScreenRoute(
 
     WithdrawScreen(
         nickname = userInfoData?.nickname ?: "",
-        onBackRequest = onBackRequest
+        onBackRequest = onBackRequest,
+        withDrawButtonOnClick = {
+            viewModel.resignUser(drawReason)
+            withDrawButtonOnClick()
+        }
     )
 }
 @Composable
@@ -161,7 +170,7 @@ fun MyInfomationEditScreen(
     gender: String,
     uid: String
 ) {
-
+    var editSavePopup by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -183,7 +192,33 @@ fun MyInfomationEditScreen(
                 MyInfoEditTextField("닉네임", contentText = nickname)
                 MyInfoEditTextField("성별", contentText = gender)
                 MyInfoEditTextField("회원코드", contentText = uid)
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    androidx.compose.material3.Button(
+                        onClick = {
+//                            suggestText(inputText)
+                            editSavePopup = true
+                        },
+                        shape = RoundedCornerShape(15.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp)
+                            .height(55.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AbleBlue),
+//                        enabled = isButtonEnabled // 버튼 활성화 여부를 설정
+                    ) {
+                        Text(
+                            text = "확인",
+                            color = Color.White
+                        )
+                    }
+                }
             }
+        }
+        if (editSavePopup) {
+            EditSavePopup( onBackRequest = onBackRequest, {editSavePopup = false})
         }
     }
 }
@@ -219,16 +254,17 @@ fun MyInfoEditTextField(
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                containerColor = PlaneGrey
+                containerColor = PlaneGrey,
+                disabledIndicatorColor = Color.Transparent // 비활성화된 상태의 밑줄 색상을 투명으로 설정
             ),
-//            enabled = !(editCategory == "성별" || editCategory == "회원코드")
+            enabled = !(editCategory == "성별" || editCategory == "회원코드")
         )
     }
 }
 @Composable
 fun WithdrawBeforeScreen(
     onBackRequest: () -> Unit,
-    withDrawReasonOnClick: () -> Unit
+    withDrawReasonOnClick: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -266,7 +302,8 @@ fun WithdrawBeforeScreen(
 @Composable
 fun WithdrawScreen(
     nickname: String,
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    withDrawButtonOnClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -306,7 +343,7 @@ fun WithdrawScreen(
                 ) {
                     androidx.compose.material3.Button(
                         onClick = {
-
+//                            withDrawButtonOnClick()
                         },
                         shape = RoundedCornerShape(15.dp),
                         modifier = Modifier
@@ -328,6 +365,97 @@ fun WithdrawScreen(
     }
 }
 
+@Composable
+fun EditSavePopup(
+    onBackRequest: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveText = "예",
+        positiveButtonOnClick = { onBackRequest() },
+        negativeText = "아니오",
+        negativeButtonOnClick = { onDismiss() },
+    ) {
+        androidx.compose.material.Text(
+            text = "저장할까요?",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "바꾼 정보를 저장합니다.",
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
+        )
+    }
+}
+
+@Composable
+fun PhoneNumberSavePopup(
+    onBackRequest: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveText = "예",
+        positiveButtonOnClick = { onBackRequest() },
+        negativeText = "아니오",
+        negativeButtonOnClick = { onDismiss() },
+    ) {
+        androidx.compose.material.Text(
+            text = "휴대폰 번호를 바꾸려면 인증번호가\n" +
+                    "필요해요.",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+    }
+}
+
+@Composable
+fun WithDrawCompleteScreen() {
+    Box(
+        contentAlignment = Alignment.TopEnd,
+        modifier = Modifier
+            .padding(top = 14.dp, end = 16.dp)
+            .nonReplyClickable {
+                
+            }
+    ){
+        Text(text = "홈으로")
+    }
+    Box(
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = "회원 탈퇴 완료",
+            style = TextStyle(
+                color = AbleBlue,
+                fontSize = 24.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(500),
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+    }
+}
 
 @Preview(showSystemUi = true)
 @Composable
@@ -350,5 +478,11 @@ fun WithdrawBeforeScreenPreview() {
 @Preview(showSystemUi = true)
 @Composable
 fun WithdrawScreenPreview() {
-    WithdrawScreen("nickname", {})
+    WithdrawScreen("nickname", {}, {})
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun WithDrawCompletePreview() {
+    WithDrawCompleteScreen()
 }

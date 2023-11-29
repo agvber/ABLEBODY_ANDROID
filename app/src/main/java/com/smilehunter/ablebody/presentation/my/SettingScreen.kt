@@ -194,10 +194,12 @@ fun SettingList(
     myInfoOnClick: () -> Unit = {},
     alarmOnClick: () -> Unit = {},
     withDrawOnClick: () -> Unit = {},
-    withDrawReasonOnClick: () -> Unit = {}
+    withDrawReasonOnClick: (String) -> Unit = {},
+    onBackRequest: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    var showDialog by remember { mutableStateOf(false) }
+    var logoutDialog by remember { mutableStateOf(false) }
+    var reportCompleteDialog by remember { mutableStateOf(false) }
 
     val manager = context.packageManager
     val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
@@ -211,35 +213,49 @@ fun SettingList(
             .height(55.dp)
             .background(Color.White)
             .nonReplyClickable(onClick = {
-//                else if (listText == "쓰지 않는 앱이에요.") {
-//                withDrawReasonOnClick("쓰지 않는 앱이에요.")
-//            } else if (listText == "볼만한 컨텐츠가 없어요.") {
-//                withDrawReasonOnClick("볼만한 컨텐츠가 없어요.")
-//            } else if (listText == "앱에 오류가 있어요.") {
-//                withDrawReasonOnClick("앱에 오류가 있어요.")
-//            } else if (listText == "앱을 어떻게 쓰는지 모르겠어요.") {
-//                withDrawReasonOnClick("앱을 어떻게 쓰는지 모르겠어요.")
-//            } else if (listText == "기타") {
-//                withDrawReasonOnClick("기타")
-//            }
                 if (listText == "로그아웃") {
-                    showDialog = true
+                    logoutDialog = true
                 } else if (listText == "내 정보") {
                     myInfoOnClick()
                 } else if (listText == "알림") {
                     alarmOnClick()
                 } else if (listText == "쓰지 않는 앱이에요.") {
-                    withDrawReasonOnClick()
+//                    resignUser("쓰지 않는 앱이에요.")
+                    withDrawReasonOnClick("쓰지 않는 앱이에요.")
                 } else if (listText == "볼만한 컨텐츠가 없어요.") {
-                    withDrawReasonOnClick()
+                    withDrawReasonOnClick("볼만한 컨텐츠가 없어요.")
                 } else if (listText == "앱에 오류가 있어요.") {
-                    withDrawReasonOnClick()
+                    withDrawReasonOnClick("앱에 오류가 있어요.")
                 } else if (listText == "앱을 어떻게 쓰는지 모르겠어요.") {
-                    withDrawReasonOnClick()
+                    withDrawReasonOnClick("앱을 어떻게 쓰는지 모르겠어요.")
                 } else if (listText == "기타") {
-                    withDrawReasonOnClick()
+                    withDrawReasonOnClick("기타")
                 } else if (listText == "탈퇴하기") {
                     withDrawOnClick()
+                } else if (listText == "불법적인 게시물이에요") {
+                    Log.d("신고", "1")
+                    reportCompleteDialog = true
+                } else if (listText == "욕설을 해요") {
+                    Log.d("신고", "2")
+                    reportCompleteDialog = true
+                } else if (listText == "음란성 글이에요") {
+                    Log.d("신고", "3")
+                    reportCompleteDialog = true
+                } else if (listText == "차별/혐오 표현을 사용해요") {
+                    Log.d("신고", "4")
+                    reportCompleteDialog = true
+                } else if (listText == "잘못된 정보를 제공하는 글이에요") {
+                    Log.d("신고", "5")
+                    reportCompleteDialog = true
+                } else if (listText == "불쾌감을 줄 수 있는 사진이에요") {
+                    Log.d("신고", "6")
+                    reportCompleteDialog = true
+                } else if (listText == "중복/도배성 게시물이에요") {
+                    Log.d("신고", "7")
+                    reportCompleteDialog = true
+                } else if (listText == "기타 ") {
+                    Log.d("신고", "8")
+                    reportCompleteDialog = true
                 } else {
                     redirectToURL(context, linkUrl)
                 }
@@ -285,8 +301,12 @@ fun SettingList(
             )
         }
     }
-    if (showDialog) {
-        LogoutAlertDialog( {showDialog = false}  )
+    if (logoutDialog) {
+        LogoutAlertDialog( {logoutDialog = false}  )
+    }
+
+    if (reportCompleteDialog) {
+        ReportCompletePopup( onBackRequest = onBackRequest, {reportCompleteDialog = false})
     }
 }
 
@@ -708,6 +728,42 @@ fun ExitWarningPopup(
         )
         androidx.compose.material.Text(
             text = "지금 나가면 작성 중인 내용이 모두 사라져요.",
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
+        )
+    }
+}
+
+@Composable
+fun ReportCompletePopup(
+    onBackRequest: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AbleBodyAlertDialog(
+        onDismissRequest = { onDismiss() },
+        positiveText = "확인",
+        positiveButtonOnClick = { onBackRequest() },
+        negativeButtonOnClick = {},
+    ) {
+        androidx.compose.material.Text(
+            text = "신고를 완료했어요.",
+            style = TextStyle(
+                fontSize = 18.sp,
+                lineHeight = 26.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                fontWeight = FontWeight(700),
+                color = AbleDark,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+        androidx.compose.material.Text(
+            text = "애블바디팀이 검수 후 알려드릴게요.",
             style = TextStyle(
                 fontSize = 14.sp,
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
