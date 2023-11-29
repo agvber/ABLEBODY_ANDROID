@@ -22,6 +22,10 @@ import com.smilehunter.ablebody.presentation.delivery.popBackStackForResult
 import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScreen
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
+import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.selectProfileImageForResult
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
@@ -34,6 +38,8 @@ import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetail
 import com.smilehunter.ablebody.presentation.order_management.addOrderManagementGraph
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
 import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
+import com.smilehunter.ablebody.presentation.payment.navigateToPayment
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
@@ -70,6 +76,18 @@ fun MainNavHost(
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
+            nestedGraph = {
+                addEditProfileGraph(
+                    onBackRequest = navController::popBackStack,
+                    defaultImageSelectableViewRequest = navController::navigateToSelectProfileImageScreen,
+                    nestedGraph = {
+                        addSelectProfileImageScreen(
+                            onBackRequest = navController::popBackStack,
+                            confirmButtonClick = navController::selectProfileImageForResult
+                        )
+                    }
+                )
+            }
         )
 
         addSearchScreen(
@@ -95,7 +113,7 @@ fun MainNavHost(
         addCreatorDetailScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { navController.navigate("OtherNormalUserRoute") },
+            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
             productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
@@ -104,12 +122,12 @@ fun MainNavHost(
         addLikeUserListScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { navController.navigate("OtherNormalUserRoute")},
+            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
         )
 
         addCommentScreen(
             onBackRequest = navController::popBackStack,
-            onUserProfileVisitRequest = { navController.navigate("OtherNormalUserRoute")},
+            onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
             isBottomBarShow = isBottomBarShow
         )

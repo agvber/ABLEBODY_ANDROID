@@ -17,6 +17,7 @@ import com.smilehunter.ablebody.data.dto.response.AcceptUserAdConsentResponse
 import com.smilehunter.ablebody.data.dto.response.AddAddressResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkCodyResponse
 import com.smilehunter.ablebody.data.dto.response.AddBookmarkItemResponse
+import com.smilehunter.ablebody.data.dto.response.AddCouponResponse
 import com.smilehunter.ablebody.data.dto.response.AddOrderListResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailCodyResponse
 import com.smilehunter.ablebody.data.dto.response.BrandDetailItemResponse
@@ -374,7 +375,7 @@ class NetworkServiceImpl @Inject constructor(
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkAPI.getCouponBags()
 
-    override suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse =
+    override suspend fun addCouponByCouponCode(couponCode: String): AddCouponResponse =
         networkAPI.addCouponByCouponCode(couponCode)
 
     override suspend fun addOrderList(
