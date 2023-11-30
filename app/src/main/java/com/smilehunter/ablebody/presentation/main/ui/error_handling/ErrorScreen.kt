@@ -19,13 +19,14 @@ import com.smilehunter.ablebody.ui.utils.CustomButton
 @Composable
 fun ErrorScreen(
     onClick: () -> Unit,
+    buttonText: String,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Scaffold(
         bottomBar = {
             CustomButton(
-                text = "애블바디 다시 실행하기",
+                text = buttonText,
                 onClick = onClick
             )
         },

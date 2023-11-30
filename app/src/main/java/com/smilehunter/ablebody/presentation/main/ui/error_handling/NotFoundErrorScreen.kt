@@ -24,6 +24,7 @@ fun NotFoundErrorScreen(
 ) {
     ErrorScreen(
         onClick = onClick,
+        buttonText = "다른 컨텐츠 보러가기",
         modifier = modifier
     ) {
         HighlightText(
