@@ -7,6 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.comment.ui.CommentRoute
 
@@ -20,6 +21,7 @@ fun NavController.navigateToCommentScreen(
 }
 
 fun NavGraphBuilder.addCommentScreen(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
     likeUsersViewOnRequest: (Long, LikedLocations) -> Unit,
@@ -35,6 +37,7 @@ fun NavGraphBuilder.addCommentScreen(
     ) {  backStackEntry ->
 
         CommentRoute(
+            onErrorRequest = onErrorRequest,
             onBackRequest = onBackRequest,
             onUserProfileVisitRequest = onUserProfileVisitRequest,
             likeUsersViewOnRequest = likeUsersViewOnRequest
