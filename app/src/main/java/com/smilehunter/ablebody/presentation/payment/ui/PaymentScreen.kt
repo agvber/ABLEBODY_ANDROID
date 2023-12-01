@@ -80,15 +80,16 @@ import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
 import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.UserInfoData
+import com.smilehunter.ablebody.model.fake.fakeUserInfo
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
-import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
-import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
 import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
 import com.smilehunter.ablebody.presentation.payment.data.DeliveryAddressUiState
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
+import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleLight
@@ -299,9 +300,7 @@ fun PaymentScreen(
             )
         }
     ) { paddingValue ->
-
         if (coupons !is CouponBagsUiState.Coupons) return@Scaffold
-        if (deliveryAddress !is DeliveryAddressUiState.Success) return@Scaffold
         paymentPassthroughData ?: return@Scaffold
         userData ?: return@Scaffold
 
@@ -309,7 +308,7 @@ fun PaymentScreen(
         var showDeliveryRequestMessageBottomSheet by rememberSaveable { mutableStateOf(false) }
 
         var deliveryRequestMessageValueState by remember {
-            mutableStateOf(deliveryAddress.data.deliveryRequestMessage)
+            mutableStateOf((deliveryAddress as? DeliveryAddressUiState.Success)?.data?.deliveryRequestMessage)
         }
 
         if (showDeliveryRequestMessageBottomSheet) {
@@ -374,25 +373,37 @@ fun PaymentScreen(
                 options = paymentPassthroughData.items.first().options.map { it.content }
             )
             Divider(thickness = 4.dp, color = InactiveGrey)
-            DeliveryAddressLayout(
-                addressRequest = {
-                    val deliveryPassthroughData = DeliveryPassthroughData(
-                        attentionName = deliveryAddress.data.userName,
-                        phoneNumber = deliveryAddress.data.phoneNumber,
-                        roadAddress = deliveryAddress.data.roadAddress ,
-                        roadDetailAddress = deliveryAddress.data.roadDetailAddress ,
-                        zipCode = deliveryAddress.data.zipCode,
-                        requestMessage = deliveryRequestMessageValueState,
-                    )
-                    addressRequest(deliveryPassthroughData)
-                },
-                requestMessageChange = { showDeliveryRequestMessageBottomSheet = true },
-                userName = deliveryAddress.data.userName,
-                phoneNumber = deliveryAddress.data.phoneNumber,
-                roadAddress = deliveryAddress.data.roadAddress,
-                roadDetailAddress = deliveryAddress.data.roadDetailAddress,
-                requestMessage = deliveryRequestMessageValueState
-            )
+            if (deliveryAddress is DeliveryAddressUiState.Success) {
+                DeliveryAddressLayout(
+                    addressRequest = {
+                        val deliveryPassthroughData = DeliveryPassthroughData(
+                            attentionName = deliveryAddress.data.userName,
+                            phoneNumber = deliveryAddress.data.phoneNumber,
+                            roadAddress = deliveryAddress.data.roadAddress ,
+                            roadDetailAddress = deliveryAddress.data.roadDetailAddress ,
+                            zipCode = deliveryAddress.data.zipCode,
+                            requestMessage = deliveryRequestMessageValueState ?: "",
+                        )
+                        addressRequest(deliveryPassthroughData)
+                    },
+                    requestMessageChange = { showDeliveryRequestMessageBottomSheet = true },
+                    userName = deliveryAddress.data.userName,
+                    phoneNumber = deliveryAddress.data.phoneNumber,
+                    roadAddress = deliveryAddress.data.roadAddress,
+                    roadDetailAddress = deliveryAddress.data.roadDetailAddress,
+                    requestMessage = deliveryRequestMessageValueState ?: ""
+                )
+            } else {
+                DeliveryAddressLayout(
+                    addressRequest = {},
+                    requestMessageChange = {  },
+                    userName = "",
+                    phoneNumber = "",
+                    roadAddress = "",
+                    roadDetailAddress = "",
+                    requestMessage = ""
+                )
+            }
             Divider(thickness = 4.dp, color = InactiveGrey)
 
             val couponTextValue by remember(couponID) {
@@ -1244,8 +1255,8 @@ fun PaymentScreenPreview(
         couponID = -1,
         pointTextValue = "",
         couponDisCountPrice = 0,
-        userData = null,
-        deliveryAddress = DeliveryAddressUiState.Loading,
+        userData = fakeUserInfo,
+        deliveryAddress = DeliveryAddressUiState.Empty,
         coupons = CouponBagsUiState.Coupons(listOf()),
         agreedRequiredTerms = true
     )
