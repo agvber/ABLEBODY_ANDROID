@@ -9,4 +9,6 @@ sealed interface DeliveryAddressUiState {
     data class LoadFail(val t: Throwable?): DeliveryAddressUiState
 
     data class Success(val data: DeliveryAddressData): DeliveryAddressUiState
+
+    object Empty: DeliveryAddressUiState
 }

@@ -10,6 +10,7 @@ import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.OrderItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.ReceiptData
+import com.smilehunter.ablebody.model.UserInfoData
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -279,4 +280,21 @@ val fakeReceiptData = ReceiptData(
     pointDiscount = 3500,
     deliveryPrice = 0,
     amountOfPayment = 3000
+)
+
+val fakeUserInfo = UserInfoData(
+    createDate = "2022-07-28T16:06:15",
+    modifiedDate = "2023-07-05T17:53:24",
+    gender = Gender.MALE,
+    uid = "9999999",
+    phoneNumber = "01712341234",
+    nickname = "ablebody_official",
+    name = "애블바디",
+    height = null,
+    weight = null,
+    job = null,
+    profileUrl = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/user/9999999/17544 bytes_1672466587267.jpg",
+    introduction = "더욱 더 편리한 운동생활을 위해 노력하고 있어요🦄",
+    creatorPoint = 10400,
+    userType = UserInfoData.UserType.USER
 )
