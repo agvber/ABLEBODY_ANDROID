@@ -63,7 +63,8 @@ import com.smilehunter.ablebody.model.fake.fakeOrderItemData
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.OrderManagementViewModel
-import com.smilehunter.ablebody.presentation.order_management.data.OrderManagementUiState
+import com.smilehunter.ablebody.presentation.order_management.data.DeliveryTrackingUiState
+import com.smilehunter.ablebody.presentation.order_management.data.OrderItemUiState
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -93,12 +94,11 @@ fun OrderItemListRoute(
             orderManagementViewModel.refreshOrderItems()
         },
         deliveryInfoRequest = orderManagementViewModel::updateDeliveryTrackingID,
-        deliveryCompanyName = (deliveryTrackingData as? OrderManagementUiState.DeliveryTracking)?.data?.deliveryCompanyName ?: "",
-        deliveryTrackingNumber = (deliveryTrackingData as? OrderManagementUiState.DeliveryTracking)?.data?.trackingNumber ?: "",
-        orderItems = orderItems as? OrderManagementUiState.OrderItems
+        deliveryTrackingData = deliveryTrackingData,
+        orderItems = orderItems
     )
 
-    val isNetworkDisconnected = orderItems is OrderManagementUiState.LoadFail || !LocalNetworkConnectState.current
+    val isNetworkDisconnected = orderItems is OrderItemUiState.LoadFail || !LocalNetworkConnectState.current
     if (isNetworkDisconnected) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
@@ -118,9 +118,8 @@ fun OrderItemListScreen(
     itemOnClick: (String) -> Unit,
     cancelOrderItem: (String) -> Unit,
     deliveryInfoRequest: (String) -> Unit,
-    deliveryCompanyName: String,
-    deliveryTrackingNumber: String,
-    orderItems: OrderManagementUiState.OrderItems?
+    orderItems: OrderItemUiState,
+    deliveryTrackingData: DeliveryTrackingUiState
 ) {
     Scaffold(
         topBar = {
@@ -130,7 +129,7 @@ fun OrderItemListScreen(
             )
         }
     ) { paddingValue ->
-        if (orderItems == null) return@Scaffold
+        if (orderItems !is OrderItemUiState.Success) return@Scaffold
 
         if (orderItems.data.isEmpty()) {
             Column(
@@ -160,11 +159,12 @@ fun OrderItemListScreen(
         var showDeliveryCompleteDialog by rememberSaveable { mutableStateOf(false) }
 
         if (showDeliveryTrackingNumberDialog) {
+            val deliveryTrackingData = (deliveryTrackingData as? DeliveryTrackingUiState.Success)?.data
             DeliveryTrackingNumberDialog(
                 onDismissRequest = { showDeliveryTrackingNumberDialog = false },
                 positiveButtonOnClick = { showDeliveryTrackingNumberDialog = false },
-                deliveryCompany = deliveryCompanyName,
-                trackingNumber = deliveryTrackingNumber
+                deliveryCompany = deliveryTrackingData?.deliveryCompanyName ?: "",
+                trackingNumber = deliveryTrackingData?.trackingNumber ?: ""
             )
         }
         if (showOrderItemCancelDialog["is_show"] == "true") {
@@ -619,9 +619,8 @@ fun OrderItemListScreenPreview() {
             itemOnClick = { },
             cancelOrderItem = {  },
             deliveryInfoRequest = {  },
-            deliveryCompanyName = "",
-            deliveryTrackingNumber = "",
-            orderItems = OrderManagementUiState.OrderItems(fakeOrderItemData)
+            orderItems = OrderItemUiState.Success(fakeOrderItemData),
+            deliveryTrackingData = DeliveryTrackingUiState.Loading
         )
     }
 }
