@@ -90,6 +90,7 @@ fun MainNavHost(
                 )
                 addCodyScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
