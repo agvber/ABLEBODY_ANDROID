@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.main.ui.error_handling
+package com.smilehunter.ablebody.presentation.main.ui.error_handler
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
@@ -18,20 +18,20 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 
 @Composable
-fun NetworkConnectionErrorDialog(
+fun ForceAppVersionUpdateDialog(
     onDismissRequest: () -> Unit,
     positiveButtonOnClick: () -> Unit,
     negativeButtonOnClick: () -> Unit,
 ) {
     AbleBodyAlertDialog(
         onDismissRequest = onDismissRequest,
-        positiveText = "재시도",
+        positiveText = "업데이트",
         positiveButtonOnClick = positiveButtonOnClick,
-        negativeText = "설정",
+        negativeText = "취소",
         negativeButtonOnClick = negativeButtonOnClick,
     ) {
         Text(
-            text = "네트워크 오류",
+            text = "새로운 버전이 업데이트 됐어요!",
             style = TextStyle(
                 fontSize = 18.sp,
                 lineHeight = 26.sp,
@@ -42,7 +42,7 @@ fun NetworkConnectionErrorDialog(
             )
         )
         Text(
-            text = "Wifi나 3G/LTE/5G를\n연결 후 재시도 해주세요 ⚡️",
+            text = "애블바디 유저분들의 의견을 반영하여 앱을\n개선했어요. 앱을 업데이트 해주세요 😀",
             style = TextStyle(
                 fontSize = 14.sp,
                 fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
@@ -57,9 +57,9 @@ fun NetworkConnectionErrorDialog(
 
 @Preview(showSystemUi = true)
 @Composable
-fun NetworkConnectionErrorDialogPreview() {
+fun ForceAppVersionUpdateDialogPreview() {
     ABLEBODY_AndroidTheme {
-        NetworkConnectionErrorDialog(
+        ForceAppVersionUpdateDialog(
             onDismissRequest = {  },
             positiveButtonOnClick = {  }) {
             

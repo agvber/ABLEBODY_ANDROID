@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.main.ui.error_handling
+package com.smilehunter.ablebody.presentation.main.ui.error_handler
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

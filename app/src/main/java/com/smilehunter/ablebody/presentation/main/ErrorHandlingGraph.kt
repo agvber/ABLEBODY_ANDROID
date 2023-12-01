@@ -5,8 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.smilehunter.ablebody.model.ErrorHandlerCode
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.InternalServerError
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NotFoundErrorScreen
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.InternalServerError
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NotFoundErrorScreen
 
 internal fun NavController.navigateErrorHandlingScreen(
     errorHandlerCode: ErrorHandlerCode

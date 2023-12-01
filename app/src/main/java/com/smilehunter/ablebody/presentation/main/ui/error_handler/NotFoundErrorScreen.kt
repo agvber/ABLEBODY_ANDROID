@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.main.ui.error_handling
+package com.smilehunter.ablebody.presentation.main.ui.error_handler
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -18,18 +18,18 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.HighlightText
 
 @Composable
-fun InternalServerError(
+fun NotFoundErrorScreen(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ErrorScreen(
         onClick = onClick,
-        buttonText = "애블바디 다시 실행하기",
+        buttonText = "다른 컨텐츠 보러가기",
         modifier = modifier
     ) {
         HighlightText(
-            string = "앗, 뭔가 문제가 있어요!\n애블바디 팀이 빠르게\n해결할게요.",
-            applyStringList = listOf("애블바디 팀"),
+            string = "앗, 이미 삭제된\n컨텐츠예요!\n다른 컨텐츠는 어떠세요?",
+            applyStringList = listOf("다른 컨텐츠"),
             applySpanStyle = SpanStyle(color = AbleBlue),
             style = TextStyle(
                 fontSize = 30.sp,
@@ -44,8 +44,8 @@ fun InternalServerError(
 
 @Preview(showSystemUi = true)
 @Composable
-fun InternalServerErrorPreview() {
+fun NotFoundErrorScreenPreview() {
     ABLEBODY_AndroidTheme {
-        InternalServerError(onClick = {})
+        NotFoundErrorScreen(onClick = {})
     }
 }

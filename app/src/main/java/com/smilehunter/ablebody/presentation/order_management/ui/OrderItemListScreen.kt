@@ -61,7 +61,7 @@ import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.REFUND_COMPLETED
 import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.REFUND_REQUEST
 import com.smilehunter.ablebody.model.fake.fakeOrderItemData
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.OrderManagementViewModel
 import com.smilehunter.ablebody.presentation.order_management.data.OrderManagementUiState
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
