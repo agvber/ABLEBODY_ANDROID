@@ -74,7 +74,7 @@ class BrandViewModel @Inject constructor(
                     when (it) {
                         is Result.Success -> BrandListResultUiState.Success(it.data)
                         is Result.Loading -> BrandListResultUiState.Loading
-                        is Result.Error -> BrandListResultUiState.Error
+                        is Result.Error -> BrandListResultUiState.Error(it.exception)
                     }
                 }
         }
