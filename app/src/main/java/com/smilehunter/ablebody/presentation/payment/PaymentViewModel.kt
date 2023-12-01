@@ -14,8 +14,10 @@ import com.smilehunter.ablebody.domain.GetUserInfoUseCase
 import com.smilehunter.ablebody.domain.HandlePaymentFailureUseCase
 import com.smilehunter.ablebody.domain.OrderItemUseCase
 import com.smilehunter.ablebody.model.CouponData
+import com.smilehunter.ablebody.model.UserInfoData
+import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
+import com.smilehunter.ablebody.presentation.payment.data.DeliveryAddressUiState
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
-import com.smilehunter.ablebody.presentation.payment.data.PaymentUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -52,6 +55,19 @@ class PaymentViewModel @Inject constructor(
     fun refreshNetwork() {
         viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val userData: StateFlow<UserInfoData?> =
+        networkRefreshFlow.onSubscription { emit(Unit) }
+            .flatMapLatest {
+                flow<UserInfoData?> { emit(getUserInfoUseCase()) }
+                    .catch { emit(null) }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = null
+            )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val paymentPassthroughData: StateFlow<PaymentPassthroughData?> =
@@ -87,7 +103,7 @@ class PaymentViewModel @Inject constructor(
     val couponDiscountPrice: StateFlow<Int> = couponID.flatMapLatest { couponID ->
         if (couponID == null) { return@flatMapLatest flowOf(0) }
 
-        val selectedCoupon = (coupons.value as PaymentUiState.Coupons).data.first { it.id == couponID }
+        val selectedCoupon = (coupons.value as CouponBagsUiState.Coupons).data.first { it.id == couponID }
 
         return@flatMapLatest when (selectedCoupon.discountType) {
             CouponData.DiscountType.PRICE -> flowOf(selectedCoupon.discountAmount.unaryMinus())
@@ -111,7 +127,7 @@ class PaymentViewModel @Inject constructor(
 
     fun updateUserPointTextValue(value: String) {
         viewModelScope.launch {
-            val hasPoint = (userData.value as? PaymentUiState.User)?.data?.creatorPoint ?: 0
+            val hasPoint = userData.value?.creatorPoint ?: 0
             if ((value.toLongOrNull() ?: 0) > hasPoint) {
                 _userPointTextValue.emit(hasPoint.toString())
             } else {
@@ -132,27 +148,7 @@ class PaymentViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val userData: StateFlow<PaymentUiState> =
-        networkRefreshFlow.onSubscription { emit(Unit) }
-            .flatMapLatest {
-                flow { emit(getUserInfoUseCase()) }
-                    .asResult()
-                    .map {
-                        when(it) {
-                            is Result.Error -> PaymentUiState.LoadFail
-                            is Result.Loading -> PaymentUiState.Loading
-                            is Result.Success -> PaymentUiState.User(it.data)
-                        }
-                    }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = PaymentUiState.Loading
-            )
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val coupons: StateFlow<PaymentUiState> =
+    val coupons: StateFlow<CouponBagsUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
                 paymentPassthroughData.flatMapLatest { PassthroughData ->
@@ -169,36 +165,36 @@ class PaymentViewModel @Inject constructor(
                     .asResult()
                     .map {
                         when(it) {
-                            is Result.Error -> PaymentUiState.LoadFail
-                            is Result.Loading -> PaymentUiState.Loading
-                            is Result.Success -> PaymentUiState.Coupons(it.data)
+                            is Result.Error -> CouponBagsUiState.LoadFail(it.exception)
+                            is Result.Loading -> CouponBagsUiState.Loading
+                            is Result.Success -> CouponBagsUiState.Coupons(it.data)
                         }
                     }
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = PaymentUiState.Loading
+                initialValue = CouponBagsUiState.Loading
             )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val deliveryAddress: StateFlow<PaymentUiState> =
+    val deliveryAddress: StateFlow<DeliveryAddressUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
                 flow { emit(getMyDeliveryAddressUseCase()) }
                     .asResult()
                     .map {
                         when(it) {
-                            is Result.Error -> PaymentUiState.LoadFail
-                            is Result.Loading -> PaymentUiState.Loading
-                            is Result.Success -> PaymentUiState.DeliveryAddress(it.data)
+                            is Result.Error -> DeliveryAddressUiState.LoadFail(it.exception)
+                            is Result.Loading -> DeliveryAddressUiState.Loading
+                            is Result.Success -> DeliveryAddressUiState.Success(it.data)
                         }
                     }
             }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = PaymentUiState.Loading
+            initialValue = DeliveryAddressUiState.Loading
         )
 
     private val _orderItemID = MutableStateFlow("")
@@ -213,7 +209,7 @@ class PaymentViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val address = (deliveryAddress.value as PaymentUiState.DeliveryAddress).data
+                val address = (deliveryAddress.value as DeliveryAddressUiState.Success).data
 
                 val addOrderListRequest = AddOrderListRequest(
                     addressId = address.id,
