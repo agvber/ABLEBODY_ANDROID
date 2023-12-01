@@ -76,6 +76,7 @@ fun MainNavHost(
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen
