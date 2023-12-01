@@ -28,8 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -53,8 +55,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.SearchHistoryQuery
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.search.SearchViewModel
 import com.smilehunter.ablebody.presentation.search.data.KeywordUiState
@@ -67,15 +69,18 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun SearchRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     backRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
     SearchScreen(
+        onErrorOccur = onErrorOccur,
         backRequest = backRequest,
         productItemClick = productItemClick,
         codyItemClick = codyItemClick,
@@ -86,6 +91,7 @@ fun SearchRoute(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     backRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
@@ -163,10 +169,9 @@ fun SearchScreen(
             }
         }
     }
-    if (productPagingItemList.loadState.refresh is LoadState.Error ||
-        codyPagingItemList.loadState.refresh is LoadState.Error ||
-        !LocalNetworkConnectState.current
-        ) {
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -176,6 +181,30 @@ fun SearchScreen(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    val itemRefreshLoadState = productPagingItemList.loadState.refresh
+    val codyRefreshLoadState = codyPagingItemList.loadState.refresh
+    if (itemRefreshLoadState is LoadState.Error || codyRefreshLoadState is LoadState.Error) {
+        val throwable = when {
+            itemRefreshLoadState is LoadState.Error -> itemRefreshLoadState.error
+            codyRefreshLoadState is LoadState.Error -> codyRefreshLoadState.error
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

@@ -118,6 +118,7 @@ fun MainNavHost(
 
         addSearchScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             backRequest = navController::popBackStack,
             productItemClick = { navController.navigate("ItemDetailScreen/$it") },
             codyItemClick = navController::navigateToCreatorDetail,
