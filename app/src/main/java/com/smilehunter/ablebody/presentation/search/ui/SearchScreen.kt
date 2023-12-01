@@ -53,11 +53,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.model.SearchHistoryQuery
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.search.SearchViewModel
+import com.smilehunter.ablebody.presentation.search.data.KeywordUiState
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -108,12 +108,14 @@ fun SearchScreen(
             onValueChange = { searchViewModel.updateKeyword(it) }
         )
         AnimatedVisibility(visible = keyword.isEmpty()) {
-            SearchKeywordLayout(
-                searchHistoryResetRequest = { searchViewModel.deleteAllSearchHistory() },
-                selectText = { searchViewModel.updateKeyword(it) },
-                searchHistoryQueries = searchHistoryQueries,
-                recommendedKeywords = recommendedKeywords
-            )
+            if (recommendedKeywords is KeywordUiState.RecommendKeyword) {
+                SearchKeywordLayout(
+                    searchHistoryResetRequest = { searchViewModel.deleteAllSearchHistory() },
+                    selectText = { searchViewModel.updateKeyword(it) },
+                    searchHistoryQueries = searchHistoryQueries,
+                    recommendedKeywords = (recommendedKeywords as KeywordUiState.RecommendKeyword).data
+                )
+            }
         }
         AnimatedVisibility(
             visible = keyword.isNotEmpty(),
@@ -182,7 +184,7 @@ private fun SearchKeywordLayout(
     searchHistoryResetRequest: () -> Unit,
     selectText: (String) -> Unit,
     searchHistoryQueries: List<SearchHistoryQuery>,
-    recommendedKeywords: Result<List<String>>
+    recommendedKeywords: List<String>
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -252,22 +254,20 @@ private fun SearchKeywordLayout(
                 ),
                 modifier = Modifier.padding(vertical = 15.dp)
             )
-            if (recommendedKeywords is Result.Success) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(items = recommendedKeywords.data) {
-                        RoundedCornerButton(onClick = { selectText(it) }) {
-                            Text(
-                                text = it,
-                                style = TextStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = AbleDark,
-                                    textAlign = TextAlign.Center,
-                                )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items = recommendedKeywords) {
+                    RoundedCornerButton(onClick = { selectText(it) }) {
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight(400),
+                                color = AbleDark,
+                                textAlign = TextAlign.Center,
                             )
-                        }
+                        )
                     }
                 }
             }
@@ -402,6 +402,6 @@ private fun SearchKeywordLayoutPreview() {
         searchHistoryResetRequest = {},
         selectText = {},
         searchHistoryQueries = listOf(SearchHistoryQuery("가위", 0L)),
-        recommendedKeywords = Result.Success(listOf("나이키", "애블바디", "가나다"))
+        recommendedKeywords = listOf("나이키", "애블바디", "가나다")
     )
 }
