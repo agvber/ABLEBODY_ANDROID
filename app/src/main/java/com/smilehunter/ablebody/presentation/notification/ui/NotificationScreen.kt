@@ -22,8 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,11 +45,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.NotificationPassedTime
 import com.smilehunter.ablebody.model.fake.fakeNotificationItemData
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.notification.NotificationViewModel
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -61,9 +63,11 @@ import com.smilehunter.ablebody.ui.utils.HighlightText
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun NotificationRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     itemClick: (String) -> Unit,
     notificationViewModel: NotificationViewModel = hiltViewModel()
@@ -72,9 +76,7 @@ fun NotificationRoute(
 
     NotificationScreen(
         onBackRequest = onBackRequest,
-        onAllCheckRequest = {
-            notificationViewModel.allCheck()
-                            },
+        onAllCheckRequest = { notificationViewModel.allCheck() },
         onCheckedRequest = {
             itemClick(it.uri)
             if (!it.checked) {
@@ -84,9 +86,8 @@ fun NotificationRoute(
         notificationItemData = notificationItemData
     )
 
-    val isNetworkDisconnected = notificationItemData.loadState.refresh is LoadState.Error ||
-            !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -96,6 +97,24 @@ fun NotificationRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (notificationItemData.loadState.refresh is LoadState.Error) {
+        val throwable = (notificationItemData.loadState.refresh as LoadState.Error).error
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
