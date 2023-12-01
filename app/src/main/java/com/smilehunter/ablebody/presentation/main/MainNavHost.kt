@@ -236,7 +236,10 @@ fun MainNavHost(
                     onFinished = navController::popBackStackForResult,
                     isBottomBarShow = isBottomBarShow
                 )
-                addReceiptScreen(orderComplete = { /* TODO 브랜드 홈으로 가기 */ })
+                addReceiptScreen(
+                    onErrorOccur = navController::navigateErrorHandlingScreen,
+                    orderComplete = { /* TODO 브랜드 홈으로 가기 */ }
+                )
             },
             paymentWidget = paymentWidget
         )
