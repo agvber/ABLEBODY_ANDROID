@@ -22,6 +22,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +45,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.fake.fakeReceiptData
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
@@ -55,10 +59,12 @@ import com.smilehunter.ablebody.ui.theme.InactiveGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.TopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 
 @Composable
 fun ReceiptRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     orderComplete: () -> Unit,
     receiptViewModel: ReceiptViewModel = hiltViewModel(),
 ) {
@@ -79,6 +85,39 @@ fun ReceiptRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { receiptViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
+
+    if (receipt is ReceiptUiState.LoadFail) {
+        val throwable = (receipt as ReceiptUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (receipt is ReceiptUiState.Receipt) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
