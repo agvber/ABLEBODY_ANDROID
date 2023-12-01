@@ -154,6 +154,7 @@ fun MainNavHost(
         )
 
         addCommentScreen(
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
