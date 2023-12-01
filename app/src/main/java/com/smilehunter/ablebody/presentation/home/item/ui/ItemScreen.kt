@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,18 +23,20 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.item.ItemViewModel
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
 import kotlinx.coroutines.flow.flowOf
+import retrofit2.HttpException
 
 @Composable
 fun ItemRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     itemClick: (Long) -> Unit,
@@ -57,8 +62,8 @@ fun ItemRoute(
         productPagingItems = productPagingItems
     )
 
-    val isNetworkDisconnected = productPagingItems.loadState.refresh is LoadState.Error || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -68,6 +73,24 @@ fun ItemRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (productPagingItems.loadState.refresh is LoadState.Error) {
+        val throwable = (productPagingItems.loadState.refresh as LoadState.Error).error
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
