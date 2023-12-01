@@ -221,6 +221,8 @@ fun MainNavHost(
         }
 
         addPaymentGraph(
+            isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             addressRequest = navController::navigateToDeliveryScreen,
             receiptRequest = navController::navigateToReceiptScreen,
@@ -236,7 +238,6 @@ fun MainNavHost(
                 )
                 addReceiptScreen(orderComplete = { /* TODO 브랜드 홈으로 가기 */ })
             },
-            isBottomBarShow = isBottomBarShow,
             paymentWidget = paymentWidget
         )
 

@@ -78,11 +78,11 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.UserInfoData
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
@@ -108,11 +108,13 @@ import com.tosspayments.paymentsdk.model.PaymentCallback
 import com.tosspayments.paymentsdk.model.TossPaymentResult
 import com.tosspayments.paymentsdk.view.PaymentMethod
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun PaymentRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
@@ -214,20 +216,44 @@ fun PaymentRoute(
         agreedRequiredTerms = agreedRequiredTerms
     )
 
-    val isNetworkDisconnected =
-        deliveryAddress is DeliveryAddressUiState.LoadFail ||
-                coupons is CouponBagsUiState.LoadFail ||
-                !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
-            onDismissRequest = { },
+            onDismissRequest = {  },
             positiveButtonOnClick = { paymentViewModel.refreshNetwork() },
             negativeButtonOnClick = {
                 val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    val isDeliveryAddressLoadFail = deliveryAddress is DeliveryAddressUiState.LoadFail
+    val isCouponLoadFail = coupons is CouponBagsUiState.LoadFail
+
+    if (isDeliveryAddressLoadFail || isCouponLoadFail) {
+        val throwable = when {
+            isDeliveryAddressLoadFail -> (deliveryAddress as DeliveryAddressUiState.LoadFail).t
+            isCouponLoadFail -> (coupons as CouponBagsUiState.LoadFail).t
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (!isDeliveryAddressLoadFail||!isCouponLoadFail) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
