@@ -47,7 +47,7 @@ class ReceiptViewModel @Inject constructor(
                     .asResult()
                     .map {
                         when (it) {
-                            is Result.Error -> ReceiptUiState.LoadFail
+                            is Result.Error -> ReceiptUiState.LoadFail(it.exception)
                             is Result.Loading -> ReceiptUiState.Loading
                             is Result.Success -> ReceiptUiState.Receipt(it.data)
                         }
