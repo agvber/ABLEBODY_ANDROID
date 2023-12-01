@@ -49,6 +49,7 @@ import com.tosspayments.paymentsdk.PaymentWidget
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
+    recreateRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
     navController: NavHostController,
     paymentWidget: PaymentWidget
@@ -252,7 +253,7 @@ fun MainNavHost(
 
         addInternalServerErrorScreen(
             isBottomBarShow = isBottomBarShow,
-            onClick = { TODO("앱 다시 시작")  }
+            onClick = recreateRequest
         )
     }
 }
