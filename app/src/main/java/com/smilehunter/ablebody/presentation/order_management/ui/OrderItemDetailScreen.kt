@@ -45,9 +45,9 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ReceiptData
 import com.smilehunter.ablebody.model.fake.fakeReceiptData
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.OrderManagementViewModel
 import com.smilehunter.ablebody.presentation.order_management.data.OrderManagementUiState
@@ -60,16 +60,19 @@ import com.smilehunter.ablebody.ui.theme.InactiveGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 
 @Composable
 fun OrderItemDetailRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     orderManagementViewModel: OrderManagementViewModel = hiltViewModel(),
     receiptViewModel: ReceiptViewModel = hiltViewModel(),
 ) {
     val deliveryTrackingData by orderManagementViewModel.deliveryTrackingData.collectAsStateWithLifecycle()
     val receiptData by receiptViewModel.receiptData.collectAsStateWithLifecycle()
+
     OrderItemDetailScreen(
         onBackRequest = onBackRequest,
         cancelOrderItem = { id ->
@@ -82,8 +85,8 @@ fun OrderItemDetailRoute(
         receiptData = (receiptData as? ReceiptUiState.Receipt)?.data
     )
 
-    val isNetworkDisconnected = receiptData is ReceiptUiState.LoadFail || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -93,6 +96,26 @@ fun OrderItemDetailRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (receiptData is ReceiptUiState.LoadFail) {
+        val throwable = (receiptData as ReceiptUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (receiptData is ReceiptUiState.Receipt) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

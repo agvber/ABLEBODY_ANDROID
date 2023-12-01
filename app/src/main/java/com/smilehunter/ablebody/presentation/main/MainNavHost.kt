@@ -245,8 +245,9 @@ fun MainNavHost(
             itemOnClick = navController::navigateToOrderItemDetailScreen,
             nestedGraphs = {
                 addOrderItemDetailScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onBackRequest = navController::popBackStack,
-                    isBottomBarShow = isBottomBarShow
                 )
             },
             isBottomBarShow = isBottomBarShow

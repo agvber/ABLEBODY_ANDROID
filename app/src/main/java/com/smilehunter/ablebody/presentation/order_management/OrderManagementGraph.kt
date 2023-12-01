@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.order_management.ui.OrderItemDetailRoute
 import com.smilehunter.ablebody.presentation.order_management.ui.OrderItemListRoute
 
@@ -53,13 +54,17 @@ fun NavGraphBuilder.addOrderManagementGraph(
 }
 
 fun NavGraphBuilder.addOrderItemDetailScreen(
-    onBackRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
+    onBackRequest: () -> Unit,
 ) {
     composable(
         route = "${OrderManagementDestination.ORDER_ITEM_DETAIL.route}/{content_id}"
     ) {
-        OrderItemDetailRoute(onBackRequest = onBackRequest)
+        OrderItemDetailRoute(
+            onErrorRequest = onErrorRequest,
+            onBackRequest = onBackRequest
+        )
         isBottomBarShow(false)
     }
 }
