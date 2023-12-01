@@ -83,6 +83,7 @@ fun MainNavHost(
                 )
                 addItemScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
