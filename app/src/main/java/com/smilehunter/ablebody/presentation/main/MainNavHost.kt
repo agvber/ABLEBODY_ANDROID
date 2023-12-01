@@ -125,6 +125,7 @@ fun MainNavHost(
 
         addNotificationScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             itemClick = { uri -> navController.navigate(deepLink = Uri.parse(uri)) }
         )
