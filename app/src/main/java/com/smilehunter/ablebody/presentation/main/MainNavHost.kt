@@ -243,10 +243,15 @@ fun MainNavHost(
         )
 
         addNotFoundErrorScreen(
-            onClick = navController::popBackStack
+            isBottomBarShow = isBottomBarShow,
+            onClick = {
+                navController.popBackStack()
+                navController.popBackStack()
+            }
         )
 
         addInternalServerErrorScreen(
+            isBottomBarShow = isBottomBarShow,
             onClick = { TODO("앱 다시 시작")  }
         )
     }

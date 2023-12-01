@@ -16,10 +16,12 @@ fun NavController.navigateToNotFoundErrorScreen(
 }
 
 fun NavGraphBuilder.addNotFoundErrorScreen(
+    isBottomBarShow: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     composable(route = NotFoundErrorRoute) {
         NotFoundErrorScreen(onClick = onClick)
+        isBottomBarShow(false)
     }
 }
 
@@ -32,9 +34,11 @@ fun NavController.navigateToInternalServerErrorScreen(
 }
 
 fun NavGraphBuilder.addInternalServerErrorScreen(
+    isBottomBarShow: (Boolean) -> Unit,
     onClick: () -> Unit
 ) {
     composable(route = InternalServerErrorRoute) {
         InternalServerError(onClick = onClick)
+        isBottomBarShow(false)
     }
 }
