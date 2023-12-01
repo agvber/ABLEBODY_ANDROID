@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.like_list.ui.LikeListRoute
 
@@ -23,6 +24,7 @@ fun NavController.navigateToLikeUserListScreen(
 
 fun NavGraphBuilder.addLikeUserListScreen(
     isBottomBarShow: (Boolean) -> Unit,
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     profileRequest: (String) -> Unit,
 ) {
@@ -35,6 +37,7 @@ fun NavGraphBuilder.addLikeUserListScreen(
         )
     ) {  backStackEntry ->
         LikeListRoute(
+            onErrorRequest = onErrorRequest,
             onBackRequest = onBackRequest,
             profileRequest = profileRequest
         )
