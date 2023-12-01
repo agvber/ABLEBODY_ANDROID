@@ -31,6 +31,7 @@ fun NavController.navigateToOrderItemDetailScreen(
 
 
 fun NavGraphBuilder.addOrderManagementGraph(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     itemOnClick: (String) -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit,
@@ -44,6 +45,7 @@ fun NavGraphBuilder.addOrderManagementGraph(
             route = OrderManagementDestination.ORDER_ITEM_LIST.route
         ) {
             OrderItemListRoute(
+                onErrorOccur = onErrorOccur,
                 onBackRequest = onBackRequest,
                 itemOnClick = itemOnClick
             )

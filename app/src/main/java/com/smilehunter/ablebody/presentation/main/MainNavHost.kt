@@ -241,6 +241,8 @@ fun MainNavHost(
         )
 
         addOrderManagementGraph(
+            isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             itemOnClick = navController::navigateToOrderItemDetailScreen,
             nestedGraphs = {
@@ -249,8 +251,7 @@ fun MainNavHost(
                     onErrorRequest = navController::navigateErrorHandlingScreen,
                     onBackRequest = navController::popBackStack,
                 )
-            },
-            isBottomBarShow = isBottomBarShow
+            }
         )
 
         addNotFoundErrorScreen(

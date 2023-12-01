@@ -48,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.OrderItemData
 import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.DELIVERY_COMPLETED
 import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.DEPOSIT_COMPLETED
@@ -60,7 +61,6 @@ import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.ORDER_CANCELED
 import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.REFUND_COMPLETED
 import com.smilehunter.ablebody.model.OrderItemData.OrderStatus.REFUND_REQUEST
 import com.smilehunter.ablebody.model.fake.fakeOrderItemData
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.OrderManagementViewModel
 import com.smilehunter.ablebody.presentation.order_management.data.DeliveryTrackingUiState
@@ -74,11 +74,13 @@ import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun OrderItemListRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     itemOnClick: (String) -> Unit,
     orderManagementViewModel: OrderManagementViewModel = hiltViewModel(),
@@ -98,8 +100,8 @@ fun OrderItemListRoute(
         orderItems = orderItems
     )
 
-    val isNetworkDisconnected = orderItems is OrderItemUiState.LoadFail || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -109,6 +111,26 @@ fun OrderItemListRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (orderItems is OrderItemUiState.LoadFail) {
+        val throwable = (orderItems as OrderItemUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (orderItems is OrderItemUiState.Success) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
