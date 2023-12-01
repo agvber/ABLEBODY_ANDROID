@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -79,11 +80,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CreatorDetailData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.fake.fakeCreatorDetailData
 import com.smilehunter.ablebody.presentation.creator_detail.CreatorDetailViewModel
 import com.smilehunter.ablebody.presentation.creator_detail.data.CreatorDetailUiState
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -100,6 +101,7 @@ import com.smilehunter.ablebody.utils.CalculateSportElapsedTime
 import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.NonReplyIconButton
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -107,6 +109,7 @@ import kotlin.math.roundToInt
 @Composable
 fun CreatorDetailRoute(
     onBackRequest: () -> Unit,
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
     likeCountButtonOnClick: (Long) -> Unit,
@@ -126,10 +129,8 @@ fun CreatorDetailRoute(
         creatorDetailUiState = creatorDetailUiState
     )
 
-    val isNetworkDisconnected =
-        creatorDetailUiState is CreatorDetailUiState.LoadFail ||
-            !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -139,6 +140,26 @@ fun CreatorDetailRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (creatorDetailUiState is CreatorDetailUiState.LoadFail) {
+        val throwable = (creatorDetailUiState as CreatorDetailUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (creatorDetailUiState is CreatorDetailUiState.Success) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

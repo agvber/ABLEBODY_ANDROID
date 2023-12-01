@@ -134,11 +134,12 @@ fun MainNavHost(
 
         addCreatorDetailScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
-            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
+            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") }
         )
 
         addLikeUserListScreen(

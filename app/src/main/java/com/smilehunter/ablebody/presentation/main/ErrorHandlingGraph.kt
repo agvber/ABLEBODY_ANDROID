@@ -4,8 +4,19 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.InternalServerError
 import com.smilehunter.ablebody.presentation.main.ui.error_handling.NotFoundErrorScreen
+
+internal fun NavController.navigateErrorHandlingScreen(
+    errorHandlerCode: ErrorHandlerCode
+) {
+    when (errorHandlerCode) {
+        ErrorHandlerCode.NOT_FOUND_ERROR -> navigateToNotFoundErrorScreen()
+        ErrorHandlerCode.INTERNAL_SERVER_ERROR -> navigateToInternalServerErrorScreen()
+    }
+}
+
 
 const val NotFoundErrorRoute = "not_found_error_route"
 
