@@ -17,6 +17,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikeListData
 import com.smilehunter.ablebody.presentation.like_list.LikeListViewModel
 import com.smilehunter.ablebody.presentation.like_list.data.LikeListUiState
@@ -45,15 +49,17 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 
 @Composable
 fun LikeListRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     profileRequest: (String) -> Unit,
     likeListViewModel: LikeListViewModel = hiltViewModel()
 ) {
-
     val likeList by likeListViewModel.likeList.collectAsStateWithLifecycle()
+
     LikeListScreen(
         onBackRequest = onBackRequest,
         profileImageOnClick = profileRequest,
@@ -71,6 +77,39 @@ fun LikeListRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { likeListViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
+
+    if (likeList is LikeListUiState.LoadFail) {
+        val throwable = (likeList as LikeListUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (likeList is LikeListUiState.LikeList) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

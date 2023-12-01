@@ -6,7 +6,7 @@ sealed interface LikeListUiState {
 
     object Loading: LikeListUiState
 
-    object LoadFail: LikeListUiState
+    data class LoadFail(val t: Throwable?): LikeListUiState
 
     data class LikeList(val data: List<LikeListData>): LikeListUiState
 

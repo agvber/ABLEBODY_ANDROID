@@ -149,6 +149,7 @@ fun MainNavHost(
 
         addLikeUserListScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
         )
