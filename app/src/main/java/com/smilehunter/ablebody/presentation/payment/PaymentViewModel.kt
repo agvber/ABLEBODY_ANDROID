@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @HiltViewModel
@@ -92,73 +91,18 @@ class PaymentViewModel @Inject constructor(
                 null
             )
 
-    private val _couponID = MutableStateFlow<Int?>(null)
-    val couponID = _couponID.asStateFlow()
-
-    fun updateCouponID(value: Int?) {
-        viewModelScope.launch { _couponID.emit(value) }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val couponDiscountPrice: StateFlow<Int> = couponID.flatMapLatest { couponID ->
-        if (couponID == null) { return@flatMapLatest flowOf(0) }
-
-        val selectedCoupon = (coupons.value as CouponBagsUiState.Coupons).data.first { it.id == couponID }
-
-        return@flatMapLatest when (selectedCoupon.discountType) {
-            CouponData.DiscountType.PRICE -> flowOf(selectedCoupon.discountAmount.unaryMinus())
-            CouponData.DiscountType.RATE -> {
-                val totalPrice = paymentPassthroughData.value?.totalPrice ?: 0
-                val discountRate = (totalPrice * (selectedCoupon.discountAmount.toDouble() / 100))
-                    .roundToInt()
-                    .unaryMinus()
-                flowOf(discountRate)
-            }
-        }
-    }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = 0
-        )
-
-    private val _userPointTextValue = MutableStateFlow("")
-    val userPointTextValue = _userPointTextValue.asStateFlow()
-
-    fun updateUserPointTextValue(value: String) {
-        viewModelScope.launch {
-            val hasPoint = userData.value?.creatorPoint ?: 0
-            if ((value.toLongOrNull() ?: 0) > hasPoint) {
-                _userPointTextValue.emit(hasPoint.toString())
-            } else {
-                _userPointTextValue.emit(value)
-            }
-        }
-    }
-
-    fun calculatorUserPoint() {
-        viewModelScope.launch {
-            val item = paymentPassthroughData.value?.items?.firstOrNull()
-            val itemPrice = item?.salePrice ?: item?.price ?: 0
-            val itemMaximumDiscount = itemPrice * (5.0 / 100)
-            if ((userPointTextValue.value.toIntOrNull() ?: 0) > itemMaximumDiscount) {
-                _userPointTextValue.emit(itemMaximumDiscount.roundToInt().toString())
-            }
-        }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val coupons: StateFlow<CouponBagsUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
-                paymentPassthroughData.flatMapLatest { PassthroughData ->
+                paymentPassthroughData.flatMapLatest { data ->
                     flowOf(
                         getCouponListUseCase().filter {
                             if (it.brand == null) {
                                 return@filter true
                             }
 
-                            it.brand == PassthroughData?.items?.firstOrNull()?.brandName
+                            it.brand == data?.items?.firstOrNull()?.brandName
                         }
                     )
                 }
@@ -197,6 +141,64 @@ class PaymentViewModel @Inject constructor(
             initialValue = DeliveryAddressUiState.Loading
         )
 
+    private val _couponID = MutableStateFlow<Int?>(null)
+    val couponID = _couponID.asStateFlow()
+
+    fun updateCouponID(value: Int?) {
+        viewModelScope.launch { _couponID.emit(value) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val couponDiscountPrice: StateFlow<Int> =
+        coupons.flatMapLatest { couponBags ->
+            couponID.map { couponID ->
+                if (couponID == null || couponBags !is CouponBagsUiState.Coupons) {
+                    return@map 0
+                }
+
+                val selectedCoupon = couponBags.data.first { it.id == couponID }
+                when (selectedCoupon.discountType) {
+                    CouponData.DiscountType.PRICE -> selectedCoupon.discountAmount
+                    CouponData.DiscountType.RATE -> {
+                        val totalPrice = paymentPassthroughData.value?.totalPrice ?: 0
+                        val discountRate = (totalPrice * (selectedCoupon.discountAmount.toDouble() / 100)).roundToInt()
+                        discountRate
+                    }
+                }
+            }
+        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = 0
+            )
+
+    private val _userPointTextValue = MutableStateFlow("")
+    val userPointTextValue = _userPointTextValue.asStateFlow()
+
+    fun updateUserPointTextValue(value: String) {
+        viewModelScope.launch {
+            val hasPoint = userData.value?.creatorPoint ?: 0
+            if ((value.toLongOrNull() ?: 0) > hasPoint) {
+                _userPointTextValue.emit(hasPoint.toString())
+            } else {
+                _userPointTextValue.emit(value)
+            }
+        }
+    }
+
+    fun calculatorUserPoint() {
+        viewModelScope.launch {
+            val item = paymentPassthroughData.value?.items?.firstOrNull()
+            val itemPrice = item?.salePrice ?: item?.price ?: 0
+            val itemMaximumDiscount = itemPrice * (5.0 / 100)
+            if ((userPointTextValue.value.toIntOrNull() ?: 0) > itemMaximumDiscount) {
+                _userPointTextValue.emit(itemMaximumDiscount.roundToInt().toString())
+            }
+        }
+    }
+
+
     private val _orderItemID = MutableStateFlow("")
     val orderItemID = _orderItemID.asStateFlow()
 
@@ -205,7 +207,7 @@ class PaymentViewModel @Inject constructor(
         paymentType: String,
         paymentMethod: String,
         easyPayType: String?,
-        amountOfPayment: Int,
+        amount: Int,
     ) {
         viewModelScope.launch {
             try {
@@ -227,9 +229,9 @@ class PaymentViewModel @Inject constructor(
                             sizeOption = it.getContentOption(PaymentPassthroughData.ItemOptions.Option.SIZE),
                             itemPrice = it.price,
                             itemCount = it.count,
-                            itemDiscount = abs(it.differencePrice),
+                            itemDiscount = it.differencePrice,
                             couponDiscount = couponDiscountPrice.value,
-                            amount = amountOfPayment
+                            amount = amount
                         )
                     }
                 )

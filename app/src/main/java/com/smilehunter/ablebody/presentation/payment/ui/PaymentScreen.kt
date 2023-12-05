@@ -148,7 +148,7 @@ fun PaymentRoute(
                 paymentType = selectedPaymentMethod.type,
                 paymentMethod = selectedPaymentMethod.method ?: "",
                 easyPayType = selectedPaymentMethod.easyPay?.provider,
-                amountOfPayment = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
+                amount = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
             )
         },
         paymentContent = {
@@ -312,7 +312,6 @@ fun PaymentScreen(
         paymentPassthroughData ?: return@Scaffold
         userData ?: return@Scaffold
 
-
         var showDeliveryRequestMessageBottomSheet by rememberSaveable { mutableStateOf(false) }
 
         var deliveryRequestMessageValueState by remember {
@@ -465,8 +464,8 @@ fun PaymentScreen(
                 receipt.putAll(
                     mapOf(
                         "총 상품금액" to paymentPassthroughData.items.sumOf { it.price },
-                        "상품 할인" to paymentPassthroughData.items.sumOf { it.differencePrice },
-                        "쿠폰 할인" to couponDisCountPrice,
+                        "상품 할인" to paymentPassthroughData.items.sumOf { it.differencePrice }.unaryMinus(),
+                        "쿠폰 할인" to couponDisCountPrice.unaryMinus(),
                         "포인트 할인" to if (isPointUsed) -(pointTextValue.toIntOrNull() ?: 0) else 0,
                         "배송비" to paymentPassthroughData.deliveryPrice,
                     )
