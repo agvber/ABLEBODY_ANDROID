@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val viewModel: MainActivityViewModel by viewModels()
+    private val mainViewModel: MainActivityViewModel by viewModels()
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.responseInvalidRefreshToken.collectLatest {
+            mainViewModel.responseInvalidRefreshToken.collectLatest {
                 startOnboardingActivity()
             }
         }
