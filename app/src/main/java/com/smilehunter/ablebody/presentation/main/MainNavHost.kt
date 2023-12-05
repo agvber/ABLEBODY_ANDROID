@@ -239,7 +239,7 @@ fun MainNavHost(
                 )
                 addReceiptScreen(
                     onErrorOccur = navController::navigateErrorHandlingScreen,
-                    orderComplete = { /* TODO 브랜드 홈으로 가기 */ }
+                    orderComplete = recreateRequest
                 )
             },
             paymentWidget = paymentWidget
