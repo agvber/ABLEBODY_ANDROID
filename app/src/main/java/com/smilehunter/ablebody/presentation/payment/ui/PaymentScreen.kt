@@ -109,6 +109,7 @@ import com.tosspayments.paymentsdk.model.AgreementStatusListener
 import com.tosspayments.paymentsdk.model.PaymentCallback
 import com.tosspayments.paymentsdk.model.TossPaymentResult
 import com.tosspayments.paymentsdk.view.PaymentMethod
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.text.NumberFormat
@@ -191,6 +192,12 @@ fun PaymentRoute(
         agreedRequiredTerms = agreedRequiredTerms
     )
 
+    LaunchedEffect(key1 = Unit) {
+        paymentViewModel.paymentSuccess.collectLatest {
+            receiptRequest(orderItemID)
+        }
+    }
+
     LaunchedEffect(key1 = orderItemID) {
         if (orderItemID.isBlank()) return@LaunchedEffect
         paymentWidget.requestPayment(
@@ -213,7 +220,6 @@ fun PaymentRoute(
                         orderListId = success.orderId,
                         amount = success.amount.toLong().toString()
                     )
-                    receiptRequest(orderItemID)
                 }
             }
         )

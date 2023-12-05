@@ -248,6 +248,8 @@ class PaymentViewModel @Inject constructor(
         return this.options.firstOrNull { it.options ==  option }?.content
     }
 
+    private val _paymentSuccess = MutableSharedFlow<Unit>()
+    val paymentSuccess = _paymentSuccess.asSharedFlow()
 
     fun confirmPayment(
         paymentKey: String,
@@ -261,6 +263,7 @@ class PaymentViewModel @Inject constructor(
                     orderListId = orderListId,
                     amount = amount
                 )
+                _paymentSuccess.emit(Unit)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
