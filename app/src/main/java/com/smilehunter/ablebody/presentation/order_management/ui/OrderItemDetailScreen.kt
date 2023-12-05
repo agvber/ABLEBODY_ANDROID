@@ -360,9 +360,9 @@ fun OrderItemDetailScreen(
                 val numberFormat = NumberFormat.getInstance()
                 mapOf(
                     "총 상품 금액" to receiptData.price,
-                    "상품 할인" to receiptData.itemDiscount,
-                    "쿠폰 할인" to receiptData.couponDiscount,
-                    "포인트 할인" to receiptData.pointDiscount,
+                    "상품 할인" to receiptData.itemDiscount.unaryMinus(),
+                    "쿠폰 할인" to receiptData.couponDiscount.unaryMinus(),
+                    "포인트 할인" to receiptData.pointDiscount.unaryMinus(),
                     "배송비" to receiptData.deliveryPrice,
                 )
                     .forEach {
