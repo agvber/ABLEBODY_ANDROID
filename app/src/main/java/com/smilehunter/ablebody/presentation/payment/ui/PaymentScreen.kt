@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -131,35 +132,8 @@ fun PaymentRoute(
     val deliveryAddress by paymentViewModel.deliveryAddress.collectAsStateWithLifecycle()
 
     val orderItemID by paymentViewModel.orderItemID.collectAsStateWithLifecycle()
-
     val orderName = paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
 
-    if (orderItemID.isNotBlank()) {
-        paymentWidget.requestPayment(
-            paymentInfo = PaymentMethod.PaymentInfo(
-                orderId = orderItemID,
-                orderName = orderName
-            ),
-            paymentCallback = object : PaymentCallback {
-                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
-                    paymentViewModel.handlePaymentFailure(
-                        code = fail.errorCode,
-                        message = fail.errorMessage,
-                        orderListId = fail.orderId ?: orderItemID
-                    )
-                }
-
-                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
-                    paymentViewModel.confirmPayment(
-                        paymentKey = success.paymentKey,
-                        orderListId = success.orderId,
-                        amount = success.amount.toLong().toString()
-                    )
-                    receiptRequest(orderItemID)
-                }
-            }
-        )
-    }
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
     PaymentScreen(
@@ -216,6 +190,34 @@ fun PaymentRoute(
         coupons = coupons,
         agreedRequiredTerms = agreedRequiredTerms
     )
+
+    LaunchedEffect(key1 = orderItemID) {
+        if (orderItemID.isBlank()) return@LaunchedEffect
+        paymentWidget.requestPayment(
+            paymentInfo = PaymentMethod.PaymentInfo(
+                orderId = orderItemID,
+                orderName = orderName
+            ),
+            paymentCallback = object : PaymentCallback {
+                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                    paymentViewModel.handlePaymentFailure(
+                        code = fail.errorCode,
+                        message = fail.errorMessage,
+                        orderListId = fail.orderId ?: orderItemID
+                    )
+                }
+
+                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                    paymentViewModel.confirmPayment(
+                        paymentKey = success.paymentKey,
+                        orderListId = success.orderId,
+                        amount = success.amount.toLong().toString()
+                    )
+                    receiptRequest(orderItemID)
+                }
+            }
+        )
+    }
 
     var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
     if (isNetworkDisConnectedDialogShow) {
