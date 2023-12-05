@@ -310,9 +310,9 @@ fun ReceiptScreen(
                 val numberFormat = NumberFormat.getInstance()
                 mapOf(
                     "총 상품 금액" to receiptData.data.price,
-                    "상품 할인" to receiptData.data.itemDiscount,
-                    "쿠폰 할인" to receiptData.data.couponDiscount,
-                    "포인트 할인" to receiptData.data.pointDiscount,
+                    "상품 할인" to receiptData.data.itemDiscount.unaryMinus(),
+                    "쿠폰 할인" to receiptData.data.couponDiscount.unaryMinus(),
+                    "포인트 할인" to receiptData.data.pointDiscount.unaryMinus(),
                     "배송비" to receiptData.data.deliveryPrice,
                 )
                     .forEach {
