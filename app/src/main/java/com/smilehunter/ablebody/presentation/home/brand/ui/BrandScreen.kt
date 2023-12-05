@@ -76,19 +76,19 @@ fun BrandRoute(
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     onItemClick: (Long, String) -> Unit,
-    viewModel: BrandViewModel = hiltViewModel()
+    brandViewModel: BrandViewModel = hiltViewModel()
 ) {
-    val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
-    val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
-    val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
+    val sortingMethod by brandViewModel.brandListSortingMethod.collectAsStateWithLifecycle()
+    val genderFilter by brandViewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
+    val brandItemList by brandViewModel.brandItemList.collectAsStateWithLifecycle()
 
     BrandScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
         sortingMethod = sortingMethod,
-        onSortingMethodChange = { viewModel.updateBrandListOrderFilterType(it) },
+        onSortingMethodChange = { brandViewModel.updateBrandListOrderFilterType(it) },
         genderFilter = genderFilter,
-        onGenderFilterChange = { viewModel.updateBrandListGenderFilterType(it) },
+        onGenderFilterChange = { brandViewModel.updateBrandListGenderFilterType(it) },
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
@@ -98,7 +98,7 @@ fun BrandRoute(
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
-            positiveButtonOnClick = { viewModel.refreshNetwork() },
+            positiveButtonOnClick = { brandViewModel.refreshNetwork() },
             negativeButtonOnClick = {
                 val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
                 ContextCompat.startActivity(context, intent, null)
