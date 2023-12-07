@@ -37,7 +37,7 @@ class ProductItemPagerUseCase @Inject constructor(
         productItemPagingSourceData: ProductItemPagingSourceData
     ): Flow<PagingData<ProductItemData.Item>> =
         Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 10),
             initialKey = 0
         ) {
             ProductItemPagingSource(productItemPagingSourceData)

@@ -31,7 +31,7 @@ class CodyItemPagerUseCase @Inject constructor(
         codyPagingSourceData: CodyPagingSourceData
     ): Flow<PagingData<CodyItemData.Item>> =
         Pager(
-            config = PagingConfig(pageSize = 20),
+            config = PagingConfig(pageSize = 10),
             initialKey = 0
         ) {
             CodyPagingSource(codyPagingSourceData)
