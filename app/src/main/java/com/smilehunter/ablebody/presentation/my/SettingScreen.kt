@@ -3,7 +3,6 @@ package com.smilehunter.ablebody.presentation.my
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,16 +26,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -51,16 +47,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
+import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestList
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleLight
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
-import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -107,81 +101,6 @@ fun SettingScreen(
             Spacer(modifier = Modifier.size(7.dp))
             SettingList("로그아웃", textColor = Color.Red)
         }
-    }
-}
-
-@Composable
-fun AlarmRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit
-) {
-    val getAlarmAgreeData by viewModel.getUserAdConsentLiveData.observeAsState(false)
-    Log.d("받아온 알림 데이터", getAlarmAgreeData.toString())
-
-
-    LaunchedEffect(key1 = true) {
-        viewModel.getData()
-    }
-
-    AlarmPage(
-        onBackRequest = onBackRequest,
-        getAlarmAgree = getAlarmAgreeData,
-        passAlarmAgree =  {viewModel.changeUserAdConsent(it)}
-    )
-}
-
-@Composable
-fun SuggestRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit
-) {
-    SuggestPage(onBackRequest = onBackRequest, suggestText = {viewModel.sendSuggest(it)})
-}
-
-@Composable
-fun SuggestList(
-    suggestonClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(55.dp)
-            .background(Color.White)
-            .nonReplyClickable {
-                suggestonClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Image(
-            painter = painterResource(id = R.drawable.ablebody_notification_logo),
-            contentDescription = "profile",
-            colorFilter = ColorFilter.tint(AbleBlue),
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        val text = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
-                append("애블바디")
-            }
-            append("에게 제안해주세요")
-        }
-
-        Text(
-            text = text,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                fontWeight = FontWeight(500),
-                textAlign = TextAlign.Right,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Image(
-            painter = painterResource(id = R.drawable.airplane),
-            contentDescription = "sueggestIcon",
-            modifier = Modifier.padding(end = 10.dp)
-        )
     }
 }
 
@@ -465,59 +384,7 @@ fun SuggestPage(
     }
 }
 
-@Composable
-fun AlarmPage(
-    onBackRequest: () -> Unit,
-    getAlarmAgree: Boolean,
-    passAlarmAgree: (Boolean) -> Unit,
-) {
-    var alarmAgreeStatus = getAlarmAgree
-    Log.d("보여주는 알림 데이터", alarmAgreeStatus.toString()) //true <-> false
 
-    Scaffold(
-        topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
-            Text(
-                text = "알림",
-                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                )
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(17.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "혜택 · 마케팅 알림",
-                    style = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                        fontWeight = FontWeight(500),
-                        color = if (alarmAgreeStatus) Color.Black else SmallTextGrey,
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
-                    Log.d("toggledState", toggledState.toString())
-                    alarmAgreeStatus = toggledState
-//                    Log.d("보낼 거", "동의 여부: $toggledState")
-                    passAlarmAgree(toggledState)
-                }
-            }
-            BenefitDescription(alarmAgree = alarmAgreeStatus)
-        }
-    }
-}
 
 @Composable
 fun LogoutAlertDialog(
@@ -781,11 +648,3 @@ fun ExitWarningPopupPreview() {
     ExitWarningPopup({}, {}, {})
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun AlarmPagePreview() {
-    Column(){
-//        AlarmPage({}, true)
-        AlarmPage({}, true, {})
-    }
-}
