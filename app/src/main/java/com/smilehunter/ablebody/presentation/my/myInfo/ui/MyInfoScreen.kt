@@ -1,6 +1,5 @@
-package com.smilehunter.ablebody.presentation.my
+package com.smilehunter.ablebody.presentation.my.myInfo.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.presentation.my.SettingList
+import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoViewModel
+import com.smilehunter.ablebody.presentation.my.myprofile.MyProfileViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
@@ -52,15 +54,15 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 
 @Composable
 fun MyInfoScreenRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
+    myInfoViewModel: MyInfoViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
     withDrawOnClick: () -> Unit,
     editButtonOnClick: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
-        viewModel.getData()
+        myInfoViewModel.getMyInfoData()
     }
-    val userInfoData by viewModel.userLiveData.observeAsState()
+    val userInfoData by myInfoViewModel.userLiveData.observeAsState()
 
     MyInfoScreen(
         onBackRequest = onBackRequest,
@@ -79,13 +81,13 @@ fun MyInfoScreenRoute(
 
 @Composable
 fun MyInfoEditScreenRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
+    myInfoViewModel: MyInfoViewModel = hiltViewModel(),
     onBackRequest: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
-        viewModel.getData()
+        myInfoViewModel.getMyInfoData()
     }
-    val userInfoData by viewModel.userLiveData.observeAsState()
+    val userInfoData by myInfoViewModel.userLiveData.observeAsState()
 
     MyInfomationEditScreen(
         onBackRequest = onBackRequest,
@@ -102,21 +104,21 @@ fun MyInfoEditScreenRoute(
 
 @Composable
 fun WithdrawScreenRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
+    myInfoViewModel: MyInfoViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
     drawReason: String,
     withDrawButtonOnClick: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
-        viewModel.getData()
+        myInfoViewModel.getMyInfoData()
     }
-    val userInfoData by viewModel.userLiveData.observeAsState()
+    val userInfoData by myInfoViewModel.userLiveData.observeAsState()
 
     WithdrawScreen(
         nickname = userInfoData?.nickname ?: "",
         onBackRequest = onBackRequest,
         withDrawButtonOnClick = {
-            viewModel.resignUser(drawReason)
+            myInfoViewModel.resignUser(drawReason)
             withDrawButtonOnClick()
         }
     )
