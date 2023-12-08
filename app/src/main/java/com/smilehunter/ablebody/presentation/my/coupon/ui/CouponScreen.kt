@@ -1,10 +1,9 @@
-package com.smilehunter.ablebody.presentation.my
+package com.smilehunter.ablebody.presentation.my.coupon.ui
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,15 +23,11 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,9 +51,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CouponData
+import com.smilehunter.ablebody.presentation.my.coupon.CouponViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.LightShaded
@@ -71,16 +66,15 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CouponRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
+    viewModel: CouponViewModel = hiltViewModel(),
     couponRegisterOnClick: () -> Unit,
     onBackRequest: () -> Unit
 ) {
 
     val couponData by viewModel.couponListLiveData.observeAsState()
-    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getData()
+        viewModel.getCouponData()
     }
     CouponScreen(onBackRequest = onBackRequest, couponData?.size ?: 0, couponData ?: emptyList(), couponRegisterOnClick = couponRegisterOnClick)
 }
@@ -265,7 +259,7 @@ fun CouponPreview() {
 
 @Composable
 fun CouponRegisterRoute(
-    viewModel: MyProfileViewModel = hiltViewModel(),
+    viewModel: CouponViewModel = hiltViewModel(),
     onBackRequest: () -> Unit
 ) {
     CouponRegisterScreen(onBackRequest = onBackRequest)
@@ -332,7 +326,7 @@ fun CouponRegisterScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CouponNumberTextField(
-    viewModel: MyProfileViewModel = hiltViewModel()
+    viewModel: CouponViewModel = hiltViewModel()
 ) {
     var inputText by remember {
         mutableStateOf("")
