@@ -1,20 +1,23 @@
 package com.smilehunter.ablebody.presentation.home
 
+import android.util.Log
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
-import com.smilehunter.ablebody.presentation.my.AlarmRoute
-import com.smilehunter.ablebody.presentation.my.CouponRegisterRoute
-import com.smilehunter.ablebody.presentation.my.CouponRoute
-import com.smilehunter.ablebody.presentation.my.MyInfoEditScreenRoute
-import com.smilehunter.ablebody.presentation.my.MyInfoScreenRoute
-import com.smilehunter.ablebody.presentation.my.MyProfileRoute
-import com.smilehunter.ablebody.presentation.my.OtherNormalUserRoute
+import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRegisterRoute
+import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRoute
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoEditScreenRoute
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoScreenRoute
+import com.smilehunter.ablebody.presentation.my.myprofile.ui.MyProfileRoute
+import com.smilehunter.ablebody.presentation.my.other.ui.OtherNormalUserRoute
 import com.smilehunter.ablebody.presentation.my.ReportRoute
 import com.smilehunter.ablebody.presentation.my.SettingScreen
-import com.smilehunter.ablebody.presentation.my.SuggestRoute
-import com.smilehunter.ablebody.presentation.my.WithdrawBeforeScreen
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawBeforeScreen
+import com.smilehunter.ablebody.presentation.my.alarm.ui.AlarmRoute
+import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestRoute
 
 const val HomeRoute = "Home"
 
@@ -120,14 +123,29 @@ fun NavGraphBuilder.addHomeGraph(
                 isBottomBarShow(false)
             }
 
-            composable(route = "OtherNormalUserRoute") {
-            OtherNormalUserRoute(
-                onBackRequest = onBackRequest,
-                onReport = onReport,
-                id = 5920702
-            )
-                isBottomBarShow(true)
+//            composable(route = "OtherNormalUserRoute") {
+//                OtherNormalUserRoute(
+//                    onBackRequest = onBackRequest,
+//                    onReport = onReport,
+//                    id = "5920702"
+//                )
+//                isBottomBarShow(true)
+//            }
+
+            composable(route = "OtherNormalUserRoute/{uid}",
+                arguments = listOf(
+                    navArgument("uid") { type = NavType.StringType}
+                )
+            ){ navBackStackEntry ->
+                val uid = navBackStackEntry
+                Log.d("다른 유저 프로필homegraph",uid.toString())
+                OtherNormalUserRoute(
+                    onBackRequest = onBackRequest,
+                    onReport = onReport
+                )
             }
+            isBottomBarShow(true)
+        }
 
             composable(route = "ReportRoute") {
                 ReportRoute(
@@ -137,6 +155,5 @@ fun NavGraphBuilder.addHomeGraph(
             }
 
         }
-    }
 
 }

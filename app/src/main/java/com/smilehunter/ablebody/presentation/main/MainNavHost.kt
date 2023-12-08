@@ -34,7 +34,7 @@ import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
-import com.smilehunter.ablebody.presentation.my.WithdrawScreenRoute
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawScreenRoute
 import com.smilehunter.ablebody.presentation.notification.NotificationRoute
 import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetailScreen
@@ -134,7 +134,8 @@ fun MainNavHost(
         addCreatorDetailScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
+            profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
+                Log.d("다른 유저 프로필", it)},
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
             productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
@@ -143,7 +144,8 @@ fun MainNavHost(
         addLikeUserListScreen(
             isBottomBarShow = isBottomBarShow,
             onBackRequest = navController::popBackStack,
-            profileRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
+            profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
+                Log.d("다른 유저 프로필", it)},
         )
 
         addCommentScreen(

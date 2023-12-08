@@ -505,13 +505,14 @@ fun ItemDetailScreen(
                     }
 
                     Box(
-                        modifier = Modifier.size(90.dp)
+                        modifier = Modifier.padding(bottom = 8.dp)
                     ) {
 
                     }
 
                 }
             }
+
             items(numOfHomePost) { index ->
                 val post = itemDetailData?.homePosts?.get(index)
                 val postId = post!!.id
@@ -541,7 +542,7 @@ fun ItemDetailScreen(
                     )
                 }
             }
-            
+
             item(
                 span = { GridItemSpan(this.maxLineSpan) }
             ) {
