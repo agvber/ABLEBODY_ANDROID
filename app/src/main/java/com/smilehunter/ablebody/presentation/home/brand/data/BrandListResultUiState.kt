@@ -5,7 +5,7 @@ import com.smilehunter.ablebody.model.BrandListData
 sealed interface BrandListResultUiState {
     object Loading: BrandListResultUiState
 
-    object Error: BrandListResultUiState
+    data class Error(val t: Throwable?): BrandListResultUiState
 
     data class Success(
         val data: List<BrandListData>

@@ -15,8 +15,10 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -44,12 +46,12 @@ import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.data.dto.SortingMethod
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.brand_detail.BrandDetailViewModel
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -59,9 +61,11 @@ import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun BrandDetailRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackClick: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
@@ -104,11 +108,8 @@ fun BrandDetailRoute(
         codyPagingItem = codyPagingItem
     )
 
-    val isNetworkDisconnected =
-        productPagingItems.loadState.refresh is LoadState.Error ||
-                codyPagingItem.loadState.refresh is LoadState.Error ||
-                    !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -118,6 +119,30 @@ fun BrandDetailRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+    val itemRefreshLoadState = productPagingItems.loadState.refresh
+    val codyRefreshLoadState = codyPagingItem.loadState.refresh
+
+    if (itemRefreshLoadState is LoadState.Error || codyRefreshLoadState is LoadState.Error) {
+        val throwable = when {
+            itemRefreshLoadState is LoadState.Error -> itemRefreshLoadState.error
+            codyRefreshLoadState is LoadState.Error -> codyRefreshLoadState.error
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 @OptIn(ExperimentalFoundationApi::class)

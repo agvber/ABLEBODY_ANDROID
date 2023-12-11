@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -78,15 +79,18 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
+import com.smilehunter.ablebody.model.UserInfoData
+import com.smilehunter.ablebody.model.fake.fakeUserInfo
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
+import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
+import com.smilehunter.ablebody.presentation.payment.data.DeliveryAddressUiState
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughDataPreviewParameterProvider
-import com.smilehunter.ablebody.presentation.payment.data.PaymentUiState
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleLight
@@ -105,12 +109,15 @@ import com.tosspayments.paymentsdk.model.AgreementStatusListener
 import com.tosspayments.paymentsdk.model.PaymentCallback
 import com.tosspayments.paymentsdk.model.TossPaymentResult
 import com.tosspayments.paymentsdk.view.PaymentMethod
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
 fun PaymentRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
@@ -126,35 +133,8 @@ fun PaymentRoute(
     val deliveryAddress by paymentViewModel.deliveryAddress.collectAsStateWithLifecycle()
 
     val orderItemID by paymentViewModel.orderItemID.collectAsStateWithLifecycle()
-
     val orderName = paymentPassthroughData?.items?.firstOrNull()?.itemName ?: ""
 
-    if (orderItemID.isNotBlank()) {
-        paymentWidget.requestPayment(
-            paymentInfo = PaymentMethod.PaymentInfo(
-                orderId = orderItemID,
-                orderName = orderName
-            ),
-            paymentCallback = object: PaymentCallback {
-                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
-                    paymentViewModel.handlePaymentFailure(
-                        code = fail.errorCode,
-                        message = fail.errorMessage,
-                        orderListId = fail.orderId ?: orderItemID
-                    )
-                }
-
-                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
-                    paymentViewModel.confirmPayment(
-                        paymentKey = success.paymentKey,
-                        orderListId = success.orderId,
-                        amount = success.amount.toLong().toString()
-                    )
-                    receiptRequest(orderItemID)
-                }
-            }
-        )
-    }
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
     PaymentScreen(
@@ -168,9 +148,9 @@ fun PaymentRoute(
                 paymentType = selectedPaymentMethod.type,
                 paymentMethod = selectedPaymentMethod.method ?: "",
                 easyPayType = selectedPaymentMethod.easyPay?.provider,
-                amountOfPayment = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
+                amount = receipt["총 상품금액"]!! + receipt["상품 할인"]!! + receipt["쿠폰 할인"]!!
             )
-                           },
+        },
         paymentContent = {
             AndroidViewBinding(
                 factory = { inflater, parent, attachToParent ->
@@ -206,17 +186,47 @@ fun PaymentRoute(
         couponID = couponID,
         pointTextValue = userPointTextValue,
         couponDisCountPrice = couponDiscountPrice,
-        userData = userData as? PaymentUiState.User,
-        deliveryAddress = deliveryAddress as? PaymentUiState.DeliveryAddress,
+        userData = userData,
+        deliveryAddress = deliveryAddress,
         coupons = coupons,
         agreedRequiredTerms = agreedRequiredTerms
     )
 
-    val isNetworkDisconnected = userData is PaymentUiState.LoadFail ||
-            deliveryAddress is PaymentUiState.LoadFail ||
-                coupons is PaymentUiState.LoadFail ||
-                    !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    LaunchedEffect(key1 = Unit) {
+        paymentViewModel.paymentSuccess.collectLatest {
+            receiptRequest(orderItemID)
+        }
+    }
+
+    LaunchedEffect(key1 = orderItemID) {
+        if (orderItemID.isBlank()) return@LaunchedEffect
+        paymentWidget.requestPayment(
+            paymentInfo = PaymentMethod.PaymentInfo(
+                orderId = orderItemID,
+                orderName = orderName
+            ),
+            paymentCallback = object : PaymentCallback {
+                override fun onPaymentFailed(fail: TossPaymentResult.Fail) {
+                    paymentViewModel.handlePaymentFailure(
+                        code = fail.errorCode,
+                        message = fail.errorMessage,
+                        orderListId = fail.orderId ?: orderItemID
+                    )
+                }
+
+                override fun onPaymentSuccess(success: TossPaymentResult.Success) {
+                    paymentViewModel.confirmPayment(
+                        paymentKey = success.paymentKey,
+                        orderListId = success.orderId,
+                        amount = success.amount.toLong().toString()
+                    )
+                }
+            }
+        )
+    }
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -226,6 +236,33 @@ fun PaymentRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    val isDeliveryAddressLoadFail = deliveryAddress is DeliveryAddressUiState.LoadFail
+    val isCouponLoadFail = coupons is CouponBagsUiState.LoadFail
+
+    if (isDeliveryAddressLoadFail || isCouponLoadFail) {
+        val throwable = when {
+            isDeliveryAddressLoadFail -> (deliveryAddress as DeliveryAddressUiState.LoadFail).t
+            isCouponLoadFail -> (coupons as CouponBagsUiState.LoadFail).t
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (!isDeliveryAddressLoadFail||!isCouponLoadFail) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 
@@ -243,10 +280,10 @@ fun PaymentScreen(
     couponID: Int?,
     pointTextValue: String,
     couponDisCountPrice: Int,
-    userData: PaymentUiState.User?,
-    deliveryAddress: PaymentUiState.DeliveryAddress?,
-    coupons: PaymentUiState,
-    agreedRequiredTerms: Boolean
+    userData: UserInfoData?,
+    deliveryAddress: DeliveryAddressUiState,
+    coupons: CouponBagsUiState,
+    agreedRequiredTerms: Boolean,
 ) {
     val scope = rememberCoroutineScope()
     var showCouponBottomSheet by rememberSaveable { mutableStateOf(false) }
@@ -271,19 +308,14 @@ fun PaymentScreen(
             )
         }
     ) { paddingValue ->
-
-        if (coupons !is PaymentUiState.Coupons) {
-            return@Scaffold
-        }
-
-        if (paymentPassthroughData == null) {
-            return@Scaffold
-        }
+        if (coupons !is CouponBagsUiState.Coupons) return@Scaffold
+        paymentPassthroughData ?: return@Scaffold
+        userData ?: return@Scaffold
 
         var showDeliveryRequestMessageBottomSheet by rememberSaveable { mutableStateOf(false) }
 
         var deliveryRequestMessageValueState by remember {
-            mutableStateOf(deliveryAddress?.data?.deliveryRequestMessage ?: "")
+            mutableStateOf((deliveryAddress as? DeliveryAddressUiState.Success)?.data?.deliveryRequestMessage)
         }
 
         if (showDeliveryRequestMessageBottomSheet) {
@@ -318,7 +350,7 @@ fun PaymentScreen(
                                         showCouponBottomSheet = false
                                     }
                                 }
-                                      },
+                            },
                             enabled = !item.invalid,
                             title = item.couponTitle,
                             expirationCount = item.couponCount,
@@ -348,25 +380,37 @@ fun PaymentScreen(
                 options = paymentPassthroughData.items.first().options.map { it.content }
             )
             Divider(thickness = 4.dp, color = InactiveGrey)
-            DeliveryAddressLayout(
-                addressRequest = {
-                    val deliveryPassthroughData = DeliveryPassthroughData(
-                        attentionName = deliveryAddress?.data?.userName ?: "",
-                        phoneNumber = deliveryAddress?.data?.phoneNumber ?: "",
-                        roadAddress = deliveryAddress?.data?.roadAddress ?: "",
-                        roadDetailAddress = deliveryAddress?.data?.roadDetailAddress ?: "",
-                        zipCode = deliveryAddress?.data?.zipCode ?: "",
-                        requestMessage = deliveryRequestMessageValueState,
-                    )
-                    addressRequest(deliveryPassthroughData)
-                },
-                requestMessageChange = { showDeliveryRequestMessageBottomSheet = true },
-                userName = deliveryAddress?.data?.userName ?: "",
-                phoneNumber = deliveryAddress?.data?.phoneNumber ?: "",
-                roadAddress = deliveryAddress?.data?.roadAddress ?: "",
-                roadDetailAddress = deliveryAddress?.data?.roadDetailAddress ?: "",
-                requestMessage = deliveryRequestMessageValueState
-            )
+            if (deliveryAddress is DeliveryAddressUiState.Success) {
+                DeliveryAddressLayout(
+                    addressRequest = {
+                        val deliveryPassthroughData = DeliveryPassthroughData(
+                            attentionName = deliveryAddress.data.userName,
+                            phoneNumber = deliveryAddress.data.phoneNumber,
+                            roadAddress = deliveryAddress.data.roadAddress ,
+                            roadDetailAddress = deliveryAddress.data.roadDetailAddress ,
+                            zipCode = deliveryAddress.data.zipCode,
+                            requestMessage = deliveryRequestMessageValueState ?: "",
+                        )
+                        addressRequest(deliveryPassthroughData)
+                    },
+                    requestMessageChange = { showDeliveryRequestMessageBottomSheet = true },
+                    userName = deliveryAddress.data.userName,
+                    phoneNumber = deliveryAddress.data.phoneNumber,
+                    roadAddress = deliveryAddress.data.roadAddress,
+                    roadDetailAddress = deliveryAddress.data.roadDetailAddress,
+                    requestMessage = deliveryRequestMessageValueState ?: ""
+                )
+            } else {
+                DeliveryAddressLayout(
+                    addressRequest = {},
+                    requestMessageChange = {  },
+                    userName = "",
+                    phoneNumber = "",
+                    roadAddress = "",
+                    roadDetailAddress = "",
+                    requestMessage = ""
+                )
+            }
             Divider(thickness = 4.dp, color = InactiveGrey)
 
             val couponTextValue by remember(couponID) {
@@ -381,7 +425,7 @@ fun PaymentScreen(
                     } else {
                         showCouponBottomSheet = true
                     }
-                                      },
+                },
                 pointButtonOnClick = {
                     if (pointTextValue.isNotBlank()) {
                         if (isPointUsed) {
@@ -396,8 +440,8 @@ fun PaymentScreen(
                 couponTextValue = couponTextValue,
                 couponSelected = couponTextValue.isNotEmpty(),
                 pointTextValue = pointTextValue,
-                point = userData?.data?.creatorPoint ?: 0,
-                isPointUsed = isPointUsed && (userData?.data?.creatorPoint ?:0) >= 2000
+                point = userData.creatorPoint,
+                isPointUsed = isPointUsed && userData.creatorPoint >= 2000
             )
 
             Divider(thickness = 4.dp, color = InactiveGrey)
@@ -420,9 +464,9 @@ fun PaymentScreen(
                 receipt.putAll(
                     mapOf(
                         "총 상품금액" to paymentPassthroughData.items.sumOf { it.price },
-                        "상품 할인" to paymentPassthroughData.items.sumOf { it.differencePrice },
-                        "쿠폰 할인" to couponDisCountPrice,
-                        "포인트 할인" to if (isPointUsed) - (pointTextValue.toIntOrNull() ?:0) else 0,
+                        "상품 할인" to paymentPassthroughData.items.sumOf { it.differencePrice }.unaryMinus(),
+                        "쿠폰 할인" to couponDisCountPrice.unaryMinus(),
+                        "포인트 할인" to if (isPointUsed) -(pointTextValue.toIntOrNull() ?: 0) else 0,
                         "배송비" to paymentPassthroughData.deliveryPrice,
                     )
                 )
@@ -665,9 +709,10 @@ private fun DeliveryAddressLayout(
     phoneNumber: String,
     roadAddress: String,
     roadDetailAddress: String,
-    requestMessage: String
+    requestMessage: String,
 ) {
-    val isEmptyAddress = userName.isBlank() && phoneNumber.isBlank() && roadAddress.isBlank() && roadDetailAddress.isBlank()
+    val isEmptyAddress =
+        userName.isBlank() && phoneNumber.isBlank() && roadAddress.isBlank() && roadDetailAddress.isBlank()
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = Modifier
@@ -781,7 +826,7 @@ private fun DeliveryAddressLayout(
                     )
                     DeliveryTextField(
                         value = requestMessage,
-                        onValueChange = {  },
+                        onValueChange = { },
                         placeholder = {
                             Text(
                                 text = "배송 요청 사항을 선택하세요.",
@@ -820,7 +865,7 @@ private fun DiscountLayout(
     couponSelected: Boolean,
     pointTextValue: String,
     point: Int,
-    isPointUsed: Boolean
+    isPointUsed: Boolean,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -839,7 +884,7 @@ private fun DiscountLayout(
         DiscountTextFieldLayout(
             onClick = couponButtonOnClick,
             enabled = false,
-            buttonText = if (couponSelected) "취소" else "쿠폰 선택" ,
+            buttonText = if (couponSelected) "취소" else "쿠폰 선택",
             title = "쿠폰",
             value = couponTextValue,
             onValueChange = {}
@@ -872,7 +917,7 @@ private fun DiscountTextFieldLayout(
     placeHolder: String? = null,
     description: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -1039,7 +1084,7 @@ private fun CouponLayout(
     title: String,
     expirationCount: Int,
     expirationDate: Int,
-    discount: String
+    discount: String,
 ) {
     Surface(
         shape = RoundedCornerShape(size = 15.dp),
@@ -1145,7 +1190,7 @@ fun OrderItemLayoutPreview() {
 fun UnregisteredDeliveryAddressLayoutPreview() {
     DeliveryAddressLayout(
         addressRequest = {},
-        requestMessageChange = {  },
+        requestMessageChange = { },
         userName = "",
         phoneNumber = "",
         roadAddress = "",
@@ -1159,7 +1204,7 @@ fun UnregisteredDeliveryAddressLayoutPreview() {
 fun RegisteredDeliveryInfoLayoutPreview() {
     DeliveryAddressLayout(
         addressRequest = {},
-        requestMessageChange = {  },
+        requestMessageChange = { },
         userName = "조민재",
         phoneNumber = "010-9307-1141",
         roadAddress = "경기 가평군 청평면 경춘로 869",
@@ -1201,15 +1246,15 @@ fun CouponLayoutPreview() {
 @Composable
 fun PaymentScreenPreview(
     @PreviewParameter(PaymentPassthroughDataPreviewParameterProvider::class)
-    paymentPassthroughData: PaymentPassthroughData
+    paymentPassthroughData: PaymentPassthroughData,
 ) {
     PaymentScreen(
         onBackRequest = { },
-        payButtonOnClick = {  },
+        payButtonOnClick = { },
         paymentContent = {
             TossPaymentsPreviewLayout()
         },
-        addressRequest = {  },
+        addressRequest = { },
         couponIDChange = {},
         pointTextValueChange = {},
         pointUsed = {},
@@ -1217,9 +1262,9 @@ fun PaymentScreenPreview(
         couponID = -1,
         pointTextValue = "",
         couponDisCountPrice = 0,
-        userData = null,
-        deliveryAddress = null,
-        coupons = PaymentUiState.Coupons(listOf()),
+        userData = fakeUserInfo,
+        deliveryAddress = DeliveryAddressUiState.Empty,
+        coupons = CouponBagsUiState.Coupons(listOf()),
         agreedRequiredTerms = true
     )
 }

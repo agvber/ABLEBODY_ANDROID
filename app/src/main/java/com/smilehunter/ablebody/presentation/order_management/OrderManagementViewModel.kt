@@ -7,7 +7,8 @@ import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.GetDeliveryTrackingNumberUseCase
 import com.smilehunter.ablebody.domain.GetOrderItemListUseCase
-import com.smilehunter.ablebody.presentation.order_management.data.OrderManagementUiState
+import com.smilehunter.ablebody.presentation.order_management.data.DeliveryTrackingUiState
+import com.smilehunter.ablebody.presentation.order_management.data.OrderItemUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,7 +40,7 @@ class OrderManagementViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val orderItems: StateFlow<OrderManagementUiState> =
+    val orderItems: StateFlow<OrderItemUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest { _ ->
                 flowOf(getOrderItemListUseCase())
@@ -47,15 +48,15 @@ class OrderManagementViewModel @Inject constructor(
                 .asResult()
                 .map {
                     when (it) {
-                        is Result.Error -> OrderManagementUiState.LoadFail
-                        is Result.Loading -> OrderManagementUiState.Loading
-                        is Result.Success -> OrderManagementUiState.OrderItems(it.data)
+                        is Result.Error -> OrderItemUiState.LoadFail(it.exception)
+                        is Result.Loading -> OrderItemUiState.Loading
+                        is Result.Success -> OrderItemUiState.Success(it.data)
                     }
                 }
                 .stateIn(
                     viewModelScope,
                     SharingStarted.WhileSubscribed(5_000),
-                    OrderManagementUiState.Loading
+                    OrderItemUiState.Loading
                 )
 
     fun cancelOrderItem(id: String) {
@@ -68,18 +69,18 @@ class OrderManagementViewModel @Inject constructor(
         viewModelScope.launch { _networkRefreshFlow.emit(Unit) }
     }
 
-    private val _deliveryTrackingData = MutableStateFlow<OrderManagementUiState>(OrderManagementUiState.Loading)
+    private val _deliveryTrackingData = MutableStateFlow<DeliveryTrackingUiState>(DeliveryTrackingUiState.Loading)
     val deliveryTrackingData = _deliveryTrackingData.asStateFlow()
 
     fun updateDeliveryTrackingID(id: String) {
         viewModelScope.launch {
             try {
                 _deliveryTrackingData.emit(
-                    OrderManagementUiState.DeliveryTracking(getDeliveryTrackingNumberUseCase(id))
+                    DeliveryTrackingUiState.Success(getDeliveryTrackingNumberUseCase(id))
                 )
 
             } catch (e: Exception) {
-                _deliveryTrackingData.emit(OrderManagementUiState.LoadFail)
+                _deliveryTrackingData.emit(DeliveryTrackingUiState.LoadFail(e))
                 e.printStackTrace()
             }
         }

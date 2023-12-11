@@ -6,7 +6,7 @@ sealed interface ReceiptUiState {
 
     object Loading: ReceiptUiState
 
-    object LoadFail: ReceiptUiState
+    data class LoadFail(val t: Throwable?): ReceiptUiState
 
     data class Receipt(internal val data: ReceiptData): ReceiptUiState
 }

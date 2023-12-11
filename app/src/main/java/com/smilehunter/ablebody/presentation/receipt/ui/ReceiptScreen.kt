@@ -22,6 +22,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,10 +45,10 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.model.ReceiptData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.fake.fakeReceiptData
 import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.ui.OrderItemLayout
 import com.smilehunter.ablebody.presentation.receipt.ReceiptViewModel
 import com.smilehunter.ablebody.presentation.receipt.data.ReceiptUiState
@@ -56,17 +59,19 @@ import com.smilehunter.ablebody.ui.theme.InactiveGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.TopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 
 @Composable
 fun ReceiptRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     orderComplete: () -> Unit,
     receiptViewModel: ReceiptViewModel = hiltViewModel(),
 ) {
     val receipt by receiptViewModel.receiptData.collectAsStateWithLifecycle()
     ReceiptScreen(
         orderComplete = orderComplete,
-        receiptData = (receipt as? ReceiptUiState.Receipt)?.data
+        receiptData = receipt
     )
 
     val isNetworkDisconnected = receipt is ReceiptUiState.LoadFail || !LocalNetworkConnectState.current
@@ -81,13 +86,46 @@ fun ReceiptRoute(
             }
         )
     }
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
+        val context = LocalContext.current
+        NetworkConnectionErrorDialog(
+            onDismissRequest = {  },
+            positiveButtonOnClick = { receiptViewModel.refreshNetwork() },
+            negativeButtonOnClick = {
+                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
+                ContextCompat.startActivity(context, intent, null)
+            }
+        )
+    }
+
+    if (receipt is ReceiptUiState.LoadFail) {
+        val throwable = (receipt as ReceiptUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (receipt is ReceiptUiState.Receipt) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
+    }
 }
 
 
 @Composable
 fun ReceiptScreen(
     orderComplete: () -> Unit,
-    receiptData: ReceiptData?
+    receiptData: ReceiptUiState
 ) {
     Scaffold(
         topBar = {
@@ -106,9 +144,7 @@ fun ReceiptScreen(
             }
         }
     ) { paddingValue ->
-        if (receiptData == null) {
-            return@Scaffold
-        }
+        if (receiptData !is ReceiptUiState.Receipt) { return@Scaffold }
 
         Column(
             modifier = Modifier
@@ -140,7 +176,7 @@ fun ReceiptScreen(
                     )
                 )
                 Text(
-                    text = "주문번호 : ${receiptData.orderID}",
+                    text = "주문번호 : ${receiptData.data.orderID}",
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
@@ -156,11 +192,11 @@ fun ReceiptScreen(
                 titleTextModifier = Modifier.fillMaxWidth(),
             ) {
                 OrderItemLayout(
-                    brandName = receiptData.brandName,
-                    productName = receiptData.itemName,
-                    productPrice = receiptData.price,
-                    productImageURL = receiptData.itemImageURL,
-                    options = receiptData.itemOptionDetailList.map { it.itemOptionDetail }
+                    brandName = receiptData.data.brandName,
+                    productName = receiptData.data.itemName,
+                    productPrice = receiptData.data.price,
+                    productImageURL = receiptData.data.itemImageURL,
+                    options = receiptData.data.itemOptionDetailList.map { it.itemOptionDetail }
                 )
             }
             Divider(thickness = 4.dp, color = InactiveGrey)
@@ -170,7 +206,7 @@ fun ReceiptScreen(
                         "입금 은행" to "농협",
                         "예금주" to "조민재",
                         "계좌번호" to "352-2134-4360-73",
-                        "입금기한" to receiptData.depositDeadline.run { "${monthValue}월 ${dayOfMonth}일까지" }
+                        "입금기한" to receiptData.data.depositDeadline.run { "${monthValue}월 ${dayOfMonth}일까지" }
                     )
                         .forEach {
                             Row(
@@ -232,9 +268,9 @@ fun ReceiptScreen(
             TitleWithColumn(titleText = "배송지 정보") {
                 Column {
                     mapOf(
-                        "받는 분" to receiptData.receiverName,
-                        "주소" to "${receiptData.roadAddress}\n${receiptData.roadAddressDetail}",
-                        "연락처" to receiptData.phoneNumber,
+                        "받는 분" to receiptData.data.receiverName,
+                        "주소" to "${receiptData.data.roadAddress}\n${receiptData.data.roadAddressDetail}",
+                        "연락처" to receiptData.data.phoneNumber,
                     )
                         .forEach {
                             Row(
@@ -273,11 +309,11 @@ fun ReceiptScreen(
             TitleWithColumn(titleText = "결제 정보") {
                 val numberFormat = NumberFormat.getInstance()
                 mapOf(
-                    "총 상품 금액" to receiptData.price,
-                    "상품 할인" to receiptData.itemDiscount,
-                    "쿠폰 할인" to receiptData.couponDiscount,
-                    "포인트 할인" to receiptData.pointDiscount,
-                    "배송비" to receiptData.deliveryPrice,
+                    "총 상품 금액" to receiptData.data.price,
+                    "상품 할인" to receiptData.data.itemDiscount.unaryMinus(),
+                    "쿠폰 할인" to receiptData.data.couponDiscount.unaryMinus(),
+                    "포인트 할인" to receiptData.data.pointDiscount.unaryMinus(),
+                    "배송비" to receiptData.data.deliveryPrice,
                 )
                     .forEach {
                         Row(
@@ -328,7 +364,7 @@ fun ReceiptScreen(
                         )
                     )
                     Text(
-                        text = "${numberFormat.format(receiptData.amountOfPayment)}원",
+                        text = "${numberFormat.format(receiptData.data.amountOfPayment)}원",
                         style = TextStyle(
                             fontSize = 14.sp,
                             fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
@@ -379,6 +415,9 @@ private fun TitleWithColumn(
 @Composable
 fun ReceiptScreenPreview() {
     ABLEBODY_AndroidTheme {
-        ReceiptScreen(orderComplete = {}, receiptData = fakeReceiptData)
+        ReceiptScreen(
+            orderComplete = {},
+            receiptData = ReceiptUiState.Receipt(fakeReceiptData)
+        )
     }
 }

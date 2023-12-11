@@ -11,20 +11,20 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.data.dto.SortingMethod
-import com.smilehunter.ablebody.data.repository.SearchRepository
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.CodyItemPagerUseCase
 import com.smilehunter.ablebody.domain.CodyPagingSourceData
+import com.smilehunter.ablebody.domain.DeleteSearchHistoryUseCase
+import com.smilehunter.ablebody.domain.GetRecommendKeywordUseCase
+import com.smilehunter.ablebody.domain.GetSearchHistoryUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.SearchHistoryQuery
-import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
-import com.smilehunter.ablebody.network.di.Dispatcher
+import com.smilehunter.ablebody.presentation.search.data.KeywordUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -46,10 +46,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val searchRepository: SearchRepository,
     productItemPagerUseCase: ProductItemPagerUseCase,
-    codyItemPagerUseCase: CodyItemPagerUseCase
+    codyItemPagerUseCase: CodyItemPagerUseCase,
+    getRecommendKeywordUseCase: GetRecommendKeywordUseCase,
+    getSearchHistoryUseCase: GetSearchHistoryUseCase,
+    private val deleteSearchHistoryUseCase: DeleteSearchHistoryUseCase
 ): ViewModel() {
 
     private val _networkRefreshFlow = MutableSharedFlow<Unit>()
@@ -68,20 +69,25 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    val recommendedKeywords: StateFlow<Result<List<String>>> = flow {
-        emit(searchRepository.uniSearch("").data!!.recommendKeyword.creator)
-    }
-        .flowOn(ioDispatcher)
-        .asResult()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Result.Loading
-        )
+    val recommendedKeywords: StateFlow<KeywordUiState> =
+        flow { emit(getRecommendKeywordUseCase()) }
+            .asResult()
+            .map {
+                when (it) {
+                    is Result.Error -> KeywordUiState.LoadFail(it.exception)
+                    is Result.Loading -> KeywordUiState.Loading
+                    is Result.Success -> KeywordUiState.RecommendKeyword(it.data)
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = KeywordUiState.Loading
+            )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val searchHistoryQueries: StateFlow<List<SearchHistoryQuery>> =
-        searchRepository.getSearchHistoryQueries()
+        getSearchHistoryUseCase()
             .flatMapLatest {
                 flowOf(it.asReversed())
             }
@@ -92,7 +98,9 @@ class SearchViewModel @Inject constructor(
             )
 
     fun deleteAllSearchHistory() {
-        viewModelScope.launch(ioDispatcher) { searchRepository.deleteAllSearchHistory() }
+        viewModelScope.launch {
+            deleteSearchHistoryUseCase()
+        }
     }
 
     private val _productItemSortingMethod = MutableStateFlow(SortingMethod.POPULAR)

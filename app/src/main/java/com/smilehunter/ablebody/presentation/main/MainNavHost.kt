@@ -49,6 +49,7 @@ import com.tosspayments.paymentsdk.PaymentWidget
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
+    recreateRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
     navController: NavHostController,
     paymentWidget: PaymentWidget
@@ -75,24 +76,28 @@ fun MainNavHost(
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen
                 )
                 addItemScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
                 )
                 addCodyScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
                 )
                 addBookmarkScreen(
                     isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
                     onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
@@ -113,6 +118,7 @@ fun MainNavHost(
 
         addSearchScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             backRequest = navController::popBackStack,
             productItemClick = { navController.navigate("ItemDetailScreen/$it") },
             codyItemClick = navController::navigateToCreatorDetail,
@@ -120,35 +126,40 @@ fun MainNavHost(
 
         addNotificationScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             itemClick = { uri -> navController.navigate(deepLink = Uri.parse(uri)) }
         )
 
         addBrandDetailScreen(
-            onBackRequest = navController::popBackStack,
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
+            onBackRequest = navController::popBackStack,
             productItemClick = { navController.navigate("ItemDetailScreen/$it") },
             codyItemClick = navController::navigateToCreatorDetail,
         )
 
         addCreatorDetailScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
                 Log.d("다른 유저 프로필", it)},
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
-            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") },
+            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") }
         )
 
         addLikeUserListScreen(
             isBottomBarShow = isBottomBarShow,
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
                 Log.d("다른 유저 프로필", it)},
         )
 
         addCommentScreen(
+            onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
@@ -213,6 +224,8 @@ fun MainNavHost(
         }
 
         addPaymentGraph(
+            isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             addressRequest = navController::navigateToDeliveryScreen,
             receiptRequest = navController::navigateToReceiptScreen,
@@ -226,22 +239,39 @@ fun MainNavHost(
                     onFinished = navController::popBackStackForResult,
                     isBottomBarShow = isBottomBarShow
                 )
-                addReceiptScreen(orderComplete = { /* TODO 브랜드 홈으로 가기 */ })
+                addReceiptScreen(
+                    onErrorOccur = navController::navigateErrorHandlingScreen,
+                    orderComplete = recreateRequest
+                )
             },
-            isBottomBarShow = isBottomBarShow,
             paymentWidget = paymentWidget
         )
 
         addOrderManagementGraph(
+            isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             itemOnClick = navController::navigateToOrderItemDetailScreen,
             nestedGraphs = {
                 addOrderItemDetailScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onErrorRequest = navController::navigateErrorHandlingScreen,
                     onBackRequest = navController::popBackStack,
-                    isBottomBarShow = isBottomBarShow
                 )
-            },
-            isBottomBarShow = isBottomBarShow
+            }
+        )
+
+        addNotFoundErrorScreen(
+            isBottomBarShow = isBottomBarShow,
+            onClick = {
+                navController.popBackStack()
+                navController.popBackStack()
+            }
+        )
+
+        addInternalServerErrorScreen(
+            isBottomBarShow = isBottomBarShow,
+            onClick = recreateRequest
         )
     }
 }

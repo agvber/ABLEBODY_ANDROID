@@ -22,8 +22,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,13 +42,13 @@ import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ProductItemData
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.model.fake.fakeProductItemData
 import com.smilehunter.ablebody.presentation.home.bookmark.BookmarkViewModel
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
@@ -54,9 +56,11 @@ import com.smilehunter.ablebody.ui.utils.ItemSearchBar
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun BookmarkListRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     productItemClick: (Long) -> Unit,
@@ -76,10 +80,8 @@ fun BookmarkListRoute(
         codyPagingItemList = codyPagingItemList,
     )
 
-    val isNetworkDisconnected = productPagingItemList.loadState.refresh is LoadState.Error ||
-            codyPagingItemList.loadState.refresh is LoadState.Error ||
-            !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -89,6 +91,30 @@ fun BookmarkListRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    val itemRefreshLoadState = productPagingItemList.loadState.refresh
+    val codyRefreshLoadState = codyPagingItemList.loadState.refresh
+    if (itemRefreshLoadState is LoadState.Error || codyRefreshLoadState is LoadState.Error) {
+        val throwable = when {
+            itemRefreshLoadState is LoadState.Error -> itemRefreshLoadState.error
+            codyRefreshLoadState is LoadState.Error -> codyRefreshLoadState.error
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

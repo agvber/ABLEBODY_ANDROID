@@ -71,12 +71,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CommentListData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.presentation.comment.CommentViewModel
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleLight
@@ -90,9 +90,11 @@ import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.android.awaitFrame
+import retrofit2.HttpException
 
 @Composable
 fun CommentRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     onUserProfileVisitRequest: (String) -> Unit,
     likeUsersViewOnRequest: (Long, LikedLocations) -> Unit,
@@ -115,10 +117,8 @@ fun CommentRoute(
         commentListData = commentListData
     )
 
-    val isNetworkDisconnected =
-        commentListData is CommentUiState.LoadFail ||
-                !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -129,6 +129,27 @@ fun CommentRoute(
             }
         )
     }
+
+    if (commentListData is CommentUiState.LoadFail) {
+        val throwable = (commentListData as CommentUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (commentListData is CommentUiState.CommentList) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
+    }
+
 }
 
 @Composable
