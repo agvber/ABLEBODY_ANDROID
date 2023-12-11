@@ -6,10 +6,12 @@ import com.smilehunter.ablebody.UserInfoPreferences
 import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.request.ChangePhoneNumberRequest
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.response.AddCouponResponse
 import com.smilehunter.ablebody.data.dto.response.GetAddressResponse
 import com.smilehunter.ablebody.data.dto.response.GetCouponBagsResponse
 import com.smilehunter.ablebody.data.dto.response.GetMyBoardResponse
 import com.smilehunter.ablebody.data.dto.response.UserDataResponse
+import com.smilehunter.ablebody.data.result.FileTooLargeException
 import com.smilehunter.ablebody.datastore.DataStoreService
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.network.NetworkService
@@ -85,23 +87,35 @@ class UserRepositoryImpl @Inject constructor(
         if (profileImageInputStream == null) {
             return@withContext networkService.editProfile(profile = editProfile, profileImage = null)
         }
+        val temp = File.createTempFile("image_compress_file", ".jpeg")
 
-        val temp = File.createTempFile("image_compress_file", ".jpg")
-        val fileOutputStream = FileOutputStream(temp).buffered()
+        FileOutputStream(temp).buffered().use {
+            val fileSize = profileImageInputStream.available()
+            val bitmap = BitmapFactory.decodeStream(profileImageInputStream)
 
-        val bitmap = BitmapFactory.decodeStream(profileImageInputStream)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, fileOutputStream)
+            val quality = when  {
+                fileSize < 1000000 -> 75
+                fileSize < 2000000 -> 40
+                fileSize < 4000000 -> 20
+                else -> 1
+            }
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, it)
+            bitmap.recycle()
+        }
+
+        if (temp.length() > 1000000) {
+            throw FileTooLargeException()
+        }
 
         val response = networkService.editProfile(profile = editProfile, profileImage = temp)
-
-        fileOutputStream.close()
+        temp.delete()
         temp.deleteOnExit()
-
         return@withContext response
     }
 
     override suspend fun getCouponBags(): GetCouponBagsResponse = networkService.getCouponBags()
-    override suspend fun addCouponByCouponCode(couponCode: String): GetCouponBagsResponse =
+    override suspend fun addCouponByCouponCode(couponCode: String): AddCouponResponse =
         networkService.addCouponByCouponCode(couponCode)
 
     override suspend fun getMyAddress(): GetAddressResponse = networkService.getAddress()

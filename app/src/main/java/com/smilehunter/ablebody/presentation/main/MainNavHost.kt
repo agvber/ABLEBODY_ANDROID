@@ -22,6 +22,14 @@ import com.smilehunter.ablebody.presentation.delivery.popBackStackForResult
 import com.smilehunter.ablebody.presentation.delivery.searchPostCodeWebViewScreen
 import com.smilehunter.ablebody.presentation.home.HomeRoute
 import com.smilehunter.ablebody.presentation.home.addHomeGraph
+import com.smilehunter.ablebody.presentation.home.bookmark.addBookmarkScreen
+import com.smilehunter.ablebody.presentation.home.brand.addBrandScreen
+import com.smilehunter.ablebody.presentation.home.cody.addCodyScreen
+import com.smilehunter.ablebody.presentation.home.item.addItemScreen
+import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
+import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.selectProfileImageForResult
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
@@ -51,11 +59,6 @@ fun MainNavHost(
     ) {
         addHomeGraph(
             isBottomBarShow = isBottomBarShow,
-            onSearchBarClick = { navController.navigate("SearchRoute") },
-            onAlertButtonClick = { navController.navigate(NotificationRoute) },
-            onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen,
-            onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
-            onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
             settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
             onBackRequest = navController::popBackStack,
             suggestonClick = {navController.navigate("SuggestScreen")},
@@ -69,6 +72,43 @@ fun MainNavHost(
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
+            nestedGraph = {
+                addBrandScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onBrandDetailRouteRequest = navController::navigateToBrandDetailScreen
+                )
+                addItemScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                )
+                addCodyScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+                )
+                addBookmarkScreen(
+                    isBottomBarShow = isBottomBarShow,
+                    onSearchBarClick = { navController.navigate("SearchRoute") },
+                    onAlertButtonClick = { navController.navigate(NotificationRoute) },
+                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                    onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
+                )
+                addEditProfileGraph(
+                    onBackRequest = navController::popBackStack,
+                    defaultImageSelectableViewRequest = navController::navigateToSelectProfileImageScreen,
+                    nestedGraph = {
+                        addSelectProfileImageScreen(
+                            onBackRequest = navController::popBackStack,
+                            confirmButtonClick = navController::selectProfileImageForResult
+                        )
+                    }
+                )
+            }
         )
 
         addSearchScreen(
@@ -106,13 +146,11 @@ fun MainNavHost(
             onBackRequest = navController::popBackStack,
             profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
                 Log.d("다른 유저 프로필", it)},
-
-            )
+        )
 
         addCommentScreen(
             onBackRequest = navController::popBackStack,
-            onUserProfileVisitRequest = { navController.navigate("OtherNormalUserRoute/$it")
-                Log.d("다른 유저 프로필", it)},
+            onUserProfileVisitRequest = { /* TODO 다른 유저의 Profile 화면으로 가기 */ },
             likeUsersViewOnRequest = navController::navigateToLikeUserListScreen,
             isBottomBarShow = isBottomBarShow
         )

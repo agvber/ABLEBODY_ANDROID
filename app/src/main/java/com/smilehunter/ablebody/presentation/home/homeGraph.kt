@@ -6,10 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.smilehunter.ablebody.presentation.home.bookmark.ui.BookmarkListRoute
-import com.smilehunter.ablebody.presentation.home.brand.ui.BrandRoute
-import com.smilehunter.ablebody.presentation.home.cody.ui.CodyRecommendedRoute
-import com.smilehunter.ablebody.presentation.home.item.ui.ItemRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRegisterRoute
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRoute
@@ -27,11 +23,7 @@ const val HomeRoute = "Home"
 
 fun NavGraphBuilder.addHomeGraph(
     isBottomBarShow: (Boolean) -> Unit,
-    onSearchBarClick: () -> Unit,
-    onAlertButtonClick: () -> Unit,
-    onBrandDetailRouteRequest: (Long, String) -> Unit,
-    onProductItemDetailRouteRequest: (Long) -> Unit,
-    onCodyItemDetailRouteRequest: (Long) -> Unit,
+    nestedGraph: NavGraphBuilder.() -> Unit,
     settingOnClickRouteRequest: () -> Unit,
     onBackRequest: () -> Unit,
     suggestonClick: () -> Unit,
@@ -49,41 +41,7 @@ fun NavGraphBuilder.addHomeGraph(
         startDestination = NavigationItems.Brand.name,
         route = "Home",
     ) {
-        composable(route = NavigationItems.Brand.name) {
-            BrandRoute(
-                onSearchBarClick = onSearchBarClick,
-                onAlertButtonClick = onAlertButtonClick,
-                onItemClick = onBrandDetailRouteRequest,
-            )
-            isBottomBarShow(true)
-        }
-        composable(route = NavigationItems.Item.name) {
-            ItemRoute(
-                onSearchBarClick = onSearchBarClick,
-                onAlertButtonClick = onAlertButtonClick,
-                itemClick = onProductItemDetailRouteRequest
-            )
-            isBottomBarShow(true)
-        }
-        composable(
-            route = NavigationItems.CodyRecommendation.name,
-        ) {
-            CodyRecommendedRoute(
-                onSearchBarClick = onSearchBarClick,
-                onAlertButtonClick = onAlertButtonClick,
-                itemClick = onCodyItemDetailRouteRequest,
-            )
-            isBottomBarShow(true)
-        }
-        composable(route = NavigationItems.Bookmark.name) {
-            BookmarkListRoute(
-                onSearchBarClick = onSearchBarClick,
-                onAlertButtonClick = onAlertButtonClick,
-                productItemClick = onProductItemDetailRouteRequest,
-                codyItemClick = onCodyItemDetailRouteRequest,
-            )
-            isBottomBarShow(true)
-        }
+        nestedGraph()
         navigation(startDestination = "start", route = NavigationItems.My.name){
 
             composable(route = "start") {
@@ -197,4 +155,5 @@ fun NavGraphBuilder.addHomeGraph(
             }
 
         }
+
 }

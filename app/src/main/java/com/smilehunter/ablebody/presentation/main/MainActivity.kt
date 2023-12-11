@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         val paymentWidget = PaymentWidget(
             activity = this,
-            clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
+            clientKey = "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN",
             customerKey = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6"
         )
 
