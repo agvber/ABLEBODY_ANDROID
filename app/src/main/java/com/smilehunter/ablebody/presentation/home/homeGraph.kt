@@ -35,7 +35,8 @@ fun NavGraphBuilder.addHomeGraph(
     coupononClick: () -> Unit,
     couponRegisterOnClick: () -> Unit,
     onReport: () -> Unit,
-    withDrawButtonOnClick: () -> Unit
+    withDrawButtonOnClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -47,7 +48,8 @@ fun NavGraphBuilder.addHomeGraph(
             composable(route = "start") {
                 MyProfileRoute(
                     settingOnClick = settingOnClickRouteRequest,
-                    coupononClick = coupononClick
+                    coupononClick = coupononClick,
+                    orderManagementOnClick = orderManagementOnClick
                 )
                 isBottomBarShow(true)
             }

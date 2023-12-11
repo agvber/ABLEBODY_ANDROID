@@ -72,6 +72,7 @@ fun MainNavHost(
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
+            orderManagementOnClick = {navController.navigate("")},
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,
