@@ -1,22 +1,18 @@
-package com.smilehunter.ablebody.presentation.item_detail.ui
+package com.smilehunter.ablebody.presentation.item_detail
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.smilehunter.ablebody.data.dto.response.ItemDetailResponse
 import com.smilehunter.ablebody.data.repository.BookmarkRepository
 import com.smilehunter.ablebody.data.repository.ItemRepository
-import com.smilehunter.ablebody.data.repository.ItemRepositoryImpl
 import com.smilehunter.ablebody.domain.GetItemOptionListUseCase
 import com.smilehunter.ablebody.domain.ItemData
-import com.smilehunter.ablebody.network.NetworkService
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
