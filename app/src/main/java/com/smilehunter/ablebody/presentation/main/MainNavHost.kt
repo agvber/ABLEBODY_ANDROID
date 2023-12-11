@@ -40,6 +40,7 @@ import com.smilehunter.ablebody.presentation.notification.addNotificationScreen
 import com.smilehunter.ablebody.presentation.order_management.addOrderItemDetailScreen
 import com.smilehunter.ablebody.presentation.order_management.addOrderManagementGraph
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
+import com.smilehunter.ablebody.presentation.order_management.navigateToOrderManagementGraph
 import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
@@ -72,7 +73,7 @@ fun MainNavHost(
             couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
-            orderManagementOnClick = {navController.navigate("")},
+            orderManagementOnClick = { navController.navigateToOrderManagementGraph() },
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,
