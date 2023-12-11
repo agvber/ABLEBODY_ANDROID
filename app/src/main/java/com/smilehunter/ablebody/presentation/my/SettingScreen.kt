@@ -55,6 +55,7 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleLight
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
+import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -104,6 +105,7 @@ fun SettingScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingList(
     listText: String,
@@ -210,14 +212,23 @@ fun SettingList(
                     .padding(horizontal = 25.dp)
             )
         }else {
-            Icon(
-                Icons.Filled.KeyboardArrowRight,
-                contentDescription = linkUrl,
-                Modifier
-                    .padding(10.dp)
-                    .size(24.dp),
-                tint = Color.Gray
-            )
+            if(listText == "앱 버전") {
+                Text(
+                    text = BuildConfig.VERSION_NAME,
+                    color = SmallTextGrey,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+            }else{
+                Icon(
+                    Icons.Filled.KeyboardArrowRight,
+                    contentDescription = linkUrl,
+                    Modifier
+                        .padding(10.dp)
+                        .size(24.dp),
+                    tint = Color.Gray
+                )
+            }
+
         }
     }
     if (logoutDialog) {

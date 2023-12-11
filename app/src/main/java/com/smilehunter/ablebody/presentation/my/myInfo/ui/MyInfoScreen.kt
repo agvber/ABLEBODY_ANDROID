@@ -80,29 +80,6 @@ fun MyInfoScreenRoute(
 }
 
 @Composable
-fun MyInfoEditScreenRoute(
-    myInfoViewModel: MyInfoViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit
-) {
-    LaunchedEffect(key1 = true) {
-        myInfoViewModel.getMyInfoData()
-    }
-    val userInfoData by myInfoViewModel.userLiveData.observeAsState()
-
-    MyInfomationEditScreen(
-        onBackRequest = onBackRequest,
-        phoneNumber = userInfoData?.phoneNumber ?: "",
-        nickname = userInfoData?.nickname ?: "",
-        gender = when (userInfoData?.gender) {
-            Gender.MALE -> "남자"
-            Gender.FEMALE -> "여자"
-            else -> ""
-        },
-        uid = ("#" + userInfoData?.uid) ?: ""
-    )
-}
-
-@Composable
 fun WithdrawScreenRoute(
     myInfoViewModel: MyInfoViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
@@ -160,67 +137,6 @@ fun MyInfoScreen(
             SettingList(listText = "회원코드", editText = "#$uid")
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "탈퇴하기", textColor = Color.Red, withDrawOnClick = withDrawOnClick)
-        }
-    }
-}
-
-@Composable
-fun MyInfomationEditScreen(
-    onBackRequest: () -> Unit,
-    phoneNumber: String,
-    nickname: String,
-    gender: String,
-    uid: String
-) {
-    var editSavePopup by remember { mutableStateOf(false) }
-    Scaffold(
-        topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)
-            Text(
-                text = "내 정보 수정",
-                modifier = Modifier.padding(horizontal = 70.dp, vertical = 15.dp),
-                style = TextStyle(
-                    fontSize = 18.sp,
-                )
-            )},
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ){
-            Column {
-                MyInfoEditTextField("휴대폰 번호(아이디)", contentText = phoneNumber)
-                MyInfoEditTextField("닉네임", contentText = nickname)
-                MyInfoEditTextField("성별", contentText = gender)
-                MyInfoEditTextField("회원코드", contentText = uid)
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    androidx.compose.material3.Button(
-                        onClick = {
-//                            suggestText(inputText)
-                            editSavePopup = true
-                        },
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .padding(16.dp)
-                            .height(55.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AbleBlue),
-//                        enabled = isButtonEnabled // 버튼 활성화 여부를 설정
-                    ) {
-                        Text(
-                            text = "확인",
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-        }
-        if (editSavePopup) {
-            EditSavePopup( onBackRequest = onBackRequest, {editSavePopup = false})
         }
     }
 }
@@ -404,32 +320,7 @@ fun EditSavePopup(
     }
 }
 
-@Composable
-fun PhoneNumberSavePopup(
-    onBackRequest: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AbleBodyAlertDialog(
-        onDismissRequest = { onDismiss() },
-        positiveText = "예",
-        positiveButtonOnClick = { onBackRequest() },
-        negativeText = "아니오",
-        negativeButtonOnClick = { onDismiss() },
-    ) {
-        androidx.compose.material.Text(
-            text = "휴대폰 번호를 바꾸려면 인증번호가\n" +
-                    "필요해요.",
-            style = TextStyle(
-                fontSize = 18.sp,
-                lineHeight = 26.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                fontWeight = FontWeight(700),
-                color = AbleDark,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-    }
-}
+
 
 @Composable
 fun WithDrawCompleteScreen() {
@@ -463,12 +354,6 @@ fun WithDrawCompleteScreen() {
 @Composable
 fun MyInfomationScreenPreview() {
     MyInfoScreen({}, {}, {},"01012345678", "nickname", "남자", "000000")
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun MyInfomationEditScreenPreview() {
-    MyInfomationEditScreen({}, "01012345678", "닉네임", "남자", "000000")
 }
 
 @Preview(showSystemUi = true)
