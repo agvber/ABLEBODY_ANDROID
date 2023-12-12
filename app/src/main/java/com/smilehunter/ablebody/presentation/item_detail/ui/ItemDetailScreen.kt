@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.smilehunter.ablebody.presentation.item_detail.ui
 
 import android.content.Intent
@@ -48,9 +46,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -71,10 +66,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ItemDetailData
 import com.smilehunter.ablebody.presentation.item_detail.ItemDetailViewModel
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
@@ -93,30 +90,24 @@ import java.util.Locale
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ItemDetailScreen(
-    viewModel: ItemDetailViewModel = hiltViewModel(),
-    id: Long,
-    itemClick: (Long, Long) -> Unit,
     onBackRequest: () -> Unit,
     purchaseOnClick: (PaymentPassthroughData) -> Unit,
+    itemClick: (ItemDetailData.ItemReview) -> Unit,
     brandOnClick: (Long, String) -> Unit,
-    codyOnClick: (Long) -> Unit
+    codyOnClick: (Long) -> Unit,
+    itemDetailViewModel: ItemDetailViewModel = hiltViewModel()
 ) {
-    val itemDetailData by viewModel.itemDetailLiveData.observeAsState()
+    val id by itemDetailViewModel.itemId.collectAsStateWithLifecycle()
+    val itemDetailData by itemDetailViewModel.itemDetail.collectAsStateWithLifecycle()
     val mainImageList = itemDetailData?.item?.images
-    Log.d("mainImageList", mainImageList.toString())
     val colorList = itemDetailData?.colorList
     val sizeList = itemDetailData?.sizeList
-    Log.d("DetailScreen", "colorList:${colorList} sizeList:${sizeList}")
-    val configuration = LocalConfiguration.current
     val bookMark = itemDetailData?.bookmarked
     val optionBottomSheetState  = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
     val context  = LocalContext.current
     var percent: Int = 0
 
-    LaunchedEffect(key1 = true) {
-        viewModel.getData(id)
-    }
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
     ) { paddingValues ->
@@ -193,7 +184,7 @@ fun ItemDetailScreen(
                         }
 
                         if (bookMark != null) {
-                            val itemDetail by viewModel.itemDetailLiveData.observeAsState()
+                            val itemDetail by itemDetailViewModel.itemDetail.collectAsStateWithLifecycle()
                             val isBookmarked = itemDetail?.bookmarked
                                 ?: false
 
@@ -207,7 +198,7 @@ fun ItemDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .nonReplyClickable {
-                                        viewModel.toggleBookMark(id)
+                                        itemDetailViewModel.toggleBookMark()
                                         Log.d("북마크눌려짐", isBookmarked.toString())
                                     },
                                 alignment = Alignment.CenterEnd
@@ -371,10 +362,9 @@ fun ItemDetailScreen(
                                                 shape = RoundedCornerShape(size = 15.dp)
                                             )
                                             .nonReplyClickable {
-                                                itemClick(
-                                                    id,
-                                                    reviewId!!
-                                                )
+                                                itemDetailData?.itemReviews?.find { it.id == reviewId }?.let {
+                                                    itemClick(it)
+                                                }
                                             }
                                     ) {
                                         Row(
@@ -596,7 +586,7 @@ fun ItemDetailScreen(
                         deliveryPrice = itemDetailData?.item?.deliveryFee?.toInt() ?: 3000,
                         items = listOf(
                             PaymentPassthroughData.Item(
-                                itemID = id.toInt(),
+                                itemID = id!!.toInt(),
                                 brandName = itemDetailData?.item?.brand?.name.toString(),
                                 itemName = itemDetailData?.item?.name.toString(),
                                 price = itemDetailData?.item?.price ?: 0, //TODO : 가격이 0이될 수 없지 않나?!?!
@@ -824,7 +814,6 @@ fun ColorSizeTextField(
     sizeOnClick: (String) -> Unit,
     selected: Boolean
 ){
-    Log.d("LOGoption", option)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -859,6 +848,7 @@ fun ColorSizeTextField(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ViewPagerPage(mainImageList: List<String>?) {
     if (mainImageList == null || mainImageList.isEmpty()) return
