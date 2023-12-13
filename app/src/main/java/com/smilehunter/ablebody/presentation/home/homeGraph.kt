@@ -13,7 +13,7 @@ import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoEditScreenRoute
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoScreenRoute
 import com.smilehunter.ablebody.presentation.my.myprofile.ui.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.other.ui.OtherNormalUserRoute
-import com.smilehunter.ablebody.presentation.my.ReportRoute
+import com.smilehunter.ablebody.presentation.my.report.ReportRoute
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.alarm.ui.AlarmRoute

@@ -47,8 +47,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestList
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -114,6 +116,7 @@ fun SettingList(
     alarmOnClick: () -> Unit = {},
     withDrawOnClick: () -> Unit = {},
     withDrawReasonOnClick: (String) -> Unit = {},
+    onReportOnClick: (ReportRequest) -> Unit = {},
     onBackRequest: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -152,29 +155,29 @@ fun SettingList(
                 } else if (listText == "탈퇴하기") {
                     withDrawOnClick()
                 } else if (listText == "불법적인 게시물이에요") {
-                    Log.d("신고", "1")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "불법적인 게시물이에요", ""))
                 } else if (listText == "욕설을 해요") {
-                    Log.d("신고", "2")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "욕설을 해요", ""))
                 } else if (listText == "음란성 글이에요") {
-                    Log.d("신고", "3")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "음란성 글이에요", ""))
                 } else if (listText == "차별/혐오 표현을 사용해요") {
-                    Log.d("신고", "4")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "차별/혐오 표현을 사용해요", ""))
                 } else if (listText == "잘못된 정보를 제공하는 글이에요") {
-                    Log.d("신고", "5")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "잘못된 정보를 제공하는 글이에요", ""))
                 } else if (listText == "불쾌감을 줄 수 있는 사진이에요") {
-                    Log.d("신고", "6")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "불쾌감을 줄 수 있는 사진이에요", ""))
                 } else if (listText == "중복/도배성 게시물이에요") {
-                    Log.d("신고", "7")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "중복/도배성 게시물이에요", ""))
                 } else if (listText == "기타 ") {
-                    Log.d("신고", "8")
                     reportCompleteDialog = true
+                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "기타", ""))
                 } else {
                     redirectToURL(context, linkUrl)
                 }
@@ -193,6 +196,28 @@ fun SettingList(
             ),
             modifier = Modifier
                 .padding(horizontal = 25.dp)
+//                .nonReplyClickable {
+//                    when(listText){
+//                        "불법적인 게시물이에요" ->
+//                            onReportOnClick(
+//                                ReportRequest(ReportRequest.ContentType.User, 9999999, "불법적인 게시물이에요", ""))
+//                        "욕설을 해요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "욕설을 해요", "")
+//                        "음란성 글이에요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "음란성 글이에요", "")
+//                        "차별/혐오 표현을 사용해요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "차별/혐오 표현을 사용해요", "")
+//                        "잘못된 정보를 제공하는 글이에요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "잘못된 정보를 제공하는 글이에요", "")
+//                        "불쾌감을 줄 수 있는 사진이에요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "불쾌감을 줄 수 있는 사진이에요", "")
+//                        "중복/도배성 게시물이에요" ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "중복/도배성 게시물이에요", "")
+//                        "기타 " ->
+//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "기타", "")
+//                    }
+//                }
+
         )
         Spacer(modifier = Modifier.weight(1f))
         if(editText.isNotEmpty()){
@@ -208,6 +233,7 @@ fun SettingList(
                 ),
                 modifier = Modifier
                     .padding(horizontal = 25.dp)
+
             )
         }else {
             Icon(

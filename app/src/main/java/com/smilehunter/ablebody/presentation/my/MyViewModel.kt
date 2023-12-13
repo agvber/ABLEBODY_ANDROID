@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.smilehunter.ablebody.data.dto.request.ReportRequest
+import com.smilehunter.ablebody.data.repository.ManageRepository
 import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.AddCouponUseCase
 import com.smilehunter.ablebody.domain.GetCouponListUseCase
@@ -35,6 +37,7 @@ import kotlin.coroutines.suspendCoroutine
 @HiltViewModel
 class MyViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val manageRepository: ManageRepository,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getCouponListUseCase: GetCouponListUseCase,
     private val getOrderItemListUseCase: GetOrderItemListUseCase,
@@ -54,6 +57,12 @@ class MyViewModel @Inject constructor(
     private val _orderItemListLiveData = MutableLiveData<List<OrderItemData>>()
     val orderItemListLiveData: LiveData<List<OrderItemData>> = _orderItemListLiveData
 
+    fun reportUser(reportRequest: ReportRequest){
+        Log.d("뷰모델에 신고 들어옴", reportRequest.reason)
+        viewModelScope.launch(ioDispatcher) {
+            manageRepository.report(reportRequest)
+        }
+    }
 //    //마케팅 알림 동의 여부 받아오기
 //    private val _getUserAdConsentLiveData = MutableLiveData<Boolean>()
 //    val getUserAdConsentLiveData: LiveData<Boolean> = _getUserAdConsentLiveData
