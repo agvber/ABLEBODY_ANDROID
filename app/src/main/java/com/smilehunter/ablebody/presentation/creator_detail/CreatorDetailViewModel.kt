@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
@@ -54,11 +53,10 @@ class CreatorDetailViewModel @Inject constructor(
                 contentID.zip(userRepository.localUserInfoData)  { id, userInfo ->
                     getCreatorDetailDataListUseCase(id, userInfo.uid)
                 }
-                    .flowOn(ioDispatcher)
                     .asResult()
                     .map {
                         when (it) {
-                            is Result.Error -> CreatorDetailUiState.LoadFail
+                            is Result.Error -> CreatorDetailUiState.LoadFail(it.exception)
                             is Result.Loading -> CreatorDetailUiState.Loading
                             is Result.Success -> CreatorDetailUiState.Success(it.data)
                         }

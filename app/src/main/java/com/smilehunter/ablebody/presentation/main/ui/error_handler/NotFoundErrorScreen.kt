@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.main.ui.error_handling
+package com.smilehunter.ablebody.presentation.main.ui.error_handler
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -24,6 +24,7 @@ fun NotFoundErrorScreen(
 ) {
     ErrorScreen(
         onClick = onClick,
+        buttonText = "다른 컨텐츠 보러가기",
         modifier = modifier
     ) {
         HighlightText(

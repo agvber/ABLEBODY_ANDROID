@@ -30,6 +30,7 @@ internal val LocalNetworkConnectState = staticCompositionLocalOf {
 
 @Composable
 fun MainScreen(
+    recreateRequest: () -> Unit,
     isNetworkConnectionFlow: StateFlow<Boolean>,
     paymentWidget: PaymentWidget
 ) {
@@ -70,6 +71,7 @@ fun MainScreen(
                 LocalNetworkConnectState.provides(isNetworkConnection)
             ) {
                 MainNavHost(
+                    recreateRequest = recreateRequest,
                     isBottomBarShow = { isBottomBarShow = it },
                     navController = navController,
                     paymentWidget = paymentWidget

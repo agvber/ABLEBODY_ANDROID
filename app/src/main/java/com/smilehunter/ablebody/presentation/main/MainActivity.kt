@@ -8,7 +8,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -57,10 +56,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             ABLEBODY_AndroidTheme {
                 MainScreen(
+                    recreateRequest = { startMainActivity() },
                     isNetworkConnectionFlow = isNetworkConnectionFlow,
                     paymentWidget = paymentWidget
                 )
-                LocalActivityResultRegistryOwner
             }
         }
 
@@ -78,6 +77,12 @@ class MainActivity : AppCompatActivity() {
                 startOnboardingActivity()
             }
         }
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun startOnboardingActivity() {

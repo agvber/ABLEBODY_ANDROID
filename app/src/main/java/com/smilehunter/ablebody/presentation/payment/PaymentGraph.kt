@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.google.gson.Gson
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.presentation.payment.ui.PaymentRoute
@@ -30,11 +31,12 @@ fun NavController.navigateToPayment(
 
 
 fun NavGraphBuilder.addPaymentGraph(
+    isBottomBarShow: (Boolean) -> Unit,
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit,
-    isBottomBarShow: (Boolean) -> Unit,
     paymentWidget: PaymentWidget
 ) {
     navigation(
@@ -46,6 +48,7 @@ fun NavGraphBuilder.addPaymentGraph(
         composable(route = PaymentDestination.PAYMENT.route) {
 
             PaymentRoute(
+                onErrorOccur = onErrorOccur,
                 onBackRequest = onBackRequest,
                 addressRequest = addressRequest,
                 receiptRequest = receiptRequest,

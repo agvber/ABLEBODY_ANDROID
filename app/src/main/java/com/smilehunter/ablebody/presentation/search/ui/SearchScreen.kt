@@ -28,8 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -53,11 +55,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.data.result.Result
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.SearchHistoryQuery
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.search.SearchViewModel
+import com.smilehunter.ablebody.presentation.search.data.KeywordUiState
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.product_item.ProductItemListLayout
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -67,15 +69,18 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyRowTab
 import com.smilehunter.ablebody.ui.utils.AbleBodyTabItem
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun SearchRoute(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     backRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
     searchViewModel: SearchViewModel = hiltViewModel()
 ) {
     SearchScreen(
+        onErrorOccur = onErrorOccur,
         backRequest = backRequest,
         productItemClick = productItemClick,
         codyItemClick = codyItemClick,
@@ -86,6 +91,7 @@ fun SearchRoute(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     backRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
@@ -108,12 +114,14 @@ fun SearchScreen(
             onValueChange = { searchViewModel.updateKeyword(it) }
         )
         AnimatedVisibility(visible = keyword.isEmpty()) {
-            SearchKeywordLayout(
-                searchHistoryResetRequest = { searchViewModel.deleteAllSearchHistory() },
-                selectText = { searchViewModel.updateKeyword(it) },
-                searchHistoryQueries = searchHistoryQueries,
-                recommendedKeywords = recommendedKeywords
-            )
+            if (recommendedKeywords is KeywordUiState.RecommendKeyword) {
+                SearchKeywordLayout(
+                    searchHistoryResetRequest = { searchViewModel.deleteAllSearchHistory() },
+                    selectText = { searchViewModel.updateKeyword(it) },
+                    searchHistoryQueries = searchHistoryQueries,
+                    recommendedKeywords = (recommendedKeywords as KeywordUiState.RecommendKeyword).data
+                )
+            }
         }
         AnimatedVisibility(
             visible = keyword.isNotEmpty(),
@@ -161,10 +169,9 @@ fun SearchScreen(
             }
         }
     }
-    if (productPagingItemList.loadState.refresh is LoadState.Error ||
-        codyPagingItemList.loadState.refresh is LoadState.Error ||
-        !LocalNetworkConnectState.current
-        ) {
+
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -175,6 +182,30 @@ fun SearchScreen(
             }
         )
     }
+
+    val itemRefreshLoadState = productPagingItemList.loadState.refresh
+    val codyRefreshLoadState = codyPagingItemList.loadState.refresh
+    if (itemRefreshLoadState is LoadState.Error || codyRefreshLoadState is LoadState.Error) {
+        val throwable = when {
+            itemRefreshLoadState is LoadState.Error -> itemRefreshLoadState.error
+            codyRefreshLoadState is LoadState.Error -> codyRefreshLoadState.error
+            else -> return
+        }
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
+    }
 }
 
 @Composable
@@ -182,7 +213,7 @@ private fun SearchKeywordLayout(
     searchHistoryResetRequest: () -> Unit,
     selectText: (String) -> Unit,
     searchHistoryQueries: List<SearchHistoryQuery>,
-    recommendedKeywords: Result<List<String>>
+    recommendedKeywords: List<String>
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -252,22 +283,20 @@ private fun SearchKeywordLayout(
                 ),
                 modifier = Modifier.padding(vertical = 15.dp)
             )
-            if (recommendedKeywords is Result.Success) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(items = recommendedKeywords.data) {
-                        RoundedCornerButton(onClick = { selectText(it) }) {
-                            Text(
-                                text = it,
-                                style = TextStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = AbleDark,
-                                    textAlign = TextAlign.Center,
-                                )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items = recommendedKeywords) {
+                    RoundedCornerButton(onClick = { selectText(it) }) {
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight(400),
+                                color = AbleDark,
+                                textAlign = TextAlign.Center,
                             )
-                        }
+                        )
                     }
                 }
             }
@@ -402,6 +431,6 @@ private fun SearchKeywordLayoutPreview() {
         searchHistoryResetRequest = {},
         selectText = {},
         searchHistoryQueries = listOf(SearchHistoryQuery("가위", 0L)),
-        recommendedKeywords = Result.Success(listOf("나이키", "애블바디", "가나다"))
+        recommendedKeywords = listOf("나이키", "애블바디", "가나다")
     )
 }

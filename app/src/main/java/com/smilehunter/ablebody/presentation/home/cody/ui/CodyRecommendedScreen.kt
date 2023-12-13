@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,17 +23,19 @@ import com.smilehunter.ablebody.data.dto.Gender
 import com.smilehunter.ablebody.data.dto.HomeCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.model.CodyItemData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.fake.fakeCodyItemData
 import com.smilehunter.ablebody.presentation.home.cody.CodyRecommendViewModel
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.cody_item.CodyItemListLayout
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.utils.ItemSearchBar
 import kotlinx.coroutines.flow.flowOf
+import retrofit2.HttpException
 
 @Composable
 fun CodyRecommendedRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     itemClick: (Long) -> Unit,
@@ -54,8 +59,8 @@ fun CodyRecommendedRoute(
         codyItemData = codyItemData,
     )
 
-    val isNetworkDisconnected = codyItemData.loadState.refresh is LoadState.Error || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -65,6 +70,24 @@ fun CodyRecommendedRoute(
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (codyItemData.loadState.refresh is LoadState.Error) {
+        val throwable = (codyItemData.loadState.refresh as LoadState.Error).error
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    } else {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

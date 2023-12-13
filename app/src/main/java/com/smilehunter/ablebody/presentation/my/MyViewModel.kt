@@ -73,13 +73,13 @@ class MyViewModel @Inject constructor(
 //    private val _otherUserLiveData = MutableLiveData<UserInfoData>()
 //    val otherUserLiveData: LiveData<UserInfoData> = _otherUserLiveData
 
-    val userBoard: StateFlow<PagingData<UserBoardData.Content>> = getUserBoardPagerUseCase()
-        .cachedIn(viewModelScope)
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            PagingData.empty()
-        )
+//    val userBoard: StateFlow<PagingData<UserBoardData.Content>> = getUserBoardPagerUseCase()
+//        .cachedIn(viewModelScope)
+//        .stateIn(
+//            viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5000),
+//            PagingData.empty()
+//        )
 
 
     @OptIn(ExperimentalCoroutinesApi::class)

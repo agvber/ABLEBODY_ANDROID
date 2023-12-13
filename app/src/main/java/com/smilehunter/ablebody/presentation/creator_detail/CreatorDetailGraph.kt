@@ -9,6 +9,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikedLocations
 import com.smilehunter.ablebody.presentation.creator_detail.ui.CreatorDetailRoute
 
@@ -23,6 +24,7 @@ fun NavController.navigateToCreatorDetail(
 
 fun NavGraphBuilder.addCreatorDetailScreen(
     isBottomBarShow: (Boolean) -> Unit,
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     profileRequest: (String) -> Unit,
     commentButtonOnClick: (Long) -> Unit,
@@ -41,10 +43,11 @@ fun NavGraphBuilder.addCreatorDetailScreen(
     ) { backStackEntry ->
         CreatorDetailRoute(
             onBackRequest = onBackRequest,
+            onErrorRequest = onErrorRequest,
             profileRequest = profileRequest,
             commentButtonOnClick = commentButtonOnClick,
             likeCountButtonOnClick = { likeCountButtonOnClick(it, LikedLocations.BOARD) },
-            productItemOnClick = productItemOnClick,
+            productItemOnClick = productItemOnClick
         )
         isBottomBarShow(false)
     }

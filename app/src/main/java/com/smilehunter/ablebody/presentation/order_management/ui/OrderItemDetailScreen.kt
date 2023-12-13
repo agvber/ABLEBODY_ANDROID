@@ -45,12 +45,12 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ReceiptData
 import com.smilehunter.ablebody.model.fake.fakeReceiptData
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.order_management.OrderManagementViewModel
-import com.smilehunter.ablebody.presentation.order_management.data.OrderManagementUiState
+import com.smilehunter.ablebody.presentation.order_management.data.DeliveryTrackingUiState
 import com.smilehunter.ablebody.presentation.receipt.ReceiptViewModel
 import com.smilehunter.ablebody.presentation.receipt.data.ReceiptUiState
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
@@ -60,16 +60,19 @@ import com.smilehunter.ablebody.ui.theme.InactiveGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import retrofit2.HttpException
 import java.text.NumberFormat
 
 @Composable
 fun OrderItemDetailRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     orderManagementViewModel: OrderManagementViewModel = hiltViewModel(),
     receiptViewModel: ReceiptViewModel = hiltViewModel(),
 ) {
     val deliveryTrackingData by orderManagementViewModel.deliveryTrackingData.collectAsStateWithLifecycle()
     val receiptData by receiptViewModel.receiptData.collectAsStateWithLifecycle()
+
     OrderItemDetailScreen(
         onBackRequest = onBackRequest,
         cancelOrderItem = { id ->
@@ -77,13 +80,12 @@ fun OrderItemDetailRoute(
             receiptViewModel.refreshReceiptData()
         },
         deliveryInfoRequest = orderManagementViewModel::updateDeliveryTrackingID,
-        deliveryCompanyName = (deliveryTrackingData as? OrderManagementUiState.DeliveryTracking)?.data?.deliveryCompanyName ?: "",
-        deliveryTrackingNumber = (deliveryTrackingData as? OrderManagementUiState.DeliveryTracking)?.data?.trackingNumber ?: "",
-        receiptData = (receiptData as? ReceiptUiState.Receipt)?.data
+        receiptData = receiptData,
+        deliveryTrackingData = deliveryTrackingData
     )
 
-    val isNetworkDisconnected = receiptData is ReceiptUiState.LoadFail || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
@@ -94,6 +96,26 @@ fun OrderItemDetailRoute(
             }
         )
     }
+
+    if (receiptData is ReceiptUiState.LoadFail) {
+        val throwable = (receiptData as ReceiptUiState.LoadFail).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (receiptData is ReceiptUiState.Receipt) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
+    }
 }
 
 
@@ -102,9 +124,8 @@ fun OrderItemDetailScreen(
     onBackRequest: () -> Unit,
     cancelOrderItem: (String) -> Unit,
     deliveryInfoRequest: (String) -> Unit,
-    deliveryCompanyName: String,
-    deliveryTrackingNumber: String,
-    receiptData: ReceiptData?
+    receiptData: ReceiptUiState,
+    deliveryTrackingData: DeliveryTrackingUiState
 ) {
     Scaffold(
         topBar = {
@@ -114,20 +135,20 @@ fun OrderItemDetailScreen(
             )
         }
     ) { paddingValue ->
-        if (receiptData == null) {
-            return@Scaffold
-        }
+        if (receiptData !is ReceiptUiState.Receipt) { return@Scaffold }
+        val receiptData = receiptData.data
 
         var showDeliveryTrackingNumberDialog by rememberSaveable { mutableStateOf(false) }
         val showOrderItemCancelDialog = remember { mutableStateMapOf<String, String>() }
         var showDeliveryCompleteDialog by rememberSaveable { mutableStateOf(false) }
 
         if (showDeliveryTrackingNumberDialog) {
+            val deliveryTrackingData = (deliveryTrackingData as? DeliveryTrackingUiState.Success)?.data
             DeliveryTrackingNumberDialog(
                 onDismissRequest = { showDeliveryTrackingNumberDialog = false },
                 positiveButtonOnClick = { showDeliveryTrackingNumberDialog = false },
-                deliveryCompany = deliveryCompanyName,
-                trackingNumber = deliveryTrackingNumber
+                deliveryCompany = deliveryTrackingData?.deliveryCompanyName ?: "",
+                trackingNumber = deliveryTrackingData?.trackingNumber ?: ""
             )
         }
         if (showOrderItemCancelDialog["is_show"] == "true") {
@@ -339,9 +360,9 @@ fun OrderItemDetailScreen(
                 val numberFormat = NumberFormat.getInstance()
                 mapOf(
                     "총 상품 금액" to receiptData.price,
-                    "상품 할인" to receiptData.itemDiscount,
-                    "쿠폰 할인" to receiptData.couponDiscount,
-                    "포인트 할인" to receiptData.pointDiscount,
+                    "상품 할인" to receiptData.itemDiscount.unaryMinus(),
+                    "쿠폰 할인" to receiptData.couponDiscount.unaryMinus(),
+                    "포인트 할인" to receiptData.pointDiscount.unaryMinus(),
                     "배송비" to receiptData.deliveryPrice,
                 )
                     .forEach {
@@ -474,9 +495,8 @@ fun OrderItemDetailScreenPreview() {
             onBackRequest = {},
             cancelOrderItem = {},
             deliveryInfoRequest = {},
-            deliveryCompanyName = "",
-            deliveryTrackingNumber = "",
-            receiptData = fakeReceiptData
+            receiptData = ReceiptUiState.Receipt(fakeReceiptData),
+            deliveryTrackingData = DeliveryTrackingUiState.Loading
         )
     }
 }

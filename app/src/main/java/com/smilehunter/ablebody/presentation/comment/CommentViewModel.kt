@@ -68,7 +68,7 @@ class CommentViewModel @Inject constructor(
                     .asResult()
                     .map {
                         when (it) {
-                            is Result.Error -> CommentUiState.LoadFail
+                            is Result.Error -> CommentUiState.LoadFail(it.exception)
                             is Result.Loading -> CommentUiState.Loading
                             is Result.Success -> CommentUiState.CommentList(it.data)
                         }

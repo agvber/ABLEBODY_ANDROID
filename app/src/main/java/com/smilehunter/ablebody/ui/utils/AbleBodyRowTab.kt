@@ -29,8 +29,8 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 fun AbleBodyRowTab(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
-    containerColor: Color = TabRowDefaults.containerColor,
-    contentColor: Color = AbleBlue ,
+    containerColor: Color = Color.White,
+    contentColor: Color = AbleBlue,
     indicator: @Composable (List<TabPosition>) -> Unit = @Composable { tabPositions ->
         TabRowDefaults.Indicator(
             modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),

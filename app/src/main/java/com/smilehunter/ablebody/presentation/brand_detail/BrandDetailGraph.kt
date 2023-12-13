@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.brand_detail.ui.BrandDetailRoute
 
 const val BrandDetailRoute = "brand_detail_route"
@@ -22,8 +23,9 @@ fun NavController.navigateToBrandDetailScreen(
 }
 
 fun NavGraphBuilder.addBrandDetailScreen(
-    onBackRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
+    onBackRequest: () -> Unit,
     productItemClick: (Long) -> Unit,
     codyItemClick: (Long) -> Unit,
 ) {
@@ -34,6 +36,7 @@ fun NavGraphBuilder.addBrandDetailScreen(
         )
     ) { backStackEntry ->
         BrandDetailRoute(
+            onErrorRequest = onErrorRequest,
             onBackClick = onBackRequest,
             productItemClick = productItemClick,
             codyItemClick = codyItemClick,

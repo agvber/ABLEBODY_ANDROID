@@ -51,12 +51,12 @@ import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.SortingMethod
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.fake.fakeBrandListData
 import com.smilehunter.ablebody.presentation.home.brand.BrandViewModel
 import com.smilehunter.ablebody.presentation.home.brand.data.BrandListResultUiState
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
-import com.smilehunter.ablebody.presentation.main.ui.LocalNetworkConnectState
-import com.smilehunter.ablebody.presentation.main.ui.error_handling.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
@@ -68,40 +68,62 @@ import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheet
 import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheetItem
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @Composable
 fun BrandRoute(
+    onErrorRequest: (ErrorHandlerCode) -> Unit,
     onSearchBarClick: () -> Unit,
     onAlertButtonClick: () -> Unit,
     onItemClick: (Long, String) -> Unit,
-    viewModel: BrandViewModel = hiltViewModel()
+    brandViewModel: BrandViewModel = hiltViewModel()
 ) {
-    val sortingMethod by viewModel.brandListSortingMethod.collectAsStateWithLifecycle()
-    val genderFilter by viewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
-    val brandItemList by viewModel.brandItemList.collectAsStateWithLifecycle()
+    val sortingMethod by brandViewModel.brandListSortingMethod.collectAsStateWithLifecycle()
+    val genderFilter by brandViewModel.brandListGenderFilterType.collectAsStateWithLifecycle()
+    val brandItemList by brandViewModel.brandItemList.collectAsStateWithLifecycle()
 
     BrandScreen(
         onSearchBarClick = onSearchBarClick,
         onAlertButtonClick = onAlertButtonClick,
         sortingMethod = sortingMethod,
-        onSortingMethodChange = { viewModel.updateBrandListOrderFilterType(it) },
+        onSortingMethodChange = { brandViewModel.updateBrandListOrderFilterType(it) },
         genderFilter = genderFilter,
-        onGenderFilterChange = { viewModel.updateBrandListGenderFilterType(it) },
+        onGenderFilterChange = { brandViewModel.updateBrandListGenderFilterType(it) },
         brandItemList = brandItemList,
         onItemClick = onItemClick
     )
 
-    val isNetworkDisconnected = brandItemList is BrandListResultUiState.Error || !LocalNetworkConnectState.current
-    if (isNetworkDisconnected) {
+    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
+    if (isNetworkDisConnectedDialogShow) {
         val context = LocalContext.current
         NetworkConnectionErrorDialog(
             onDismissRequest = {  },
-            positiveButtonOnClick = { viewModel.refreshNetwork() },
+            positiveButtonOnClick = { brandViewModel.refreshNetwork() },
             negativeButtonOnClick = {
                 val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
                 ContextCompat.startActivity(context, intent, null)
             }
         )
+    }
+
+    if (brandItemList is BrandListResultUiState.Error) {
+        val throwable = (brandItemList as BrandListResultUiState.Error).t
+        val httpException = throwable as? HttpException
+        if (httpException?.code() == 404) {
+            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
+            return
+        }
+        if (httpException != null) {
+            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+            return
+        }
+        isNetworkDisConnectedDialogShow = true
+    }
+
+    if (brandItemList is BrandListResultUiState.Success) {
+        if (isNetworkDisConnectedDialogShow) {
+            isNetworkDisConnectedDialogShow = false
+        }
     }
 }
 

@@ -54,7 +54,7 @@ class LikeListViewModel @Inject constructor(
                     .asResult()
                     .map {
                         when (it) {
-                            is Result.Error -> LikeListUiState.LoadFail
+                            is Result.Error -> LikeListUiState.LoadFail(it.exception)
                             is Result.Loading -> LikeListUiState.Loading
                             is Result.Success -> LikeListUiState.LikeList(it.data)
                         }

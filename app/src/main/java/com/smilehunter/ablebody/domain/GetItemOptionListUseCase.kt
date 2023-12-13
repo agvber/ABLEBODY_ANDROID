@@ -1,17 +1,11 @@
 package com.smilehunter.ablebody.domain
 
-import android.util.Log
 import com.smilehunter.ablebody.data.dto.Gender
-import com.smilehunter.ablebody.data.dto.ItemChildCategory
-import com.smilehunter.ablebody.data.dto.ItemGender
-import com.smilehunter.ablebody.data.dto.ItemParentCategory
-import com.smilehunter.ablebody.data.dto.NetworkAuthorityName
 import com.smilehunter.ablebody.data.dto.response.data.ItemResponseData
 import com.smilehunter.ablebody.data.repository.ItemRepository
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -26,7 +20,6 @@ class GetItemOptionListUseCase @Inject constructor(
         }
     }
 }
-fun String.toDomain() = ""
 
 fun ItemResponseData.toDomain() = ItemData(
         id = this.id,

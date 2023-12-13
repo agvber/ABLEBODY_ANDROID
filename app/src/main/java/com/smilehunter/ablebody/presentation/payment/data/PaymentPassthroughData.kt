@@ -16,7 +16,7 @@ data class PaymentPassthroughData(
         val count: Int,
         val options: List<ItemOptions>
     ) {
-        val differencePrice = salePrice?.minus(price) ?: 0
+        val differencePrice = salePrice?.let { price - it } ?: 0
     }
 
     data class ItemOptions(

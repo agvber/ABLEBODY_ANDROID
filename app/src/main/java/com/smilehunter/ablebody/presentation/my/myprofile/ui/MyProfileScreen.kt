@@ -73,7 +73,8 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 fun MyProfileRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
-    coupononClick: () -> Unit
+    coupononClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ) {
     val userInfoData by viewModel.userLiveData.observeAsState()
 
@@ -82,10 +83,10 @@ fun MyProfileRoute(
 
     if(userInfoData?.userType.toString() == "CREATOR"){
         Log.d("NormalUser or Creator?", "CreatorScreen")
-        CreatorScreen(settingOnClick = settingOnClick, coupononClick = coupononClick)
+        CreatorScreen(settingOnClick = settingOnClick, coupononClick = coupononClick, orderManagementOnClick = orderManagementOnClick)
     }else{
         Log.d("NormalUser or Creator?", "NormalUserScreen")
-        NormalUserScreen(settingOnClick = settingOnClick, coupononClick = coupononClick)
+        NormalUserScreen(settingOnClick = settingOnClick, coupononClick = coupononClick, orderManagementOnClick = orderManagementOnClick)
     }
 
 }
@@ -95,7 +96,8 @@ fun CreatorScreen(
     myProfileViewModel: MyProfileViewModel = hiltViewModel(),
     couponViewModel: CouponViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
-    coupononClick: () -> Unit
+    coupononClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ){
     val userBoard = myProfileViewModel.userBoard.collectAsLazyPagingItems()
     val userInfoData by myProfileViewModel.userLiveData.observeAsState()
@@ -134,7 +136,8 @@ fun CreatorScreen(
                             coupon = couponData?.size ?: 0,
                             creatorPoint = userInfoData?.creatorPoint ?: 0,
                             settingOnClick = settingOnClick,
-                            coupononClick = coupononClick
+                            couponOnClick = coupononClick,
+                            orderManagementOnClick = orderManagementOnClick
                         )
                     }
                 }
@@ -171,7 +174,8 @@ fun NormalUserScreen(
     myProfileViewModel: MyProfileViewModel = hiltViewModel(),
     couponViewModel: CouponViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
-    coupononClick: () -> Unit
+    coupononClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ){
     val userInfoData by myProfileViewModel.userLiveData.observeAsState()
     val couponData by couponViewModel.couponListLiveData.observeAsState()
@@ -198,7 +202,8 @@ fun NormalUserScreen(
                     coupon = couponData?.size ?: 0,
                     creatorPoint = userInfoData?.creatorPoint ?: 0,
                     settingOnClick = settingOnClick,
-                    coupononClick = coupononClick
+                    couponOnClick = coupononClick,
+                    orderManagementOnClick = orderManagementOnClick
                 )
             }
         }
@@ -219,14 +224,15 @@ fun NormalUserInfo(
     coupon: Int,
     creatorPoint: Int,
     settingOnClick: () -> Unit,
-    coupononClick: () -> Unit
+    couponOnClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
     ){
         UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
-        OrderDetailBox(orderManagement, coupon, creatorPoint, coupononClick)
+        OrderDetailBox(orderManagement, coupon, creatorPoint, couponOnClick, orderManagementOnClick)
         profileEditButton()
         CreatorSupplyButton()
     }
@@ -246,12 +252,13 @@ fun CreatorUserInfo(
     coupon: Int,
     creatorPoint: Int,
     settingOnClick: () -> Unit,
-    coupononClick: () -> Unit
+    couponOnClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ) {
     Column(){
         UserName(isCreator, userName, settingOnClick)
         UserInformation(profileImage, nickName, weight, height, job, introduction)
-        OrderDetailBox(orderManagement, coupon, creatorPoint, coupononClick)
+        OrderDetailBox(orderManagement, coupon, creatorPoint, couponOnClick, orderManagementOnClick)
         profileEditButton()
         MySportswearCodyButton()
     }
@@ -361,7 +368,8 @@ fun OrderDetailBox(
     orderManagement: Int,
     coupon: Int,
     creatorPoint: Int,
-    coupononClick: () -> Unit
+    couponOnClick: () -> Unit,
+    orderManagementOnClick: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -379,7 +387,10 @@ fun OrderDetailBox(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f),
+                    .weight(1f)
+                    .nonReplyClickable {
+                        orderManagementOnClick()
+                    },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
@@ -394,7 +405,7 @@ fun OrderDetailBox(
                     .fillMaxSize()
                     .weight(1f)
                     .nonReplyClickable {
-                        coupononClick()
+                        couponOnClick()
                     },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -692,7 +703,7 @@ fun NormalUserScreenPreview() {
     ) {
         UserName(false, "ablebody_1", {})
         UserInformation("", "일반유저", 70, 173, "개발자", "안녕하세요")
-        OrderDetailBox(2,3,200, {})
+        OrderDetailBox(2,3,200, {}, {})
         profileEditButton()
         CreatorSupplyButton()
     }
@@ -707,7 +718,7 @@ fun CreatorScreenPreview() {
         ) {
             UserName(true, "ablebody_2", {})
             UserInformation("", "크리에이터", 70, 173, "개발자", "안녕하세요")
-            OrderDetailBox(2,1,100, {})
+            OrderDetailBox(2,1,100, {}, {})
             profileEditButton()
             MySportswearCodyButton()
         }
