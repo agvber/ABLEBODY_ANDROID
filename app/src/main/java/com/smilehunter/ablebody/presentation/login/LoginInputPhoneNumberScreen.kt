@@ -76,7 +76,6 @@ fun LoginInputPhoneNumberContent(
     underText: String
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-//        TopBarBackward()
         LoginPhoneNumberJoinExplanation()
         InputPhoneNumberWithRuleLayout(value, onValueChange, underText)
         Column(
@@ -127,7 +126,6 @@ fun LoginInputPhoneNumberScreen(
     val enable by viewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
     val phoneNumberMessage by viewModel.phoneNumberMessageStateUi.collectAsStateWithLifecycle()
 
-//    TopBarBackward()
     BottomCustomButtonLayout(
         buttonText = "인증번호 받기",
         onClick = {
