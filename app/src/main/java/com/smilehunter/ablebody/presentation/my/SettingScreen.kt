@@ -127,9 +127,6 @@ fun SettingList(
 
     val manager = context.packageManager
     val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
-    Log.d("PackageName = ", "PackageName = ${info.packageName} VersionCode = ${info.versionCode} VersionName = ${info.versionName}")
-
-    Log.d("앱버전",BuildConfig.VERSION_NAME)
 
     Row(
         modifier = Modifier
