@@ -17,6 +17,7 @@ import com.smilehunter.ablebody.presentation.my.report.ReportRoute
 import com.smilehunter.ablebody.presentation.my.SettingScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.alarm.ui.AlarmRoute
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.ChangePhoneNumberScreen
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestRoute
 
 const val HomeRoute = "Home"
@@ -36,7 +37,8 @@ fun NavGraphBuilder.addHomeGraph(
     couponRegisterOnClick: () -> Unit,
     onReport: () -> Unit,
     withDrawButtonOnClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
+    orderManagementOnClick: () -> Unit,
+    onPositiveBtnClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -98,7 +100,8 @@ fun NavGraphBuilder.addHomeGraph(
             }
             composable(route = "MyInfomationEditScreen") {
                 MyInfoEditScreenRoute(
-                    onBackRequest = onBackRequest
+                    onBackRequest = onBackRequest,
+                    onPositiveBtnClick = onPositiveBtnClick
                 )
                 isBottomBarShow(false)
             }
@@ -147,6 +150,13 @@ fun NavGraphBuilder.addHomeGraph(
                 )
             }
             isBottomBarShow(true)
+
+        }
+
+        composable(route = "ChangePhoneNumberScreen") {
+            ChangePhoneNumberScreen(
+            )
+            isBottomBarShow(false)
         }
 
             composable(route = "ReportRoute") {
