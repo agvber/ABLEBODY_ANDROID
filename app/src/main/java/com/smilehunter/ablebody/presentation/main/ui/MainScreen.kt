@@ -17,7 +17,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.smilehunter.ablebody.presentation.main.MainNavHost
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
-import com.tosspayments.paymentsdk.PaymentWidget
 import kotlinx.coroutines.flow.StateFlow
 
 internal val LocalMainScaffoldPaddingValue = staticCompositionLocalOf {
@@ -31,8 +30,7 @@ internal val LocalNetworkConnectState = staticCompositionLocalOf {
 @Composable
 fun MainScreen(
     recreateRequest: () -> Unit,
-    isNetworkConnectionFlow: StateFlow<Boolean>,
-    paymentWidget: PaymentWidget
+    isNetworkConnectionFlow: StateFlow<Boolean>
 ) {
     var isBottomBarShow by rememberSaveable { mutableStateOf(true) }
     var currentNavigationItem by rememberSaveable { mutableStateOf(NavigationItems.Brand) }
@@ -73,8 +71,7 @@ fun MainScreen(
                 MainNavHost(
                     recreateRequest = recreateRequest,
                     isBottomBarShow = { isBottomBarShow = it },
-                    navController = navController,
-                    paymentWidget = paymentWidget
+                    navController = navController
                 )
             }
         }

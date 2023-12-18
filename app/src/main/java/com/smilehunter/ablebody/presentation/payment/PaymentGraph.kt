@@ -10,7 +10,6 @@ import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 import com.smilehunter.ablebody.presentation.payment.ui.PaymentRoute
-import com.tosspayments.paymentsdk.PaymentWidget
 
 const val PaymentRoute = "payment_route"
 
@@ -36,8 +35,7 @@ fun NavGraphBuilder.addPaymentGraph(
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
-    nestedGraphs: NavGraphBuilder.() -> Unit,
-    paymentWidget: PaymentWidget
+    nestedGraphs: NavGraphBuilder.() -> Unit
 ) {
     navigation(
         startDestination = PaymentDestination.PAYMENT.route,
@@ -51,8 +49,7 @@ fun NavGraphBuilder.addPaymentGraph(
                 onErrorOccur = onErrorOccur,
                 onBackRequest = onBackRequest,
                 addressRequest = addressRequest,
-                receiptRequest = receiptRequest,
-                paymentWidget = paymentWidget
+                receiptRequest = receiptRequest
             )
             isBottomBarShow(false)
         }

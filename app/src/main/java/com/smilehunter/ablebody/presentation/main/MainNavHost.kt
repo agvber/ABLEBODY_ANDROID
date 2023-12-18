@@ -46,14 +46,12 @@ import com.smilehunter.ablebody.presentation.payment.navigateToPayment
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
-import com.tosspayments.paymentsdk.PaymentWidget
 
 @Composable
 fun MainNavHost(
     recreateRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
-    navController: NavHostController,
-    paymentWidget: PaymentWidget
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
@@ -217,8 +215,7 @@ fun MainNavHost(
                     onErrorOccur = navController::navigateErrorHandlingScreen,
                     orderComplete = recreateRequest
                 )
-            },
-            paymentWidget = paymentWidget
+            }
         )
 
         addOrderManagementGraph(

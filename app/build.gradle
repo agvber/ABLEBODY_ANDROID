@@ -197,7 +197,7 @@ dependencies {
 }
 
 dependencies {
-    implementation 'com.github.tosspayments:payment-sdk-android:0.1.12'
+    implementation 'com.github.agvber:payment-sdk-android:0.1.12.1'
 }
 
 dependencies {

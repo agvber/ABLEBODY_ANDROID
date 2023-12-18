@@ -85,6 +85,7 @@ import com.smilehunter.ablebody.model.fake.fakeUserInfo
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
@@ -103,7 +104,7 @@ import com.smilehunter.ablebody.ui.utils.CustomButton
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.KoreaMoneyFormatVisualTransformation
 import com.smilehunter.ablebody.utils.nonReplyClickable
-import com.tosspayments.paymentsdk.PaymentWidget
+import com.tosspayments.paymentsdk.ComposePaymentWidget
 import com.tosspayments.paymentsdk.model.AgreementStatus
 import com.tosspayments.paymentsdk.model.AgreementStatusListener
 import com.tosspayments.paymentsdk.model.PaymentCallback
@@ -121,7 +122,6 @@ fun PaymentRoute(
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
-    paymentWidget: PaymentWidget,
     paymentViewModel: PaymentViewModel = hiltViewModel(),
 ) {
     val paymentPassthroughData by paymentViewModel.paymentPassthroughData.collectAsStateWithLifecycle()
@@ -137,12 +137,23 @@ fun PaymentRoute(
 
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
+    val activityResultRegistryOwner = LocalActivityResultRegistryOwner.current
+    val activityResultRegistry = activityResultRegistryOwner?.activityResultRegistry
+
+    val composePaymentWidget = remember {
+        ComposePaymentWidget(
+            activityResultRegistry = activityResultRegistry!!,
+            clientKey = "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN",
+            customerKey = LocalUserProfile.getInstance().uid
+        )
+    }
+
     PaymentScreen(
         onBackRequest = onBackRequest,
         payButtonOnClick = { receipt ->
-            paymentWidget.updateAmount(receipt.values.sum())
+            composePaymentWidget.updateAmount(receipt.values.sum())
 
-            val selectedPaymentMethod = paymentWidget.getSelectedPaymentMethod()
+            val selectedPaymentMethod = composePaymentWidget.getSelectedPaymentMethod()
             paymentViewModel.orderItem(
                 orderName = orderName,
                 paymentType = selectedPaymentMethod.type,
@@ -155,7 +166,7 @@ fun PaymentRoute(
             AndroidViewBinding(
                 factory = { inflater, parent, attachToParent ->
                     val view = TossPaymentLayoutBinding.inflate(inflater, parent, attachToParent)
-                    paymentWidget.apply {
+                    composePaymentWidget.apply {
                         renderPaymentMethods(
                             method = view.paymentWidget,
                             amount = PaymentMethod.Rendering.Amount(
@@ -200,7 +211,7 @@ fun PaymentRoute(
 
     LaunchedEffect(key1 = orderItemID) {
         if (orderItemID.isBlank()) return@LaunchedEffect
-        paymentWidget.requestPayment(
+        composePaymentWidget.requestPayment(
             paymentInfo = PaymentMethod.PaymentInfo(
                 orderId = orderItemID,
                 orderName = orderName
