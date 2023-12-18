@@ -73,9 +73,9 @@ import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.CommentListData
 import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.LikedLocations
-import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.presentation.comment.CommentViewModel
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.AbleDeep
@@ -101,7 +101,6 @@ fun CommentRoute(
     commentViewModel: CommentViewModel = hiltViewModel()
 ) {
     val commentListData by commentViewModel.commentListData.collectAsStateWithLifecycle()
-    val myUserInfoData by commentViewModel.myUserInfoData.collectAsStateWithLifecycle(initialValue = null)
 
     CommentScreen(
         onBackRequest = onBackRequest,
@@ -113,7 +112,6 @@ fun CommentRoute(
         deleteReply = commentViewModel::deleteReply,
         toggleLikeComment = commentViewModel::toggleLikeComment,
         toggleLikeReply = commentViewModel::toggleLikeReply,
-        myUserInfoData = myUserInfoData,
         commentListData = commentListData
     )
 
@@ -163,7 +161,6 @@ fun CommentScreen(
     deleteReply: (Long) -> Unit,
     toggleLikeComment: (Long) -> Unit,
     toggleLikeReply: (Long) -> Unit,
-    myUserInfoData: LocalUserInfoData?,
     commentListData: CommentUiState
 ) {
     val lazyListState = rememberLazyListState()
@@ -171,6 +168,7 @@ fun CommentScreen(
     val textFieldFocusRequester = remember { FocusRequester() }
     var replyTargetNickname by remember { mutableStateOf<String?>(null) }
     var replyTargetID by remember { mutableLongStateOf(0) }
+    val localUserProfile = LocalUserProfile.getInstance()
 
     Scaffold(
         topBar = {
@@ -197,8 +195,8 @@ fun CommentScreen(
                     onCancelReply = { replyTargetNickname = null },
                     value = commentText,
                     onValueChange = { commentText = it },
-                    nickname = myUserInfoData?.nickname ?: "",
-                    profileImageURL = myUserInfoData?.profileImageUrl ?: "",
+                    nickname = localUserProfile.nickname,
+                    profileImageURL = localUserProfile.profileImageUrl,
                     modifier = Modifier.focusRequester(textFieldFocusRequester)
                 )
             }
@@ -215,7 +213,7 @@ fun CommentScreen(
                     items = commentListData.data,
                     key = { it.id }
                 ) { items ->
-                    val isMyComment = items.writer.uid == myUserInfoData?.uid
+                    val isMyComment = items.writer.uid == localUserProfile.uid
                     var isLiked by rememberSaveable { mutableStateOf(items.isLiked) }
 
                     CommentSwipeToDismissLayout(
@@ -791,7 +789,6 @@ fun CommentScreenPreview() {
         deleteReply = {},
         toggleLikeComment = {},
         toggleLikeReply = {},
-        myUserInfoData = null,
         commentListData = CommentUiState.Loading
     )
 }

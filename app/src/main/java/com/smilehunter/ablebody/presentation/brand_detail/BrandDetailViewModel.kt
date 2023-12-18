@@ -12,7 +12,6 @@ import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.PersonHeightFilterType
 import com.smilehunter.ablebody.data.dto.SortingMethod
-import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.CodyItemPagerUseCase
 import com.smilehunter.ablebody.domain.CodyPagingSourceData
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
@@ -20,6 +19,7 @@ import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.CodyItemData
 import com.smilehunter.ablebody.model.LocalUserInfoData
 import com.smilehunter.ablebody.model.ProductItemData
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,12 +29,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -42,7 +40,6 @@ import javax.inject.Inject
 class BrandDetailViewModel @Inject constructor(
     productItemPagerUseCase: ProductItemPagerUseCase,
     codyItemPagerUseCase: CodyItemPagerUseCase,
-    userRepository: UserRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -66,7 +63,7 @@ class BrandDetailViewModel @Inject constructor(
     }
 
     private val _brandProductItemGender = MutableStateFlow(
-        when (runBlocking { userRepository.localUserInfoData.firstOrNull()?.gender }) {
+        when (LocalUserProfile.getInstance().gender) {
             LocalUserInfoData.Gender.MALE -> ItemGender.MALE
             LocalUserInfoData.Gender.FEMALE -> ItemGender.FEMALE
             else -> ItemGender.MALE
