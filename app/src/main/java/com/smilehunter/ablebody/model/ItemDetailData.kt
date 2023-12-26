@@ -3,6 +3,7 @@ package com.smilehunter.ablebody.model
 import android.os.Parcelable
 import com.smilehunter.ablebody.data.dto.Gender
 import kotlinx.parcelize.Parcelize
+import kotlin.math.roundToInt
 
 data class ItemDetailData(
     val id: Int,
@@ -34,6 +35,7 @@ data class ItemDetailData(
         val deliveryFee: Long?,
         val deleted: Boolean
     ) {
+        val salePercentage = salePrice?.let { ((price - salePrice).toDouble() / price * 100).roundToInt() }
         data class Brand(
             val id: Long,
             val name: String,

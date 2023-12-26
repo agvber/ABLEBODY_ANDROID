@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import com.smilehunter.ablebody.model.ItemDetailData
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
+import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailRoute
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
 
 const val ItemDetailGraph = "item_detail_graph"
@@ -43,7 +43,7 @@ fun NavGraphBuilder.addItemDetailGraph(
         composable(
             route = ItemDetailRoute,
         ) {
-            ItemDetailScreen(
+            ItemDetailRoute(
                 onBackRequest = onBackRequest,
                 purchaseOnClick = purchaseOnClick,
                 itemClick = itemReview,
