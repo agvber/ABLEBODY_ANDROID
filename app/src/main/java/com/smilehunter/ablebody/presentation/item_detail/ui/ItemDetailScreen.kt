@@ -136,6 +136,9 @@ fun ItemDetailScreen(
     codyOnClick: (Long) -> Unit,
     itemDetailUiState: ItemDetailUiState
 ) {
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
     ) { paddingValues ->
@@ -221,25 +224,21 @@ fun ItemDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val state = rememberLazyGridState()
-            val scope = rememberCoroutineScope()
-
-            val density = LocalDensity.current
-            val offsetPx = with(density) { 16.dp.roundToPx() }
-
+            val lazyGridState = rememberLazyGridState()
+            val lazyVerticalGridContentHorizontalPadding = with(density) { 16.dp.roundToPx() }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(1.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.dp),
-                state = state,
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
+                state = lazyGridState,
+                contentPadding = PaddingValues(horizontal = 16.dp)
             ) {
                 item(
                     span = { GridItemSpan(this.maxLineSpan) }
                 ) {
                     Column(
-                        modifier = Modifier.ignoreParentPadding(offsetPx)
+                        modifier = Modifier.ignoreParentPadding(lazyVerticalGridContentHorizontalPadding)
                     ) {
                         val itemPagerState = rememberPagerState { itemDetailData.item.images.size }
 
@@ -288,9 +287,9 @@ fun ItemDetailScreen(
                                 onClick = {
                                     isExpanded = !isExpanded
                                     if (!isExpanded) {
-                                        scope.launch { state.animateScrollToItem(1, collapseOffset) }
+                                        scope.launch { lazyGridState.animateScrollToItem(1, collapseOffset) }
                                     } else {
-                                        collapseOffset = state.firstVisibleItemScrollOffset
+                                        collapseOffset = lazyGridState.firstVisibleItemScrollOffset
                                     }
                                 },
                                 isExpanded = isExpanded
@@ -305,7 +304,7 @@ fun ItemDetailScreen(
 
                         Column(
                             modifier = Modifier
-                                .ignoreParentPadding(offsetPx)
+                                .ignoreParentPadding(lazyVerticalGridContentHorizontalPadding)
                                 .padding(vertical = 12.dp)
                         ) {
                             CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating)
