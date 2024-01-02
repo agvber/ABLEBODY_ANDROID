@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.item_detail.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -23,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -41,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -87,6 +92,7 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
+import com.smilehunter.ablebody.ui.utils.ignoreParentPadding
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.launch
@@ -215,16 +221,25 @@ fun ItemDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            val state = rememberLazyGridState()
+            val scope = rememberCoroutineScope()
+
+            val density = LocalDensity.current
+            val offsetPx = with(density) { 16.dp.roundToPx() }
+
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(1.dp),
                 horizontalArrangement = Arrangement.spacedBy(1.dp),
+                state = state,
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
             ) {
                 item(
                     span = { GridItemSpan(this.maxLineSpan) }
                 ) {
                     Column(
-                        modifier = Modifier
+                        modifier = Modifier.ignoreParentPadding(offsetPx)
                     ) {
                         val itemPagerState = rememberPagerState { itemDetailData.item.images.size }
 
@@ -247,35 +262,73 @@ fun ItemDetailScreen(
                             salePrice = itemDetailData.item.salePrice,
                             salePercentage = itemDetailData.item.salePercentage
                         )
+                    }
+                }
 
-                        if (itemDetailData.item.avgStarRating != null) {
-                            val creatorReviewPagerState = rememberPagerState { itemDetailData.itemReviews.size }
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
+                    var isExpanded by rememberSaveable { mutableStateOf(false) }
+                    var collapseOffset by rememberSaveable { mutableIntStateOf(0) }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        itemDetailData.detailImageUrls.forEachIndexed { index, url ->
+                            if (index < 3 || isExpanded) {
+                                AsyncImage(
+                                    model = url,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillWidth,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                        if (itemDetailData.detailImageUrls.size > 3) {
+                            ImageControlBar(
+                                onClick = {
+                                    isExpanded = !isExpanded
+                                    if (!isExpanded) {
+                                        scope.launch { state.animateScrollToItem(1, collapseOffset) }
+                                    } else {
+                                        collapseOffset = state.firstVisibleItemScrollOffset
+                                    }
+                                },
+                                isExpanded = isExpanded
+                            )
+                        }
+                    }
+                }
 
-                            Column(
-                                modifier = Modifier.padding(vertical = 12.dp)
-                            ) {
-                                CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating)
-                                HorizontalPager(
-                                    state = creatorReviewPagerState,
-                                    contentPadding = PaddingValues(end = 54.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 16.dp)
-                                ) { pageIndex ->
-                                    val itemReview = itemDetailData.itemReviews[pageIndex]
-                                    CreatorReviewContent(
-                                        writerName = itemReview.creator.nickname,
-                                        writerHeight = itemReview.creator.height,
-                                        writerWeight = itemReview.creator.weight,
-                                        itemSize = itemReview.size,
-                                        description = itemReview.review,
-                                        imageUrl = itemReview.images[0],
-                                        starRating = itemReview.starRating,
-                                        modifier = Modifier.nonReplyClickable {
-                                            itemClick(itemReview)
-                                        }
-                                    )
-                                }
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
+                    if (itemDetailData.item.avgStarRating != null) {
+                        val creatorReviewPagerState = rememberPagerState { itemDetailData.itemReviews.size }
+
+                        Column(
+                            modifier = Modifier
+                                .ignoreParentPadding(offsetPx)
+                                .padding(vertical = 12.dp)
+                        ) {
+                            CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating)
+                            HorizontalPager(
+                                state = creatorReviewPagerState,
+                                contentPadding = PaddingValues(end = 54.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 16.dp)
+                            ) { pageIndex ->
+                                val itemReview = itemDetailData.itemReviews[pageIndex]
+                                CreatorReviewContent(
+                                    writerName = itemReview.creator.nickname,
+                                    writerHeight = itemReview.creator.height,
+                                    writerWeight = itemReview.creator.weight,
+                                    itemSize = itemReview.size,
+                                    description = itemReview.review,
+                                    imageUrl = itemReview.images[0],
+                                    starRating = itemReview.starRating,
+                                    modifier = Modifier.nonReplyClickable {
+                                        itemClick(itemReview)
+                                    }
+                                )
                             }
                         }
                     }
@@ -292,18 +345,54 @@ fun ItemDetailScreen(
                             color = AbleDeep,
                         ),
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(vertical = 8.dp)
                     )
                 }
 
-                items(items = itemDetailData.homePosts) { homePosts ->
+                items(
+                    items = itemDetailData.homePosts,
+                    key = { item: ItemDetailData.HomePost -> item.id }
+                ) { homePosts ->
                     AsyncImage(
                         model = homePosts.imageURL,
                         contentDescription = null,
                         placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
-                        modifier = Modifier.nonReplyClickable {
-                            codyOnClick(homePosts.id)
-                        }
+                        modifier = Modifier
+                            .nonReplyClickable {
+                                codyOnClick(homePosts.id)
+                            }
+                    )
+                }
+
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
+                    var isPaymentNoticeExpand by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    var isSellerInformationTabExpand by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    var isBusinessInformationTabExpand by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    var isCustomerSupportTabExpand by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    BusinessInformation(
+                        paymentNoticeTabClick = { isPaymentNoticeExpand = !isPaymentNoticeExpand },
+                        sellerInformationTabClick = { isSellerInformationTabExpand = !isSellerInformationTabExpand },
+                        businessInformationTabClick = { isBusinessInformationTabExpand = !isBusinessInformationTabExpand },
+                        customerSupportTabClick = { isCustomerSupportTabExpand = !isCustomerSupportTabExpand },
+                        isPaymentNoticeExpand = isPaymentNoticeExpand,
+                        isSellerInformationTabExpand = isSellerInformationTabExpand,
+                        isBusinessInformationTabExpand = isBusinessInformationTabExpand,
+                        isCustomerSupportTabExpand = isCustomerSupportTabExpand,
+                        businessName = itemDetailData.seller.businessName ?: "-",
+                        brandName = itemDetailData.seller.brand ?: "-",
+                        businessNumber = itemDetailData.seller.businessNumber ?: "-",
+                        reportNumber = itemDetailData.seller.reportNumber ?: "-",
+                        contacts = itemDetailData.seller.contactNumber ?: "-",
+                        email = itemDetailData.seller.emailAddress ?: "-",
+                        roadAddress = itemDetailData.seller.roadAddress ?: "-"
                     )
                 }
 
@@ -524,6 +613,65 @@ fun ItemDetailProfile(
     }
 }
 
+@Composable
+fun ImageControlBar(
+    onClick: () -> Unit,
+    isExpanded: Boolean
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .border(width = 1.dp, color = AbleBlue)
+            .fillMaxWidth()
+            .padding(start = 10.dp, top = 16.dp, end = 10.dp, bottom = 16.dp)
+            .nonReplyClickable { onClick() }
+    ) {
+        AnimatedVisibility(visible = !isExpanded) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "상품정보 더보기",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontWeight = FontWeight(500),
+                        color = AbleBlue,
+                    )
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.chevrondown),
+                    contentDescription = null,
+                    tint = AbleBlue
+                )
+            }
+        }
+        AnimatedVisibility(visible = isExpanded) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "상품정보 접기",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontWeight = FontWeight(500),
+                        color = AbleBlue,
+                    )
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_chevron_up),
+                    contentDescription = null,
+                    tint = AbleBlue
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun CreatorReviewTitle(
@@ -665,6 +813,284 @@ private fun CreatorReviewContent(
         }
     }
 }
+
+@Composable
+fun BusinessInformation(
+    paymentNoticeTabClick: ()-> Unit,
+    sellerInformationTabClick: () -> Unit,
+    businessInformationTabClick: () -> Unit,
+    customerSupportTabClick: () -> Unit,
+    isPaymentNoticeExpand: Boolean,
+    isSellerInformationTabExpand: Boolean,
+    isBusinessInformationTabExpand: Boolean,
+    isCustomerSupportTabExpand: Boolean,
+    businessName: String,
+    brandName: String,
+    businessNumber: String,
+    reportNumber: String,
+    contacts: String,
+    email: String,
+    roadAddress: String
+) {
+    Column {
+        BusinessInformationTab(
+            isExpanded = isPaymentNoticeExpand,
+            titleText = "배송/교환/환불 안내",
+            modifier = Modifier.nonReplyClickable(onClick = paymentNoticeTabClick)
+        ) {
+            Column {
+                PaymentNoticeTitleAndDescription(
+                    title = "배송",
+                    descriptions = listOf(
+                        PaymentNotice(
+                            "1. ",
+                            "평균 상품 준비 기간은 영업일 기준 1~5일이며, 판매자 사정에 따라 최대 14일까지 지연될 수 있습니다."
+                        )
+                    )
+                )
+                PaymentNoticeTitleAndDescription(
+                    title = "교환/반품/환불 접수",
+                    descriptions = listOf(
+                        PaymentNotice(
+                            "1. ",
+                            "교환/반품/환불은 상품을 수령하신 후, 7일 이내에 ‘MY’ > ‘ 주문/관리' > ‘문의하기' 메뉴에서 신청할 수 있습니다."
+                        ),
+                        PaymentNotice(
+                            "2. ",
+                            "단순 변심에 의한 신청의 경우 추가 배송비가 발생하며, 추가 배송비는 브랜드 및 배송 주에서 따라 상이하므로 접수 시 별도 안내드립니다."
+                        )
+                    )
+                )
+                PaymentNoticeTitleAndDescription(
+                    title = "교환/반품/환불 불가",
+                    descriptions = listOf(
+                        PaymentNotice("1. ", "상품을 수령하신 후 7일이 초과한 경우"),
+                        PaymentNotice("2. ", "상품의 재판매가 불가한 경우"),
+                        PaymentNotice("· ", "의류 제품은 단 1회라도 착용하면 상품의 가치가 훼손되기 때문에 교환 및 반품이 불가합니다."),
+                        PaymentNotice("· ", "고객님의 부주의로 인해 상품이 변형/훼손/파손된 경우"),
+                        PaymentNotice("· ", "화장품, 음식물, 향수, 담배, 방향제, 등으로 인해 상품에 오염이 발생한 경우"),
+                        PaymentNotice("· ", "포장 자재(예: 비닐, 박스 등)또는 상품 정보 표시(예: 라벨, 상품 태그 등)등이 훼손 또는 분실된 경우"),
+                        PaymentNotice("· ", "상품 수령 후 세탁/수선한 경우"),
+                        PaymentNotice("3. ", "나염 상품은 상품 특성 상 패턴의 위치가 조금씩 다를 수 있으며, 이는 상품의 하자 또는 불량에 해당되지 않습니다."),
+                        PaymentNotice("4. ", "상품의 마감 처리가 미흡한 경우(예: 실밤, 본드 자국, 초크 자국, 균일하지 않은 박음질, 지퍼가 부드럽지 않은 경우, 단추 구멍이 완벽히 뚫리지 않은 경우 등)는 상품의 하자 또는 불량에 해당하지 않습니다."),
+                        PaymentNotice("5. ", "컴퓨터 모니터 및 스마트폰 화면 등의 차이로 인해 실물과 색상 차이가 있는 경우나 측정하는 방식에 따라 다를 수 있는 상품 사이즈 오차는 상품의 하자 또는 불량에 해당되지 않습니다."),
+                        PaymentNotice("6. ", "상품과 관계가 없는 케이스, 포장지 등의 파손은 상품의 하자 또는 불량에 해당되지 않습니다."),
+                        PaymentNotice("7. ", "충전재가 포함된 패딩류나 앙고라, 무스탕 소재가 포함된 상품 등에서 일부 털이 빠지는 현상이 발생할 수 있으며, 이는 자연스러운 현상이기 때문에 상품의 하자 똔느 불량에 해당되지 않습니다.")
+                    )
+                )
+            }
+        }
+        BusinessInformationTab(
+            isExpanded = isSellerInformationTabExpand,
+            titleText = "판매자 정보",
+            modifier = Modifier.nonReplyClickable(onClick = sellerInformationTabClick)
+        ) {
+            Column {
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "상호 / 대표자",
+                    description = businessName
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "브랜드",
+                    description = brandName
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "사업자번호",
+                    description = businessNumber
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "통신판매업신고",
+                    description = reportNumber
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "연락처",
+                    description = contacts
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "이메일",
+                    description = email
+                )
+                SellerInformationTitleAndDescription(
+                    modifier = Modifier.padding(top = 6.dp),
+                    title = "영업소재지",
+                    description = roadAddress
+                )
+            }
+        }
+        BusinessInformationTab(
+            isExpanded = isBusinessInformationTabExpand,
+            titleText = "사업자 정보",
+            modifier = Modifier.nonReplyClickable(onClick = businessInformationTabClick)
+        ) {
+            Text(
+                text = "스마일헌터 | 대표자 : 이재휘, 조민재 | 주소 : 경기도 가평군 청평면 경춘로 869 | 사업자등록번호 : 158-33-01102 | 전화 : 070-8648-1844 | 이메일 : ablebody@smilehuntercorp.com",
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    fontWeight = FontWeight(400),
+                    color = AbleDeep,
+                )
+            )
+        }
+        BusinessInformationTab(
+            isExpanded = isCustomerSupportTabExpand,
+            titleText = "고객지원",
+            modifier = Modifier.nonReplyClickable(onClick = customerSupportTabClick)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(top = 6.dp)
+            ) {
+                Text(
+                    text = "1:1 문의하기",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontWeight = FontWeight(400),
+                        color = AbleDeep,
+                    )
+                )
+                Text(
+                    text = "이메일 : ablebody@smilehuntercorp.com",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        fontWeight = FontWeight(400),
+                        color = AbleDeep,
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BusinessInformationTab(
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean,
+    titleText: String,
+    content: @Composable (ColumnScope.() -> Unit),
+) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 15.dp)
+        ) {
+            Text(
+                text = titleText,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                    fontWeight = FontWeight(500),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    color = AbleDark,
+                )
+            )
+            Image(
+                painter = painterResource(id = R.drawable.chevrondown),
+                contentDescription = null
+            )
+        }
+        if (isExpanded) {
+            content()
+        }
+    }
+}
+
+private data class PaymentNotice(
+    val number: String,
+    val description: String
+)
+
+@Composable
+private fun PaymentNoticeTitleAndDescription(
+    title: String,
+    descriptions: List<PaymentNotice>
+) {
+    Text(
+        text = title,
+        style = TextStyle(
+            fontSize = 14.sp,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+            platformStyle = PlatformTextStyle(includeFontPadding = false),
+            fontWeight = FontWeight(500),
+            color = AbleDark,
+        ),
+        modifier = Modifier.padding(bottom = 4.dp, top = 6.dp)
+    )
+    descriptions.forEach { (number, text) ->
+        Row {
+            Text(
+                text = number,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    fontWeight = FontWeight(400),
+                    color = AbleDark,
+                )
+            )
+            Text(
+                text = text,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    fontWeight = FontWeight(400),
+                    color = AbleDark,
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun SellerInformationTitleAndDescription(
+    modifier: Modifier = Modifier,
+    title: String,
+    description: String
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text = title,
+            style = TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                fontWeight = FontWeight(400),
+                color = AbleDark,
+            ),
+            modifier = Modifier.width(120.dp)
+        )
+        Text(
+            text = description,
+            style = TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                fontWeight = FontWeight(400),
+                color = AbleDeep,
+            )
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -896,7 +1322,20 @@ fun ItemPaymentTextFieldPreview() {
     }
 }
 
-@Preview(heightDp = 1500)
+@Preview(showBackground = true)
+@Composable
+fun BusinessInformationTabPreview() {
+    ABLEBODY_AndroidTheme {
+        BusinessInformationTab(
+            isExpanded = false,
+            titleText = "배송/교환/환불 안내"
+        ) {
+
+        }
+    }
+}
+
+@Preview(heightDp = 2000)
 @Composable
 fun ItemDetailScreenPreview() {
     ABLEBODY_AndroidTheme {
