@@ -78,6 +78,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ItemDetailData
 import com.smilehunter.ablebody.model.fake.fakeItemDetailData
 import com.smilehunter.ablebody.presentation.item_detail.ItemDetailViewModel
@@ -92,6 +93,7 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.ignoreParentPadding
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -106,6 +108,7 @@ private enum class ItemOption {
 @Composable
 fun ItemDetailRoute(
     onBackRequest: () -> Unit,
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     purchaseOnClick: (PaymentPassthroughData) -> Unit,
     itemClick: (ItemDetailData.ItemReview) -> Unit,
     brandOnClick: (Long, String) -> Unit,
@@ -122,6 +125,13 @@ fun ItemDetailRoute(
         brandOnClick = brandOnClick,
         codyOnClick = codyOnClick,
         itemDetailUiState = itemDetailData
+    )
+
+    SimpleErrorHandler(
+        refreshRequest = { itemDetailViewModel.refreshNetwork() },
+        onErrorOccur = onErrorOccur,
+        isError = itemDetailData is ItemDetailUiState.Error,
+        throwable = (itemDetailData as? ItemDetailUiState.Error)?.t
     )
 }
 

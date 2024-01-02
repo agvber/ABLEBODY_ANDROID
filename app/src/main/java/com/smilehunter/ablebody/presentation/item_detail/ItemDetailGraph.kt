@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ItemDetailData
 import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailRoute
 import com.smilehunter.ablebody.presentation.payment.data.PaymentPassthroughData
@@ -23,6 +24,7 @@ fun NavController.navigateToItemDetailGraph(
 
 fun NavGraphBuilder.addItemDetailGraph(
     isBottomBarShow: (Boolean) -> Unit,
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     brandOnClick: (Long, String) -> Unit,
     codyOnClick: (Long) -> Unit,
@@ -44,6 +46,7 @@ fun NavGraphBuilder.addItemDetailGraph(
             route = ItemDetailRoute,
         ) {
             ItemDetailRoute(
+                onErrorOccur = onErrorOccur,
                 onBackRequest = onBackRequest,
                 purchaseOnClick = purchaseOnClick,
                 itemClick = itemReview,

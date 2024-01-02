@@ -167,6 +167,7 @@ fun MainNavHost(
 
         addItemDetailGraph(
             isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
             brandOnClick = navController::navigateToBrandDetailScreen,
             codyOnClick = navController::navigateToCreatorDetail,
