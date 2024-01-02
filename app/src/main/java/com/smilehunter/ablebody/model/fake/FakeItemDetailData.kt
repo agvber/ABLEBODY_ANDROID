@@ -81,7 +81,7 @@ val fakeItemDetailData = ItemDetailData(
         ),
         homePosts = listOf(
             ItemDetailData.HomePost(
-                id = 1228,
+                id = 1221,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1228/1558945 bytes_1701061171166.jpg",
                 createDate = "2023-11-27",
                 comments = 171,
@@ -90,7 +90,7 @@ val fakeItemDetailData = ItemDetailData(
                 plural = true
             ),
             ItemDetailData.HomePost(
-                id = 1228,
+                id = 1222,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1228/1558945 bytes_1701061171166.jpg",
                 createDate = "2023-11-27",
                 comments = 171,
@@ -99,7 +99,7 @@ val fakeItemDetailData = ItemDetailData(
                 plural = true
             ),
             ItemDetailData.HomePost(
-                id = 1228,
+                id = 1223,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1228/1558945 bytes_1701061171166.jpg",
                 createDate = "2023-11-27",
                 comments = 171,
@@ -108,7 +108,7 @@ val fakeItemDetailData = ItemDetailData(
                 plural = true
             ),
             ItemDetailData.HomePost(
-                id = 1228,
+                id = 1224,
                 imageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1228/1558945 bytes_1701061171166.jpg",
                 createDate = "2023-11-27",
                 comments = 171,
@@ -147,6 +147,18 @@ val fakeItemDetailData = ItemDetailData(
             )
         ),
     bookmarked = true,
-    deleted = false
+    deleted = false,
+    seller = ItemDetailData.Seller(
+        businessName = "(주)코스모스코리아그룹 / 김재훈",
+        brand = "JELEVE",
+        businessNumber = "507-86-00975",
+        reportNumber = "2020-서울서초-2913호",
+        contactNumber = "070-4903-0880",
+        emailAddress = "law@kosmerce.kr",
+        roadAddress = "06633 서울특별시 서초구 서초대로 320 (서초동) 4층(하림인터내셔날 빌딩)"
+    ),
+    detailImageUrls = listOf(
+        "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_1.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_2.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_3.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_4.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_5.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_6.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_7.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_8.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_9.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_10.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_11.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_12.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_13.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_14.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_15.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_16.png", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/itemDetailImage/jeleve/ABLE-0001462_17.png"
+    )
 )
 

@@ -12,7 +12,9 @@ data class ItemDetailData(
     val homePosts: List<HomePost>,
     val itemOptionList: List<ItemOptionData>,
     val bookmarked: Boolean,
-    val deleted: Boolean
+    val deleted: Boolean,
+    val seller: Seller,
+    val detailImageUrls: List<String>
 ) {
     val colorList = itemOptionList.firstOrNull {
         it.content == "색상"
@@ -94,4 +96,14 @@ data class ItemDetailData(
             val price: Int
         )
     }
+
+    data class Seller(
+        val businessName: String?,
+        val brand: String?,
+        val businessNumber: String?,
+        val reportNumber: String?,
+        val contactNumber: String?,
+        val emailAddress: String?,
+        val roadAddress: String?
+    )
 }
