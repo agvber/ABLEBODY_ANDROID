@@ -1,7 +1,5 @@
 package com.smilehunter.ablebody.presentation.payment.ui
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -36,6 +34,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -48,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -72,7 +71,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -87,7 +85,6 @@ import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughDa
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
 import com.smilehunter.ablebody.presentation.main.LocalUserProfile
-import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
 import com.smilehunter.ablebody.presentation.payment.data.DeliveryAddressUiState
@@ -102,6 +99,7 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.KoreaMoneyFormatVisualTransformation
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -113,7 +111,6 @@ import com.tosspayments.paymentsdk.model.TossPaymentResult
 import com.tosspayments.paymentsdk.view.PaymentMethod
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -304,10 +301,10 @@ fun PaymentScreen(
     val scope = rememberCoroutineScope()
     var showCouponBottomSheet by rememberSaveable { mutableStateOf(false) }
     var agreementPrivateData by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val couponBottomSheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val isPayButtonEnable = agreementPrivateData && agreedRequiredTerms
-    val receipt = remember { mutableStateMapOf<String, Int>() }
+    val receipt: SnapshotStateMap<String, Int> = remember { mutableStateMapOf() }
 
     Scaffold(
         topBar = {
@@ -346,7 +343,7 @@ fun PaymentScreen(
         if (showCouponBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showCouponBottomSheet = false },
-                sheetState = sheetState,
+                sheetState = couponBottomSheetState,
                 containerColor = Color.White,
                 dragHandle = null,
             ) {
@@ -360,9 +357,9 @@ fun PaymentScreen(
                             onClick = {
                                 couponIDChange(item.id)
                                 scope.launch {
-                                    sheetState.hide()
+                                    couponBottomSheetState.hide()
                                 }.invokeOnCompletion {
-                                    if (!sheetState.isVisible) {
+                                    if (!couponBottomSheetState.isVisible) {
                                         showCouponBottomSheet = false
                                     }
                                 }
@@ -477,6 +474,8 @@ fun PaymentScreen(
                     ),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+
+
                 receipt.putAll(
                     mapOf(
                         "총 상품금액" to paymentPassthroughData.items.sumOf { it.price },

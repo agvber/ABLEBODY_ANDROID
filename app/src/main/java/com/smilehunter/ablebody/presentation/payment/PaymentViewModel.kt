@@ -68,28 +68,8 @@ class PaymentViewModel @Inject constructor(
                 initialValue = null
             )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     val paymentPassthroughData: StateFlow<PaymentPassthroughData?> =
-        savedStateHandle.getStateFlow<String?>("payment_passthrough_data", null)
-            .flatMapLatest {
-                flow {
-                    if (it != null) {
-                        emit(Gson().fromJson(it, PaymentPassthroughData::class.java))
-                    }
-                }
-            }
-            .asResult()
-            .map {
-                when (it) {
-                    is Result.Success -> it.data
-                    else -> null
-                }
-            }
-            .stateIn(
-                viewModelScope,
-                started = SharingStarted.Eagerly,
-                null
-            )
+        savedStateHandle.getStateFlow("payment_passthrough_data", null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val coupons: StateFlow<CouponBagsUiState> =
