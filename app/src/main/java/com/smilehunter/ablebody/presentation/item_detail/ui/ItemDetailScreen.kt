@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -409,12 +410,20 @@ fun ItemDetailScreen(
                     Box(modifier = Modifier.height(100.dp))
                 }
             }
-
+            val uriHandler = LocalUriHandler.current
             CustomButton(
-                text = "구매하기",
+                text = if (itemDetailData.item.brand.isLaunched) {
+                    "구매하기"
+                } else {
+                    "${itemDetailData.item.redirectText} 구매 링크 이동"
+                },
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-                isItemPaymentBottomSheetShow = true
+                if (itemDetailData.item.brand.isLaunched) {
+                    isItemPaymentBottomSheetShow = true
+                } else {
+                    uriHandler.openUri(itemDetailData.item.redirectUrl)
+                }
             }
         }
 
