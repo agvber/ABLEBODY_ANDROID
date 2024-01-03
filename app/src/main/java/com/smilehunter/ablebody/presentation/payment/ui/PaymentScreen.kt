@@ -76,6 +76,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
@@ -143,7 +144,11 @@ fun PaymentRoute(
     val composePaymentWidget = remember {
         ComposePaymentWidget(
             activityResultRegistry = activityResultRegistry!!,
-            clientKey = "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN",
+            clientKey = if (BuildConfig.DEBUG) {
+                "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN"
+            } else {
+                "live_gck_nRQoOaPz8LwKvzKRvKRery47BMw6"
+            },
             customerKey = LocalUserProfile.getInstance().uid
         )
     }
