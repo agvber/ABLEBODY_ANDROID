@@ -1119,6 +1119,14 @@ private fun ItemPaymentBottomSheet(
     dragHandle: @Composable (() -> Unit)? = null,
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
 ) {
+    val scope = rememberCoroutineScope()
+    val animateToDismiss: () -> Unit = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+        }
+    }
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
@@ -1163,7 +1171,7 @@ private fun ItemPaymentBottomSheet(
         CustomButton(
             text = "구매하기",
             enable = buttonEnable,
-            onClick = { onItemPurchaseRequest() }
+            onClick = { animateToDismiss(); onItemPurchaseRequest() }
         )
         Box(modifier = Modifier.height(30.dp))
     }
