@@ -2,6 +2,7 @@ package com.smilehunter.ablebody.presentation.item_detail.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -21,10 +22,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -238,6 +241,9 @@ fun ItemDetailScreen(
             val lazyGridState = rememberLazyGridState()
             val lazyVerticalGridContentHorizontalPadding = with(density) { 16.dp.roundToPx() }
 
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
+            var collapseOffset by rememberSaveable { mutableIntStateOf(0) }
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 verticalArrangement = Arrangement.spacedBy(1.dp),
@@ -275,37 +281,42 @@ fun ItemDetailScreen(
                     }
                 }
 
-                item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    var isExpanded by rememberSaveable { mutableStateOf(false) }
-                    var collapseOffset by rememberSaveable { mutableIntStateOf(0) }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        itemDetailData.detailImageUrls.forEachIndexed { index, url ->
-                            if (index < 3 || isExpanded) {
-                                AsyncImage(
-                                    model = url,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.FillWidth,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        if (itemDetailData.detailImageUrls.size > 3) {
-                            ImageControlBar(
-                                onClick = {
-                                    isExpanded = !isExpanded
-                                    if (!isExpanded) {
-                                        scope.launch { lazyGridState.animateScrollToItem(1, collapseOffset) }
-                                    } else {
-                                        collapseOffset = lazyGridState.firstVisibleItemScrollOffset
-                                    }
-                                },
-                                isExpanded = isExpanded
-                            )
-                        }
+                itemsIndexed(
+                    items = itemDetailData.detailImageUrls,
+                    key = { index, url -> index },
+                    span = { index, url -> GridItemSpan(this.maxLineSpan) },
+                ) { index, url ->
+                    val paddingValue = PaddingValues(
+                        top = if (index != 0) 10.dp else 0.dp
+                    )
+
+                    if (index < 3 || isExpanded) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier.fillMaxWidth()
+                                .animateContentSize()
+                                .padding(paddingValue)
+                        )
+                    }
+                }
+
+                item(
+                    span = { GridItemSpan(this.maxLineSpan) },
+                ) {
+                    if (itemDetailData.detailImageUrls.size > 3) {
+                        ImageControlBar(
+                            onClick = {
+                                isExpanded = !isExpanded
+                                if (!isExpanded) {
+                                    scope.launch { lazyGridState.animateScrollToItem(3, collapseOffset) }
+                                } else {
+                                    collapseOffset = lazyGridState.firstVisibleItemScrollOffset
+                                }
+                            },
+                            isExpanded = isExpanded
+                        )
                     }
                 }
 
@@ -325,6 +336,7 @@ fun ItemDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(start = 16.dp)
+                                    .animateContentSize()
                             ) { pageIndex ->
                                 val itemReview = itemDetailData.itemReviews[pageIndex]
                                 CreatorReviewContent(
@@ -368,6 +380,8 @@ fun ItemDetailScreen(
                         contentDescription = null,
                         placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
                         modifier = Modifier
+                            .fillMaxSize()
+                            .animateContentSize()
                             .nonReplyClickable {
                                 codyOnClick(homePosts.id)
                             }
@@ -455,6 +469,7 @@ fun ItemDetailImageView(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
+                .wrapContentHeight()
                 .fillMaxWidth()
         ) { page ->
             AsyncImage(
@@ -697,7 +712,7 @@ private fun CreatorReviewTitle(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 20.dp)
+        modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 5.dp)
     ) {
         Text(
             text = "크리에이터 리뷰",
