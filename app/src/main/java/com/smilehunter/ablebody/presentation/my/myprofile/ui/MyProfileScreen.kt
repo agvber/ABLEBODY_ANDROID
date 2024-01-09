@@ -486,7 +486,7 @@ fun MySportswearCodyButton() {
                 .padding(vertical = 8.dp)
         ){
             Text(
-                text = "내 운동복 코디",
+                text = "운동복 코디",
                 style = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
@@ -558,100 +558,6 @@ fun HomePostUploadButton(
     }
 }
 
-//@Composable
-//fun popupTest(
-//    onDismiss: () -> Unit,
-//    positiveText: String? = null,
-//    positiveButtonOnClick: () -> Unit,
-//    negativeText: String? = null,
-//    negativeButtonOnClick: () -> Unit
-//) {
-//    Dialog(
-//        onDismissRequest = onDismiss
-//    ) {
-//        Surface(
-//            modifier = Modifier.fillMaxWidth(),
-//            shape = RoundedCornerShape(size = 10.dp),
-//            color = Color.White,
-//            contentColor = Color.Black
-//        ) {
-//            Column(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 15.dp)
-//                    .padding(top = 20.dp, bottom = 15.dp)
-//            ) {
-//                Row(
-//                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-//                ) {
-//                    if (negativeText != null) {
-//                        Button(
-//                            onClick = negativeButtonOnClick,
-//                            modifier = Modifier.weight(1f),
-//                            isPositive = false,
-//                            text = negativeText
-//                        )
-//                    }
-//                    if (positiveText != null) {
-//                        Button(
-//                            onClick = positiveButtonOnClick,
-//                            modifier = Modifier.weight(1f),
-//                            isPositive = true,
-//                            text = positiveText
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//}
-
-//@Composable
-//fun ShowCreatorMileageInfoPopup(onDismiss: () -> Unit) {
-//    var showDialog by remember { mutableStateOf(true) }
-//
-//    if (showDialog) {
-//        AlertDialog(
-//            onDismissRequest = onDismiss,
-//            title = {
-//                Text(
-//                    text = "📌 크리에이터 마일리지는 무엇인가요?",
-//                    style = TextStyle(
-//                        fontSize = 17.sp,
-//                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-//                        fontWeight = FontWeight(500),
-//                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-//                    ),
-//                    modifier = Modifier.padding(top = 0.dp)
-//                )
-//            },
-//            text = {
-//                Text(
-//                    text = "애블바디 크리에이터로서 운동복 코디 게시물을 1개 업로드할 때마다 200P 마일리지가 적립돼요. 이 마일리지는 결제 포인트로 사용할 수 있어요 🙂",
-//                    modifier = Modifier.padding(0.dp)
-//                )
-//            },
-//            buttons = {
-//                Button(
-//                    onClick = { showDialog = false },
-//                    colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(60.dp)
-//                        .padding(10.dp),
-//                    shape = RoundedCornerShape(10.dp),
-//                ) {
-//                    Text(text = "확인", color = Color.White)
-//                }
-//            },
-//            shape = RoundedCornerShape(24.dp),
-//            modifier = Modifier
-//                .width(329.dp)
-//                .height(201.dp)
-//                .padding(0.dp)
-//        )
-//    }
-//}
-
 @Composable
 fun CreatorMilegeDialog(
     onDismiss: () -> Unit
@@ -692,7 +598,18 @@ fun CreatorMilegeDialogPreview() {
 //}
 
 fun makeUserDescription(height: Int?, weight: Int?, job: String?): String {
-    val parts = listOfNotNull(height?.toString().plus("cm"), weight?.toString().plus("kg"), job)
+    val parts = mutableListOf<String>()
+
+    if (height != null && height > 0) {
+        parts.add("${height}cm")
+    }
+    if (weight != null && weight > 0) {
+        parts.add("${weight}kg")
+    }
+    if (!job.isNullOrBlank()) {
+        parts.add(job)
+    }
+
     return parts.joinToString(separator = " · ")
 }
 @Preview(showSystemUi = true)
@@ -705,8 +622,8 @@ fun NormalUserScreenPreview() {
         UserInformation("", "일반유저", 70, 173, "개발자", "안녕하세요")
         OrderDetailBox(2,3,200, {}, {})
         profileEditButton()
-        CreatorSupplyButton()
     }
+    CreatorSupplyButton()
 }
 @Preview(showSystemUi = true)
 @Composable

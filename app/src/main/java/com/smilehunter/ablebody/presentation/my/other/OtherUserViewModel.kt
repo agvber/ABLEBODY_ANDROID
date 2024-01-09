@@ -58,10 +58,10 @@ class OtherUserViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             PagingData.empty()
         )
-        fun otherUserProfile(uid: String){
+    fun otherUserProfile(uid: String){
         viewModelScope.launch(ioDispatcher) {
-//            val getOtherUserProfile = getUserInfoUseCase.invoke("")
-//            _otherUserLiveData.postValue(getOtherUserProfile)
+            val getOtherUserProfile = getUserInfoUseCase.invoke(uid)
+            _otherUserLiveData.postValue(getOtherUserProfile)
             getUserInfoUseCase(uid)
         }
     }

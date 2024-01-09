@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ABLEBODY_Android">
+        android:theme="@style/Theme.ABLEBODY_Android"
+        android:usesCleartextTraffic="true">
         <service
             android:name=".AbleBodyFirebaseMessagingService"
             android:enabled="true"
@@ -51,4 +52,5 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/able_blue" />
     </application>
+
 </manifest>
