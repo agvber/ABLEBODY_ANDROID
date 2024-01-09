@@ -134,51 +134,33 @@ fun SettingList(
             .height(55.dp)
             .background(Color.White)
             .nonReplyClickable(onClick = {
-                if (listText == "로그아웃") {
-                    logoutDialog = true
-                } else if (listText == "내 정보") {
-                    myInfoOnClick()
-                } else if (listText == "알림") {
-                    alarmOnClick()
-                } else if (listText == "쓰지 않는 앱이에요.") {
-//                    resignUser("쓰지 않는 앱이에요.")
-                    withDrawReasonOnClick("쓰지 않는 앱이에요.")
-                } else if (listText == "볼만한 컨텐츠가 없어요.") {
-                    withDrawReasonOnClick("볼만한 컨텐츠가 없어요.")
-                } else if (listText == "앱에 오류가 있어요.") {
-                    withDrawReasonOnClick("앱에 오류가 있어요.")
-                } else if (listText == "앱을 어떻게 쓰는지 모르겠어요.") {
-                    withDrawReasonOnClick("앱을 어떻게 쓰는지 모르겠어요.")
-                } else if (listText == "기타") {
-                    withDrawReasonOnClick("기타")
-                } else if (listText == "탈퇴하기") {
-                    withDrawOnClick()
-                } else if (listText == "불법적인 게시물이에요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "불법적인 게시물이에요", ""))
-                } else if (listText == "욕설을 해요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "욕설을 해요", ""))
-                } else if (listText == "음란성 글이에요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "음란성 글이에요", ""))
-                } else if (listText == "차별/혐오 표현을 사용해요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "차별/혐오 표현을 사용해요", ""))
-                } else if (listText == "잘못된 정보를 제공하는 글이에요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "잘못된 정보를 제공하는 글이에요", ""))
-                } else if (listText == "불쾌감을 줄 수 있는 사진이에요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "불쾌감을 줄 수 있는 사진이에요", ""))
-                } else if (listText == "중복/도배성 게시물이에요") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "중복/도배성 게시물이에요", ""))
-                } else if (listText == "기타 ") {
-                    reportCompleteDialog = true
-                    onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, "기타", ""))
-                } else {
-                    redirectToURL(context, linkUrl)
+                when (listText) {
+                    "로그아웃" -> logoutDialog = true
+                    "내 정보" -> myInfoOnClick()
+                    "알림" -> alarmOnClick()
+                    "쓰지 않는 앱이에요.",
+                    "볼만한 컨텐츠가 없어요.",
+                    "앱에 오류가 있어요.",
+                    "앱을 어떻게 쓰는지 모르겠어요.",
+                    "기타" -> withDrawReasonOnClick(listText)
+                    "탈퇴하기" -> withDrawOnClick()
+                    "불법적인 게시물이에요",
+                    "욕설을 해요",
+                    "음란성 글이에요",
+                    "차별/혐오 표현을 사용해요",
+                    "잘못된 정보를 제공하는 글이에요",
+                    "불쾌감을 줄 수 있는 사진이에요",
+                    "중복/도배성 게시물이에요",
+                    "기타 " -> {
+                        reportCompleteDialog = true
+                        onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, listText, ""))
+                    }
+                    "1:1 문의하기",
+                    "서비스 이용 약관",
+                    "개인정보 수집 및 이용",
+                    "개인정보 제3자 제공",
+                    "개인정보처리방침" -> redirectToURL(context, linkUrl)
+                    else -> { /* 기타 경우에 대한 처리 */ }
                 }
             }),
         verticalAlignment = Alignment.CenterVertically
@@ -195,28 +177,6 @@ fun SettingList(
             ),
             modifier = Modifier
                 .padding(horizontal = 25.dp)
-//                .nonReplyClickable {
-//                    when(listText){
-//                        "불법적인 게시물이에요" ->
-//                            onReportOnClick(
-//                                ReportRequest(ReportRequest.ContentType.User, 9999999, "불법적인 게시물이에요", ""))
-//                        "욕설을 해요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "욕설을 해요", "")
-//                        "음란성 글이에요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "음란성 글이에요", "")
-//                        "차별/혐오 표현을 사용해요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "차별/혐오 표현을 사용해요", "")
-//                        "잘못된 정보를 제공하는 글이에요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "잘못된 정보를 제공하는 글이에요", "")
-//                        "불쾌감을 줄 수 있는 사진이에요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "불쾌감을 줄 수 있는 사진이에요", "")
-//                        "중복/도배성 게시물이에요" ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "중복/도배성 게시물이에요", "")
-//                        "기타 " ->
-//                            ReportRequest(ReportRequest.ContentType.User, 9999999, "기타", "")
-//                    }
-//                }
-
         )
         Spacer(modifier = Modifier.weight(1f))
         if(editText.isNotEmpty()){
