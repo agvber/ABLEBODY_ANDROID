@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.my.myInfo.ui
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -10,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,48 +30,82 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoEditViewModel
 import com.smilehunter.ablebody.presentation.onboarding.ui.InputPhoneNumberWithRuleLayout
 import com.smilehunter.ablebody.presentation.onboarding.OnboardingViewModel
+import com.smilehunter.ablebody.presentation.onboarding.data.CertificationNumberInfoMessageUiState
+import com.smilehunter.ablebody.presentation.onboarding.ui.InputCertificationNumberContent
+import com.smilehunter.ablebody.presentation.onboarding.ui.InputCertificationNumberTextField
 import com.smilehunter.ablebody.presentation.onboarding.ui.InputPhoneNumberWithoutRuleLayout
 import com.smilehunter.ablebody.ui.utils.BottomCustomButtonLayout
 import com.smilehunter.ablebody.ui.utils.HighlightText
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
+import com.smilehunter.ablebody.ui.utils.CustomLabelText
+import com.smilehunter.ablebody.ui.utils.CustomTextField
+import com.smilehunter.ablebody.ui.utils.TextFieldUnderNormalText
+import com.smilehunter.ablebody.ui.utils.TextFieldUnderText
 import kotlinx.coroutines.flow.launchIn
 
+@Composable
+fun ChangePhoneNumberRoute(
+    myInfoEditViewModel: MyInfoEditViewModel = hiltViewModel(),
+    certificationBtnOnClick: (String) -> Unit
+) {
+    val phoneNumberState by myInfoEditViewModel.phoneNumberState.collectAsStateWithLifecycle()
+    val phoneNumberEnable by myInfoEditViewModel.isPhoneNumberCorrectState.collectAsStateWithLifecycle()
+
+    Log.d("phoneNumberState", phoneNumberState)
+    ChangePhoneNumberScreen(
+        onPhoneNumberChange = {
+            Log.d("phoneNumber",it)
+            myInfoEditViewModel.updatePhoneNumber(it)
+        },
+        phoneNumberEnable = phoneNumberEnable,
+        phoneNumber = phoneNumberState,
+        certificationBtnOnClick = {
+            certificationBtnOnClick(phoneNumberState)
+        }
+    )
+}
 
 @Composable
-fun ChangePhoneNumberScreen() {
+fun ChangePhoneNumberScreen(
+    onPhoneNumberChange:(String) -> Unit,
+    phoneNumberEnable: Boolean,
+    phoneNumber: String,
+    certificationBtnOnClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 100.dp),
     ){
         ChangePhoneNumberExplanation()
-//        InputPhoneNumberWithoutRuleLayout(
-//            value = "",
-//            onValueChange = {},
-//            enable = true
-//        )
         InputPhoneNumberWithRuleLayout(
-            value = "",
-            onValueChange = {},
-            underText = "휴대폰 번호 양식에 맞지 않아요."
+            value = phoneNumber,
+            onValueChange = {
+                onPhoneNumberChange(it)
+            },
+            underText = if(!phoneNumberEnable) "휴대폰 번호 양식에 맞지 않아요." else ""
         )
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
                 onClick = {
-//                    editSavePopup = true
+                    Log.d("인증번호 받기 버튼 눌림","인증번호 받기 버튼 눌림")
+                    certificationBtnOnClick()
                 },
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
@@ -76,7 +114,7 @@ fun ChangePhoneNumberScreen() {
                     .padding(16.dp)
                     .height(55.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AbleBlue),
-                enabled = false
+                enabled = phoneNumberEnable
             ) {
                 Text(
                     text = "인증번호 받기",
@@ -166,6 +204,8 @@ fun LoginInputPhoneNumberScreen(
         viewModel.certificationNumberInfoMessageUiState.launchIn(viewModel.viewModelScope)
     }
 }
+
+
 @Preview(showBackground = true)
 @Composable
 fun LoginPhoneNumberJoinExplanationPreview() {
@@ -187,5 +227,5 @@ fun InputPhoneNumberWithRuleLayoutPreview() {
 @Preview(showSystemUi = true)
 @Composable
 fun ChangePhoneNumberScreenPreview() {
-    ChangePhoneNumberScreen()
+    ChangePhoneNumberScreen({}, true, "", {})
 }
