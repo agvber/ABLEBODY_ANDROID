@@ -234,7 +234,6 @@ private fun CodyFilterBottomSheetBottom(
                 containerColor = White,
             ),
             border = BorderStroke(width = 1.dp, color = InactiveGrey),
-            modifier = Modifier.weight(1f)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_cody_tab_reset),
@@ -246,7 +245,6 @@ private fun CodyFilterBottomSheetBottom(
                 text = "초기화",
                 style = TextStyle(
                     fontSize = 16.sp,
-                    lineHeight = 21.sp,
                     fontWeight = FontWeight(500),
                     color = AbleDeep,
                     textAlign = TextAlign.Justify,
@@ -261,8 +259,7 @@ private fun CodyFilterBottomSheetBottom(
             colors = ButtonDefaults.buttonColors(
                 containerColor = AbleBlue,
             ),
-            modifier = Modifier
-                .weight(1.8f)
+            modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = "필터 적용",
