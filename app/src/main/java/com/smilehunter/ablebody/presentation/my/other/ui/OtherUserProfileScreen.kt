@@ -61,13 +61,14 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 fun OtherNormalUserRoute(
     otherUserViewModel: OtherUserViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
-    onReport: () -> Unit
+    onReport: () -> Unit,
+    uid: String
 ) {
 
     val otherUserData by otherUserViewModel.otherUserLiveData.observeAsState()
-
-    val uid = otherUserViewModel.uid
-//    Log.d("otherUserUI", uid.value.toString())
+    Log.d("otherUserData", otherUserData.toString())
+    val otherUserProfile = otherUserViewModel.otherUserProfile(uid)
+//    Log.d("받는 다른 유저 프로필", otherUserProfile.toString())
     val otherUserBoard = otherUserViewModel.otherUserBoard.collectAsLazyPagingItems()
     Log.d("otherUserBoard", otherUserBoard.toString())
 
@@ -75,7 +76,6 @@ fun OtherNormalUserRoute(
         otherUserViewModel.getData()
     }
 
-    Log.d("다른 유저 프로필UI",otherUserData.toString())
     OtherUserScreen(
         onBackRequest = onBackRequest,
         nickname = otherUserData?.nickname ?: "",
@@ -260,21 +260,3 @@ fun ReportBottomSheet(
         }
     }
 }
-
-//@Preview(showSystemUi = true)
-//@Composable
-//fun OtherNormalUserScreenPreview() {
-//    OtherUserScreen({},"nickname",false,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
-//}
-
-//@Preview(showSystemUi = true)
-//@Composable
-//fun OtherCreatorScreenPreview() {
-//    OtherUserScreen({},"nickname",true,"피아노위의스팸", "", 70, 173, "개발자", "안녕하세요", {})
-//}
-
-//@Preview
-//@Composable
-//fun OtherNormalUserScreenPreviewPreview() {
-//    OtherNormalUserScreenPreview()
-//}

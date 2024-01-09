@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -140,6 +142,7 @@ fun InputCertificationNumberContent(
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(30.dp))
         InputCertificationNumberTitle()
         InputCertificationNumberTextField(
             underTextValue = underTextValue,

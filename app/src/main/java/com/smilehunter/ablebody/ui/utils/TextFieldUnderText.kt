@@ -78,3 +78,27 @@ fun TextFieldUnderText(
 fun TextFieldUnderTextPreview() {
     TextFieldUnderText("사용할 수 없는 닉네임이에요.", false)
 }
+
+@Composable
+fun TextFieldUnderNormalText(
+    text: String,
+    isPositive: Boolean = true
+){
+    val textColor = if (isPositive) AbleBlue else AbleRed
+
+    Text(
+        text = text,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
+            fontWeight = FontWeight(400),
+            color = textColor,
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TextFieldUnderNormalTextPreview() {
+    TextFieldUnderNormalText("사용할 수 없는 닉네임이에요.", false)
+}

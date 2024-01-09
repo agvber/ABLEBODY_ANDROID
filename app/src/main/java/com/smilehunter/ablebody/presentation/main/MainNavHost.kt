@@ -74,6 +74,9 @@ fun MainNavHost(
             onReport = {navController.navigate("ReportRoute")},
             withDrawButtonOnClick = {navController.navigate("")},
             orderManagementOnClick = { navController.navigateToOrderManagementGraph() },
+            onPositiveBtnClick = { navController.navigate("ChangePhoneNumberScreen") },
+            certificationBtnOnClick = {navController.navigate("InputCertificationNumberRoute/$it")},
+            onVerificationSuccess = { navController.navigate("MyInfomationEditScreen") },
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,

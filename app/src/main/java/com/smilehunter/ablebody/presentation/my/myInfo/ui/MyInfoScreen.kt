@@ -141,44 +141,44 @@ fun MyInfoScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyInfoEditTextField(
-    editCategory: String,
-    contentText: String,
-) {
-    var inputText by remember {
-        mutableStateOf("")
-    }
-    Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
-    ) {
-        Text(
-            text = editCategory,
-            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-            style = TextStyle(
-                color = AbleDeep
-            )
-        )
-        TextField(
-            value = contentText,
-            onValueChange = {
-                inputText = it
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                containerColor = PlaneGrey,
-                disabledIndicatorColor = Color.Transparent // 비활성화된 상태의 밑줄 색상을 투명으로 설정
-            ),
-            enabled = !(editCategory == "성별" || editCategory == "회원코드")
-        )
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun MyInfoEditTextField(
+//    editCategory: String,
+//    contentText: String,
+//) {
+//    var inputText by remember {
+//        mutableStateOf("")
+//    }
+//    Column(
+//        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
+//    ) {
+//        Text(
+//            text = editCategory,
+//            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+//            style = TextStyle(
+//                color = AbleDeep
+//            )
+//        )
+//        TextField(
+//            value = contentText,
+//            onValueChange = {
+//                inputText = it
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(bottom = 12.dp),
+//            shape = RoundedCornerShape(12.dp),
+//            colors = TextFieldDefaults.textFieldColors(
+//                focusedIndicatorColor = Color.Transparent,
+//                unfocusedIndicatorColor = Color.Transparent,
+//                containerColor = PlaneGrey,
+//                disabledIndicatorColor = Color.Transparent // 비활성화된 상태의 밑줄 색상을 투명으로 설정
+//            ),
+//            enabled = !(editCategory == "성별" || editCategory == "회원코드")
+//        )
+//    }
+//}
 @Composable
 fun WithdrawBeforeScreen(
     onBackRequest: () -> Unit,
@@ -283,42 +283,6 @@ fun WithdrawScreen(
     }
 }
 
-@Composable
-fun EditSavePopup(
-    onBackRequest: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AbleBodyAlertDialog(
-        onDismissRequest = { onDismiss() },
-        positiveText = "예",
-        positiveButtonOnClick = { onBackRequest() },
-        negativeText = "아니오",
-        negativeButtonOnClick = { onDismiss() },
-    ) {
-        androidx.compose.material.Text(
-            text = "저장할까요?",
-            style = TextStyle(
-                fontSize = 18.sp,
-                lineHeight = 26.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                fontWeight = FontWeight(700),
-                color = AbleDark,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-        androidx.compose.material.Text(
-            text = "바꾼 정보를 저장합니다.",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                fontWeight = FontWeight(400),
-                color = AbleDark,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            ),
-            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
-        )
-    }
-}
 
 
 
