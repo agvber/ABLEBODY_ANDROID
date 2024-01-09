@@ -87,7 +87,7 @@ val fakeNotificationItemData =
                 checked = false
             ),
             NotificationItemData.Content(
-                id = 0L,
+                id = 1L,
                 senderNickname = "리코더와누네띠네",
                 senderProfileImageURL = "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Pictures/green.png",
                 createDate ="2023-09-10T18:27:19",
