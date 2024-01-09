@@ -1,7 +1,5 @@
 package com.smilehunter.ablebody.presentation.notification.ui
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -22,21 +20,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -50,7 +44,6 @@ import com.smilehunter.ablebody.model.NotificationItemData
 import com.smilehunter.ablebody.model.NotificationPassedTime
 import com.smilehunter.ablebody.model.fake.fakeNotificationItemData
 import com.smilehunter.ablebody.presentation.main.ui.LocalMainScaffoldPaddingValue
-import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
 import com.smilehunter.ablebody.presentation.notification.NotificationViewModel
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -60,10 +53,10 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.theme.White
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.HighlightText
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 @Composable
 fun NotificationRoute(
@@ -86,36 +79,12 @@ fun NotificationRoute(
         notificationItemData = notificationItemData
     )
 
-    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
-    if (isNetworkDisConnectedDialogShow) {
-        val context = LocalContext.current
-        NetworkConnectionErrorDialog(
-            onDismissRequest = {  },
-            positiveButtonOnClick = { notificationViewModel.refreshNetwork() },
-            negativeButtonOnClick = {
-                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
-                ContextCompat.startActivity(context, intent, null)
-            }
-        )
-    }
-
-    if (notificationItemData.loadState.refresh is LoadState.Error) {
-        val throwable = (notificationItemData.loadState.refresh as LoadState.Error).error
-        val httpException = throwable as? HttpException
-        if (httpException?.code() == 404) {
-            onErrorRequest(ErrorHandlerCode.NOT_FOUND_ERROR)
-            return
-        }
-        if (httpException != null) {
-            onErrorRequest(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
-            return
-        }
-        isNetworkDisConnectedDialogShow = true
-    } else {
-        if (isNetworkDisConnectedDialogShow) {
-            isNetworkDisConnectedDialogShow = false
-        }
-    }
+    SimpleErrorHandler(
+        refreshRequest = { notificationViewModel.refreshNetwork() },
+        onErrorOccur = onErrorRequest,
+        isError = notificationItemData.loadState.refresh is LoadState.Error,
+        throwable = (notificationItemData.loadState.refresh as? LoadState.Error)?.error
+    )
 }
 
 @Composable
