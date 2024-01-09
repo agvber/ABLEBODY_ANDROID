@@ -24,7 +24,7 @@ data class GetMyNotiResponseData(
         val body: String?,
         val from: NotificationUser,
         val to: NotificationUser,
-        val content: String,
+        val content: String?,
         val url: String,
         val checked: Boolean
     )
