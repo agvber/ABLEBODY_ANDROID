@@ -1,7 +1,5 @@
 package com.smilehunter.ablebody.presentation.payment.ui
 
-import android.content.Intent
-import android.provider.Settings
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -36,6 +34,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -48,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -72,10 +71,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.databinding.TossPaymentLayoutBinding
 import com.smilehunter.ablebody.model.CouponData
@@ -85,7 +84,7 @@ import com.smilehunter.ablebody.model.fake.fakeUserInfo
 import com.smilehunter.ablebody.presentation.delivery.data.DeliveryPassthroughData
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryRequestMessageBottomSheet
 import com.smilehunter.ablebody.presentation.delivery.ui.DeliveryTextField
-import com.smilehunter.ablebody.presentation.main.ui.error_handler.NetworkConnectionErrorDialog
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import com.smilehunter.ablebody.presentation.payment.PaymentViewModel
 import com.smilehunter.ablebody.presentation.payment.data.CouponBagsUiState
 import com.smilehunter.ablebody.presentation.payment.data.DeliveryAddressUiState
@@ -100,10 +99,11 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.KoreaMoneyFormatVisualTransformation
 import com.smilehunter.ablebody.utils.nonReplyClickable
-import com.tosspayments.paymentsdk.PaymentWidget
+import com.tosspayments.paymentsdk.ComposePaymentWidget
 import com.tosspayments.paymentsdk.model.AgreementStatus
 import com.tosspayments.paymentsdk.model.AgreementStatusListener
 import com.tosspayments.paymentsdk.model.PaymentCallback
@@ -111,7 +111,6 @@ import com.tosspayments.paymentsdk.model.TossPaymentResult
 import com.tosspayments.paymentsdk.view.PaymentMethod
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -121,7 +120,6 @@ fun PaymentRoute(
     onBackRequest: () -> Unit,
     addressRequest: (DeliveryPassthroughData) -> Unit,
     receiptRequest: (String) -> Unit,
-    paymentWidget: PaymentWidget,
     paymentViewModel: PaymentViewModel = hiltViewModel(),
 ) {
     val paymentPassthroughData by paymentViewModel.paymentPassthroughData.collectAsStateWithLifecycle()
@@ -137,12 +135,27 @@ fun PaymentRoute(
 
     var agreedRequiredTerms by remember { mutableStateOf(true) }
 
+    val activityResultRegistryOwner = LocalActivityResultRegistryOwner.current
+    val activityResultRegistry = activityResultRegistryOwner?.activityResultRegistry
+
+    val composePaymentWidget = remember {
+        ComposePaymentWidget(
+            activityResultRegistry = activityResultRegistry!!,
+            clientKey = if (BuildConfig.DEBUG) {
+                "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN"
+            } else {
+                "live_gck_nRQoOaPz8LwKvzKRvKRery47BMw6"
+            },
+            customerKey = LocalUserProfile.getInstance().uid
+        )
+    }
+
     PaymentScreen(
         onBackRequest = onBackRequest,
         payButtonOnClick = { receipt ->
-            paymentWidget.updateAmount(receipt.values.sum())
+            composePaymentWidget.updateAmount(receipt.values.sum())
 
-            val selectedPaymentMethod = paymentWidget.getSelectedPaymentMethod()
+            val selectedPaymentMethod = composePaymentWidget.getSelectedPaymentMethod()
             paymentViewModel.orderItem(
                 orderName = orderName,
                 paymentType = selectedPaymentMethod.type,
@@ -155,7 +168,7 @@ fun PaymentRoute(
             AndroidViewBinding(
                 factory = { inflater, parent, attachToParent ->
                     val view = TossPaymentLayoutBinding.inflate(inflater, parent, attachToParent)
-                    paymentWidget.apply {
+                    composePaymentWidget.apply {
                         renderPaymentMethods(
                             method = view.paymentWidget,
                             amount = PaymentMethod.Rendering.Amount(
@@ -200,7 +213,7 @@ fun PaymentRoute(
 
     LaunchedEffect(key1 = orderItemID) {
         if (orderItemID.isBlank()) return@LaunchedEffect
-        paymentWidget.requestPayment(
+        composePaymentWidget.requestPayment(
             paymentInfo = PaymentMethod.PaymentInfo(
                 orderId = orderItemID,
                 orderName = orderName
@@ -224,46 +237,18 @@ fun PaymentRoute(
             }
         )
     }
-
-    var isNetworkDisConnectedDialogShow by remember { mutableStateOf(false) }
-    if (isNetworkDisConnectedDialogShow) {
-        val context = LocalContext.current
-        NetworkConnectionErrorDialog(
-            onDismissRequest = {  },
-            positiveButtonOnClick = { paymentViewModel.refreshNetwork() },
-            negativeButtonOnClick = {
-                val intent = Intent(Settings.ACTION_WIFI_SETTINGS)
-                ContextCompat.startActivity(context, intent, null)
-            }
-        )
-    }
-
     val isDeliveryAddressLoadFail = deliveryAddress is DeliveryAddressUiState.LoadFail
     val isCouponLoadFail = coupons is CouponBagsUiState.LoadFail
-
-    if (isDeliveryAddressLoadFail || isCouponLoadFail) {
-        val throwable = when {
+    SimpleErrorHandler(
+        refreshRequest = paymentViewModel::refreshNetwork,
+        onErrorOccur = onErrorOccur,
+        isError = isDeliveryAddressLoadFail || isCouponLoadFail,
+        throwable = when {
             isDeliveryAddressLoadFail -> (deliveryAddress as DeliveryAddressUiState.LoadFail).t
             isCouponLoadFail -> (coupons as CouponBagsUiState.LoadFail).t
             else -> return
         }
-        val httpException = throwable as? HttpException
-        if (httpException?.code() == 404) {
-            onErrorOccur(ErrorHandlerCode.NOT_FOUND_ERROR)
-            return
-        }
-        if (httpException != null) {
-            onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
-            return
-        }
-        isNetworkDisConnectedDialogShow = true
-    }
-
-    if (!isDeliveryAddressLoadFail||!isCouponLoadFail) {
-        if (isNetworkDisConnectedDialogShow) {
-            isNetworkDisConnectedDialogShow = false
-        }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -288,10 +273,10 @@ fun PaymentScreen(
     val scope = rememberCoroutineScope()
     var showCouponBottomSheet by rememberSaveable { mutableStateOf(false) }
     var agreementPrivateData by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val couponBottomSheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val isPayButtonEnable = agreementPrivateData && agreedRequiredTerms
-    val receipt = remember { mutableStateMapOf<String, Int>() }
+    val receipt: SnapshotStateMap<String, Int> = remember { mutableStateMapOf() }
 
     Scaffold(
         topBar = {
@@ -330,7 +315,7 @@ fun PaymentScreen(
         if (showCouponBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showCouponBottomSheet = false },
-                sheetState = sheetState,
+                sheetState = couponBottomSheetState,
                 containerColor = Color.White,
                 dragHandle = null,
             ) {
@@ -344,9 +329,9 @@ fun PaymentScreen(
                             onClick = {
                                 couponIDChange(item.id)
                                 scope.launch {
-                                    sheetState.hide()
+                                    couponBottomSheetState.hide()
                                 }.invokeOnCompletion {
-                                    if (!sheetState.isVisible) {
+                                    if (!couponBottomSheetState.isVisible) {
                                         showCouponBottomSheet = false
                                     }
                                 }
@@ -461,6 +446,8 @@ fun PaymentScreen(
                     ),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+
+
                 receipt.putAll(
                     mapOf(
                         "총 상품금액" to paymentPassthroughData.items.sumOf { it.price },

@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id 'kotlin-parcelize'
     id 'com.google.protobuf'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
@@ -196,7 +197,7 @@ dependencies {
 }
 
 dependencies {
-    implementation 'com.github.tosspayments:payment-sdk-android:0.1.12'
+    implementation 'com.github.agvber:payment-sdk-android:0.1.12.1'
 }
 
 dependencies {

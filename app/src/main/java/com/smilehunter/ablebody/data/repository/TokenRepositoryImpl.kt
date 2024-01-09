@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.data.repository
 
+import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.sharedPreferences.TokenSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -11,7 +12,9 @@ class TokenRepositoryImpl @Inject constructor(
 ): TokenRepository {
 
     init {
-        tokenSharedPreferences.putAuthToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
+        if (BuildConfig.DEBUG) {
+            tokenSharedPreferences.putAuthToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdXRoLXRva2VuIiwidWlkIjoiOTk5OTk5OSIsImV4cCI6MTc3OTkzNjE0M30.Ewo_tMdZIksV-Y3F3jPNdeuA_4Z5N-yNTwZtF9qyIu6DC03Cga9bw6Zp7k1K2ESwmPHkxF7rWCisyp1LDYMONQ")
+        }
     }
 
     override val hasToken: Boolean

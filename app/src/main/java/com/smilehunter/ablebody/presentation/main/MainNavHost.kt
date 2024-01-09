@@ -2,7 +2,6 @@ package com.smilehunter.ablebody.presentation.main
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -30,8 +29,10 @@ import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
 import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
 import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
 import com.smilehunter.ablebody.presentation.home.my.selectProfileImageForResult
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemDetailScreen
-import com.smilehunter.ablebody.presentation.item_detail.ui.ItemReviewScreen
+import com.smilehunter.ablebody.presentation.item_detail.addItemDetailGraph
+import com.smilehunter.ablebody.presentation.item_detail.navigateToItemDetailGraph
+import com.smilehunter.ablebody.presentation.item_review.addItemReviewScreen
+import com.smilehunter.ablebody.presentation.item_review.navigateToItemReview
 import com.smilehunter.ablebody.presentation.like_list.addLikeUserListScreen
 import com.smilehunter.ablebody.presentation.like_list.navigateToLikeUserListScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawScreenRoute
@@ -42,18 +43,16 @@ import com.smilehunter.ablebody.presentation.order_management.addOrderManagement
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderItemDetailScreen
 import com.smilehunter.ablebody.presentation.order_management.navigateToOrderManagementGraph
 import com.smilehunter.ablebody.presentation.payment.addPaymentGraph
+import com.smilehunter.ablebody.presentation.payment.navigateToPayment
 import com.smilehunter.ablebody.presentation.receipt.addReceiptScreen
 import com.smilehunter.ablebody.presentation.receipt.navigateToReceiptScreen
 import com.smilehunter.ablebody.presentation.search.addSearchScreen
-import com.tosspayments.paymentsdk.PaymentWidget
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavHost(
     recreateRequest: () -> Unit,
     isBottomBarShow: (Boolean) -> Unit,
-    navController: NavHostController,
-    paymentWidget: PaymentWidget
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
@@ -88,7 +87,7 @@ fun MainNavHost(
                     onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                    onProductItemDetailRouteRequest = navController::navigateToItemDetailGraph,
                 )
                 addCodyScreen(
                     isBottomBarShow = isBottomBarShow,
@@ -102,7 +101,7 @@ fun MainNavHost(
                     onErrorRequest = navController::navigateErrorHandlingScreen,
                     onSearchBarClick = { navController.navigate("SearchRoute") },
                     onAlertButtonClick = { navController.navigate(NotificationRoute) },
-                    onProductItemDetailRouteRequest = { navController.navigate("ItemDetailScreen/$it")},
+                    onProductItemDetailRouteRequest = navController::navigateToItemDetailGraph,
                     onCodyItemDetailRouteRequest = navController::navigateToCreatorDetail,
                 )
                 addEditProfileGraph(
@@ -122,7 +121,7 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onErrorOccur = navController::navigateErrorHandlingScreen,
             backRequest = navController::popBackStack,
-            productItemClick = { navController.navigate("ItemDetailScreen/$it") },
+            productItemClick = navController::navigateToItemDetailGraph,
             codyItemClick = navController::navigateToCreatorDetail,
         )
 
@@ -137,7 +136,7 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
-            productItemClick = { navController.navigate("ItemDetailScreen/$it") },
+            productItemClick = navController::navigateToItemDetailGraph,
             codyItemClick = navController::navigateToCreatorDetail,
         )
 
@@ -149,7 +148,7 @@ fun MainNavHost(
                 Log.d("다른 유저 프로필", it)},
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
-            productItemOnClick = { navController.navigate("ItemDetailScreen/$it") }
+            productItemOnClick = navController::navigateToItemDetailGraph
         )
 
         addLikeUserListScreen(
@@ -168,43 +167,17 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow
         )
 
-        composable(route = "ItemDetailScreen/{id}",
-            arguments = listOf(
-                navArgument("id") { type = NavType.LongType}
-            )
-        ){ navBackStackEntry ->
-            navBackStackEntry.arguments?.getLong("id")?.let {
-                ItemDetailScreen(
-                    id = it,
-                    itemClick = { item_id,review_id ->
-                        Log.d("itemClick", "$item_id $review_id")
-                        navController.navigate("ItemReviewScreen/$item_id/$review_id")
-                    },
-                    onBackRequest = navController::popBackStack,
-                    purchaseOnClick = { },
-                    brandOnClick = { item_id, item_name ->
-                        navController.navigateToBrandDetailScreen(contentID = item_id, contentName = item_name)
-                    },
-                    codyOnClick = {
-                        Log.d("코디 클릭됨",it.toString())
-                        navController::navigateToCreatorDetail
-                    }
-                )
-            }
-            isBottomBarShow(false)
-        }
-
-        composable(route = "ItemReviewScreen/{item_id}/{review_id}",
-            arguments = listOf(
-                navArgument("item_id") { type = NavType.LongType},
-                navArgument("review_id") { type = NavType.LongType}
-            )
-        ){ navBackStackEntry ->
-            val itemId = navBackStackEntry.arguments?.getLong("item_id")
-            val reviewId = navBackStackEntry.arguments?.getLong("review_id")
-            ItemReviewScreen(
-                id = itemId!!,
-                reviewId = reviewId!!,
+        addItemDetailGraph(
+            isBottomBarShow = isBottomBarShow,
+            onErrorOccur = navController::navigateErrorHandlingScreen,
+            onBackRequest = navController::popBackStack,
+            brandOnClick = navController::navigateToBrandDetailScreen,
+            codyOnClick = navController::navigateToCreatorDetail,
+            itemReview = navController::navigateToItemReview,
+            purchaseOnClick = navController::navigateToPayment
+        ) {
+            addItemReviewScreen(
+                isBottomShow = isBottomBarShow,
                 onBackRequest = navController::popBackStack
             )
         }
@@ -245,8 +218,7 @@ fun MainNavHost(
                     onErrorOccur = navController::navigateErrorHandlingScreen,
                     orderComplete = recreateRequest
                 )
-            },
-            paymentWidget = paymentWidget
+            }
         )
 
         addOrderManagementGraph(

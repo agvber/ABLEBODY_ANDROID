@@ -4,13 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smilehunter.ablebody.data.repository.CommentRepository
-import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.data.result.Result
 import com.smilehunter.ablebody.data.result.asResult
 import com.smilehunter.ablebody.domain.GetCommentListUseCase
 import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import com.smilehunter.ablebody.presentation.comment.data.CommentUiState
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onSubscription
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,7 +32,6 @@ class CommentViewModel @Inject constructor(
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     savedStateHandle: SavedStateHandle,
     getCommentListUseCase: GetCommentListUseCase,
-    userRepository: UserRepository,
     private val commentRepository: CommentRepository,
 ): ViewModel() {
 
@@ -48,21 +46,13 @@ class CommentViewModel @Inject constructor(
 
     private val renewData = MutableSharedFlow<Unit>()
 
-    val myUserInfoData = userRepository.localUserInfoData
-        .flowOn(ioDispatcher)
-        .shareIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            replay = 1
-        )
-
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val commentListData: StateFlow<CommentUiState> =
         networkRefreshFlow.onSubscription { emit(Unit) }
             .flatMapLatest {
-                combine(contentID, myUserInfoData, renewData.onSubscription { emit(Unit) }) { id, myData, _ ->
-                    getCommentListUseCase(id, myData.uid)
+                val localUserProfile = LocalUserProfile.getInstance()
+                combine(contentID, renewData.onSubscription { emit(Unit) }) { id, _ ->
+                    getCommentListUseCase(id, localUserProfile.uid)
                 }
                     .flowOn(ioDispatcher)
                     .asResult()

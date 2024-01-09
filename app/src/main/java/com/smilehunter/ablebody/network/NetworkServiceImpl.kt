@@ -75,7 +75,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 const val MAIN_SERVER_URL = "https://aws.ablebody.im:50913"
-const val TEST_SERVER_URL = "https://aws.ablebody.im:40913"
+const val TEST_SERVER_URL = "http://test.ablebody.im"
 
 @Singleton
 class NetworkServiceImpl @Inject constructor(

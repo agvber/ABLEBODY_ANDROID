@@ -8,10 +8,10 @@ import com.smilehunter.ablebody.data.dto.ItemChildCategory
 import com.smilehunter.ablebody.data.dto.ItemGender
 import com.smilehunter.ablebody.data.dto.ItemParentCategory
 import com.smilehunter.ablebody.data.dto.SortingMethod
-import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.ProductItemPagerUseCase
 import com.smilehunter.ablebody.domain.ProductItemPagingSourceData
 import com.smilehunter.ablebody.model.LocalUserInfoData
+import com.smilehunter.ablebody.presentation.main.LocalUserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,18 +20,15 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class ItemViewModel @Inject constructor(
-    productItemPagerUseCase: ProductItemPagerUseCase,
-    userRepository: UserRepository
+    productItemPagerUseCase: ProductItemPagerUseCase
 ): ViewModel() {
 
     private val _networkRefreshFlow = MutableSharedFlow<Unit>()
@@ -66,7 +63,7 @@ class ItemViewModel @Inject constructor(
     }
 
     private val _itemGender = MutableStateFlow(
-        when (runBlocking { userRepository.localUserInfoData.firstOrNull()?.gender }) {
+        when (LocalUserProfile.getInstance().gender) {
             LocalUserInfoData.Gender.MALE -> ItemGender.MALE
             LocalUserInfoData.Gender.FEMALE -> ItemGender.FEMALE
             else -> ItemGender.MALE

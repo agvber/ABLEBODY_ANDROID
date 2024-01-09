@@ -20,7 +20,9 @@ data class ItemResponseData(
     val homePosts: List<HomePost>,
     val itemOptionList: List<ItemOptionResponseDto>,
     val bookmarked: Boolean,
-    val deleted: Boolean
+    val deleted: Boolean,
+    val seller: Seller?,
+    val itemDetailImages: List<ItemDetailImageResource>,
 ) {
     data class Item(
         val id: Long,
@@ -129,4 +131,18 @@ data class ItemResponseData(
         )
     }
 
+    data class Seller(
+        val businessAndRepName: String?,
+        val brand: String?,
+        val businessNumber: String?,
+        val mailOrderSalesReportNumber: String?,
+        val contactNumber: String?,
+        val emailAddress: String?,
+        val address: String?
+    )
+
+    data class ItemDetailImageResource(
+        val imageUrl: String,
+        val imageOrder: Int
+    )
 }

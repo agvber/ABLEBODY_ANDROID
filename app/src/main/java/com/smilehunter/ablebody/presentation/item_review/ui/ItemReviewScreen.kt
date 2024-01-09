@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.item_detail.ui
+package com.smilehunter.ablebody.presentation.item_review.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -19,9 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,10 +35,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.presentation.item_detail.ItemDetailViewModel
+import com.smilehunter.ablebody.presentation.item_review.ItemReviewViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
@@ -48,35 +47,12 @@ import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 @ExperimentalMaterial3Api
 @Composable
 fun ItemReviewScreen(
-    viewModel: ItemDetailViewModel = hiltViewModel(),
-    id: Long,
-    reviewId: Long,
     onBackRequest: () -> Unit,
+    itemReviewViewModel: ItemReviewViewModel = hiltViewModel(),
 ) {
-    val itemReviewData by viewModel.itemDetailLiveData.observeAsState()
-//    val creatorDetailUiState by creatorDetailViewModel.creatorDetailData.collectAsStateWithLifecycle()
-//    if (creatorDetailUiState is CreatorDetailUiState.Success) {
-//    }
-    val itemReviewDataitem = itemReviewData
-//    val elapsedTime = itemReviewDataitem.elapsedTime
-    LaunchedEffect(key1 = true) {
-        viewModel.getData(id)
-    }
+    val itemReview by itemReviewViewModel.itemReview.collectAsStateWithLifecycle()
 
-    val itemReviews = itemReviewData?.itemReviews// ... 여기에는 실제 ItemReview 리스트가 위치합니다.
-    val itemReview = itemReviews?.find { it.id == reviewId } // find 함수를 사용하여 조건에 맞는 첫 번째 아이템을 찾습니다.
-
-    println("ReviewScreen4: ${itemReview?.images}")
     val mainImageList = itemReview?.images ?: listOf()
-
-    println("mainImageList: ${mainImageList}")
-
-
-//    val originalString = itemReviewData?.data?.itemReviews?.getOrNull(0)?.creator?.modifiedDate.toString()
-//    val dateTime = LocalDateTime.parse(originalString)
-//    val formatter = DateTimeFormatter.ofPattern("MM월 dd일")
-//    val dateString = dateTime.format(formatter)
-
 
     Scaffold(
         topBar = {

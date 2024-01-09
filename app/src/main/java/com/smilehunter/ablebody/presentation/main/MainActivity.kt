@@ -8,9 +8,9 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +20,6 @@ import com.google.firebase.ktx.Firebase
 import com.smilehunter.ablebody.presentation.main.ui.MainScreen
 import com.smilehunter.ablebody.presentation.onboarding.OnboardingActivity
 import com.smilehunter.ablebody.ui.theme.ABLEBODY_AndroidTheme
-import com.tosspayments.paymentsdk.PaymentWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -32,13 +31,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
         firebaseAnalytics = Firebase.analytics
+
+        val splashScreen = installSplashScreen()
 
         val isNetworkConnectionFlow = callbackFlow { networkState() }
             .stateIn(
@@ -47,18 +47,11 @@ class MainActivity : AppCompatActivity() {
                 initialValue = true
             )
 
-        val paymentWidget = PaymentWidget(
-            activity = this,
-            clientKey = "test_ck_ALnQvDd2VJYq55dEqlb3Mj7X41mN",
-            customerKey = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6"
-        )
-
         setContent {
             ABLEBODY_AndroidTheme {
                 MainScreen(
                     recreateRequest = { startMainActivity() },
-                    isNetworkConnectionFlow = isNetworkConnectionFlow,
-                    paymentWidget = paymentWidget
+                    isNetworkConnectionFlow = isNetworkConnectionFlow
                 )
             }
         }
@@ -75,6 +68,14 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.responseInvalidRefreshToken.collectLatest {
                 startOnboardingActivity()
+            }
+        }
+
+        lifecycleScope.launch {
+            if (viewModel.hasToken) {
+                viewModel.user.collectLatest {
+                    LocalUserProfile.initialize(it)
+                }
             }
         }
     }
