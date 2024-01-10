@@ -21,16 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SuggestViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val getCouponListUseCase: GetCouponListUseCase,
-    private val getOrderItemListUseCase: GetOrderItemListUseCase,
-    private val getUserBoardPagerUseCase: GetUserBoardPagerUseCase,
-    private val addCouponUseCase: AddCouponUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
-//    private val _suggestAppLiveData = MutableLiveData<String>()
-//    val suggestAppLiveData: LiveData<String> = _suggestAppLiveData
 
     fun sendSuggest(value: String) {
         viewModelScope.launch(ioDispatcher) {
@@ -38,6 +30,5 @@ class SuggestViewModel @Inject constructor(
             Log.d("sendSuggest", value)
         }
     }
-
 
 }
