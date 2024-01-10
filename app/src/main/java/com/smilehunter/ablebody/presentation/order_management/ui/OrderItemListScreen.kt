@@ -172,7 +172,6 @@ fun OrderItemListScreen(
                     ),
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
-                OrderActionButton(text = "쇼핑하러 가기")
             }
         }
 
