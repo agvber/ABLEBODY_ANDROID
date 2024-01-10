@@ -24,4 +24,8 @@ class TokenRepositoryImpl @Inject constructor(
         get() = tokenSharedPreferences.registerOnClearedListener
             .distinctUntilChanged()
             .onStart { if (!hasToken) emit(Unit) }
+
+    override suspend fun deleteToken() {
+        tokenSharedPreferences.clear()
+    }
 }

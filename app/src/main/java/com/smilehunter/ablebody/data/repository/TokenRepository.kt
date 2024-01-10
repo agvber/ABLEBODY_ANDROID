@@ -7,4 +7,7 @@ interface TokenRepository {
     val hasToken: Boolean
 
     val registerOnClearedListener: Flow<Unit>
+
+    suspend fun deleteToken()
 }
+
