@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.presentation.my.SuggestPage
+import com.smilehunter.ablebody.presentation.my.setting.ui.SuggestPage
 import com.smilehunter.ablebody.presentation.my.suggest.SuggestViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.utils.nonReplyClickable

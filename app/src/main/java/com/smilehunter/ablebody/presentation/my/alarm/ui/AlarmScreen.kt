@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.presentation.my.BenefitDescription
-import com.smilehunter.ablebody.presentation.my.MarketingAlarmToggleButton
+import com.smilehunter.ablebody.presentation.my.setting.ui.BenefitDescription
+import com.smilehunter.ablebody.presentation.my.setting.ui.MarketingAlarmToggleButton
 import com.smilehunter.ablebody.presentation.my.alarm.AlarmViewModel
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
