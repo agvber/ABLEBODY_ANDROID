@@ -173,14 +173,14 @@ fun SettingList(
                     "중복/도배성 게시물이에요",
                     "기타 " -> {
                         onReportCompleteDialog()
-                        onReportOnClick(
-                            ReportRequest(
-                                ReportRequest.ContentType.User,
-                                9999999,
-                                listText,
-                                ""
-                            )
-                        )
+//                        onReportOnClick(
+//                            ReportRequest(
+//                                ReportRequest.ContentType.User,
+//                                9999999,
+//                                listText,
+//                                ""
+//                            )
+//                        )
                     }
 
                     "1:1 문의하기",
@@ -244,13 +244,6 @@ fun SettingList(
 
         }
     }
-//    if (logoutDialog) {
-//        LogoutAlertDialog( {logoutDialog = false}  )
-//    }
-//
-//    if (reportCompleteDialog) {
-//        ReportCompletePopup( onBackRequest = onBackRequest, {reportCompleteDialog = false})
-//    }
 }
 
 
