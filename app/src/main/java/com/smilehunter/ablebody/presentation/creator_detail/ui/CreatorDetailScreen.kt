@@ -36,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -101,6 +102,7 @@ import com.smilehunter.ablebody.utils.CalculateSportElapsedTime
 import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.NonReplyIconButton
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import com.smilehunter.ablebody.utils.preloadImageList
 import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
@@ -175,6 +177,8 @@ fun CreatorDetailScreen(
     productItemOnClick: (Long) -> Unit,
     creatorDetailUiState: CreatorDetailUiState,
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
     ) { paddingValue ->
@@ -390,7 +394,9 @@ fun CreatorDetailScreen(
                 Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
             }
         }
-        val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
+        LaunchedEffect(key1 = creatorDetailData.imageURLList) {
+            preloadImageList(context, creatorDetailData.imageURLList)
+        }
         DisposableEffect(key1 = lifecycleOwner) {
             val observer = LifecycleEventObserver { owner, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -407,7 +413,6 @@ fun CreatorDetailScreen(
                 lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
-
     }
 }
 
