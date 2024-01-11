@@ -97,7 +97,7 @@ fun ChangePhoneNumberScreen(
             onValueChange = {
                 onPhoneNumberChange(it)
             },
-            underText = if(!phoneNumberEnable) "휴대폰 번호 양식에 맞지 않아요." else ""
+            underText = if(phoneNumber.isNotEmpty() && !phoneNumberEnable) "휴대폰 번호 양식에 맞지 않아요." else ""
         )
         Box(
             modifier = Modifier.fillMaxSize()
