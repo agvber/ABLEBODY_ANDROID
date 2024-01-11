@@ -10,18 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,15 +34,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
-import com.smilehunter.ablebody.presentation.my.SettingList
+import com.smilehunter.ablebody.presentation.my.setting.ui.SettingList
 import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoViewModel
-import com.smilehunter.ablebody.presentation.my.myprofile.MyProfileViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
-import com.smilehunter.ablebody.ui.theme.AbleDark
-import com.smilehunter.ablebody.ui.theme.AbleDeep
 import com.smilehunter.ablebody.ui.theme.AbleRed
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
-import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.utils.nonReplyClickable
 
@@ -100,6 +90,7 @@ fun WithdrawScreenRoute(
         }
     )
 }
+
 @Composable
 fun MyInfoScreen(
     onBackRequest: () -> Unit,
@@ -115,7 +106,7 @@ fun MyInfoScreen(
             BackButtonTopBarLayout(
                 onBackRequest = onBackRequest,
                 titleText = "내 정보"
-            ){
+            ) {
                 Text(
                     text = "수정",
                     modifier = Modifier.nonReplyClickable {
@@ -130,7 +121,7 @@ fun MyInfoScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(PlaneGrey)
-        ){
+        ) {
             SettingList(listText = "휴대폰 번호(아이디)", editText = phoneNumber)
             SettingList(listText = "닉네임", editText = nickname)
             SettingList(listText = "성별", editText = gender)
@@ -141,44 +132,6 @@ fun MyInfoScreen(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyInfoEditTextField(
-//    editCategory: String,
-//    contentText: String,
-//) {
-//    var inputText by remember {
-//        mutableStateOf("")
-//    }
-//    Column(
-//        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
-//    ) {
-//        Text(
-//            text = editCategory,
-//            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
-//            style = TextStyle(
-//                color = AbleDeep
-//            )
-//        )
-//        TextField(
-//            value = contentText,
-//            onValueChange = {
-//                inputText = it
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(bottom = 12.dp),
-//            shape = RoundedCornerShape(12.dp),
-//            colors = TextFieldDefaults.textFieldColors(
-//                focusedIndicatorColor = Color.Transparent,
-//                unfocusedIndicatorColor = Color.Transparent,
-//                containerColor = PlaneGrey,
-//                disabledIndicatorColor = Color.Transparent // 비활성화된 상태의 밑줄 색상을 투명으로 설정
-//            ),
-//            enabled = !(editCategory == "성별" || editCategory == "회원코드")
-//        )
-//    }
-//}
 @Composable
 fun WithdrawBeforeScreen(
     onBackRequest: () -> Unit,
@@ -186,7 +139,8 @@ fun WithdrawBeforeScreen(
 ) {
     Scaffold(
         topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)},
+            BackButtonTopBarLayout(onBackRequest = onBackRequest)
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -225,7 +179,8 @@ fun WithdrawScreen(
 ) {
     Scaffold(
         topBar = {
-            BackButtonTopBarLayout(onBackRequest = onBackRequest)},
+            BackButtonTopBarLayout(onBackRequest = onBackRequest)
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -261,7 +216,7 @@ fun WithdrawScreen(
                 ) {
                     androidx.compose.material3.Button(
                         onClick = {
-//                            withDrawButtonOnClick()
+                            withDrawButtonOnClick()
                         },
                         shape = RoundedCornerShape(15.dp),
                         modifier = Modifier
@@ -269,7 +224,9 @@ fun WithdrawScreen(
                             .align(Alignment.BottomCenter)
                             .padding(16.dp)
                             .height(55.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AbleRed)
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = AbleRed
+                        )
 
                     ) {
                         Text(
@@ -284,25 +241,25 @@ fun WithdrawScreen(
 }
 
 
-
-
 @Composable
-fun WithDrawCompleteScreen() {
+fun WithDrawCompleteScreen(
+    myInfoViewModer: MyInfoViewModel = hiltViewModel()
+) {
     Box(
-        contentAlignment = Alignment.TopEnd,
-        modifier = Modifier
-            .padding(top = 14.dp, end = 16.dp)
-            .nonReplyClickable {
-                
-            }
-    ){
-        Text(text = "홈으로")
-    }
-    Box(
-        contentAlignment = Alignment.Center
-    ){
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = "홈으로",
+            modifier = Modifier
+                .nonReplyClickable {
+                    myInfoViewModer.deleteToken()
+                }
+                .padding(top = 14.dp, end = 16.dp)
+                .align(Alignment.TopEnd)
+        )
         Text(
             text = "회원 탈퇴 완료",
+            modifier = Modifier.align(Alignment.Center),
             style = TextStyle(
                 color = AbleBlue,
                 fontSize = 24.sp,
@@ -317,13 +274,13 @@ fun WithDrawCompleteScreen() {
 @Preview(showSystemUi = true)
 @Composable
 fun MyInfomationScreenPreview() {
-    MyInfoScreen({}, {}, {},"01012345678", "nickname", "남자", "000000")
+    MyInfoScreen({}, {}, {}, "01012345678", "nickname", "남자", "000000")
 }
 
 @Preview(showSystemUi = true)
 @Composable
 fun WithdrawBeforeScreenPreview() {
-    WithdrawBeforeScreen({},{})
+    WithdrawBeforeScreen({}, {})
 }
 
 @Preview(showSystemUi = true)
