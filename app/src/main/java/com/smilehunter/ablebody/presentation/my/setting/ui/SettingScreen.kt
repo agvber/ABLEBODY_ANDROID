@@ -75,7 +75,6 @@ fun SettingScreen(
     settingViewModel: SettingViewModel = hiltViewModel()
 ) {
     var logoutDialog by remember { mutableStateOf(false) }
-//    var reportCompleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -86,14 +85,15 @@ fun SettingScreen(
                 style = TextStyle(
                     fontSize = 18.sp,
                 )
-            )},
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(PlaneGrey)
-        ){
+        ) {
             SuggestList(suggestonClick = suggestonClick)
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "내 정보", myInfoOnClick = myInfoOnClick)
@@ -119,9 +119,6 @@ fun SettingScreen(
         )
     }
 
-//    if (reportCompleteDialog) {
-//        ReportCompletePopup( onBackRequest = onBackRequest, { reportCompleteDialog = false })
-//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,15 +132,10 @@ fun SettingList(
     alarmOnClick: () -> Unit = {},
     withDrawOnClick: () -> Unit = {},
     withDrawReasonOnClick: (String) -> Unit = {},
-    onReportOnClick: (ReportRequest) -> Unit = {},
-    onBackRequest: () -> Unit = {},
     onLogoutDialog: () -> Unit = {},
     onReportCompleteDialog: () -> Unit = {}
 ) {
     val context = LocalContext.current
-//    var logoutDialog by remember { mutableStateOf(false) }
-//    var reportCompleteDialog by remember { mutableStateOf(false) }
-
     val manager = context.packageManager
     val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
 
@@ -173,14 +165,6 @@ fun SettingList(
                     "중복/도배성 게시물이에요",
                     "기타 " -> {
                         onReportCompleteDialog()
-//                        onReportOnClick(
-//                            ReportRequest(
-//                                ReportRequest.ContentType.User,
-//                                9999999,
-//                                listText,
-//                                ""
-//                            )
-//                        )
                     }
 
                     "1:1 문의하기",
@@ -209,7 +193,7 @@ fun SettingList(
                 .padding(horizontal = 25.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        if(editText.isNotEmpty()){
+        if (editText.isNotEmpty()) {
             Text(
                 text = editText,
                 color = textColor,
@@ -224,14 +208,14 @@ fun SettingList(
                     .padding(horizontal = 25.dp)
 
             )
-        }else {
-            if(listText == "앱 버전") {
+        } else {
+            if (listText == "앱 버전") {
                 Text(
                     text = BuildConfig.VERSION_NAME,
                     color = SmallTextGrey,
                     modifier = Modifier.padding(end = 16.dp)
                 )
-            }else{
+            } else {
                 Icon(
                     Icons.Filled.KeyboardArrowRight,
                     contentDescription = linkUrl,
@@ -303,7 +287,12 @@ fun SuggestPage(
             val isButtonEnabled = inputText.isNotBlank() && inputText.length <= maxCharCount
 
             val text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
+                withStyle(
+                    style = SpanStyle(
+                        color = AbleBlue,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold))
+                    )
+                ) {
                     append("애블바디")
                 }
                 append("에게 제안해요!")
@@ -386,7 +375,7 @@ fun SuggestPage(
             }
         }
         if (showDialog) {
-            SuggestCompletePopup( onBackRequest = onBackRequest, onDismiss = { showDialog = false })
+            SuggestCompletePopup(onBackRequest = onBackRequest, onDismiss = { showDialog = false })
         }
         if (showExitWarningDialog) {
             ExitWarningPopup(
@@ -400,7 +389,6 @@ fun SuggestPage(
         }
     }
 }
-
 
 
 @Composable
@@ -527,12 +515,12 @@ fun BenefitDescription(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun SettingScreenPreview() {
-    SettingScreen({},{},{},{})
+    SettingScreen({}, {}, {}, {})
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SuggestPagePreview() {
@@ -542,7 +530,7 @@ fun SuggestPagePreview() {
 @Preview(showBackground = true)
 @Composable
 fun LogoutAlertDialogPreview() {
-    LogoutAlertDialog({},{})
+    LogoutAlertDialog({}, {})
 }
 
 @Composable
@@ -580,10 +568,11 @@ fun SuggestCompletePopup(
         )
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SuggestCompletePopupPreview() {
-    SuggestCompletePopup({},{})
+    SuggestCompletePopup({}, {})
 }
 
 
