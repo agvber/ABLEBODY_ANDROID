@@ -2,6 +2,9 @@ package com.smilehunter.ablebody.presentation.main
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -58,7 +61,9 @@ fun MainNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeRoute
+        startDestination = HomeRoute,
+        enterTransition = { fadeIn(animationSpec = tween(500)) },
+        exitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
         addHomeGraph(
             isBottomBarShow = isBottomBarShow,
