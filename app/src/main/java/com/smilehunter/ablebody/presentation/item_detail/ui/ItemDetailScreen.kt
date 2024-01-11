@@ -294,15 +294,15 @@ fun ItemDetailScreen(
                         top = if (index != 0) 10.dp else 0.dp
                     )
 
-                    if (index < 3 || isExpanded) {
+                    AnimatedVisibility(index < 3 || isExpanded) {
                         AsyncImage(
                             model = url,
                             contentDescription = null,
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .animateContentSize()
                                 .padding(paddingValue)
+                                .animateContentSize()
                         )
                     }
                 }
@@ -477,7 +477,9 @@ fun ItemDetailImageView(
     pagerState: PagerState,
     imageUrlList: List<String>
 ) {
-    Box {
+    Box(
+        modifier = Modifier.animateContentSize()
+    ) {
         HorizontalPager(
             state = pagerState,
         ) { page ->
@@ -1047,7 +1049,7 @@ fun BusinessInformationTab(
                 contentDescription = null
             )
         }
-        if (isExpanded) {
+        AnimatedVisibility(visible = isExpanded) {
             content()
         }
     }
