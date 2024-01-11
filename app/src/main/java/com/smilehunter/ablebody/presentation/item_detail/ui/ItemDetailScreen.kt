@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,6 +44,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,6 +61,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
@@ -101,6 +102,7 @@ import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.ignoreParentPadding
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import com.smilehunter.ablebody.utils.preloadImageList
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -152,6 +154,8 @@ fun ItemDetailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
@@ -295,7 +299,8 @@ fun ItemDetailScreen(
                             model = url,
                             contentDescription = null,
                             contentScale = ContentScale.FillWidth,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .animateContentSize()
                                 .padding(paddingValue)
                         )
@@ -321,7 +326,7 @@ fun ItemDetailScreen(
                 }
 
                 item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    if (itemDetailData.item.avgStarRating != null) {
+                    if (itemDetailData.itemReviews.isNotEmpty()) {
                         val creatorReviewPagerState = rememberPagerState { itemDetailData.itemReviews.size }
 
                         Column(
@@ -329,7 +334,7 @@ fun ItemDetailScreen(
                                 .ignoreParentPadding(lazyVerticalGridContentHorizontalPadding)
                                 .padding(vertical = 12.dp)
                         ) {
-                            CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating)
+                            CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating ?: "")
                             HorizontalPager(
                                 state = creatorReviewPagerState,
                                 contentPadding = PaddingValues(end = 54.dp),
@@ -424,7 +429,7 @@ fun ItemDetailScreen(
                     Box(modifier = Modifier.height(100.dp))
                 }
             }
-            val uriHandler = LocalUriHandler.current
+
             CustomButton(
                 text = if (itemDetailData.item.brand.isLaunched) {
                     "구매하기"
@@ -439,6 +444,13 @@ fun ItemDetailScreen(
                     uriHandler.openUri(itemDetailData.item.redirectUrl)
                 }
             }
+        }
+
+        LaunchedEffect(key1 = itemDetailData.item.images) {
+            preloadImageList(context, itemDetailData.item.images)
+        }
+        LaunchedEffect(key1 = itemDetailData.detailImageUrls) {
+            preloadImageList(context, itemDetailData.detailImageUrls)
         }
 
         val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
@@ -468,17 +480,13 @@ fun ItemDetailImageView(
     Box {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
         ) { page ->
             AsyncImage(
                 model = imageUrlList[page],
                 contentDescription = "Detailed image description",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillWidth,
                 placeholder = previewPlaceHolder(id = R.drawable.product_item_test),
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -712,7 +720,9 @@ private fun CreatorReviewTitle(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 5.dp)
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 5.dp)
     ) {
         Text(
             text = "크리에이터 리뷰",
