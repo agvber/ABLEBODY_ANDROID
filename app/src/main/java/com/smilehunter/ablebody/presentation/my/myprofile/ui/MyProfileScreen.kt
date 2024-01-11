@@ -74,19 +74,28 @@ fun MyProfileRoute(
     viewModel: MyProfileViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
     coupononClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
+    orderManagementOnClick: () -> Unit,
+    onProfileEditClick: () -> Unit
 ) {
     val userInfoData by viewModel.userLiveData.observeAsState()
 
-    Log.d("NormalUser or Creator?", userInfoData?.userType.toString())
-    Log.d("NormalUser or Creator?", userInfoData.toString())
-
-    if(userInfoData?.userType.toString() == "CREATOR"){
+    if (userInfoData?.userType.toString() == "CREATOR") {
         Log.d("NormalUser or Creator?", "CreatorScreen")
-        CreatorScreen(settingOnClick = settingOnClick, coupononClick = coupononClick, orderManagementOnClick = orderManagementOnClick)
-    }else{
+        CreatorScreen(
+            settingOnClick = settingOnClick,
+            coupononClick = coupononClick,
+            orderManagementOnClick = orderManagementOnClick,
+            onProfileEditClick = onProfileEditClick
+        )
+    } else {
         Log.d("NormalUser or Creator?", "NormalUserScreen")
-        NormalUserScreen(settingOnClick = settingOnClick, coupononClick = coupononClick, orderManagementOnClick = orderManagementOnClick)
+        NormalUserScreen(
+            settingOnClick = settingOnClick,
+            coupononClick = coupononClick,
+            orderManagementOnClick = orderManagementOnClick,
+            onProfileEditClick = {
+                onProfileEditClick()
+            })
     }
 
 }
@@ -97,8 +106,9 @@ fun CreatorScreen(
     couponViewModel: CouponViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
     coupononClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
-){
+    orderManagementOnClick: () -> Unit,
+    onProfileEditClick: () -> Unit
+) {
     val userBoard = myProfileViewModel.userBoard.collectAsLazyPagingItems()
     val userInfoData by myProfileViewModel.userLiveData.observeAsState()
     val couponData by couponViewModel.couponListLiveData.observeAsState()
@@ -122,12 +132,11 @@ fun CreatorScreen(
             ) {
                 Column() {
                     if (userInfoData != null) {
-                        Log.d("CreatorUserInfo", "CreatorUserInfo에 들어옴")
                         CreatorUserInfo(
                             isCreator = true,
-                            userName = userInfoData?.name ?: "",
+                            nickName = userInfoData?.nickname ?: "",
                             profileImage = userInfoData?.profileUrl ?: "",
-                            nickName = userInfoData?.name ?: "",
+                            userName = userInfoData?.name ?: "",
                             weight = userInfoData?.weight ?: 0,
                             height = userInfoData?.height ?: 0,
                             job = userInfoData?.job ?: "직업",
@@ -137,7 +146,10 @@ fun CreatorScreen(
                             creatorPoint = userInfoData?.creatorPoint ?: 0,
                             settingOnClick = settingOnClick,
                             couponOnClick = coupononClick,
-                            orderManagementOnClick = orderManagementOnClick
+                            orderManagementOnClick = orderManagementOnClick,
+                            onProfileEditClick = {
+                                onProfileEditClick()
+                            }
                         )
                     }
                 }
@@ -169,14 +181,16 @@ fun CreatorScreen(
 
     }
 }
+
 @Composable
 fun NormalUserScreen(
     myProfileViewModel: MyProfileViewModel = hiltViewModel(),
     couponViewModel: CouponViewModel = hiltViewModel(),
     settingOnClick: () -> Unit,
     coupononClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
-){
+    orderManagementOnClick: () -> Unit,
+    onProfileEditClick: () -> Unit
+) {
     val userInfoData by myProfileViewModel.userLiveData.observeAsState()
     val couponData by couponViewModel.couponListLiveData.observeAsState()
     val orderItemData by myProfileViewModel.orderItemListLiveData.observeAsState()
@@ -186,36 +200,57 @@ fun NormalUserScreen(
         couponViewModel.getCouponData()
     }
 
-    LazyColumn(){
-        item{
-            if (userInfoData != null) {
-                NormalUserInfo(
-                    isCreator = false,
-                    userName = userInfoData?.name ?: "",
-                    profileImage = userInfoData?.profileUrl ?: "",
-                    nickName = userInfoData?.name ?: "",
-                    weight = userInfoData?.weight ?: 0,
-                    height = userInfoData?.height ?: 0,
-                    job = userInfoData?.job ?: "직업",
-                    introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
-                    orderManagement = orderItemData?.size ?: 0,
-                    coupon = couponData?.size ?: 0,
-                    creatorPoint = userInfoData?.creatorPoint ?: 0,
-                    settingOnClick = settingOnClick,
-                    couponOnClick = coupononClick,
-                    orderManagementOnClick = orderManagementOnClick
-                )
+    Box(
+        modifier = Modifier
+            .padding(15.dp)
+            .fillMaxSize()
+    ) {
+        LazyColumn() {
+            item {
+                if (userInfoData != null) {
+                    NormalUserInfo(
+                        isCreator = false,
+                        nickName = userInfoData?.nickname ?: "",
+                        profileImage = userInfoData?.profileUrl ?: "",
+                        userName = userInfoData?.name ?: "",
+                        weight = userInfoData?.weight ?: 0,
+                        height = userInfoData?.height ?: 0,
+                        job = userInfoData?.job ?: "직업",
+                        introduction = userInfoData?.introduction ?: "소개글을 작성해주세요.",
+                        orderManagement = orderItemData?.size ?: 0,
+                        coupon = couponData?.size ?: 0,
+                        creatorPoint = userInfoData?.creatorPoint ?: 0,
+                        settingOnClick = settingOnClick,
+                        couponOnClick = coupononClick,
+                        orderManagementOnClick = orderManagementOnClick,
+                        onProfileEditClick = {
+                            onProfileEditClick()
+                        }
+                    )
+                }
             }
+//            item {
+//                CreatorSupplyButton(
+//                    modifier = Modifier
+//                        .align(Alignment.BottomCenter)
+//                        .padding(bottom = 30.dp)
+//                )
+//            }
         }
+        CreatorSupplyButton(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter) // Box의 하단 중앙에 정렬
+//                .padding(bottom = 100.dp) // 하단에 적당한 패딩 적용
+        )
     }
 }
 
 @Composable
 fun NormalUserInfo(
     isCreator: Boolean,
-    userName: String,
-    profileImage: String,
     nickName: String,
+    profileImage: String,
+    userName: String,
     weight: Int?,
     height: Int?,
     job: String?,
@@ -225,16 +260,18 @@ fun NormalUserInfo(
     creatorPoint: Int,
     settingOnClick: () -> Unit,
     couponOnClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
+    orderManagementOnClick: () -> Unit,
+    onProfileEditClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.padding(10.dp)
-    ){
-        UserName(isCreator, userName, settingOnClick)
-        UserInformation(profileImage, nickName, weight, height, job, introduction)
+    Column() {
+        UserName(isCreator, nickName, settingOnClick)
+        UserInformation(profileImage, userName, weight, height, job, introduction)
         OrderDetailBox(orderManagement, coupon, creatorPoint, couponOnClick, orderManagementOnClick)
-        profileEditButton()
-        CreatorSupplyButton()
+        profileEditButton(
+            onProfileEditClick = {
+                onProfileEditClick()
+            }
+        )
     }
 }
 
@@ -253,13 +290,18 @@ fun CreatorUserInfo(
     creatorPoint: Int,
     settingOnClick: () -> Unit,
     couponOnClick: () -> Unit,
-    orderManagementOnClick: () -> Unit
+    orderManagementOnClick: () -> Unit,
+    onProfileEditClick: () -> Unit
 ) {
-    Column(){
-        UserName(isCreator, userName, settingOnClick)
-        UserInformation(profileImage, nickName, weight, height, job, introduction)
+    Column() {
+        UserName(isCreator, nickName, settingOnClick)
+        UserInformation(profileImage, userName, weight, height, job, introduction)
         OrderDetailBox(orderManagement, coupon, creatorPoint, couponOnClick, orderManagementOnClick)
-        profileEditButton()
+        profileEditButton(
+            onProfileEditClick = {
+                onProfileEditClick()
+            }
+        )
         MySportswearCodyButton()
     }
 }
@@ -274,7 +316,7 @@ fun UserName(
         modifier = Modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Text(
             text = userName,
             style = TextStyle(
@@ -285,7 +327,7 @@ fun UserName(
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             ),
         )
-        if(isCreator){
+        if (isCreator) {
             Spacer(modifier = Modifier.size(5.dp))
             Image(
                 painter = painterResource(id = R.drawable.ic_creator_badge),
@@ -332,17 +374,16 @@ fun UserInformation(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(CircleShape)
-                .size(80.dp)  // use the calculated height
+                .size(80.dp)
         )
 
-        Spacer(modifier = Modifier.width(16.dp)) // 예를 들면 16dp 간격을 줍니다.
+        Spacer(modifier = Modifier.width(16.dp))
 
         Column(
             modifier = Modifier.padding(start = 8.dp)
         ) {
             Text(
                 text = userName,
-//                fontWeight = FontWeight.Bold,
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
@@ -351,7 +392,7 @@ fun UserInformation(
                     platformStyle = PlatformTextStyle(includeFontPadding = false)
                 ),
             )
-            Row(){
+            Row() {
                 val description = makeUserDescription(weight, height, job)
                 Text(
                     text = description,
@@ -380,10 +421,10 @@ fun OrderDetailBox(
             .height(70.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(PlaneGrey)
-    ){
+    ) {
         Row(
             modifier = Modifier.fillMaxSize()
-        ){
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -393,7 +434,7 @@ fun OrderDetailBox(
                     },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Text(
                     text = "주문/관리",
                     color = SmallTextGrey
@@ -409,7 +450,7 @@ fun OrderDetailBox(
                     },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Text(
                     text = "쿠폰",
                     color = SmallTextGrey
@@ -422,12 +463,13 @@ fun OrderDetailBox(
                     .weight(1f),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
-                ){
-                    Text(text = "마일리지",
+                ) {
+                    Text(
+                        text = "마일리지",
                         color = SmallTextGrey
                     )
                     Spacer(modifier = Modifier.size(4.dp))
@@ -440,25 +482,29 @@ fun OrderDetailBox(
                             .nonReplyClickable { showDialog = true }
                     )
                 }
-                Text(text = creatorPoint.toString()+"P")
+                Text(text = creatorPoint.toString() + "P")
             }
         }
     }
     if (showDialog) {
-        CreatorMilegeDialog( {showDialog = false}  )
+        CreatorMilegeDialog({ showDialog = false })
     }
 }
 
 @Composable
-fun profileEditButton() {
+fun profileEditButton(
+    onProfileEditClick: () -> Unit
+) {
     Button(
-        onClick = { /*TODO*/ },
+        onClick = {
+            onProfileEditClick()
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp, horizontal = 10.dp)
             .height(30.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = LightShaded),
-        shape = RoundedCornerShape(8.dp), // 테두리를 둥글게 조정
+        shape = RoundedCornerShape(8.dp),
         elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
         contentPadding = PaddingValues(3.dp)
     ) {
@@ -479,33 +525,37 @@ fun MySportswearCodyButton() {
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = 8.dp
-    ){
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(vertical = 8.dp)
-        ){
+        ) {
             Text(
                 text = "운동복 코디",
                 style = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                        platformStyle = PlatformTextStyle(includeFontPadding = false)
-                    )
+                    fontSize = 15.sp,
+                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                )
             )
         }
     }
 }
 
 @Composable
-fun CreatorSupplyButton() {
+fun CreatorSupplyButton(
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 40.dp)
     ) {
         androidx.compose.material3.Button(
             onClick = {
-                val url = "https://ubqotl23.paperform.co" // 여기에 원하는 링크 주소를 넣어주세요.
+                val url = "https://ubqotl23.paperform.co"
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 context.startActivity(intent)
             },
@@ -532,8 +582,9 @@ fun HomePostUploadButton(
 ) {
     val context = LocalContext.current
     Box(
-        modifier = modifier.fillMaxSize()
-    ){
+        modifier = modifier
+            .fillMaxSize()
+    ) {
         androidx.compose.material3.Button(
             onClick = {
                 val url = "https://8vnzwllf.paperform.co"
@@ -597,7 +648,7 @@ fun CreatorMilegeDialogPreview() {
 //    ShowCreatorMileageInfoPopup({})
 //}
 
-fun makeUserDescription(height: Int?, weight: Int?, job: String?): String {
+fun makeUserDescription(weight: Int?, height: Int?, job: String?): String {
     val parts = mutableListOf<String>()
 
     if (height != null && height > 0) {
@@ -612,6 +663,7 @@ fun makeUserDescription(height: Int?, weight: Int?, job: String?): String {
 
     return parts.joinToString(separator = " · ")
 }
+
 @Preview(showSystemUi = true)
 @Composable
 fun NormalUserScreenPreview() {
@@ -620,11 +672,12 @@ fun NormalUserScreenPreview() {
     ) {
         UserName(false, "ablebody_1", {})
         UserInformation("", "일반유저", 70, 173, "개발자", "안녕하세요")
-        OrderDetailBox(2,3,200, {}, {})
-        profileEditButton()
+        OrderDetailBox(2, 3, 200, {}, {})
+        profileEditButton({})
     }
     CreatorSupplyButton()
 }
+
 @Preview(showSystemUi = true)
 @Composable
 fun CreatorScreenPreview() {
@@ -635,46 +688,10 @@ fun CreatorScreenPreview() {
         ) {
             UserName(true, "ablebody_2", {})
             UserInformation("", "크리에이터", 70, 173, "개발자", "안녕하세요")
-            OrderDetailBox(2,1,100, {}, {})
-            profileEditButton()
+            OrderDetailBox(2, 1, 100, {}, {})
+            profileEditButton({})
             MySportswearCodyButton()
         }
         HomePostUploadButton()
     }
 }
-
-//@Composable
-//fun CreatorScreen(
-//    viewModel: MyProfileViewModel = hiltViewModel(),
-//) {
-//    val userBoard = viewModel.userBoard.collectAsLazyPagingItems()
-//    val userInfoData by viewModel.userLiveData.observeAsState()
-//    val couponData by viewModel.couponListLiveData.observeAsState()
-//    val orderItemData by viewModel.orderItemListLiveData.observeAsState()
-//
-//    val codeImageUrls = listOf<String>("https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg", "https://ablebody-bucket.s3.ap-northeast-2.amazonaws.com/Home/1176/1839059%20bytes_1698899964898.jpg")
-//
-//    LazyVerticalGrid(
-//        columns = GridCells.Fixed(3),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//    ){
-//        items(count = userBoard.itemCount){
-//            userBoard[it]?.isSingleImage
-//            Log.d("LOG", userBoard[it]?.isSingleImage.toString())
-//        }
-//    }
-//
-//    Box(modifier = Modifier.fillMaxSize()) { // Box는 전체 화면 크기를 차지합니다.
-//        Column(
-//            modifier = Modifier.fillMaxSize() // Column도 전체 화면 크기를 차지합니다.
-//        ) {
-//            UserName(true, "ablebody_2", {})
-//            UserInformation("", "크리에이터", 70, 173, "개발자", "안녕하세요")
-//            OrderDetailBox(2,1,100)
-//            profileEditButton()
-//            MySportswearCody(codeImageUrls)
-//        }
-//        HomePostUploadButton()
-//    }
-//}

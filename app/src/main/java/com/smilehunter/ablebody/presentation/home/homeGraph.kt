@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.presentation.home.my.ui.EditProfileRoute
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRegisterRoute
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRoute
@@ -14,14 +15,15 @@ import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoScreenRoute
 import com.smilehunter.ablebody.presentation.my.myprofile.ui.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.other.ui.OtherNormalUserRoute
 import com.smilehunter.ablebody.presentation.my.report.ReportRoute
-import com.smilehunter.ablebody.presentation.my.SettingScreen
+import com.smilehunter.ablebody.presentation.my.setting.ui.SettingScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.alarm.ui.AlarmRoute
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.ChangePhoneNumberRoute
-import com.smilehunter.ablebody.presentation.my.myInfo.ui.ChangePhoneNumberScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.InputCertificationNumberRoute
-import com.smilehunter.ablebody.presentation.my.myInfo.ui.InputCertificationNumberScreen
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithDrawCompleteScreen
+import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawScreenRoute
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestRoute
+import com.smilehunter.ablebody.presentation.onboarding.ui.IntroScreen
 
 const val HomeRoute = "Home"
 
@@ -38,25 +40,27 @@ fun NavGraphBuilder.addHomeGraph(
     withDrawReasonOnClick: (String) -> Unit,
     coupononClick: () -> Unit,
     couponRegisterOnClick: () -> Unit,
-    onReport: () -> Unit,
+    onReport: (String) -> Unit,
     withDrawButtonOnClick: () -> Unit,
     orderManagementOnClick: () -> Unit,
     onPositiveBtnClick: () -> Unit,
     certificationBtnOnClick: (String) -> Unit,
-    onVerificationSuccess: () -> Unit
+    onVerificationSuccess: () -> Unit,
+    onProfileEditClick: () -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
         route = "Home",
     ) {
         nestedGraph()
-        navigation(startDestination = "start", route = NavigationItems.My.name){
+        navigation(startDestination = "start", route = NavigationItems.My.name) {
 
             composable(route = "start") {
                 MyProfileRoute(
                     settingOnClick = settingOnClickRouteRequest,
                     coupononClick = coupononClick,
-                    orderManagementOnClick = orderManagementOnClick
+                    orderManagementOnClick = orderManagementOnClick,
+                    onProfileEditClick = onProfileEditClick
                 )
                 isBottomBarShow(true)
             }
@@ -89,7 +93,6 @@ fun NavGraphBuilder.addHomeGraph(
             composable(route = "WithdrawBeforeScreen") {
                 WithdrawBeforeScreen(
                     onBackRequest = onBackRequest,
-//                withDrawReasonOnClick = {Log.d("Home탈퇴 이유",it)}
                     withDrawReasonOnClick = withDrawReasonOnClick
                 )
                 isBottomBarShow(false)
@@ -111,12 +114,27 @@ fun NavGraphBuilder.addHomeGraph(
                 isBottomBarShow(false)
             }
 
-//        composable(route = "WithdrawScreenRoute") {
-//            WithdrawScreenRoute(
-//                onBackRequest = onBackRequest,
-//            )
-//            isBottomBarShow(false)
-//        }
+            composable(route = "WithDrawCompleteScreen") {
+                Log.d("homeGraph", "신고버튼눌려짐")
+                WithDrawCompleteScreen()
+                isBottomBarShow(false)
+            }
+
+            //탈퇴 화면
+            composable(route = "WithdrawScreenRoute/{draw_reason}",
+                arguments = listOf(
+                    navArgument("draw_reason") { type = NavType.StringType }
+                )
+            ) { navBackStackEntry ->
+                val draw_reason = navBackStackEntry.arguments?.getString("draw_reason")
+
+                WithdrawScreenRoute(
+                    onBackRequest = onBackRequest,
+                    drawReason = draw_reason!!,
+                    withDrawButtonOnClick = withDrawButtonOnClick//{navController.navigate("WithDrawCompleteScreen")}
+                )
+                isBottomBarShow(false)
+            }
 
             composable(route = "CouponRoute") {
                 CouponRoute(
@@ -133,6 +151,11 @@ fun NavGraphBuilder.addHomeGraph(
                 isBottomBarShow(false)
             }
 
+//            composable(route = "IntroScreen") {
+//                IntroScreen(
+//                )
+//                isBottomBarShow(false)
+//            }
 //            composable(route = "OtherNormalUserRoute") {
 //                OtherNormalUserRoute(
 //                    onBackRequest = onBackRequest,
@@ -144,14 +167,14 @@ fun NavGraphBuilder.addHomeGraph(
 
             composable(route = "OtherNormalUserRoute/{uid}",
                 arguments = listOf(
-                    navArgument("uid") { type = NavType.StringType}
+                    navArgument("uid") { type = NavType.StringType }
                 )
-            ){ navBackStackEntry ->
+            ) { navBackStackEntry ->
                 val uid = navBackStackEntry.arguments?.getString("uid") ?: return@composable
-                Log.d("보내는 다른 유저 프로필homegraph",uid)
+                Log.d("보내는 다른 유저 프로필homegraph", uid)
                 OtherNormalUserRoute(
                     onBackRequest = onBackRequest,
-                    onReport = onReport,
+                    onReport = { onReport(uid) },
                     uid = uid
                 )
                 isBottomBarShow(true)
@@ -166,23 +189,36 @@ fun NavGraphBuilder.addHomeGraph(
             isBottomBarShow(false)
         }
 
-            composable(route = "ReportRoute") {
-                ReportRoute(
-                    onBackRequest = onBackRequest
-                )
-                isBottomBarShow(false)
-            }
-
-            composable(route = "InputCertificationNumberRoute/{phoneNumber}",
-                arguments = listOf(
-                    navArgument("phoneNumber") { type = NavType.StringType}
-                )
-            ) { navBackStackEntry ->
-                InputCertificationNumberRoute(
-                    onVerificationSuccess = onVerificationSuccess
-                )
-                isBottomBarShow(false)
-            }
+        composable(route = "ReportRoute/{uid}",
+            arguments = listOf(
+                navArgument("uid") { type = NavType.StringType }
+            )
+        ) { navBackStackEntry ->
+            val uid = navBackStackEntry.arguments?.getString("uid") ?: return@composable
+            Log.d("신고 버튼 눌렀을 때 homegraph", uid)
+            ReportRoute(
+                onBackRequest = onBackRequest,
+                uid = uid
+            )
+            isBottomBarShow(false)
         }
+
+        composable(route = "InputCertificationNumberRoute/{phoneNumber}",
+            arguments = listOf(
+                navArgument("phoneNumber") { type = NavType.StringType }
+            )
+        ) { navBackStackEntry ->
+            InputCertificationNumberRoute(
+                onVerificationSuccess = onVerificationSuccess
+            )
+            isBottomBarShow(false)
+        }
+    }
+
 }
+
+
+
+
+
 

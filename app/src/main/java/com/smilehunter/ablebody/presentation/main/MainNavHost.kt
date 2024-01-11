@@ -27,6 +27,7 @@ import com.smilehunter.ablebody.presentation.home.cody.addCodyScreen
 import com.smilehunter.ablebody.presentation.home.item.addItemScreen
 import com.smilehunter.ablebody.presentation.home.my.addEditProfileGraph
 import com.smilehunter.ablebody.presentation.home.my.addSelectProfileImageScreen
+import com.smilehunter.ablebody.presentation.home.my.navigateToEditProfileGraph
 import com.smilehunter.ablebody.presentation.home.my.navigateToSelectProfileImageScreen
 import com.smilehunter.ablebody.presentation.home.my.selectProfileImageForResult
 import com.smilehunter.ablebody.presentation.item_detail.addItemDetailGraph
@@ -60,23 +61,26 @@ fun MainNavHost(
     ) {
         addHomeGraph(
             isBottomBarShow = isBottomBarShow,
-            settingOnClickRouteRequest = {navController.navigate("SettingScreen")},
+            settingOnClickRouteRequest = { navController.navigate("SettingScreen") },
             onBackRequest = navController::popBackStack,
-            suggestonClick = {navController.navigate("SuggestScreen")},
-            myInfoOnClick = {navController.navigate("MyInfoScreenRoute")},
-            alarmOnClick = {navController.navigate("AlarmScreen")},
-            withDrawOnClick = {navController.navigate("WithdrawBeforeScreen")},
-            editButtonOnClick = {navController.navigate("MyInfomationEditScreen")},
-            withDrawReasonOnClick = {navController.navigate("WithdrawScreenRoute/$it")},
-//            withDrawReasonOnClick = {Log.d("MainNavHost 탈퇴 이유", it)},
-            coupononClick = {navController.navigate("CouponRoute")},
-            couponRegisterOnClick = {navController.navigate("CouponRegisterRoute")},
-            onReport = {navController.navigate("ReportRoute")},
-            withDrawButtonOnClick = {navController.navigate("")},
+            suggestonClick = { navController.navigate("SuggestScreen") },
+            myInfoOnClick = { navController.navigate("MyInfoScreenRoute") },
+            alarmOnClick = { navController.navigate("AlarmScreen") },
+            withDrawOnClick = { navController.navigate("WithdrawBeforeScreen") },
+            editButtonOnClick = { navController.navigate("MyInfomationEditScreen") },
+            withDrawReasonOnClick = { navController.navigate("WithdrawScreenRoute/$it") },
+            coupononClick = { navController.navigate("CouponRoute") },
+            couponRegisterOnClick = { navController.navigate("CouponRegisterRoute") },
+            onReport = { navController.navigate("ReportRoute/$it") },
+            withDrawButtonOnClick = { navController.navigate("WithDrawCompleteScreen") },
             orderManagementOnClick = { navController.navigateToOrderManagementGraph() },
             onPositiveBtnClick = { navController.navigate("ChangePhoneNumberScreen") },
-            certificationBtnOnClick = {navController.navigate("InputCertificationNumberRoute/$it")},
+            certificationBtnOnClick = { navController.navigate("InputCertificationNumberRoute/$it") },
             onVerificationSuccess = { navController.navigate("MyInfomationEditScreen") },
+            onProfileEditClick = {
+                Log.d("MainNavHost", "프로필 편집 버튼 누름")
+                navController.navigateToEditProfileGraph()
+            },
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,
@@ -147,8 +151,10 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
-            profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
-                Log.d("다른 유저 프로필", it)},
+            profileRequest = {
+                navController.navigate("OtherNormalUserRoute/$it")
+                Log.d("다른 유저 프로필", it)
+            },
             commentButtonOnClick = navController::navigateToCommentScreen,
             likeCountButtonOnClick = navController::navigateToLikeUserListScreen,
             productItemOnClick = navController::navigateToItemDetailGraph
@@ -158,8 +164,10 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
-            profileRequest = { navController.navigate("OtherNormalUserRoute/$it")
-                Log.d("다른 유저 프로필", it)},
+            profileRequest = {
+                navController.navigate("OtherNormalUserRoute/$it")
+                Log.d("다른 유저 프로필", it)
+            },
         )
 
         addCommentScreen(
@@ -183,22 +191,6 @@ fun MainNavHost(
                 isBottomShow = isBottomBarShow,
                 onBackRequest = navController::popBackStack
             )
-        }
-
-        //탈퇴 화면
-        composable(route = "WithdrawScreenRoute/{draw_reason}",
-            arguments = listOf(
-                navArgument("draw_reason") { type = NavType.StringType}
-            )
-        ){ navBackStackEntry ->
-            val draw_reason = navBackStackEntry.arguments?.getString("draw_reason")
-
-            WithdrawScreenRoute(
-                onBackRequest = navController::popBackStack,
-                drawReason = draw_reason!!,
-                withDrawButtonOnClick = {Log.d("탈퇴하기", "탈퇴하기 버튼 눌려짐")}//{navController.navigate("WithDrawCompleteScreen")}
-            )
-            isBottomBarShow(false)
         }
 
         addPaymentGraph(
