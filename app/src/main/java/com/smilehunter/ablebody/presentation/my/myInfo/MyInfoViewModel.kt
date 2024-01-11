@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.smilehunter.ablebody.data.repository.OnboardingRepository
+import com.smilehunter.ablebody.data.repository.TokenRepository
 import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.AddCouponUseCase
 import com.smilehunter.ablebody.domain.GetCouponListUseCase
@@ -31,9 +32,10 @@ import javax.inject.Inject
 class MyInfoViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val tokenRepository: TokenRepository,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+) : ViewModel() {
     private val _userInfoLiveData = MutableLiveData<UserInfoData>()
     val userLiveData: LiveData<UserInfoData> = _userInfoLiveData
 
@@ -55,4 +57,11 @@ class MyInfoViewModel @Inject constructor(
             userRepository.resignUser(reason)
         }
     }
+
+    fun deleteToken() {
+        viewModelScope.launch {
+            tokenRepository.deleteToken()
+        }
+    }
+
 }
