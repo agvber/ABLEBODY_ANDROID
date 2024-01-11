@@ -252,7 +252,7 @@ fun EditProfileScreen(
                 }
 
                 isEditProfileImageBottomSheetShow = false
-                               },
+            },
         )
     }
 
@@ -340,12 +340,14 @@ fun EditProfileScreen(
                         color = AbleBlue
                     )
                 }
+
                 is NicknameCheckUiState.LoadFail -> {
                     ProfileTextFieldDescription(
                         value = "알 수 없는 에러가 발생하였습니다.",
                         color = AbleRed
                     )
                 }
+
                 is NicknameCheckUiState.Loading -> null
                 is NicknameCheckUiState.UnAvailable -> {
                     ProfileTextFieldDescription(
@@ -462,8 +464,8 @@ fun SaveAlertDialog(
 fun SaveAlertDialogPreview() {
     ABLEBODY_AndroidTheme {
         SaveAlertDialog(
-            onDismissRequest = {  },
-            positiveButtonOnClick = {  },
+            onDismissRequest = { },
+            positiveButtonOnClick = { },
             negativeButtonOnClick = { }
         )
     }
@@ -562,7 +564,7 @@ fun ProfileTextFieldLayout(
         fontWeight = FontWeight(400),
         color = AbleDark,
         platformStyle = PlatformTextStyle(includeFontPadding = false)
-        ),
+    ),
     label: String? = null,
     description: ProfileTextFieldDescription? = null,
     placeHolder: String? = null,
@@ -682,7 +684,7 @@ fun ProfileTextFieldLayoutPreview() {
 fun EditProfileImageBottomSheetPreview() {
     ABLEBODY_AndroidTheme {
         EditProfileImageBottomSheet(
-            onDismissRequest = {  },
+            onDismissRequest = { },
         )
     }
 }
@@ -694,7 +696,7 @@ fun EditProfileScreenPreview() {
         EditProfileScreen(
             onBackRequest = {},
             confirmButtonClick = { _, _ -> },
-            defaultImageSelectableViewRequest = {  },
+            defaultImageSelectableViewRequest = { },
             changeOnNickname = {},
             changeOnName = {},
             changeOnUserHeight = {},
