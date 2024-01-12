@@ -1,6 +1,10 @@
 package com.smilehunter.ablebody.presentation.my.alarm.ui
 
+import android.Manifest
+import android.os.Build
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,19 +28,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.my.setting.ui.BenefitDescription
 import com.smilehunter.ablebody.presentation.my.setting.ui.MarketingAlarmToggleButton
 import com.smilehunter.ablebody.presentation.my.alarm.AlarmViewModel
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
+
 @Composable
 fun AlarmRoute(
     alarmViewModel: AlarmViewModel = hiltViewModel(),
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    onErrorOccur: (ErrorHandlerCode) -> Unit
 ) {
     val getAlarmAgreeData by alarmViewModel.getUserAdConsentLiveData.observeAsState(false)
-    Log.d("받아온 알림 데이터", getAlarmAgreeData.toString())
-
+    val errorData by alarmViewModel.sendErrorLiveData.observeAsState()
 
     LaunchedEffect(key1 = true) {
         alarmViewModel.getAlarmData()
@@ -47,6 +54,12 @@ fun AlarmRoute(
         getAlarmAgree = getAlarmAgreeData,
         passAlarmAgree =  {alarmViewModel.changeUserAdConsent(it)}
     )
+    SimpleErrorHandler(
+        refreshRequest = { alarmViewModel.getAlarmData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 }
 
 @Composable
@@ -56,6 +69,7 @@ fun AlarmPage(
     passAlarmAgree: (Boolean) -> Unit,
 ) {
     var alarmAgreeStatus = getAlarmAgree
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}
     Log.d("보여주는 알림 데이터", alarmAgreeStatus.toString()) //true <-> false
 
     Scaffold(
@@ -94,8 +108,12 @@ fun AlarmPage(
                 MarketingAlarmToggleButton(buttonState = alarmAgreeStatus) { toggledState ->
                     Log.d("toggledState", toggledState.toString())
                     alarmAgreeStatus = toggledState
-//                    Log.d("보낼 거", "동의 여부: $toggledState")
                     passAlarmAgree(toggledState)
+                    if(toggledState){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            launcher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                        }
+                    }
                 }
             }
             BenefitDescription(alarmAgree = alarmAgreeStatus)
