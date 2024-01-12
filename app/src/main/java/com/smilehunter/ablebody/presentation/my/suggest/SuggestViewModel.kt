@@ -16,28 +16,29 @@ import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class SuggestViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val getCouponListUseCase: GetCouponListUseCase,
-    private val getOrderItemListUseCase: GetOrderItemListUseCase,
-    private val getUserBoardPagerUseCase: GetUserBoardPagerUseCase,
-    private val addCouponUseCase: AddCouponUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val savedStateHandle: SavedStateHandle
-): ViewModel() {
-//    private val _suggestAppLiveData = MutableLiveData<String>()
-//    val suggestAppLiveData: LiveData<String> = _suggestAppLiveData
+) : ViewModel() {
+
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
 
     fun sendSuggest(value: String) {
         viewModelScope.launch(ioDispatcher) {
-            userRepository.suggestApp(value)
-            Log.d("sendSuggest", value)
+            try {
+                userRepository.suggestApp(value)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
-
-
 }

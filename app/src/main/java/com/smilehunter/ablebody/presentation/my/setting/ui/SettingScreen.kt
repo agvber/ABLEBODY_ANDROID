@@ -1,4 +1,4 @@
-package com.smilehunter.ablebody.presentation.my
+package com.smilehunter.ablebody.presentation.my.setting.ui
 
 import android.content.pm.PackageManager
 import android.util.Log
@@ -26,7 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,7 +52,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.data.dto.request.ReportRequest
+import com.smilehunter.ablebody.model.ErrorHandlerCode
+import com.smilehunter.ablebody.presentation.my.setting.SettingViewModel
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestList
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -60,17 +63,21 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import com.smilehunter.ablebody.utils.redirectToURL
 
 
 @Composable
 fun SettingScreen(
+    settingViewModel: SettingViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
-    suggestonClick: () -> Unit,
+    suggestOnClick: () -> Unit,
     myInfoOnClick: () -> Unit,
     alarmOnClick: () -> Unit
 ) {
+    var logoutDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             BackButtonTopBarLayout(onBackRequest = onBackRequest)
@@ -80,15 +87,16 @@ fun SettingScreen(
                 style = TextStyle(
                     fontSize = 18.sp,
                 )
-            )},
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(PlaneGrey)
-        ){
-            SuggestList(suggestonClick = suggestonClick)
+        ) {
+            SuggestList(suggestonClick = suggestOnClick)
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "내 정보", myInfoOnClick = myInfoOnClick)
             Spacer(modifier = Modifier.size(7.dp))
@@ -102,9 +110,17 @@ fun SettingScreen(
             SettingList(listText = "개인정보처리방침", linkUrl = "Personal Information Processing Policy")
             SettingList(listText = "앱 버전")
             Spacer(modifier = Modifier.size(7.dp))
-            SettingList("로그아웃", textColor = Color.Red)
+            SettingList("로그아웃", textColor = Color.Red, onLogoutDialog = { logoutDialog = true })
         }
     }
+
+    if (logoutDialog) {
+        LogoutAlertDialog(
+            { logoutDialog = false },
+            onRequestLogout = { settingViewModel.deleteToken() }
+        )
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,13 +134,10 @@ fun SettingList(
     alarmOnClick: () -> Unit = {},
     withDrawOnClick: () -> Unit = {},
     withDrawReasonOnClick: (String) -> Unit = {},
-    onReportOnClick: (ReportRequest) -> Unit = {},
-    onBackRequest: () -> Unit = {}
+    onLogoutDialog: () -> Unit = {},
+    onReportCompleteDialog: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    var logoutDialog by remember { mutableStateOf(false) }
-    var reportCompleteDialog by remember { mutableStateOf(false) }
-
     val manager = context.packageManager
     val info = manager.getPackageInfo(context.packageName, PackageManager.GET_ACTIVITIES)
 
@@ -135,7 +148,7 @@ fun SettingList(
             .background(Color.White)
             .nonReplyClickable(onClick = {
                 when (listText) {
-                    "로그아웃" -> logoutDialog = true
+                    "로그아웃" -> onLogoutDialog()
                     "내 정보" -> myInfoOnClick()
                     "알림" -> alarmOnClick()
                     "쓰지 않는 앱이에요.",
@@ -143,6 +156,7 @@ fun SettingList(
                     "앱에 오류가 있어요.",
                     "앱을 어떻게 쓰는지 모르겠어요.",
                     "기타" -> withDrawReasonOnClick(listText)
+
                     "탈퇴하기" -> withDrawOnClick()
                     "불법적인 게시물이에요",
                     "욕설을 해요",
@@ -152,15 +166,17 @@ fun SettingList(
                     "불쾌감을 줄 수 있는 사진이에요",
                     "중복/도배성 게시물이에요",
                     "기타 " -> {
-                        reportCompleteDialog = true
-                        onReportOnClick(ReportRequest(ReportRequest.ContentType.User, 9999999, listText, ""))
+                        onReportCompleteDialog()
                     }
+
                     "1:1 문의하기",
                     "서비스 이용 약관",
                     "개인정보 수집 및 이용",
                     "개인정보 제3자 제공",
                     "개인정보처리방침" -> redirectToURL(context, linkUrl)
-                    else -> { /* 기타 경우에 대한 처리 */ }
+
+                    else -> { /* 기타 경우에 대한 처리 */
+                    }
                 }
             }),
         verticalAlignment = Alignment.CenterVertically
@@ -179,7 +195,7 @@ fun SettingList(
                 .padding(horizontal = 25.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        if(editText.isNotEmpty()){
+        if (editText.isNotEmpty()) {
             Text(
                 text = editText,
                 color = textColor,
@@ -194,14 +210,14 @@ fun SettingList(
                     .padding(horizontal = 25.dp)
 
             )
-        }else {
-            if(listText == "앱 버전") {
+        } else {
+            if (listText == "앱 버전") {
                 Text(
                     text = BuildConfig.VERSION_NAME,
                     color = SmallTextGrey,
                     modifier = Modifier.padding(end = 16.dp)
                 )
-            }else{
+            } else {
                 Icon(
                     Icons.Filled.KeyboardArrowRight,
                     contentDescription = linkUrl,
@@ -213,13 +229,6 @@ fun SettingList(
             }
 
         }
-    }
-    if (logoutDialog) {
-        LogoutAlertDialog( {logoutDialog = false}  )
-    }
-
-    if (reportCompleteDialog) {
-        ReportCompletePopup( onBackRequest = onBackRequest, {reportCompleteDialog = false})
     }
 }
 
@@ -280,7 +289,12 @@ fun SuggestPage(
             val isButtonEnabled = inputText.isNotBlank() && inputText.length <= maxCharCount
 
             val text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
+                withStyle(
+                    style = SpanStyle(
+                        color = AbleBlue,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold))
+                    )
+                ) {
                     append("애블바디")
                 }
                 append("에게 제안해요!")
@@ -363,7 +377,7 @@ fun SuggestPage(
             }
         }
         if (showDialog) {
-            SuggestCompletePopup( onBackRequest = onBackRequest, onDismiss = { showDialog = false })
+            SuggestCompletePopup(onBackRequest = onBackRequest, onDismiss = { showDialog = false })
         }
         if (showExitWarningDialog) {
             ExitWarningPopup(
@@ -379,17 +393,17 @@ fun SuggestPage(
 }
 
 
-
 @Composable
 fun LogoutAlertDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onRequestLogout: () -> Unit
 ) {
     AbleBodyAlertDialog(
         onDismissRequest = { onDismiss() },
         positiveText = "아니오",
         positiveButtonOnClick = { onDismiss() },
         negativeText = "예",
-        negativeButtonOnClick = { /*TODO : 로그아웃*/ },
+        negativeButtonOnClick = { onRequestLogout() },
     ) {
         androidx.compose.material.Text(
             text = "로그아웃",
@@ -503,12 +517,12 @@ fun BenefitDescription(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun SettingScreenPreview() {
-    SettingScreen({},{},{},{})
+    SettingScreen(onBackRequest = {}, suggestOnClick = {}, myInfoOnClick = {}, alarmOnClick = {})
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SuggestPagePreview() {
@@ -518,7 +532,7 @@ fun SuggestPagePreview() {
 @Preview(showBackground = true)
 @Composable
 fun LogoutAlertDialogPreview() {
-    LogoutAlertDialog({})
+    LogoutAlertDialog({}, {})
 }
 
 @Composable
@@ -556,10 +570,11 @@ fun SuggestCompletePopup(
         )
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SuggestCompletePopupPreview() {
-    SuggestCompletePopup({},{})
+    SuggestCompletePopup({}, {})
 }
 
 
@@ -601,41 +616,7 @@ fun ExitWarningPopup(
     }
 }
 
-@Composable
-fun ReportCompletePopup(
-    onBackRequest: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AbleBodyAlertDialog(
-        onDismissRequest = { onDismiss() },
-        positiveText = "확인",
-        positiveButtonOnClick = { onBackRequest() },
-        negativeButtonOnClick = {},
-    ) {
-        androidx.compose.material.Text(
-            text = "신고를 완료했어요.",
-            style = TextStyle(
-                fontSize = 18.sp,
-                lineHeight = 26.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                fontWeight = FontWeight(700),
-                color = AbleDark,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-        androidx.compose.material.Text(
-            text = "애블바디팀이 검수 후 알려드릴게요.",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_regular)),
-                fontWeight = FontWeight(400),
-                color = AbleDark,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            ),
-            modifier = Modifier.padding(top = 10.dp, bottom = 20.dp)
-        )
-    }
-}
+
 @Preview(showBackground = true)
 @Composable
 fun ExitWarningPopupPreview() {

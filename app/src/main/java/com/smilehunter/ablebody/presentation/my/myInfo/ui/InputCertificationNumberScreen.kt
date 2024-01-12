@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoEditViewModel
 import com.smilehunter.ablebody.presentation.onboarding.data.CertificationNumberInfoMessageUiState
 import com.smilehunter.ablebody.ui.theme.AbleBlue
@@ -39,36 +41,49 @@ import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.utils.CustomLabelText
 import com.smilehunter.ablebody.ui.utils.CustomTextField
 import com.smilehunter.ablebody.ui.utils.HighlightText
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.TextFieldUnderText
+import retrofit2.HttpException
 
 @Composable
 fun InputCertificationNumberRoute(
     myInfoEditViewModel: MyInfoEditViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onVerificationSuccess: () -> Unit
 ) {
     val phoneNumber by myInfoEditViewModel.phoneNumber.collectAsStateWithLifecycle()
     val certificationNumberState by myInfoEditViewModel.certificationNumberState.collectAsStateWithLifecycle()
     val certificationNumberInfoMessage by myInfoEditViewModel.certificationNumberInfoMessageUiState.collectAsStateWithLifecycle()
     Log.d("phoneNumber", phoneNumber.toString())
+    val errorData by myInfoEditViewModel.sendErrorLiveData.observeAsState()
+
     val underTextValue = when (certificationNumberInfoMessage) {
         is CertificationNumberInfoMessageUiState.Timeout -> "인증번호가 만료됐어요 다시 전송해주세요."
         is CertificationNumberInfoMessageUiState.InValid -> "인증번호가 올바르지 않아요!"
-        is CertificationNumberInfoMessageUiState.Success -> { onVerificationSuccess(); ""}
+        is CertificationNumberInfoMessageUiState.Success -> {
+            onVerificationSuccess(); ""
+        }
+
         is CertificationNumberInfoMessageUiState.Timer -> {
             (certificationNumberInfoMessage as CertificationNumberInfoMessageUiState.Timer).string
         }
-        is CertificationNumberInfoMessageUiState.Already -> { "" }
+
+        is CertificationNumberInfoMessageUiState.Already -> {
+            ""
+        }
+
+        else -> {}
     }
 
     LaunchedEffect(key1 = true) {
-        if(phoneNumber!= null){
+        if (phoneNumber != null) {
             myInfoEditViewModel.startCertificationNumberTimer()
             myInfoEditViewModel.requestSmsVerificationCode(phoneNumber!!)
         }
     }
 
     InputCertificationNumberScreen(
-        underTextValue = underTextValue,
+        underTextValue = underTextValue.toString(),
         underTextIsPositive = certificationNumberInfoMessage is CertificationNumberInfoMessageUiState.Timer,
         value = certificationNumberState,
         onValueChange = { newNumber ->
@@ -77,14 +92,18 @@ fun InputCertificationNumberRoute(
             myInfoEditViewModel.updateCertificationNumber(newNumber)
         },
         certificationBtnOnClick = {
-            if(phoneNumber!= null){
-                Log.d("인증번호 다시 받기","인증번호 다시 받기 버튼 눌림" )
+            if (phoneNumber != null) {
+                Log.d("인증번호 다시 받기", "인증번호 다시 받기 버튼 눌림")
                 myInfoEditViewModel.cancelCertificationNumberCountDownTimer()
                 myInfoEditViewModel.startCertificationNumberTimer()
                 myInfoEditViewModel.requestSmsVerificationCode(phoneNumber!!)
             }
         }
     )
+
+    if (errorData != null){
+        onErrorOccur(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+    }
 }
 
 @Composable
@@ -94,7 +113,7 @@ fun InputCertificationNumberScreen(
     value: String,
     onValueChange: (String) -> Unit,
     certificationBtnOnClick: () -> Unit
-){
+) {
     var state by remember { mutableStateOf("") }
 
     Column(
@@ -131,7 +150,7 @@ fun InputCertificationNumberScreen(
     ) {
         Button(
             onClick = {
-                Log.d("인증번호 받기 버튼 눌림","인증번호 받기 버튼 눌림")
+                Log.d("인증번호 받기 버튼 눌림", "인증번호 받기 버튼 눌림")
                 certificationBtnOnClick()
             },
             shape = RoundedCornerShape(15.dp),

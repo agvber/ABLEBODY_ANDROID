@@ -2,6 +2,8 @@ package com.smilehunter.ablebody.presentation.my.other.ui
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,6 +50,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.UserInfoData
 import com.smilehunter.ablebody.presentation.my.myprofile.MyProfileViewModel
 import com.smilehunter.ablebody.presentation.my.myprofile.ui.MySportswearCodyButton
@@ -55,13 +59,15 @@ import com.smilehunter.ablebody.presentation.my.other.OtherUserViewModel
 import com.smilehunter.ablebody.ui.theme.AbleRed
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
 
 @Composable
 fun OtherNormalUserRoute(
     otherUserViewModel: OtherUserViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
-    onReport: () -> Unit,
+    onReport: (String) -> Unit,
     uid: String
 ) {
 
@@ -71,10 +77,18 @@ fun OtherNormalUserRoute(
 //    Log.d("받는 다른 유저 프로필", otherUserProfile.toString())
     val otherUserBoard = otherUserViewModel.otherUserBoard.collectAsLazyPagingItems()
     Log.d("otherUserBoard", otherUserBoard.toString())
+    val errorData by otherUserViewModel.sendErrorLiveData.observeAsState()
 
     LaunchedEffect(key1 = true) {
         otherUserViewModel.getData()
     }
+
+    SimpleErrorHandler(
+        refreshRequest = { otherUserViewModel.getData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 
     OtherUserScreen(
         onBackRequest = onBackRequest,
@@ -86,9 +100,12 @@ fun OtherNormalUserRoute(
         weight = otherUserData?.weight,
         job = otherUserData?.job ?: "",
         introduction = otherUserData?.introduction ?: "",
-        onReport = onReport
+        onReport = { onReport(uid) },
+        uid = uid
     )
+
 }
+
 @Composable
 fun OtherUserScreen(
     otherUserViewModel: OtherUserViewModel = hiltViewModel(),
@@ -101,7 +118,8 @@ fun OtherUserScreen(
     weight: Int?,
     job: String?,
     introduction: String?,
-    onReport: () -> Unit
+    onReport: (String) -> Unit,
+    uid: String
 ) {
     var isReportBottomSheetVisible by remember { mutableStateOf(false) }
     val otherUserBoard = otherUserViewModel.otherUserBoard.collectAsLazyPagingItems()
@@ -128,7 +146,7 @@ fun OtherUserScreen(
                         )
                     }
                 }
-            ){
+            ) {
                 IconButton(onClick = {
                     isReportBottomSheetVisible = true
                 }) {
@@ -144,7 +162,9 @@ fun OtherUserScreen(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
                 item(
                     span = { GridItemSpan(this.maxLineSpan) }
@@ -209,8 +229,15 @@ fun OtherUserScreen(
                         contentDescription = "Detailed image description",
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 1.dp, vertical = 1.dp),
-                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                item(
+                    span = { GridItemSpan(3) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
                     )
                 }
             }
@@ -220,12 +247,14 @@ fun OtherUserScreen(
                 ReportBottomSheet(
                     onDismiss = { isReportBottomSheetVisible = false },
                     onReport = {
-                        onReport()
+                        onReport(uid)
                         Log.d("onReport2", "onReport")
-                    }
+                    },
+                    uid = uid
                 )
             }
         }
+
     }
 }
 
@@ -234,10 +263,11 @@ fun OtherUserScreen(
 @Composable
 fun ReportBottomSheet(
     onDismiss: () -> Unit,
-    onReport: () -> Unit
+    onReport: (String) -> Unit,
+    uid: String
 ) {
     ModalBottomSheet(
-        onDismissRequest ={ onDismiss() },
+        onDismissRequest = { onDismiss() },
         dragHandle = null
     ) {
         Column(
@@ -252,7 +282,7 @@ fun ReportBottomSheet(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 16.dp, top = 20.dp, bottom = 12.dp)
                     .nonReplyClickable {
-                        onReport()
+                        onReport(uid)
                         Log.d("onReport1", "onReport")
                     }
             )

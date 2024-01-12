@@ -1,6 +1,8 @@
 package com.smilehunter.ablebody.presentation.my.report
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,25 +23,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val manageRepository: ManageRepository,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val getCouponListUseCase: GetCouponListUseCase,
-    private val getOrderItemListUseCase: GetOrderItemListUseCase,
-    private val getUserBoardPagerUseCase: GetUserBoardPagerUseCase,
-    private val addCouponUseCase: AddCouponUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
-//    fun sendSuggest(value: String) {
-//        viewModelScope.launch(ioDispatcher) {
-//            userRepository.suggestApp(value)
-//            Log.d("sendSuggest", value)
-//        }
-//    }
-//    fun reportUser(reportRequest: ReportRequest){
-//        viewModelScope.launch(ioDispatcher) {
-//            manageRepository.report(reportRequest)
-//        }
-//    }
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
+
+    fun reportUser(reportRequest: ReportRequest) {
+        Log.d("뷰모델에 신고 들어옴", reportRequest.reason)
+        viewModelScope.launch(ioDispatcher) {
+            try{
+                manageRepository.report(reportRequest)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
+        }
+    }
 }

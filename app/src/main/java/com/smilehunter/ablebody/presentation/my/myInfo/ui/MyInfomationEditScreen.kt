@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.home.my.data.NicknameCheckUiState
 import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoEditViewModel
 import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoViewModel
@@ -50,6 +51,7 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.ui.utils.TextFieldUnderNormalText
 import com.smilehunter.ablebody.ui.utils.TextFieldUnderText
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -57,6 +59,7 @@ import com.smilehunter.ablebody.utils.nonReplyClickable
 @Composable
 fun MyInfoEditScreenRoute(
     myInfoEditViewModel: MyInfoEditViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     onPositiveBtnClick: () -> Unit
 ) {
@@ -66,6 +69,14 @@ fun MyInfoEditScreenRoute(
     val userInfoData by myInfoEditViewModel.userLiveData.observeAsState()
     val nickname by myInfoEditViewModel.nicknameState.collectAsStateWithLifecycle()
     val nicknameRuleState by myInfoEditViewModel.nicknameRuleState.collectAsStateWithLifecycle()
+    val errorData by myInfoEditViewModel.sendErrorLiveData.observeAsState()
+
+    SimpleErrorHandler(
+        refreshRequest = { myInfoEditViewModel.getMyInfoData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 
     MyInfomationEditScreen(
         onBackRequest = onBackRequest,

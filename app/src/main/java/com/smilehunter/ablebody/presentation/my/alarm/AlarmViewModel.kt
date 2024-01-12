@@ -13,36 +13,36 @@ import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AlarmViewModel @Inject constructor(
     private val userRepository: UserRepository,
-//    private val getUserInfoUseCase: GetUserInfoUseCase,
-//    private val getCouponListUseCase: GetCouponListUseCase,
-//    private val getOrderItemListUseCase: GetOrderItemListUseCase,
-//    private val getUserBoardPagerUseCase: GetUserBoardPagerUseCase,
-//    private val addCouponUseCase: AddCouponUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+) : ViewModel() {
 
     //마케팅 알림 동의 여부 받아오기
     private val _getUserAdConsentLiveData = MutableLiveData<Boolean>()
     val getUserAdConsentLiveData: LiveData<Boolean> = _getUserAdConsentLiveData
 
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
+
     fun getAlarmData() {
         viewModelScope.launch {
             try {
-
                 val getUserAdConsent = userRepository.getUserAdConsent()
                 _getUserAdConsentLiveData.postValue(getUserAdConsent)
                 Log.d("getUserAdConsent", getUserAdConsent.toString())
-
+                _sendErrorLiveData.postValue(null)
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
             }
         }
     }
