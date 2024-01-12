@@ -1,7 +1,7 @@
-package com.smilehunter.ablebody.presentation.my.report
+package com.smilehunter.ablebody.presentation.my.report.ui
 
 import android.content.pm.PackageManager
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,37 +42,44 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.request.ReportRequest
-import com.smilehunter.ablebody.presentation.my.MyViewModel
-import com.smilehunter.ablebody.presentation.my.setting.ui.SettingList
+import com.smilehunter.ablebody.model.ErrorHandlerCode
+import com.smilehunter.ablebody.presentation.my.report.ReportViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
-import com.smilehunter.ablebody.utils.redirectToURL
 
 @Composable
 fun ReportRoute(
+    reportViewModel: ReportViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     uid: String
 ) {
     var reportCompleteDialog by remember { mutableStateOf(false) }
+    val errorData by reportViewModel.sendErrorLiveData.observeAsState()
 
     ReportScreen(
         onBackRequest = onBackRequest,
         onReportCompleteDialog = { reportCompleteDialog = true },
         uid = uid
     )
-    if (reportCompleteDialog) {
-        ReportCompletePopup( onBackRequest = onBackRequest, { reportCompleteDialog = false })
+
+    if (errorData != null) {
+        val context = LocalContext.current
+        Toast.makeText(context, "네트워크 에러가 발생했습니다\n다시 시도해주세요", Toast.LENGTH_LONG).show()
+    } else if (reportCompleteDialog) {
+        ReportCompletePopup(onBackRequest = onBackRequest, { reportCompleteDialog = false })
     }
 }
 
 @Composable
 fun ReportScreen(
-    myViewModel: MyViewModel = hiltViewModel(),
+    reportViewModel: ReportViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
     onReportCompleteDialog: () -> Unit,
     uid: String
@@ -105,14 +112,20 @@ fun ReportScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color.White)
-        ){
-            Spacer(modifier = Modifier
-                .height(7.dp)
-                .fillMaxWidth()
-                .background(PlaneGrey)
+        ) {
+            Spacer(
+                modifier = Modifier
+                    .height(7.dp)
+                    .fillMaxWidth()
+                    .background(PlaneGrey)
             )
             val text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = AbleBlue, fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)))) {
+                withStyle(
+                    style = SpanStyle(
+                        color = AbleBlue,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold))
+                    )
+                ) {
                     append("신고하는 이유")
                 }
                 append("를 선택해주세요")
@@ -136,7 +149,7 @@ fun ReportScreen(
                 SettingReportList(
                     listText = option,
                     onReportOnClick = {
-                        myViewModel.reportUser(
+                        reportViewModel.reportUser(
                             ReportRequest(
                                 ReportRequest.ContentType.User,
                                 uid.toLong(),
@@ -191,15 +204,8 @@ fun SettingReportList(
                     "기타 " -> {
                         onReportCompleteDialog()
                         onReportOnClick()
-//                        onReportOnClick(
-//                            ReportRequest(
-//                                ReportRequest.ContentType.User,
-//                                9999999,
-//                                listText,
-//                                ""
-//                            )
-//                        )
                     }
+
                     else -> { /* 기타 경우에 대한 처리 */
                     }
                 }
@@ -220,7 +226,7 @@ fun SettingReportList(
                 .padding(horizontal = 25.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        if(editText.isNotEmpty()){
+        if (editText.isNotEmpty()) {
             Text(
                 text = editText,
                 color = textColor,
@@ -235,14 +241,14 @@ fun SettingReportList(
                     .padding(horizontal = 25.dp)
 
             )
-        }else {
-            if(listText == "앱 버전") {
+        } else {
+            if (listText == "앱 버전") {
                 Text(
                     text = BuildConfig.VERSION_NAME,
                     color = SmallTextGrey,
                     modifier = Modifier.padding(end = 16.dp)
                 )
-            }else{
+            } else {
                 Icon(
                     Icons.Filled.KeyboardArrowRight,
                     contentDescription = linkUrl,
@@ -256,6 +262,7 @@ fun SettingReportList(
         }
     }
 }
+
 @Composable
 fun ReportCompletePopup(
     onBackRequest: () -> Unit,
@@ -291,10 +298,11 @@ fun ReportCompletePopup(
         )
     }
 }
+
 @Preview
 @Composable
 fun ReportRoutePreview() {
-    ReportRoute({}, "")
+    ReportRoute(onErrorOccur = {}, onBackRequest = {}, uid = "")
 }
 
 @Preview
@@ -310,5 +318,5 @@ fun ReportScreenPreview() {
 @Preview
 @Composable
 fun ReportCompletePopupPreview() {
-    ReportCompletePopup({},{})
+    ReportCompletePopup({}, {})
 }
