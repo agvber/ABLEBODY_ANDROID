@@ -81,6 +81,7 @@ fun MainNavHost(
                 Log.d("MainNavHost", "프로필 편집 버튼 누름")
                 navController.navigateToEditProfileGraph()
             },
+            onErrorOccur = navController::navigateErrorHandlingScreen,
             nestedGraph = {
                 addBrandScreen(
                     isBottomBarShow = isBottomBarShow,

@@ -6,7 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.smilehunter.ablebody.presentation.home.my.ui.EditProfileRoute
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.main.data.NavigationItems
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRegisterRoute
 import com.smilehunter.ablebody.presentation.my.coupon.ui.CouponRoute
@@ -14,7 +14,7 @@ import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoEditScreenRoute
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.MyInfoScreenRoute
 import com.smilehunter.ablebody.presentation.my.myprofile.ui.MyProfileRoute
 import com.smilehunter.ablebody.presentation.my.other.ui.OtherNormalUserRoute
-import com.smilehunter.ablebody.presentation.my.report.ReportRoute
+import com.smilehunter.ablebody.presentation.my.report.ui.ReportRoute
 import com.smilehunter.ablebody.presentation.my.setting.ui.SettingScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawBeforeScreen
 import com.smilehunter.ablebody.presentation.my.alarm.ui.AlarmRoute
@@ -23,7 +23,6 @@ import com.smilehunter.ablebody.presentation.my.myInfo.ui.InputCertificationNumb
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithDrawCompleteScreen
 import com.smilehunter.ablebody.presentation.my.myInfo.ui.WithdrawScreenRoute
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestRoute
-import com.smilehunter.ablebody.presentation.onboarding.ui.IntroScreen
 
 const val HomeRoute = "Home"
 
@@ -46,7 +45,8 @@ fun NavGraphBuilder.addHomeGraph(
     onPositiveBtnClick: () -> Unit,
     certificationBtnOnClick: (String) -> Unit,
     onVerificationSuccess: () -> Unit,
-    onProfileEditClick: () -> Unit
+    onProfileEditClick: () -> Unit,
+    onErrorOccur: (ErrorHandlerCode) -> Unit
 ) {
     navigation(
         startDestination = NavigationItems.Brand.name,
@@ -60,7 +60,8 @@ fun NavGraphBuilder.addHomeGraph(
                     settingOnClick = settingOnClickRouteRequest,
                     coupononClick = coupononClick,
                     orderManagementOnClick = orderManagementOnClick,
-                    onProfileEditClick = onProfileEditClick
+                    onProfileEditClick = onProfileEditClick,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(true)
             }
@@ -68,7 +69,7 @@ fun NavGraphBuilder.addHomeGraph(
             composable(route = "SettingScreen") {
                 SettingScreen(
                     onBackRequest = onBackRequest,
-                    suggestonClick = suggestonClick,
+                    suggestOnClick = suggestonClick,
                     myInfoOnClick = myInfoOnClick,
                     alarmOnClick = alarmOnClick
                 )
@@ -85,7 +86,8 @@ fun NavGraphBuilder.addHomeGraph(
 
             composable(route = "AlarmScreen") {
                 AlarmRoute(
-                    onBackRequest = onBackRequest
+                    onBackRequest = onBackRequest,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(false)
             }
@@ -98,29 +100,6 @@ fun NavGraphBuilder.addHomeGraph(
                 isBottomBarShow(false)
             }
 
-            composable(route = "MyInfoScreenRoute") {
-                MyInfoScreenRoute(
-                    onBackRequest = onBackRequest,
-                    withDrawOnClick = withDrawOnClick,
-                    editButtonOnClick = editButtonOnClick
-                )
-                isBottomBarShow(false)
-            }
-            composable(route = "MyInfomationEditScreen") {
-                MyInfoEditScreenRoute(
-                    onBackRequest = onBackRequest,
-                    onPositiveBtnClick = onPositiveBtnClick
-                )
-                isBottomBarShow(false)
-            }
-
-            composable(route = "WithDrawCompleteScreen") {
-                Log.d("homeGraph", "신고버튼눌려짐")
-                WithDrawCompleteScreen()
-                isBottomBarShow(false)
-            }
-
-            //탈퇴 화면
             composable(route = "WithdrawScreenRoute/{draw_reason}",
                 arguments = listOf(
                     navArgument("draw_reason") { type = NavType.StringType }
@@ -131,7 +110,33 @@ fun NavGraphBuilder.addHomeGraph(
                 WithdrawScreenRoute(
                     onBackRequest = onBackRequest,
                     drawReason = draw_reason!!,
-                    withDrawButtonOnClick = withDrawButtonOnClick//{navController.navigate("WithDrawCompleteScreen")}
+                    withDrawButtonOnClick = withDrawButtonOnClick,//{navController.navigate("WithDrawCompleteScreen")}
+                    onErrorOccur = onErrorOccur
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "WithDrawCompleteScreen") {
+                WithDrawCompleteScreen(
+                    onErrorOccur = onErrorOccur
+                )
+                isBottomBarShow(false)
+            }
+
+            composable(route = "MyInfoScreenRoute") {
+                MyInfoScreenRoute(
+                    onBackRequest = onBackRequest,
+                    withDrawOnClick = withDrawOnClick,
+                    editButtonOnClick = editButtonOnClick,
+                    onErrorOccur = onErrorOccur
+                )
+                isBottomBarShow(false)
+            }
+            composable(route = "MyInfomationEditScreen") {
+                MyInfoEditScreenRoute(
+                    onBackRequest = onBackRequest,
+                    onPositiveBtnClick = onPositiveBtnClick,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(false)
             }
@@ -139,31 +144,19 @@ fun NavGraphBuilder.addHomeGraph(
             composable(route = "CouponRoute") {
                 CouponRoute(
                     onBackRequest = onBackRequest,
-                    couponRegisterOnClick = couponRegisterOnClick
+                    couponRegisterOnClick = couponRegisterOnClick,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(false)
             }
 
             composable(route = "CouponRegisterRoute") {
                 CouponRegisterRoute(
-                    onBackRequest = onBackRequest
+                    onBackRequest = onBackRequest,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(false)
             }
-
-//            composable(route = "IntroScreen") {
-//                IntroScreen(
-//                )
-//                isBottomBarShow(false)
-//            }
-//            composable(route = "OtherNormalUserRoute") {
-//                OtherNormalUserRoute(
-//                    onBackRequest = onBackRequest,
-//                    onReport = onReport,
-//                    id = "5920702"
-//                )
-//                isBottomBarShow(true)
-//            }
 
             composable(route = "OtherNormalUserRoute/{uid}",
                 arguments = listOf(
@@ -175,7 +168,8 @@ fun NavGraphBuilder.addHomeGraph(
                 OtherNormalUserRoute(
                     onBackRequest = onBackRequest,
                     onReport = { onReport(uid) },
-                    uid = uid
+                    uid = uid,
+                    onErrorOccur = onErrorOccur
                 )
                 isBottomBarShow(true)
             }
@@ -198,7 +192,8 @@ fun NavGraphBuilder.addHomeGraph(
             Log.d("신고 버튼 눌렀을 때 homegraph", uid)
             ReportRoute(
                 onBackRequest = onBackRequest,
-                uid = uid
+                uid = uid,
+                onErrorOccur = onErrorOccur
             )
             isBottomBarShow(false)
         }
@@ -209,7 +204,8 @@ fun NavGraphBuilder.addHomeGraph(
             )
         ) { navBackStackEntry ->
             InputCertificationNumberRoute(
-                onVerificationSuccess = onVerificationSuccess
+                onVerificationSuccess = onVerificationSuccess,
+                onErrorOccur = onErrorOccur
             )
             isBottomBarShow(false)
         }
