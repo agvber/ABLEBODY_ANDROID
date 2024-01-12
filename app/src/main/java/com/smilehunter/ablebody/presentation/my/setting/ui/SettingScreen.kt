@@ -26,7 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,9 +52,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.BuildConfig
 import com.smilehunter.ablebody.R
-import com.smilehunter.ablebody.data.dto.request.ReportRequest
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.my.setting.SettingViewModel
-import com.smilehunter.ablebody.presentation.my.suggest.SuggestViewModel
 import com.smilehunter.ablebody.presentation.my.suggest.ui.SuggestList
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -62,17 +63,18 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import com.smilehunter.ablebody.utils.redirectToURL
 
 
 @Composable
 fun SettingScreen(
+    settingViewModel: SettingViewModel = hiltViewModel(),
     onBackRequest: () -> Unit,
-    suggestonClick: () -> Unit,
+    suggestOnClick: () -> Unit,
     myInfoOnClick: () -> Unit,
-    alarmOnClick: () -> Unit,
-    settingViewModel: SettingViewModel = hiltViewModel()
+    alarmOnClick: () -> Unit
 ) {
     var logoutDialog by remember { mutableStateOf(false) }
 
@@ -94,7 +96,7 @@ fun SettingScreen(
                 .padding(paddingValues)
                 .background(PlaneGrey)
         ) {
-            SuggestList(suggestonClick = suggestonClick)
+            SuggestList(suggestonClick = suggestOnClick)
             Spacer(modifier = Modifier.size(7.dp))
             SettingList(listText = "내 정보", myInfoOnClick = myInfoOnClick)
             Spacer(modifier = Modifier.size(7.dp))
@@ -518,7 +520,7 @@ fun BenefitDescription(
 @Preview(showBackground = true)
 @Composable
 fun SettingScreenPreview() {
-    SettingScreen({}, {}, {}, {})
+    SettingScreen(onBackRequest = {}, suggestOnClick = {}, myInfoOnClick = {}, alarmOnClick = {})
 }
 
 @Preview(showBackground = true)
