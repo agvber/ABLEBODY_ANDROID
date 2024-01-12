@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.smilehunter.ablebody.data.dto.request.EditProfile
+import com.smilehunter.ablebody.data.dto.response.AbleBodyResponse
 import com.smilehunter.ablebody.data.dto.response.SendSMSResponse
+import com.smilehunter.ablebody.data.dto.response.data.SMSCheckResponseData
 import com.smilehunter.ablebody.data.repository.OnboardingRepository
 import com.smilehunter.ablebody.data.repository.UserRepository
 import com.smilehunter.ablebody.domain.AddCouponUseCase
@@ -38,6 +40,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
@@ -56,19 +59,24 @@ class MyInfoEditViewModel @Inject constructor(
     private val editProfileUseCase: EditProfileUseCase,
     @Dispatcher(AbleBodyDispatcher.IO) private val ioDispatcher: CoroutineDispatcher,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+) : ViewModel() {
     private val _userInfoLiveData = MutableLiveData<UserInfoData>()
     val userLiveData: LiveData<UserInfoData> = _userInfoLiveData
     val phoneNumber = savedStateHandle.getStateFlow<String?>("phoneNumber", null)
+
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
 
     fun getMyInfoData() {
         viewModelScope.launch {
             try {
                 val userInfo = getUserInfoUseCase.invoke()
                 _userInfoLiveData.postValue(userInfo)
+                _sendErrorLiveData.postValue(null)
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
             }
         }
     }
@@ -77,7 +85,13 @@ class MyInfoEditViewModel @Inject constructor(
     val nicknameState = _nicknameState.asStateFlow()
     fun updateNickname(value: String) {
         viewModelScope.launch {
-            _nicknameState.emit(value)
+            try {
+                _nicknameState.emit(value)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
 
@@ -114,49 +128,65 @@ class MyInfoEditViewModel @Inject constructor(
             initialValue = NicknameRule.Nothing
         )
 
-    fun requestChangeNickname(){
+    fun requestChangeNickname() {
         viewModelScope.launch {
-            val editProfile = EditProfile(nickname = nicknameState.value, null,null,null,null,null, null)
-            editProfileUseCase.invoke(editProfile, null)
+            try {
+                val editProfile =
+                    EditProfile(nickname = nicknameState.value, null, null, null, null, null, null)
+                editProfileUseCase.invoke(editProfile, null)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
-//    val phoneNumberState: StateFlow<String> get() =  _phoneNumberState.asStateFlow()
-//    private val _phoneNumberState = MutableStateFlow<String>("")
 
     private val _phoneNumberState = MutableStateFlow("")
     val phoneNumberState = _phoneNumberState.asStateFlow()
 
     fun updatePhoneNumber(phoneNumber: String) {
         viewModelScope.launch {
-            _phoneNumberState.emit(phoneNumber)
+            try {
+                _phoneNumberState.emit(phoneNumber)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
 
     private val phoneNumberRegex = "^01[0-1, 7][0-9]{8}\$".toRegex()
+
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val isPhoneNumberCorrectState: StateFlow<Boolean> =
         phoneNumberState.debounce(500L).flatMapLatest { number ->
-                flowOf(number.isNotEmpty() && phoneNumberRegex.matches(number))
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = false
-            )
+            flowOf(number.isNotEmpty() && phoneNumberRegex.matches(number))
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
 
     private val _smsResponse = MutableSharedFlow<Response<SendSMSResponse>>()
     private val smsResponse = _smsResponse.asSharedFlow()
 
 
-
-
     private var lastSmsVerificationCodeRequestTime = 0L
     fun requestSmsVerificationCode(phoneNumber: String) {
         viewModelScope.launch(ioDispatcher) {
-            if (System.currentTimeMillis() - lastSmsVerificationCodeRequestTime >= 1000L) {
-                val response = onboardingRepository.sendSMS(phoneNumber)
-                _smsResponse.emit(response)
-                lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
+            try {
+                if (System.currentTimeMillis() - lastSmsVerificationCodeRequestTime >= 1000L) {
+                    val response = onboardingRepository.sendSMS(phoneNumber)
+                    _smsResponse.emit(response)
+                    lastSmsVerificationCodeRequestTime = System.currentTimeMillis()
+                }
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
             }
         }
     }
@@ -187,44 +217,54 @@ class MyInfoEditViewModel @Inject constructor(
     val certificationNumberState: StateFlow<String> = _certificationNumberState.asStateFlow()
 
     fun updateCertificationNumber(number: String) {
-        viewModelScope.launch { _certificationNumberState.emit(number) }
+        viewModelScope.launch {
+                _certificationNumberState.emit(number)
+        }
     }
 
-    val verificationResultState = combine(certificationNumberState, smsResponse) { number, response ->
-        val phoneConfirmID = response.body()?.data?.phoneConfirmId
-        if (number.length == 4 && phoneConfirmID != null) {
-            withContext(Dispatchers.IO) {
-                onboardingRepository.checkSMS(phoneConfirmID, number)
+    val verificationResultState: StateFlow<Response<AbleBodyResponse<SMSCheckResponseData>>?> =
+        combine(certificationNumberState, smsResponse) { number, response ->
+            val phoneConfirmID = response.body()?.data?.phoneConfirmId
+            if (number.length == 4 && phoneConfirmID != null) {
+                withContext(Dispatchers.IO) {
+                    onboardingRepository.checkSMS(phoneConfirmID, number)
+                }
+            } else {
+                null
             }
-        } else {
-            null
         }
-    }.stateIn(
+        .catch {
+            _sendErrorLiveData.postValue(it)
+        }
+
+        .stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null
     )
-    val certificationNumberInfoMessageUiState = combine(currentCertificationNumberTime, verificationResultState) { time, result ->
-        if (time == 0L) {
-            CertificationNumberInfoMessageUiState.Timeout
-        } else if (result != null) {
-            when {
-                result.body()?.success == true -> {
-                    CertificationNumberInfoMessageUiState.Success
+    val certificationNumberInfoMessageUiState =
+        combine(currentCertificationNumberTime, verificationResultState) { time, result ->
+            if (time == 0L) {
+                CertificationNumberInfoMessageUiState.Timeout
+            } else if (result != null) {
+                when {
+                    result.body()?.success == true -> {
+                        CertificationNumberInfoMessageUiState.Success
+                    }
+
+                    else -> {
+                        CertificationNumberInfoMessageUiState.InValid
+                    }
                 }
-                else -> {
-                    CertificationNumberInfoMessageUiState.InValid
-                }
+            } else {
+                convertMillisecondsToFormattedTime(time)
+                    .run { "${minutes}분 ${seconds}초 남음" }
+                    .let { CertificationNumberInfoMessageUiState.Timer(it) }
             }
-        } else {
-            convertMillisecondsToFormattedTime(time)
-                .run { "${minutes}분 ${seconds}초 남음" }
-                .let { CertificationNumberInfoMessageUiState.Timer(it) }
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = CertificationNumberInfoMessageUiState.Timer("")
-    )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = CertificationNumberInfoMessageUiState.Timer("")
+        )
 
 }
