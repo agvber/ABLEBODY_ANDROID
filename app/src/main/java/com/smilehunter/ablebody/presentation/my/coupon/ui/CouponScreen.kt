@@ -52,7 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
+import com.smilehunter.ablebody.domain.CouponStatus
 import com.smilehunter.ablebody.model.CouponData
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.my.coupon.CouponViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleDark
@@ -61,22 +63,36 @@ import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.AbleBodyAlertDialog
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.launch
 
 @Composable
 fun CouponRoute(
-    viewModel: CouponViewModel = hiltViewModel(),
+    couponViewModel: CouponViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     couponRegisterOnClick: () -> Unit,
     onBackRequest: () -> Unit
 ) {
-
-    val couponData by viewModel.couponListLiveData.observeAsState()
+    val couponData by couponViewModel.couponListLiveData.observeAsState()
+    val errorData by couponViewModel.sendErrorLiveData.observeAsState()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getCouponData()
+        couponViewModel.getCouponData()
     }
-    CouponScreen(onBackRequest = onBackRequest, couponData?.size ?: 0, couponData ?: emptyList(), couponRegisterOnClick = couponRegisterOnClick)
+    CouponScreen(
+        onBackRequest = onBackRequest,
+        couponData?.size ?: 0,
+        couponData ?: emptyList(),
+        couponRegisterOnClick = couponRegisterOnClick
+    )
+
+    SimpleErrorHandler(
+        refreshRequest = { couponViewModel.getCouponData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 }
 
 @Composable
@@ -125,14 +141,15 @@ fun CouponScreen(
                 )
             }
             for (i in 0 until size) {
-                CouponContent(couponData[i].invalid,
+                CouponContent(
+                    couponData[i].invalid,
                     couponData[i].couponTitle,
                     couponData[i].couponCount,
                     couponData[i].expirationDate,
                     couponData[i].content
                 )
             }
-        Spacer(modifier = Modifier.size(50.dp))
+            Spacer(modifier = Modifier.size(50.dp))
         }
     }
 }
@@ -144,7 +161,7 @@ fun CouponContent(
     couponCount: Int,
     expirationDateStr: Int,
     content: String
-){
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -154,13 +171,13 @@ fun CouponContent(
             defaultElevation = 3.dp
         ),
         shape = RoundedCornerShape(20.dp)
-    ){
+    ) {
         Box(
             modifier = Modifier
                 .background(Color.White)
                 .padding(15.dp)
                 .fillMaxSize()
-        ){
+        ) {
             Column() {
                 Row(
                     modifier = Modifier
@@ -183,7 +200,7 @@ fun CouponContent(
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if(couponCount!=0){
+                    if (couponCount != 0) {
                         Text(
                             text = "${couponCount}명 남음",
                             style = TextStyle(
@@ -254,16 +271,44 @@ fun UsageStatusButton(isValid: Boolean) {
 @Preview(showSystemUi = true)
 @Composable
 fun CouponPreview() {
-    CouponScreen({}, 3, couponData = listOf(CouponData(1,"brand","선착순 100명 3,000원 할인 쿠폰","3,000원 할인",false, CouponData.CouponType.USER, CouponData.DiscountType.PRICE,55, 19, 3000)), {})
+    CouponScreen(
+        {},
+        3,
+        couponData = listOf(
+            CouponData(
+                1,
+                "brand",
+                "선착순 100명 3,000원 할인 쿠폰",
+                "3,000원 할인",
+                false,
+                CouponData.CouponType.USER,
+                CouponData.DiscountType.PRICE,
+                55,
+                19,
+                3000
+            )
+        ),
+        {})
 }
 
 @Composable
 fun CouponRegisterRoute(
-    viewModel: CouponViewModel = hiltViewModel(),
+    couponViewModel: CouponViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit
 ) {
+    val errorData by couponViewModel.sendErrorLiveData.observeAsState()
+
     CouponRegisterScreen(onBackRequest = onBackRequest)
+
+    SimpleErrorHandler(
+        refreshRequest = { couponViewModel.getCouponData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 }
+
 @Composable
 fun CouponRegisterScreen(
     onBackRequest: () -> Unit
@@ -292,7 +337,7 @@ fun CouponRegisterScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Text(
                         text = "쿠폰 등록",
                         style = TextStyle(
@@ -319,43 +364,42 @@ fun CouponRegisterScreen(
         }
     }
     if (showDialog) {
-        CouponRegisterDialog( {showDialog = false}  )
+        CouponRegisterDialog({ showDialog = false })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CouponNumberTextField(
-    viewModel: CouponViewModel = hiltViewModel()
+    couponViewModel: CouponViewModel = hiltViewModel()
 ) {
     var inputText by remember {
         mutableStateOf("")
     }
 
-    val viewModelScope = rememberCoroutineScope()
-
-    var couponNumberInputDialog by remember { mutableStateOf(false) }
-    var couponNumberCheckDialog by remember { mutableStateOf(false) }
-    var couponRegisterSuccessDialog by remember { mutableStateOf(false) }
+    var couponRegisterDialog by remember { mutableStateOf(false) }
+    val couponState by couponViewModel.couponStateLiveData.observeAsState()
 
     Box(
         modifier = Modifier
             .border(1.dp, color = SmallTextGrey)
-    ){
+    ) {
         Row(
             modifier = Modifier.height(52.dp)
-        ){
+        ) {
             androidx.compose.material3.TextField(
                 value = inputText,
                 onValueChange = {
                     inputText = it
                 },
                 modifier = Modifier.weight(10.5f),
-                placeholder = { Text(
-                    text = "쿠폰 번호를 입력하세요",
-                    fontSize = 12.sp,
-                    color = SmallTextGrey
-                ) },
+                placeholder = {
+                    Text(
+                        text = "쿠폰 번호를 입력하세요",
+                        fontSize = 12.sp,
+                        color = SmallTextGrey
+                    )
+                },
                 colors = TextFieldDefaults.textFieldColors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -365,20 +409,11 @@ fun CouponNumberTextField(
 
             Button(
                 onClick = {
-                    if (inputText.isBlank()) {
-                        couponNumberInputDialog = true
-                    } else {
-                        // 쿠폰 등록 로직 추가
-                        viewModelScope.launch {
-                            // 쿠폰 등록 로직 추가
-                            Log.d("쿠폰 등록 UI", viewModel.couponRegister(inputText))
-                            val couponStatus = viewModel.couponRegister(inputText)
-                            when(couponStatus) {
-                                "SUCCESS" -> couponRegisterSuccessDialog = true
-                                else -> couponNumberCheckDialog = true
-                            }
-                        }
+                    if (inputText.isNotBlank()) {
+                        couponViewModel.couponRegister(inputText)
                     }
+                    couponRegisterDialog = true
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Black,
@@ -395,18 +430,17 @@ fun CouponNumberTextField(
             }
         }
     }
-
-    if (couponNumberInputDialog) {
-        CouponPopup(onDismiss = { couponNumberInputDialog = false }, message = "쿠폰 번호를 입력해주세요.")
+    if (couponRegisterDialog) {
+        CouponPopup(
+            onDismiss = { couponRegisterDialog = false },
+            message = when (couponState) {
+                CouponStatus.SUCCESS -> "쿠폰 등록이 완료되었어요."
+                null -> "쿠폰 번호를 입력해주세요."
+                else -> "쿠폰 번호를 확인해주세요."
+            }
+        )
     }
 
-    if (couponNumberCheckDialog) {
-        CouponPopup(onDismiss = { couponNumberCheckDialog = false }, message = "쿠폰 번호를 확인해주새요.")
-    }
-
-    if (couponRegisterSuccessDialog) {
-        CouponPopup(onDismiss = { couponRegisterSuccessDialog = false }, message = "쿠폰 등록이 완료되었어요.")
-    }
 }
 
 @Composable
@@ -440,59 +474,56 @@ fun CouponPopup(
     onDismiss: () -> Unit,
     message: String
 ) {
-    var showDialog by remember { mutableStateOf(true) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp)
+            ) {
+                androidx.compose.material.Text(
+                    text = message,
+                    style = TextStyle(
+                        fontSize = 17.sp,
+                        fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                        fontWeight = FontWeight(500),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    ),
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+        },
+        buttons = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp)
+            ) {
+                Button(
+                    onClick = { onDismiss() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
+                    modifier = Modifier
+                        .width(170.dp)
+                        .height(45.dp)
+                        .padding(start = 15.dp, end = 15.dp),
+                    shape = RoundedCornerShape(10.dp),
+                ) {
+                    androidx.compose.material.Text(text = "확인", color = Color.White)
+                }
+            }
+        },
+        shape = RoundedCornerShape(15.dp),
+        modifier = Modifier
+            .width(329.dp)
+            .height(120.dp)
+            .padding(0.dp)
+    )
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                ){
-                    androidx.compose.material.Text(
-                        text = message,
-                        style = TextStyle(
-                            fontSize = 17.sp,
-                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                            fontWeight = FontWeight(500),
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        ),
-                        modifier = Modifier.padding(bottom = 10.dp)
-                    )
-                }
-            },
-            buttons = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                ){
-                    Button(
-                        onClick = { showDialog = false },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = AbleBlue),
-                        modifier = Modifier
-                            .width(170.dp)
-                            .height(45.dp)
-                            .padding(start = 15.dp, end = 15.dp),
-                        shape = RoundedCornerShape(10.dp),
-                    ) {
-                        androidx.compose.material.Text(text = "확인", color = Color.White)
-                    }
-                }
-            },
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier
-                .width(329.dp)
-                .height(120.dp)
-                .padding(0.dp)
-        )
-    }
 }
 
 @Preview
@@ -500,6 +531,7 @@ fun CouponPopup(
 fun CouponRegisterScreenPreview() {
     CouponRegisterScreen({})
 }
+
 @Preview
 @Composable
 fun CouponRegisterDialogPreview() {
