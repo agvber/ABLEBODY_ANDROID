@@ -48,6 +48,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,6 +83,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ItemDetailData
@@ -99,6 +102,7 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
 import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
+import com.smilehunter.ablebody.ui.utils.height
 import com.smilehunter.ablebody.ui.utils.ignoreParentPadding
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
@@ -140,6 +144,12 @@ fun ItemDetailRoute(
         throwable = (itemDetailData as? ItemDetailUiState.Error)?.t
     )
 }
+
+data class CollapseSize(
+    val index: Int,
+    val differentDp: Dp
+)
+
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -237,6 +247,20 @@ fun ItemDetailScreen(
             )
         }
 
+        val imageMinimumHeightList = remember { mutableStateListOf<Dp>() }
+        val collapseSize by remember(imageMinimumHeightList) {
+            derivedStateOf {
+                var result = 0.dp
+                imageMinimumHeightList.forEachIndexed { index, dp ->
+                    result += dp
+                    if (result > 1100.dp) {
+                        return@derivedStateOf CollapseSize(index, result - 1100.dp)
+                    }
+                }
+                CollapseSize(imageMinimumHeightList.size, 0.dp)
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -290,32 +314,35 @@ fun ItemDetailScreen(
                     key = { index, url -> index },
                     span = { index, url -> GridItemSpan(this.maxLineSpan) },
                 ) { index, url ->
-                    val paddingValue = PaddingValues(
-                        top = if (index != 0) 10.dp else 0.dp
-                    )
-
-                    AnimatedVisibility(index < 3 || isExpanded) {
-                        AsyncImage(
-                            model = url,
-                            contentDescription = null,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(paddingValue)
-                                .animateContentSize()
-                        )
+                    AnimatedVisibility(
+                         collapseSize.index > index || isExpanded
+                    ) {
+                        Box {
+                            AsyncImage(
+                                model = url,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height {
+                                        if (collapseSize.index - 1 == index && !isExpanded) {
+                                            return@height collapseSize.differentDp
+                                        }
+                                        null
+                                    }
+                                    .animateContentSize()
+                            )
+                        }
                     }
                 }
 
-                item(
-                    span = { GridItemSpan(this.maxLineSpan) },
-                ) {
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
                     if (itemDetailData.detailImageUrls.size > 3) {
                         ImageControlBar(
                             onClick = {
                                 isExpanded = !isExpanded
                                 if (!isExpanded) {
-                                    scope.launch { lazyGridState.animateScrollToItem(3, collapseOffset) }
+                                    scope.launch { lazyGridState.animateScrollToItem(2, collapseOffset) }
                                 } else {
                                     collapseOffset = lazyGridState.firstVisibleItemScrollOffset
                                 }
@@ -450,7 +477,19 @@ fun ItemDetailScreen(
             preloadImageList(context, itemDetailData.item.images)
         }
         LaunchedEffect(key1 = itemDetailData.detailImageUrls) {
-            preloadImageList(context, itemDetailData.detailImageUrls)
+            itemDetailData.detailImageUrls.forEach {
+                val imageRequest = ImageRequest.Builder(context = context).run {
+                    data(it)
+                    target {
+                        with(density) {
+                            imageMinimumHeightList.add(it.minimumHeight.toDp())
+                        }
+                    }
+                    data(it)
+                    build()
+                }
+                context.imageLoader.enqueue(imageRequest)
+            }
         }
 
         val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
