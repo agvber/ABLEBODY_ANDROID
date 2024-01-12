@@ -21,8 +21,10 @@ import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -45,6 +47,9 @@ class OtherUserViewModel @Inject constructor(
     private val _otherUserLiveData = MutableLiveData<UserInfoData>()
     val otherUserLiveData: LiveData<UserInfoData> = _otherUserLiveData
 
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val otherUserBoard: StateFlow<PagingData<UserBoardData.Content>> = uid.flatMapLatest {
         if (it != null) {
@@ -60,25 +65,24 @@ class OtherUserViewModel @Inject constructor(
         )
     fun otherUserProfile(uid: String){
         viewModelScope.launch(ioDispatcher) {
-            val getOtherUserProfile = getUserInfoUseCase.invoke(uid)
-            _otherUserLiveData.postValue(getOtherUserProfile)
-            getUserInfoUseCase(uid)
+            try{
+                val getOtherUserProfile = getUserInfoUseCase.invoke(uid)
+                _otherUserLiveData.postValue(getOtherUserProfile)
+                getUserInfoUseCase(uid)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
     fun getData() {
         viewModelScope.launch {
             try {
-//                val userInfo = getUserInfoUseCase.invoke()
-//                _userInfoLiveData.postValue(userInfo)
-//
-//                Log.d("userInfo", userInfo.toString())
-
-//                val orderItemList = getOrderItemListUseCase.invoke()
-//                _orderItemListLiveData.postValue(orderItemList)
-
-
+                _sendErrorLiveData.postValue(null)
             } catch (e: Exception) {
                 e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
             }
         }
     }
