@@ -22,8 +22,10 @@ import com.smilehunter.ablebody.network.di.AbleBodyDispatcher
 import com.smilehunter.ablebody.network.di.Dispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,28 +41,45 @@ class MyInfoViewModel @Inject constructor(
     private val _userInfoLiveData = MutableLiveData<UserInfoData>()
     val userLiveData: LiveData<UserInfoData> = _userInfoLiveData
 
+    private val _sendErrorLiveData = MutableLiveData<Throwable?>()
+    val sendErrorLiveData: LiveData<Throwable?> = _sendErrorLiveData
+
     fun getMyInfoData() {
         viewModelScope.launch {
             try {
                 val userInfo = getUserInfoUseCase.invoke()
                 _userInfoLiveData.postValue(userInfo)
+                _sendErrorLiveData.postValue(null)
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
             }
         }
     }
 
     fun resignUser(reason: String) {
         viewModelScope.launch(ioDispatcher) {
-            Log.d("탈퇴 이유", reason)
-            userRepository.resignUser(reason)
+            try {
+                Log.d("탈퇴 이유", reason)
+                userRepository.resignUser(reason)
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
 
     fun deleteToken() {
         viewModelScope.launch {
-            tokenRepository.deleteToken()
+            try{
+                tokenRepository.deleteToken()
+                _sendErrorLiveData.postValue(null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _sendErrorLiveData.postValue(e)
+            }
         }
     }
 

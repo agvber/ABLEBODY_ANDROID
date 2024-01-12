@@ -34,21 +34,26 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.data.dto.Gender
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.my.setting.ui.SettingList
 import com.smilehunter.ablebody.presentation.my.myInfo.MyInfoViewModel
 import com.smilehunter.ablebody.ui.theme.AbleBlue
 import com.smilehunter.ablebody.ui.theme.AbleRed
 import com.smilehunter.ablebody.ui.theme.PlaneGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
+import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
 import com.smilehunter.ablebody.utils.nonReplyClickable
 
 @Composable
 fun MyInfoScreenRoute(
     myInfoViewModel: MyInfoViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     withDrawOnClick: () -> Unit,
     editButtonOnClick: () -> Unit
 ) {
+    val errorData by myInfoViewModel.sendErrorLiveData.observeAsState()
+
     LaunchedEffect(key1 = true) {
         myInfoViewModel.getMyInfoData()
     }
@@ -67,11 +72,19 @@ fun MyInfoScreenRoute(
         },
         uid = userInfoData?.uid ?: ""
     )
+
+    SimpleErrorHandler(
+        refreshRequest = { myInfoViewModel.getMyInfoData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
 }
 
 @Composable
 fun WithdrawScreenRoute(
     myInfoViewModel: MyInfoViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit,
     onBackRequest: () -> Unit,
     drawReason: String,
     withDrawButtonOnClick: () -> Unit
@@ -80,6 +93,7 @@ fun WithdrawScreenRoute(
         myInfoViewModel.getMyInfoData()
     }
     val userInfoData by myInfoViewModel.userLiveData.observeAsState()
+    val errorData by myInfoViewModel.sendErrorLiveData.observeAsState()
 
     WithdrawScreen(
         nickname = userInfoData?.nickname ?: "",
@@ -88,6 +102,12 @@ fun WithdrawScreenRoute(
             myInfoViewModel.resignUser(drawReason)
             withDrawButtonOnClick()
         }
+    )
+    SimpleErrorHandler(
+        refreshRequest = { myInfoViewModel.getMyInfoData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
     )
 }
 
@@ -243,8 +263,17 @@ fun WithdrawScreen(
 
 @Composable
 fun WithDrawCompleteScreen(
-    myInfoViewModer: MyInfoViewModel = hiltViewModel()
+    myInfoViewModer: MyInfoViewModel = hiltViewModel(),
+    onErrorOccur: (ErrorHandlerCode) -> Unit
 ) {
+    val errorData by myInfoViewModer.sendErrorLiveData.observeAsState()
+
+    SimpleErrorHandler(
+        refreshRequest = { myInfoViewModer.getMyInfoData() },
+        onErrorOccur = onErrorOccur,
+        isError = errorData != null,
+        throwable = errorData
+    )
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -280,7 +309,7 @@ fun MyInfomationScreenPreview() {
 @Preview(showSystemUi = true)
 @Composable
 fun WithdrawBeforeScreenPreview() {
-    WithdrawBeforeScreen({}, {})
+    WithdrawBeforeScreen(onBackRequest = {}, withDrawReasonOnClick = {})
 }
 
 @Preview(showSystemUi = true)
@@ -292,5 +321,5 @@ fun WithdrawScreenPreview() {
 @Preview(showSystemUi = true)
 @Composable
 fun WithDrawCompletePreview() {
-    WithDrawCompleteScreen()
+    WithDrawCompleteScreen(onErrorOccur = {})
 }
