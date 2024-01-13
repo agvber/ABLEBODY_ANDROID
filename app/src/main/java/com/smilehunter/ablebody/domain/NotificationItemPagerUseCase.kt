@@ -54,7 +54,7 @@ private fun GetMyNotiResponseData.toDomain() = NotificationItemData(
           senderProfileImageURL = it.from.profileUrl,
           senderNickname = it.from.nickname,
           createDate = it.createDate,
-          text = it.content,
+          text = it.content ?: it.body!!,
           uri = it.url,
           checked = it.checked,
       )

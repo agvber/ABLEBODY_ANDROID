@@ -85,7 +85,9 @@ class UserRepositoryImpl @Inject constructor(
         profileImageInputStream: InputStream?
     ): UserDataResponse = withContext(ioDispatcher) {
         if (profileImageInputStream == null) {
-            return@withContext networkService.editProfile(profile = editProfile, profileImage = null)
+            val response = networkService.editProfile(profile = editProfile, profileImage = null)
+            dataStoreService.updateUserInfoData { it.toBuilder().clear().build() }
+            return@withContext response
         }
         val temp = File.createTempFile("image_compress_file", ".jpeg")
 
@@ -111,6 +113,7 @@ class UserRepositoryImpl @Inject constructor(
         val response = networkService.editProfile(profile = editProfile, profileImage = temp)
         temp.delete()
         temp.deleteOnExit()
+        dataStoreService.updateUserInfoData { it.toBuilder().clear().build() }
         return@withContext response
     }
 

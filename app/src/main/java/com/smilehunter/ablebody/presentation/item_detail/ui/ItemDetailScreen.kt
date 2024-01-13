@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,9 +44,11 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
@@ -81,6 +83,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ItemDetailData
@@ -98,9 +102,11 @@ import com.smilehunter.ablebody.ui.theme.SmallTextGrey
 import com.smilehunter.ablebody.ui.utils.BackButtonTopBarLayout
 import com.smilehunter.ablebody.ui.utils.CustomButton
 import com.smilehunter.ablebody.ui.utils.SimpleErrorHandler
+import com.smilehunter.ablebody.ui.utils.height
 import com.smilehunter.ablebody.ui.utils.ignoreParentPadding
 import com.smilehunter.ablebody.ui.utils.previewPlaceHolder
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import com.smilehunter.ablebody.utils.preloadImageList
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -139,6 +145,12 @@ fun ItemDetailRoute(
     )
 }
 
+data class CollapseSize(
+    val index: Int,
+    val differentDp: Dp
+)
+
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ItemDetailScreen(
@@ -152,6 +164,8 @@ fun ItemDetailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
+    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
@@ -233,6 +247,20 @@ fun ItemDetailScreen(
             )
         }
 
+        val imageMinimumHeightList = remember { mutableStateListOf<Dp>() }
+        val collapseSize by remember(imageMinimumHeightList) {
+            derivedStateOf {
+                var result = 0.dp
+                imageMinimumHeightList.forEachIndexed { index, dp ->
+                    result += dp
+                    if (result > 1100.dp) {
+                        return@derivedStateOf CollapseSize(index, result - 1100.dp)
+                    }
+                }
+                CollapseSize(imageMinimumHeightList.size, 0.dp)
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -286,31 +314,35 @@ fun ItemDetailScreen(
                     key = { index, url -> index },
                     span = { index, url -> GridItemSpan(this.maxLineSpan) },
                 ) { index, url ->
-                    val paddingValue = PaddingValues(
-                        top = if (index != 0) 10.dp else 0.dp
-                    )
-
-                    if (index < 3 || isExpanded) {
-                        AsyncImage(
-                            model = url,
-                            contentDescription = null,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier.fillMaxWidth()
-                                .animateContentSize()
-                                .padding(paddingValue)
-                        )
+                    AnimatedVisibility(
+                         collapseSize.index > index || isExpanded
+                    ) {
+                        Box {
+                            AsyncImage(
+                                model = url,
+                                contentDescription = null,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height {
+                                        if (collapseSize.index - 1 == index && !isExpanded) {
+                                            return@height collapseSize.differentDp
+                                        }
+                                        null
+                                    }
+                                    .animateContentSize()
+                            )
+                        }
                     }
                 }
 
-                item(
-                    span = { GridItemSpan(this.maxLineSpan) },
-                ) {
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
                     if (itemDetailData.detailImageUrls.size > 3) {
                         ImageControlBar(
                             onClick = {
                                 isExpanded = !isExpanded
                                 if (!isExpanded) {
-                                    scope.launch { lazyGridState.animateScrollToItem(3, collapseOffset) }
+                                    scope.launch { lazyGridState.animateScrollToItem(2, collapseOffset) }
                                 } else {
                                     collapseOffset = lazyGridState.firstVisibleItemScrollOffset
                                 }
@@ -321,7 +353,7 @@ fun ItemDetailScreen(
                 }
 
                 item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    if (itemDetailData.item.avgStarRating != null) {
+                    if (itemDetailData.itemReviews.isNotEmpty()) {
                         val creatorReviewPagerState = rememberPagerState { itemDetailData.itemReviews.size }
 
                         Column(
@@ -329,7 +361,7 @@ fun ItemDetailScreen(
                                 .ignoreParentPadding(lazyVerticalGridContentHorizontalPadding)
                                 .padding(vertical = 12.dp)
                         ) {
-                            CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating)
+                            CreatorReviewTitle(averageStar = itemDetailData.item.avgStarRating ?: "")
                             HorizontalPager(
                                 state = creatorReviewPagerState,
                                 contentPadding = PaddingValues(end = 54.dp),
@@ -424,7 +456,7 @@ fun ItemDetailScreen(
                     Box(modifier = Modifier.height(100.dp))
                 }
             }
-            val uriHandler = LocalUriHandler.current
+
             CustomButton(
                 text = if (itemDetailData.item.brand.isLaunched) {
                     "구매하기"
@@ -438,6 +470,25 @@ fun ItemDetailScreen(
                 } else {
                     uriHandler.openUri(itemDetailData.item.redirectUrl)
                 }
+            }
+        }
+
+        LaunchedEffect(key1 = itemDetailData.item.images) {
+            preloadImageList(context, itemDetailData.item.images)
+        }
+        LaunchedEffect(key1 = itemDetailData.detailImageUrls) {
+            itemDetailData.detailImageUrls.forEach {
+                val imageRequest = ImageRequest.Builder(context = context).run {
+                    data(it)
+                    target {
+                        with(density) {
+                            imageMinimumHeightList.add(it.minimumHeight.toDp())
+                        }
+                    }
+                    data(it)
+                    build()
+                }
+                context.imageLoader.enqueue(imageRequest)
             }
         }
 
@@ -465,20 +516,18 @@ fun ItemDetailImageView(
     pagerState: PagerState,
     imageUrlList: List<String>
 ) {
-    Box {
+    Box(
+        modifier = Modifier.animateContentSize()
+    ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
         ) { page ->
             AsyncImage(
                 model = imageUrlList[page],
                 contentDescription = "Detailed image description",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillWidth,
                 placeholder = previewPlaceHolder(id = R.drawable.product_item_test),
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -712,7 +761,9 @@ private fun CreatorReviewTitle(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 5.dp)
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 5.dp)
     ) {
         Text(
             text = "크리에이터 리뷰",
@@ -1037,7 +1088,7 @@ fun BusinessInformationTab(
                 contentDescription = null
             )
         }
-        if (isExpanded) {
+        AnimatedVisibility(visible = isExpanded) {
             content()
         }
     }

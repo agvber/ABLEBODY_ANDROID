@@ -1,5 +1,6 @@
 package com.smilehunter.ablebody.presentation.home.brand
 
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.smilehunter.ablebody.model.ErrorHandlerCode
@@ -13,7 +14,10 @@ fun NavGraphBuilder.addBrandScreen(
     onAlertButtonClick: () -> Unit,
     onBrandDetailRouteRequest: (Long, String) -> Unit,
 ) {
-    composable(route = NavigationItems.Brand.name) {
+    composable(
+        route = NavigationItems.Brand.name,
+        deepLinks = listOf(NavDeepLink("ablebody-app://ablebody.im/brand"))
+    ) {
         BrandRoute(
             onErrorRequest = onErrorRequest,
             onSearchBarClick = onSearchBarClick,

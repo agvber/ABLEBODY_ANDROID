@@ -2,12 +2,17 @@ package com.smilehunter.ablebody.presentation.main
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.presentation.brand_detail.addBrandDetailScreen
 import com.smilehunter.ablebody.presentation.brand_detail.navigateToBrandDetailScreen
 import com.smilehunter.ablebody.presentation.comment.addCommentScreen
@@ -57,7 +62,9 @@ fun MainNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeRoute
+        startDestination = HomeRoute,
+        enterTransition = { fadeIn(animationSpec = tween(500)) },
+        exitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
         addHomeGraph(
             isBottomBarShow = isBottomBarShow,
@@ -137,7 +144,7 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onErrorRequest = navController::navigateErrorHandlingScreen,
             onBackRequest = navController::popBackStack,
-            itemClick = { uri -> navController.navigate(deepLink = Uri.parse(uri)) }
+            itemClick = navController::navigateDeepLink
         )
 
         addBrandDetailScreen(
@@ -243,5 +250,14 @@ fun MainNavHost(
             isBottomBarShow = isBottomBarShow,
             onClick = recreateRequest
         )
+    }
+}
+
+private fun NavController.navigateDeepLink(uri: String) {
+    try {
+        navigate(deepLink = Uri.parse(uri))
+    } catch (e: Exception) {
+        navigateErrorHandlingScreen(ErrorHandlerCode.INTERNAL_SERVER_ERROR)
+        e.printStackTrace()
     }
 }

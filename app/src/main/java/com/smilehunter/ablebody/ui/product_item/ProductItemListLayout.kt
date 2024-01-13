@@ -3,8 +3,6 @@ package com.smilehunter.ablebody.ui.product_item
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +53,7 @@ import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheet
 import com.smilehunter.ablebody.ui.utils.ProductItemFilterBottomSheetItem
 import com.smilehunter.ablebody.ui.utils.RoundedCornerCategoryFilterTabItem
 import com.smilehunter.ablebody.ui.utils.RoundedCornerCategoryFilterTabRow
+import com.smilehunter.ablebody.utils.nonReplyClickable
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
@@ -191,12 +190,10 @@ fun ProductItemListLayout(
                         thumbnail = productPagingItems[index]?.imageURL,
                         isSingleImage = productPagingItems[index]?.isSingleImage ?: true,
                         modifier = Modifier
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = { productPagingItems[index]?.id?.let { itemClick(it) } }
-                            )
                             .animateItemPlacement()
+                            .nonReplyClickable {
+                                productPagingItems[index]?.id?.let { itemClick(it) }
+                            }
                     )
                 }
                 item(span = { GridItemSpan(2) }) {

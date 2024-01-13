@@ -36,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -101,6 +102,7 @@ import com.smilehunter.ablebody.utils.CalculateSportElapsedTime
 import com.smilehunter.ablebody.utils.CalculateUserElapsedTime
 import com.smilehunter.ablebody.utils.NonReplyIconButton
 import com.smilehunter.ablebody.utils.nonReplyClickable
+import com.smilehunter.ablebody.utils.preloadImageList
 import retrofit2.HttpException
 import java.text.NumberFormat
 import java.util.Locale
@@ -175,235 +177,240 @@ fun CreatorDetailScreen(
     productItemOnClick: (Long) -> Unit,
     creatorDetailUiState: CreatorDetailUiState,
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     Scaffold(
         topBar = { BackButtonTopBarLayout(onBackRequest = onBackRequest) }
     ) { paddingValue ->
-        if (creatorDetailUiState is CreatorDetailUiState.Success) {
-            val creatorDetailData = creatorDetailUiState.data
-            var isLiked by rememberSaveable { mutableStateOf(creatorDetailData.isLiked) }
-            var isBookmarked by rememberSaveable { mutableStateOf(creatorDetailData.bookmarked) }
+        if (creatorDetailUiState !is CreatorDetailUiState.Success) {
+            return@Scaffold
+        }
+        val creatorDetailData = creatorDetailUiState.data
+        var isLiked by rememberSaveable { mutableStateOf(creatorDetailData.isLiked) }
+        var isBookmarked by rememberSaveable { mutableStateOf(creatorDetailData.bookmarked) }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .padding(paddingValue)
-            ) {
-                item {
-                    CreatorInfo(
-                        profileRequest = { profileIconOnClick(creatorDetailData.userInfo.uid) },
-                        profileImageURL = creatorDetailData.userInfo.profileImageURL,
-                        name = creatorDetailData.userInfo.name ?: "",
-                        height = creatorDetailData.userInfo.height,
-                        weight = creatorDetailData.userInfo.weight,
-                        job = creatorDetailData.userInfo.job,
-                        elapsedTime = creatorDetailData.elapsedTime
-                    )
-                    Box(modifier = Modifier.aspectRatio(3f / 4f)) {
-                        var visibleTag by rememberSaveable { mutableStateOf(false) }
-                        val pagerState = rememberPagerState(pageCount = { creatorDetailData.imageURLList.size })
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nonReplyClickable { visibleTag = !visibleTag }
-                        ) { pageIndex ->
-                            Box {
-                                CreatorDetailProductItemTagLayout(
-                                    imageContent = {
-                                        Box {
-                                            AsyncImage(
-                                                model = creatorDetailData.imageURLList[pageIndex],
-                                                contentDescription = null,
-                                                placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                            )
-                                        }
-                                    },
-                                    productTageContent = {
-                                        if (pageIndex == 0) {
-                                            val configuration = LocalConfiguration.current
-                                            val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
-
-                                            creatorDetailData.postItems.forEach {
-                                                val positionX = (screenWidthPx * it.xPosition).roundToInt()
-
-                                                AnimatedVisibility(
-                                                    visible = !visibleTag,
-                                                    enter = fadeIn(tween(700)),
-                                                    exit = fadeOut(tween(700)),
-                                                    modifier = Modifier
-                                                        .alpha(.85f)
-                                                ) {
-                                                    ProductItemTag(
-                                                        triangleLeft = positionX > (screenWidthPx / 2),
-                                                        productName = it.item.brand.name,
-                                                        productPrice = it.item.price,
-                                                        productSize = it.size,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
-                                    offsetList = creatorDetailData.postItems.map { Offset(it.xPosition.toFloat(), it.yPosition.toFloat()) }
-                                )
-                                if (pageIndex == 0) {
-                                    AnimatedVisibility(
-                                        visible = visibleTag,
-                                        enter = fadeIn(tween(700)),
-                                        exit = fadeOut(tween(700)),
-                                        modifier = Modifier
-                                            .align(Alignment.BottomStart)
-                                    ){
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_product_tag_white),
-                                            contentDescription = "tag icon",
-                                            tint = White,
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .padding(paddingValue)
+        ) {
+            item {
+                CreatorInfo(
+                    profileRequest = { profileIconOnClick(creatorDetailData.userInfo.uid) },
+                    profileImageURL = creatorDetailData.userInfo.profileImageURL,
+                    name = creatorDetailData.userInfo.name ?: "",
+                    height = creatorDetailData.userInfo.height,
+                    weight = creatorDetailData.userInfo.weight,
+                    job = creatorDetailData.userInfo.job,
+                    elapsedTime = creatorDetailData.elapsedTime
+                )
+                Box(modifier = Modifier.aspectRatio(3f / 4f)) {
+                    var visibleTag by rememberSaveable { mutableStateOf(false) }
+                    val pagerState = rememberPagerState(pageCount = { creatorDetailData.imageURLList.size })
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nonReplyClickable { visibleTag = !visibleTag }
+                    ) { pageIndex ->
+                        Box {
+                            CreatorDetailProductItemTagLayout(
+                                imageContent = {
+                                    Box {
+                                        AsyncImage(
+                                            model = creatorDetailData.imageURLList[pageIndex],
+                                            contentDescription = null,
+                                            placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
+                                            contentScale = ContentScale.Crop,
                                             modifier = Modifier
-                                                .padding(16.dp)
-                                                .size(26.dp)
+                                                .fillMaxSize()
                                         )
                                     }
-                                }
-                            }
-                        }
+                                },
+                                productTageContent = {
+                                    if (pageIndex == 0) {
+                                        val configuration = LocalConfiguration.current
+                                        val screenWidthPx = with(LocalDensity.current) { configuration.screenWidthDp.dp.toPx() }
 
-                        if (pagerState.pageCount > 1) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .padding(10.dp)
-                            ) {
-                                for (index in 0 until pagerState.pageCount) {
-                                    val color by animateColorAsState(
-                                        targetValue = if (pagerState.currentPage == index) AbleBlue else AbleLight
-                                    )
-                                    Canvas(modifier = Modifier.size(5.dp)) {
-                                        drawCircle(color = color)
+                                        creatorDetailData.postItems.forEach {
+                                            val positionX = (screenWidthPx * it.xPosition).roundToInt()
+
+                                            AnimatedVisibility(
+                                                visible = !visibleTag,
+                                                enter = fadeIn(tween(700)),
+                                                exit = fadeOut(tween(700)),
+                                                modifier = Modifier
+                                                    .alpha(.85f)
+                                            ) {
+                                                ProductItemTag(
+                                                    triangleLeft = positionX > (screenWidthPx / 2),
+                                                    productName = it.item.brand.name,
+                                                    productPrice = it.item.price,
+                                                    productSize = it.size,
+                                                )
+                                            }
+                                        }
                                     }
+                                },
+                                offsetList = creatorDetailData.postItems.map { Offset(it.xPosition.toFloat(), it.yPosition.toFloat()) }
+                            )
+                            if (pageIndex == 0) {
+                                AnimatedVisibility(
+                                    visible = visibleTag,
+                                    enter = fadeIn(tween(700)),
+                                    exit = fadeOut(tween(700)),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                ){
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_product_tag_white),
+                                        contentDescription = "tag icon",
+                                        tint = White,
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .size(26.dp)
+                                    )
                                 }
                             }
                         }
                     }
 
-                    CreatorActionLayout(
-                        likeButtonOnClick = { isLiked = !isLiked },
-                        goToCommentPage = { commentButtonOnClick(creatorDetailData.id) },
-                        goToLikeUsersPage = { likeCountButtonOnClick(creatorDetailData.id) },
-                        bookmarkButtonOnClick = { isBookmarked = !isBookmarked },
-                        likeCount = creatorDetailData.likes,
-                        commentCount = creatorDetailData.comments,
-                        isLiked = isLiked,
-                        isBookmarked = isBookmarked
-                    )
-
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        CreatorDescriptionLayout(
-                            experienceExercise = creatorDetailData.userInfo.experienceExerciseElapsedTime?.let { convertSportElapsedTimeToString(it) } ?: "",
-                            favoriteExercise = creatorDetailData.userInfo.favoriteExercise ?: ""
-                        )
-                        val uriHandler = LocalUriHandler.current
-                        if (!creatorDetailData.userInfo.instagramWebLink.isNullOrBlank()) {
-                            SNSShortcutButton(
-                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.instagramWebLink) },
-                                text = "${creatorDetailData.userInfo.name} 님의 인스타그램 바로 가기",
-                                textColor = Color(0xFF661FF5),
-                                backgroundColor = Color(0xFFF0E9FE),
-                                modifier = Modifier
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_instagram_logo),
-                                    contentDescription = "instagram icon",
-                                    modifier = Modifier.size(28.dp)
+                    if (pagerState.pageCount > 1) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(10.dp)
+                        ) {
+                            for (index in 0 until pagerState.pageCount) {
+                                val color by animateColorAsState(
+                                    targetValue = if (pagerState.currentPage == index) AbleBlue else AbleLight
                                 )
+                                Canvas(modifier = Modifier.size(5.dp)) {
+                                    drawCircle(color = color)
+                                }
                             }
                         }
-                        if (!creatorDetailData.userInfo.youtubeWebLink.isNullOrBlank()) {
-                            SNSShortcutButton(
-                                onClick = { uriHandler.openUri(creatorDetailData.userInfo.youtubeWebLink) },
-                                text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
-                                textColor = Color(0xFFEA3323),
-                                backgroundColor = Color(0xFFF0E9FE),
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_youtube_log),
-                                    contentDescription = "youtube icon",
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
-                        }
-                        Text(
-                            text = "크리에이터가 사용하는 제품들",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                                fontWeight = FontWeight(500),
-                                color = AbleDeep,
-                                textAlign = TextAlign.Right,
-                                platformStyle = PlatformTextStyle(includeFontPadding = false)
-                            ),
-                        )
                     }
                 }
-                itemsIndexed(items = creatorDetailData.postItems) { index, item ->
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        if (creatorDetailData.postItems.getOrNull(index - 1)?.category != item.category) {
-                            Text(
-                                text = convertItemCategoryToString(item.category),
-                                style = TextStyle(
-                                    fontSize = 16.sp,
-                                    fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
-                                    fontWeight = FontWeight(700),
-                                    color = AbleDeep,
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                                ),
-                                modifier = Modifier.padding(horizontal = 8.dp)
+
+                CreatorActionLayout(
+                    likeButtonOnClick = { isLiked = !isLiked },
+                    goToCommentPage = { commentButtonOnClick(creatorDetailData.id) },
+                    goToLikeUsersPage = { likeCountButtonOnClick(creatorDetailData.id) },
+                    bookmarkButtonOnClick = { isBookmarked = !isBookmarked },
+                    likeCount = creatorDetailData.likes,
+                    commentCount = creatorDetailData.comments,
+                    isLiked = isLiked,
+                    isBookmarked = isBookmarked
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    CreatorDescriptionLayout(
+                        experienceExercise = creatorDetailData.userInfo.experienceExerciseElapsedTime?.let { convertSportElapsedTimeToString(it) } ?: "",
+                        favoriteExercise = creatorDetailData.userInfo.favoriteExercise ?: ""
+                    )
+                    val uriHandler = LocalUriHandler.current
+                    if (!creatorDetailData.userInfo.instagramWebLink.isNullOrBlank()) {
+                        SNSShortcutButton(
+                            onClick = { uriHandler.openUri(creatorDetailData.userInfo.instagramWebLink) },
+                            text = "${creatorDetailData.userInfo.name} 님의 인스타그램 바로 가기",
+                            textColor = Color(0xFF661FF5),
+                            backgroundColor = Color(0xFFF0E9FE),
+                            modifier = Modifier
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_instagram_logo),
+                                contentDescription = "instagram icon",
+                                modifier = Modifier.size(28.dp)
                             )
                         }
-                        CreatorProductItem(
-                            title = item.item.brand.name,
-                            content = item.item.name,
-                            imageURL = item.item.imageURLList[0],
-                            itemSize = item.size,
-                            price = item.item.price,
-                            salePrice = item.item.salePrice,
-                            salePercentage = item.item.salePercentage,
-                            isReview = item.hasReview,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(size = 15.dp))
-                                .clickable { productItemOnClick(item.id) },
-                        )
                     }
-                }
-                item {
-                    Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
+                    if (!creatorDetailData.userInfo.youtubeWebLink.isNullOrBlank()) {
+                        SNSShortcutButton(
+                            onClick = { uriHandler.openUri(creatorDetailData.userInfo.youtubeWebLink) },
+                            text = "${creatorDetailData.userInfo.name} 님의 유튜브 채널 바로 가기",
+                            textColor = Color(0xFFEA3323),
+                            backgroundColor = Color(0xFFF0E9FE),
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_youtube_log),
+                                contentDescription = "youtube icon",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                    Text(
+                        text = "크리에이터가 사용하는 제품들",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                            fontWeight = FontWeight(500),
+                            color = AbleDeep,
+                            textAlign = TextAlign.Right,
+                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                        ),
+                    )
                 }
             }
-            val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
-            DisposableEffect(key1 = lifecycleOwner) {
-                val observer = LifecycleEventObserver { owner, event ->
-                    if (event == Lifecycle.Event.ON_STOP) {
-                        if (creatorDetailData.isLiked != isLiked) {
-                            likeButtonOnClick(creatorDetailData.id)
-                        }
-                        if (creatorDetailData.bookmarked != isBookmarked) {
-                            bookmarkButtonOnClick(creatorDetailData.id, creatorDetailData.bookmarked)
-                        }
+            itemsIndexed(items = creatorDetailData.postItems) { index, item ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    if (creatorDetailData.postItems.getOrNull(index - 1)?.category != item.category) {
+                        Text(
+                            text = convertItemCategoryToString(item.category),
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_bold)),
+                                fontWeight = FontWeight(700),
+                                color = AbleDeep,
+                                platformStyle = PlatformTextStyle(includeFontPadding = false)
+                            ),
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                    }
+                    CreatorProductItem(
+                        title = item.item.brand.name,
+                        content = item.item.name,
+                        imageURL = item.item.imageURLList[0],
+                        itemSize = item.size,
+                        price = item.item.price,
+                        salePrice = item.item.salePrice,
+                        salePercentage = item.item.salePercentage,
+                        isReview = item.hasReview,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(size = 15.dp))
+                            .clickable { productItemOnClick(item.id) },
+                    )
+                }
+            }
+            item {
+                Box(modifier = Modifier.padding(LocalMainScaffoldPaddingValue.current))
+            }
+        }
+        LaunchedEffect(key1 = creatorDetailData.imageURLList) {
+            preloadImageList(context, creatorDetailData.imageURLList)
+        }
+        DisposableEffect(key1 = lifecycleOwner) {
+            val observer = LifecycleEventObserver { owner, event ->
+                if (event == Lifecycle.Event.ON_STOP) {
+                    if (creatorDetailData.isLiked != isLiked) {
+                        likeButtonOnClick(creatorDetailData.id)
+                    }
+                    if (creatorDetailData.bookmarked != isBookmarked) {
+                        bookmarkButtonOnClick(creatorDetailData.id, creatorDetailData.bookmarked)
                     }
                 }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose {
-                    lifecycleOwner.lifecycle.removeObserver(observer)
-                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         }
     }
