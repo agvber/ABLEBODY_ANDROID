@@ -23,6 +23,7 @@ fun NavController.navigateToEditProfileGraph(
 }
 
 fun NavGraphBuilder.addEditProfileGraph(
+    isBottomBarShow: (Boolean) -> Unit,
     onBackRequest: () -> Unit,
     defaultImageSelectableViewRequest: () -> Unit,
     nestedGraph: NavGraphBuilder.() -> Unit,
@@ -50,6 +51,7 @@ fun NavGraphBuilder.addEditProfileGraph(
                 defaultImageSelectableViewRequest = defaultImageSelectableViewRequest,
                 selectedProfileImageNumber = selectedProfileImageNumber
             )
+            isBottomBarShow(false)
         }
 
         nestedGraph()
@@ -73,6 +75,7 @@ fun NavController.selectProfileImageForResult(
 
 
 fun NavGraphBuilder.addSelectProfileImageScreen(
+    isBottomBarShow: (Boolean) -> Unit,
     onBackRequest: () -> Unit,
     confirmButtonClick: (Int) -> Unit
 ) {
@@ -82,5 +85,6 @@ fun NavGraphBuilder.addSelectProfileImageScreen(
             onBackRequest = onBackRequest,
             confirmButtonClick = confirmButtonClick
         )
+        isBottomBarShow(false)
     }
 }
