@@ -24,9 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -48,7 +48,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,9 +58,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -75,6 +76,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,8 +85,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import coil.imageLoader
-import coil.request.ImageRequest
 import com.smilehunter.ablebody.R
 import com.smilehunter.ablebody.model.ErrorHandlerCode
 import com.smilehunter.ablebody.model.ItemDetailData
@@ -145,12 +145,6 @@ fun ItemDetailRoute(
     )
 }
 
-data class CollapseSize(
-    val index: Int,
-    val differentDp: Dp
-)
-
-
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ItemDetailScreen(
@@ -162,7 +156,6 @@ fun ItemDetailScreen(
     codyOnClick: (Long) -> Unit,
     itemDetailUiState: ItemDetailUiState
 ) {
-    val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -188,32 +181,9 @@ fun ItemDetailScreen(
             ItemPaymentBottomSheet(
                 onDismissRequest = { isItemPaymentBottomSheetShow = false },
                 onItemPurchaseRequest = {
-                    val paymentPassthroughData = PaymentPassthroughData(
-                        deliveryPrice = itemDetailData.item.deliveryFee?.toInt() ?: 3000,
-                        items = listOf(
-                            PaymentPassthroughData.Item(
-                                itemID = itemDetailData.id,
-                                brandName = itemDetailData.item.brand.name,
-                                itemName = itemDetailData.item.name,
-                                price = itemDetailData.item.price,
-                                salePrice = itemDetailData.item.salePrice,
-                                salePercentage = itemDetailData.item.salePercentage,
-                                itemImageURL = itemDetailData.item.images[0],
-                                count = 1,
-                                options = selectOptionMap.map { (key, value) ->
-                                    PaymentPassthroughData.ItemOptions(
-                                        id = 0,
-                                        content = value,
-                                        options = when(key) {
-                                            ItemOption.SIZE -> PaymentPassthroughData.ItemOptions.Option.SIZE
-                                            ItemOption.COLOR -> PaymentPassthroughData.ItemOptions.Option.COLOR
-                                        }
-                                    )
-                                }
-                            )
-                        )
+                    purchaseOnClick(
+                        calculatorPaymentPassthroughData(itemDetailData, selectOptionMap)
                     )
-                    purchaseOnClick(paymentPassthroughData)
                 },
                 onItemOptionRequest = {
                     when (it) {
@@ -247,20 +217,6 @@ fun ItemDetailScreen(
             )
         }
 
-        val imageMinimumHeightList = remember { mutableStateListOf<Dp>() }
-        val collapseSize by remember(imageMinimumHeightList) {
-            derivedStateOf {
-                var result = 0.dp
-                imageMinimumHeightList.forEachIndexed { index, dp ->
-                    result += dp
-                    if (result > 1100.dp) {
-                        return@derivedStateOf CollapseSize(index, result - 1100.dp)
-                    }
-                }
-                CollapseSize(imageMinimumHeightList.size, 0.dp)
-            }
-        }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -268,9 +224,6 @@ fun ItemDetailScreen(
         ) {
             val lazyGridState = rememberLazyGridState()
             val lazyVerticalGridContentHorizontalPadding = with(density) { 16.dp.roundToPx() }
-
-            var isExpanded by rememberSaveable { mutableStateOf(false) }
-            var collapseOffset by rememberSaveable { mutableIntStateOf(0) }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
@@ -309,45 +262,14 @@ fun ItemDetailScreen(
                     }
                 }
 
-                itemsIndexed(
-                    items = itemDetailData.detailImageUrls,
-                    key = { index, url -> index },
-                    span = { index, url -> GridItemSpan(this.maxLineSpan) },
-                ) { index, url ->
-                    AnimatedVisibility(
-                         collapseSize.index > index || isExpanded
+                if (itemDetailData.detailImageUrls.isNotEmpty()) {
+                    item(
+                        span = { GridItemSpan(this.maxLineSpan) }
                     ) {
-                        Box {
-                            AsyncImage(
-                                model = url,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height {
-                                        if (collapseSize.index - 1 == index && !isExpanded) {
-                                            return@height collapseSize.differentDp
-                                        }
-                                        null
-                                    }
-                                    .animateContentSize()
-                            )
-                        }
-                    }
-                }
-
-                item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    if (itemDetailData.detailImageUrls.size > 3) {
-                        ImageControlBar(
-                            onClick = {
-                                isExpanded = !isExpanded
-                                if (!isExpanded) {
-                                    scope.launch { lazyGridState.animateScrollToItem(2, collapseOffset) }
-                                } else {
-                                    collapseOffset = lazyGridState.firstVisibleItemScrollOffset
-                                }
-                            },
-                            isExpanded = isExpanded
+                        ItemDetailImageList(
+                            density = density,
+                            state = lazyGridState,
+                            imageUrlList = itemDetailData.detailImageUrls
                         )
                     }
                 }
@@ -475,21 +397,7 @@ fun ItemDetailScreen(
 
         LaunchedEffect(key1 = itemDetailData.item.images) {
             preloadImageList(context, itemDetailData.item.images)
-        }
-        LaunchedEffect(key1 = itemDetailData.detailImageUrls) {
-            itemDetailData.detailImageUrls.forEach {
-                val imageRequest = ImageRequest.Builder(context = context).run {
-                    data(it)
-                    target {
-                        with(density) {
-                            imageMinimumHeightList.add(it.minimumHeight.toDp())
-                        }
-                    }
-                    data(it)
-                    build()
-                }
-                context.imageLoader.enqueue(imageRequest)
-            }
+            preloadImageList(context, itemDetailData.detailImageUrls)
         }
 
         val lifecycleOwner by rememberUpdatedState(newValue = LocalLifecycleOwner.current)
@@ -509,6 +417,35 @@ fun ItemDetailScreen(
         }
     }
 }
+
+private fun calculatorPaymentPassthroughData(
+    itemDetailData: ItemDetailData,
+    selectOptionMap: Map<ItemOption, String>
+) = PaymentPassthroughData(
+    deliveryPrice = itemDetailData.item.deliveryFee?.toInt() ?: 3000,
+    items = listOf(
+        PaymentPassthroughData.Item(
+            itemID = itemDetailData.id,
+            brandName = itemDetailData.item.brand.name,
+            itemName = itemDetailData.item.name,
+            price = itemDetailData.item.price,
+            salePrice = itemDetailData.item.salePrice,
+            salePercentage = itemDetailData.item.salePercentage,
+            itemImageURL = itemDetailData.item.images[0],
+            count = 1,
+            options = selectOptionMap.map { (key, value) ->
+                PaymentPassthroughData.ItemOptions(
+                    id = 0,
+                    content = value,
+                    options = when(key) {
+                        ItemOption.SIZE -> PaymentPassthroughData.ItemOptions.Option.SIZE
+                        ItemOption.COLOR -> PaymentPassthroughData.ItemOptions.Option.COLOR
+                    }
+                )
+            }
+        )
+    )
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -696,13 +633,83 @@ fun ItemDetailProfile(
 }
 
 @Composable
+fun ItemDetailImageList(
+    density: Density,
+    state: LazyGridState,
+    imageUrlList: List<String>
+) {
+    val scope = rememberCoroutineScope()
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var collapseOffset by rememberSaveable { mutableIntStateOf(0) }
+    var height by remember { mutableStateOf(0.dp) }
+    Column {
+        Box(
+            modifier = Modifier.onGloballyPositioned {
+                with(density) {
+                    height = it.size.height.toDp()
+                }
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height {
+                        if (!isExpanded) {
+                            return@height 1350.dp
+                        }
+                        null
+                    }
+            ) {
+                imageUrlList.forEach { url ->
+                    AsyncImage(
+                        model = url,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize()
+                    )
+                }
+            }
+            if (height > 1350.dp && !isExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.White)
+                            )
+                        )
+                )
+            }
+        }
+        if (height > 1350.dp) {
+            ImageControlBar(
+                onClick = {
+                    isExpanded = !isExpanded
+                    if (!isExpanded) {
+                        scope.launch { state.animateScrollToItem(1, collapseOffset) }
+                    } else {
+                        collapseOffset = state.firstVisibleItemScrollOffset
+                    }
+                },
+                isExpanded = isExpanded,
+            )
+        }
+    }
+}
+
+@Composable
 fun ImageControlBar(
     onClick: () -> Unit,
-    isExpanded: Boolean
+    isExpanded: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .border(width = 1.dp, color = AbleBlue)
             .fillMaxWidth()
             .padding(start = 10.dp, top = 16.dp, end = 10.dp, bottom = 16.dp)
@@ -1438,7 +1445,10 @@ fun ItemDetailScreenPreview() {
             itemClick = {  },
             brandOnClick = { _, _ -> },
             codyOnClick = {  },
-            itemDetailUiState = ItemDetailUiState.Success(fakeItemDetailData)
+            itemDetailUiState = ItemDetailUiState.Success(
+                fakeItemDetailData.copy(detailImageUrls = emptyList()
+                )
+            )
         )
     }
 }
