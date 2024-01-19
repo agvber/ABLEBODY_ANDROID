@@ -274,8 +274,8 @@ fun ItemDetailScreen(
                     }
                 }
 
-                item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    if (itemDetailData.itemReviews.isNotEmpty()) {
+                if (itemDetailData.itemReviews.isNotEmpty()) {
+                    item(span = { GridItemSpan(this.maxLineSpan) }) {
                         val creatorReviewPagerState = rememberPagerState { itemDetailData.itemReviews.size }
 
                         Column(
@@ -310,36 +310,40 @@ fun ItemDetailScreen(
                     }
                 }
 
-                item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    Text(
-                        text = "이 제품을 착용한 크리에이터",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(500),
-                            fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
-                            platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            color = AbleDeep,
-                        ),
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                    )
-                }
+                if (itemDetailData.homePosts.isNotEmpty()) {
+                    item(
+                        span = { GridItemSpan(this.maxLineSpan) }
+                    ) {
+                        Text(
+                            text = "이 제품을 착용한 크리에이터",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(500),
+                                fontFamily = FontFamily(Font(R.font.noto_sans_cjk_kr_medium)),
+                                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                color = AbleDeep,
+                            ),
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                        )
+                    }
 
-                items(
-                    items = itemDetailData.homePosts,
-                    key = { item: ItemDetailData.HomePost -> item.id }
-                ) { homePosts ->
-                    AsyncImage(
-                        model = homePosts.imageURL,
-                        contentDescription = null,
-                        placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .animateContentSize()
-                            .nonReplyClickable {
-                                codyOnClick(homePosts.id)
-                            }
-                    )
+                    items(
+                        items = itemDetailData.homePosts,
+                        key = { item: ItemDetailData.HomePost -> item.id }
+                    ) { homePosts ->
+                        AsyncImage(
+                            model = homePosts.imageURL,
+                            contentDescription = null,
+                            placeholder = previewPlaceHolder(id = R.drawable.cody_item_test),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .animateContentSize()
+                                .nonReplyClickable {
+                                    codyOnClick(homePosts.id)
+                                }
+                        )
+                    }
                 }
 
                 item(span = { GridItemSpan(this.maxLineSpan) }) {
