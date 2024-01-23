@@ -1,4 +1,17 @@
 <resources>
-    <string name="app_name">ABLEBODY_Android</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name" translatable="false">애블바디</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="title_activity_login_input_phone_number_screen" translatable="false">LoginInputPhoneNumberScreen
+    </string>
+    <string name="title_activity_onboarding" translatable="false">OnboardingActivity</string>
+
+    <string name="male">남자</string>
+    <string name="female">여자</string>
+
+    <string name="brand_gender_filter_type_all">전체</string>
+    <string name="brand_order_filter_type_popularity">인기순</string>
+    <string name="brand_gender_filter_type_name">이름순</string>
+
+    <string name="cody_filter_type_sport">종목</string>
+    <string name="cody_filter_type_height">키</string>
 </resources>
